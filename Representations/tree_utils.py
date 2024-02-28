@@ -73,7 +73,7 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3): 
             The generated tree according to the specified parameters.
         """
 
-    if depth <= 1 or random.random() < 0.33: # TODO: why is this 0.33 here?
+    if depth <= 1 or random.random() < 0.33: # TODO: why is this 0.33 here? --> check if needs to be in grow
 
         # Choose a terminal node (input or constant)
         if random.random() > p_c:
@@ -240,7 +240,7 @@ def tree_pruning(tree, target_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c = 0.3)
            Dictionary of functions allowed in the tree.
 
        p_c : float, optional
-           Probability of choosing a function node. Default is 0.3.
+           Probability of choosing a constant node. Default is 0.3.
 
        Returns
        -------

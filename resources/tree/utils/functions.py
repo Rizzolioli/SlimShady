@@ -57,6 +57,9 @@ FUNCTIONS = {
     'sin' : {'function':torch.sin, 'arity':1},
     'cos' : {'function':torch.cos, 'arity':1},
 }
+
+"""
+
 TERMINALS = {
     'input_gen': lambda x1, x2, x3, x4, x5, x6, x7: x1,
     'input_fit_elite': lambda x1, x2, x3, x4, x5, x6, x7: x2,
@@ -66,13 +69,16 @@ TERMINALS = {
     'input_pop_size': lambda x1, x2, x3, x4, x5, x6, x7: x6,
     'input_fit_imp': lambda x1, x2, x3, x4, x5, x6, x7: x7,
 }
+"""
+
+TERMINALS = {f"x{i}": i for i in range(100)}
 
 CONSTANTS = {
-    'constant_2': lambda x1, x2, x3, x4, x5, x6, x7: torch.tensor(2).float(),
-    'constant_3': lambda x1, x2, x3, x4, x5, x6, x7: torch.tensor(3).float(),
-    'constant_4': lambda x1, x2, x3, x4, x5, x6, x7: torch.tensor(4).float(),
-    'constant_5': lambda x1, x2, x3, x4, x5, x6, x7: torch.tensor(5).float(),
-    'constant__1': lambda x1, x2, x3, x4, x5, x6, x7: torch.tensor(-1).float()
+    'constant_2': lambda x: torch.tensor(2).float(),
+    'constant_3': lambda x: torch.tensor(3).float(),
+    'constant_4': lambda x: torch.tensor(4).float(),
+    'constant_5': lambda x: torch.tensor(5).float(),
+    'constant__1': lambda x: torch.tensor(-1).float()
 }
 
 def scale_dataset(data_loader):

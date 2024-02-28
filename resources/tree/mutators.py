@@ -46,7 +46,7 @@ def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
         if FUNCTIONS[tree[0]]['arity'] == 2:
             node_to_mutate = np.random.randint(0, 3)  # 0: function node, 1: left subtree, 2: right subtree
         elif FUNCTIONS[tree[0]]['arity'] == 1:
-            node_to_mutate = np.random.randint(0, 2)
+            node_to_mutate = np.random.randint(0, 2) #
 
         inside_m = mutate_tree_node(max_depth - 1,  TERMINALS, CONSTANTS, FUNCTIONS, p_c)
 
