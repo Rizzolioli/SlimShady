@@ -101,7 +101,7 @@ class Tree:
             # if self.repr_ == '_':
             #     output = '_'
             if self.repr_ in list(self.TERMINALS.keys()):
-                output = inputs[self.TERMINALS[self.repr_]]
+                output = inputs[:, self.TERMINALS[self.repr_]]
 
                 return output
 

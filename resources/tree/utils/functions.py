@@ -48,7 +48,12 @@ def mean_(x1, x2):
 
 
 FUNCTIONS = {
-    'add': {'function': torch.add, 'arity':2},
+    'add': {'function': lambda x, y: torch.add(x,y), 'arity':2},
+
+}
+
+"""
+
     'subtract': {'function': torch.sub, 'arity':2},
     'multiply': {'function': torch.mul, 'arity':2},
     'divide': {'function': protected_div, 'arity':2},
@@ -56,10 +61,7 @@ FUNCTIONS = {
     'tan' : {'function':torch.tan, 'arity':1},
     'sin' : {'function':torch.sin, 'arity':1},
     'cos' : {'function':torch.cos, 'arity':1},
-}
-
-"""
-
+    
 TERMINALS = {
     'input_gen': lambda x1, x2, x3, x4, x5, x6, x7: x1,
     'input_fit_elite': lambda x1, x2, x3, x4, x5, x6, x7: x2,
@@ -71,7 +73,7 @@ TERMINALS = {
 }
 """
 
-TERMINALS = {f"x{i}": i for i in range(100)}
+TERMINALS = {f"x{i}": i for i in range(5)}
 
 CONSTANTS = {
     'constant_2': lambda x: torch.tensor(2).float(),
