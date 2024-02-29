@@ -49,18 +49,18 @@ def mean_(x1, x2):
 
 FUNCTIONS = {
     'add': {'function': lambda x, y: torch.add(x,y), 'arity':2},
-
+    'subtract': {'function': lambda x, y: torch.sub(x, y), 'arity':2},
+    'multiply': {'function': lambda x, y: torch.mul(x, y), 'arity':2},
+    'divide': {'function': lambda x, y: protected_div(x, y), 'arity':2},
+    'mean' : {'function': lambda x, y:  mean_(x, y), 'arity':2},
+    'tan' : {'function': lambda x: torch.tan(x), 'arity':1},
+    'sin' : {'function': lambda x: torch.sin(x), 'arity':1},
+'cos' : {'function':lambda x: torch.cos(x), 'arity':1},
 }
 
 """
 
-    'subtract': {'function': torch.sub, 'arity':2},
-    'multiply': {'function': torch.mul, 'arity':2},
-    'divide': {'function': protected_div, 'arity':2},
-    'mean' : {'function': mean_, 'arity':2},
-    'tan' : {'function':torch.tan, 'arity':1},
-    'sin' : {'function':torch.sin, 'arity':1},
-    'cos' : {'function':torch.cos, 'arity':1},
+
     
 TERMINALS = {
     'input_gen': lambda x1, x2, x3, x4, x5, x6, x7: x1,
