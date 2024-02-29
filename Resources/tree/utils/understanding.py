@@ -1,5 +1,5 @@
 from functions import FUNCTIONS, TERMINALS, CONSTANTS
-from Representations.tree import Tree
+from representations.tree import Tree
 from utils import create_full_random_tree, create_grow_random_tree
 import torch
 
