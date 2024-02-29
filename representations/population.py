@@ -30,5 +30,3 @@ class Population:
         [individual.evaluate(ffunction, X, y) for individual in self.pop]
 
         self.fit = [individual.fitness for individual in self.pop]
-
-        self.nodes = sum([individual.nodes for individual in self.pop])

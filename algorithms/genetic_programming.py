@@ -31,7 +31,6 @@ class GP:
 
         self.settings_dict = settings_dict
 
-
     def solve(self, n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, run_info=None,
               max_depth=None, max_=False, dataset_loader=None,
@@ -130,6 +129,7 @@ class GP:
                 while p1 == p2:
                     p1, p2 = self.selector(pop), self.selector(pop)
 
+                # choosing between crossover and mutation
                 if random.random() < self.p_c:
 
                     offs1, offs2 = self.crossover(p1.repr_, p2.repr_)

@@ -7,6 +7,47 @@ from copy import copy
 Taken from GPOL
 """
 
+def protected_div(x1, x2):
+    """ Implements the division protected against zero denominator
+
+    Performs division between x1 and x2. If x2 is (or has) zero(s), the
+    function returns the numerator's value(s).
+
+    Parameters
+    ----------
+    x1 : torch.Tensor
+        The numerator.
+    x2 : torch.Tensor
+        The denominator.
+
+    Returns
+    -------
+    torch.Tensor
+        Result of protected division between x1 and x2.
+    """
+    # if  torch.is_tensor(x2):
+
+    return torch.where(torch.abs(x2) > 0.001, torch.div(x1, x2), torch.tensor(1.0, dtype=x2.dtype, device=x2.device))
+
+    # else:
+    #     if x2 < 0:
+    #         return 0
+    #     else:
+    #
+    #         return x1/x2
+
+
+def mean_(x1, x2):
+    return torch.div(torch.add(x1, x2), 2)
+
+
+# def w_mean_(x1, x2):
+#
+#     r = random.random()
+#
+#     return torch.add(torch.mul(x1, r), torch.mul(x2, r))
+
+
 def train_test_split(X, y, p_test=0.3, shuffle=True, indices_only=False, seed=0):
     """ Splits X and y tensors into train and test subsets
 
