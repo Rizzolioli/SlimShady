@@ -12,7 +12,7 @@ from representations.tree_utils import tree_pruning, tree_depth
 class GP:
 
     def __init__(self, pi_init, initializer, selector, mutator, crossover,
-                 p_m=0.2, p_c=0.8, pop_size=100, seed=0,
+                 p_m=0.2, p_xo=0.8, pop_size=100, seed=0,
                  settings_dict=None):
 
         #other initial parameters, tipo dataset
@@ -21,7 +21,7 @@ class GP:
         self.p_m = p_m
         self.crossover = crossover
         self.mutator = mutator
-        self.p_c = p_c
+        self.p_xo = p_xo
         self.initializer = initializer
         self.pop_size = pop_size
         self.seed = seed
@@ -105,7 +105,7 @@ class GP:
 
                 offs_pop.append(self.elite)
 
-            while len(offs_pop) < pop.size:
+            while len(offs_pop) < self.pop_size:
 
                 p1, p2 = self.selector(pop), self.selector(pop)
 
@@ -113,7 +113,7 @@ class GP:
                     p1, p2 = self.selector(pop), self.selector(pop)
 
                 # choosing between crossover and mutation
-                if random.random() < self.p_c:
+                if random.random() < self.p_xo:
 
                     offs1, offs2 = self.crossover(p1.repr_, p2.repr_)
 

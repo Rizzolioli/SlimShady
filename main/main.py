@@ -12,51 +12,76 @@ from operators.selection_algorithms import tournament_selection_min
 import datasets.data_loader as ds
 from datasets.data_loader import *
 
+########################################################################################################################
+
+                                            # LOADING THE DATASETS
+
+########################################################################################################################
+
 # creating a list with the datasets that are to be benchmarked
-#datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump", "forest_fires", "efficiency_cooling", "diabetes", "parkinson_updrs", "efficiency_heating"]
+
+#datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump", "forest_fires", \
+# "efficiency_cooling", "diabetes", "parkinson_updrs", "efficiency_heating"]
+
 datas = ["ppb"]
 
 # obtaining the data loading functions using the dataset name
 data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
 
-# setting up the overall parameter dictionaries:
-settings_dict = {"p_test": 0.2}
+########################################################################################################################
 
+                                            # SETTING PARAMETERS
+
+########################################################################################################################
+
+# setting up the overall parameter dictionaries:
 n_runs = 30
 
-for loader in data_loaders:
+settings_dict = {"p_test": 0.2}
 
-    TERMINALS = get_terminals(loader)
+solve_parameters = {"elitism": True,
+                    "log": 1,
+                    "verbose": 1,
+                    "test_elite": True,
+                    "log_path": os.path.join(os.getcwd(), "log", "bla.csv"),
+                    "run_info": None,
+                    "max_depth": 17,
+                    "max_": False,
+                    "ffunction": rmse,
+                    "n_iter": 100
+                    }
 
-    pi_init = {'size': 25,
-               'depth': 8,
-               'FUNCTIONS': FUNCTIONS,
-               'TERMINALS': TERMINALS,
-               'CONSTANTS': CONSTANTS,
-               "p_c": 0.3}
-
-    GP_parameters = {"initializer": rhh,
+GP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min(2),
-                  "mutator": mutate_tree_subtree(pi_init['depth'], TERMINALS, CONSTANTS, FUNCTIONS, p_c=pi_init['p_c']),
                   "crossover": crossover_trees(FUNCTIONS),
-                  "p_m": 0.2,
-                  "p_c": 0.8,
+                  "p_xo": 0,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
-
     }
+GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
-    solve_parameters = {"elitism": True,
-                        "log": 1,
-                        "verbose": 1,
-                        "test_elite": True,
-                        "log_path": os.path.join(os.getcwd(), "log","bla.csv"),
-                        "run_info": None,
-                        "max_depth": 17,
-                        "max_": False,
-                        "ffunction": rmse,
-                        "n_iter": 100
-                        }
+pi_init = {'size': GP_parameters["pop_size"],
+           'depth': 8,
+           'FUNCTIONS': FUNCTIONS,
+           'CONSTANTS': CONSTANTS,
+           "p_c": 0.3}
+
+########################################################################################################################
+
+                                            # RUNNING THE ALGORITHM & DEFINING
+                                            #    DATA-DEPENDANT PARAMETERS
+
+########################################################################################################################
+
+# for each dataset
+for loader in data_loaders:
+
+    # determine the terminals and the terminal=dependent parameters
+    TERMINALS = get_terminals(loader)
+
+    pi_init["TERMINALS"] = TERMINALS
+
+    GP_parameters["mutator"] = mutate_tree_subtree(pi_init['depth'], TERMINALS, CONSTANTS, FUNCTIONS, p_c=pi_init['p_c'])
 
     for seed in range(n_runs):
         optimizer = GP(pi_init=pi_init, **GP_parameters, seed=seed)
