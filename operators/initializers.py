@@ -2,7 +2,7 @@ from representations.tree_utils import create_full_random_tree, create_grow_rand
 from representations.tree import Tree
 
 
-def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3):
+def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, seed=0):
     """
        Generates a list of individuals with random trees for a GM4OS population using the Grow method.
 
@@ -42,7 +42,7 @@ def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3):
               for _ in range(2, size+1)]
 
 
-def full(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,  p_c = 0.3):
+def full(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,  p_c=0.3):
     """
            Generates a list of individuals with random trees for a GM4OS population using the Full method.
 
