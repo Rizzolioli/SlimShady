@@ -1,6 +1,7 @@
 import numpy as np
 import random
-from tree.utils.utils import create_grow_random_tree, substitute_subtree, random_subtree, tree_depth
+from algorithms.GP.representations.tree_utils import create_grow_random_tree, substitute_subtree, random_subtree
+
 
 # Function to perform mutation on a tree.
 def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
@@ -22,7 +23,7 @@ def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
             Dictionary of functions allowed in the tree.
 
         p_c : float
-            Probability of choosing a function node for mutation.
+            Probability of choosing a constant node for mutation.
 
         Returns
         -------
@@ -54,7 +55,7 @@ def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
             # Mutate the function node
             new_function = np.random.choice(list(FUNCTIONS.keys()))
             it = 0
-            while FUNCTIONS[tree[0]]['arity'] !=  FUNCTIONS[new_function]['arity'] or tree[0] == new_function:
+            while FUNCTIONS[tree[0]]['arity'] != FUNCTIONS[new_function]['arity'] or tree[0] == new_function:
                 new_function = np.random.choice(list(FUNCTIONS.keys()))
                 it += 1
                 if it >= 10:
@@ -81,8 +82,9 @@ def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
 
     return m_tn
 
+
 # Function to perform crossover between two trees.
-def mutate_tree_subtree(TERMINALS, CONSTANTS, FUNCTIONS):
+def mutate_tree_subtree(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
     """
         Generates a function for performing subtree mutation between two trees.
 
@@ -100,15 +102,13 @@ def mutate_tree_subtree(TERMINALS, CONSTANTS, FUNCTIONS):
     def inner_mut(tree1):
 
 
-        tree2 = create_grow_random_tree(tree_depth(tree1, FUNCTIONS), FUNCTIONS, TERMINALS, CONSTANTS)
-        if isinstance(tree1, tuple) and isinstance(tree2, tuple):
+        if isinstance(tree1, tuple):
             # Randomly select crossover points in both trees
             crossover_point_tree1 = random_subtree(tree1, FUNCTIONS)
-            crossover_point_tree2 = random_subtree(tree2, FUNCTIONS)
+            crossover_point_tree2 = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=p_c)
 
             # Swap subtrees at the crossover points
             new_tree1 = substitute_subtree(tree1, crossover_point_tree1, crossover_point_tree2, FUNCTIONS)
-
 
             return new_tree1
         else:
