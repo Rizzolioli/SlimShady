@@ -127,7 +127,6 @@ def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
         tuple
             The generated full tree based on the specified parameters.
         """
-
     if depth <= 1:
         # Choose a terminal node (input or constant)
         if random.random() > p_c:
