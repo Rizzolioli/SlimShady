@@ -74,7 +74,7 @@ class GP:
 
         if log != 0:
             if run_info != None:
-                run_info.append(curr_dataset)
+                run_info.append(curr_dataset.split("load_")[-1])
 
             if max_:
                 logger(log_path, 0, max(pop.fit), end-start, float(pop.nodes_count),
@@ -87,9 +87,9 @@ class GP:
 
         if verbose != 0:
             if max_:
-                verbose_reporter(curr_dataset, 0, max(pop.fit), self.elite.test_fitness, end-start, pop.nodes_count)
+                verbose_reporter(curr_dataset.split("load_")[-1], 0, max(pop.fit), self.elite.test_fitness, end-start, pop.nodes_count)
             else:
-                verbose_reporter(curr_dataset, 0, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+                verbose_reporter(curr_dataset.split("load_")[-1], 0, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
 
         ################################################################################################################
 
@@ -161,7 +161,7 @@ class GP:
             if log != 0:
 
                 if run_info != None:
-                    run_info[-1] = curr_dataset
+                    run_info[-1] = curr_dataset.split("load_")[-1]
 
                 if max_:
                     logger(log_path, it, max(pop.fit), end - start, float(pop.nodes_count),
@@ -174,10 +174,10 @@ class GP:
 
             if verbose != 0:
                 if run_info != None:
-                    run_info[-1] = curr_dataset
+                    run_info[-1] = curr_dataset.split("load_")[-1]
 
                 if max_:
-                    verbose_reporter(curr_dataset, it, max(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+                    verbose_reporter(curr_dataset.split("load_")[-1], it, max(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
                 else:
-                    verbose_reporter(curr_dataset, it, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+                    verbose_reporter(curr_dataset.split("load_")[-1], it, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
 

@@ -105,6 +105,11 @@ def train_test_split(X, y, p_test=0.3, shuffle=True, indices_only=False, seed=0)
     import csv
     from copy import copy
 
+"""
+
+Not taken from GPOL
+
+"""
 def verbose_reporter(dataset, generation, pop_val_fitness, pop_test_fitness, timing, nodes):
     """
         Prints a formatted report of generation, fitness values, timing, and node count.
@@ -208,3 +213,7 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
             infos.extend([float(pop_test_report)])
 
         writer.writerow(infos)
+
+def get_terminals(data_loader):
+    TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
+    return TERMINALS

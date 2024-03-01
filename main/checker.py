@@ -1,4 +1,4 @@
-from problem_instance import FUNCTIONS, get_terminals, CONSTANTS
+from parametrization import FUNCTIONS, get_terminals, CONSTANTS
 from representations.tree import Tree
 from representations.tree_utils import create_full_random_tree, create_grow_random_tree
 import torch
