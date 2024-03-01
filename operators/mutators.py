@@ -83,7 +83,7 @@ def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
 
 
 # Function to perform crossover between two trees.
-def mutate_tree_subtree(TERMINALS, CONSTANTS, FUNCTIONS):
+def mutate_tree_subtree(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
     """
         Generates a function for performing subtree mutation between two trees.
 
@@ -100,7 +100,7 @@ def mutate_tree_subtree(TERMINALS, CONSTANTS, FUNCTIONS):
 
     def inner_mut(tree1):
 
-        tree2 = create_grow_random_tree(tree_depth(tree1, FUNCTIONS), FUNCTIONS, TERMINALS, CONSTANTS)
+        tree2 = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=p_c)
         if isinstance(tree1, tuple) and isinstance(tree2, tuple):
             # Randomly select crossover points in both trees
             crossover_point_tree1 = random_subtree(tree1, FUNCTIONS)

@@ -73,7 +73,12 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
             The generated tree according to the specified parameters.
         """
 
-    if depth <= 1 or random.random() < 0.33: # TODO: why is this 0.33 here? --> check if needs to be in grow
+    num_functions = len(list(FUNCTIONS.keys()))
+    num_constants = len(list(CONSTANTS.keys()))
+    num_terminals = len(list(TERMINALS.keys()))
+    p_t = (num_terminals + num_constants) / (num_terminals + num_constants + num_functions)
+
+    if depth <= 1 or random.random() < p_t:
 
         # Choose a terminal node (input or constant)
         if random.random() > p_c:
@@ -85,12 +90,12 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
         node = np.random.choice(list(FUNCTIONS.keys()))
         if FUNCTIONS[node]['arity'] == 2:
             # Recursively create left and right subtrees
-            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
-            right_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
+            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
+            right_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
             node = (node, left_subtree, right_subtree)
         else:
             # Recursively create left and right subtrees
-            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
+            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
             node = (node, left_subtree)
 
     return node
