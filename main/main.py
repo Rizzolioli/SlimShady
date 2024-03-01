@@ -20,10 +20,10 @@ from datasets.data_loader import *
 
 # creating a list with the datasets that are to be benchmarked
 
-#datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump", "forest_fires", \
-# "efficiency_cooling", "diabetes", "parkinson_updrs", "efficiency_heating"]
+datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump", "forest_fires", \
+"efficiency_cooling", "diabetes", "parkinson_updrs", "efficiency_heating"]
 
-datas = ["ppb"]
+# datas = ["ppb"]
 
 # obtaining the data loading functions using the dataset name
 data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
