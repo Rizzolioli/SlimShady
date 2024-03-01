@@ -1,6 +1,7 @@
 import numpy as np
 import random
-from representations.tree_utils import create_grow_random_tree, substitute_subtree, random_subtree, tree_depth
+from algorithms.GP.representations.tree_utils import create_grow_random_tree, substitute_subtree, random_subtree
+
 
 # Function to perform mutation on a tree.
 def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):

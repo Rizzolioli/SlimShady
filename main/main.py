@@ -1,14 +1,8 @@
-import logging
-import os
-import torch
-
 from parametrization import *
-from algorithms.gp import GP
-from operators.mutators import mutate_tree_subtree
+from algorithms.GP.gp import GP
+from algorithms.GP.operators.mutators import mutate_tree_subtree
 import datasets.data_loader as ds
 from utils.utils import get_terminals
-from uuid import uuid4
-
 
 ########################################################################################################################
 

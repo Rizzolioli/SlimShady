@@ -1,6 +1,6 @@
 from functions import FUNCTIONS, TERMINALS, CONSTANTS
-from representations.tree import Tree
-from utils import create_full_random_tree, create_grow_random_tree
+from algorithms.GP.representations.tree import Tree
+from utils import create_full_random_tree
 import torch
 
 tree = create_full_random_tree(2, FUNCTIONS, TERMINALS, CONSTANTS)

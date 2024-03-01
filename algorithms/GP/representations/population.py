@@ -1,4 +1,4 @@
-from representations.tree_utils import flatten
+from algorithms.GP.representations.tree_utils import flatten
 
 class Population:
 

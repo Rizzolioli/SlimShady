@@ -1,10 +1,7 @@
 from parametrization import FUNCTIONS, get_terminals, CONSTANTS
-from representations.tree import Tree
-from representations.tree_utils import create_full_random_tree, create_grow_random_tree
-import torch
+from algorithms.GP.representations.tree_utils import create_full_random_tree
 import datasets.data_loader as ds
-from operators.crossover_operators import *
-from operators.mutators import *
+from algorithms.GP.operators.crossover_operators import *
 
 datas = ["ppb"]
 

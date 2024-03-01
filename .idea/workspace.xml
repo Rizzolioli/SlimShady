@@ -5,9 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/gp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resources/tree/utils/understanding.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/tree/utils/understanding.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/gp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/checker.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/log/logger.csv" beforeDir="false" afterPath="$PROJECT_DIR$/main/log/logger.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/operators/crossover_operators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/crossover_operators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/operators/initializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/initializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/mutators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/operators/selection_algorithms.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/selection_algorithms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/representations/population.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/population.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/representations/tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/tree.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/representations/tree_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/tree_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +121,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "resource-adaptation",
-    "last_opened_file_path": "C:/Users/lrosenfeld/Desktop/CODE/SlimShady/SlimShady",
+    "last_opened_file_path": "/Users/jimmy/Documents/Refresh/SLIMSHADY/SlimShady",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -123,7 +136,6 @@
   <component name="RunManager" selected="Python.main (1)">
     <configuration name="checker" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -145,7 +157,6 @@
     </configuration>
     <configuration name="main (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -167,7 +178,6 @@
     </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -189,7 +199,6 @@
     </configuration>
     <configuration name="tree" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -211,7 +220,6 @@
     </configuration>
     <configuration name="understanding" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -300,7 +308,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main/checker.py</url>
-          <line>21</line>
+          <line>18</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>

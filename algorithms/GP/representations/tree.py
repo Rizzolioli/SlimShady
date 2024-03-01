@@ -1,4 +1,4 @@
-from representations.tree_utils import bound_value
+from algorithms.GP.representations.tree_utils import bound_value
 class Tree:
 
     """

@@ -1,4 +1,4 @@
-from representations.tree_utils import random_subtree, substitute_subtree
+from algorithms.GP.representations.tree_utils import random_subtree, substitute_subtree
 
 # Function to perform crossover between two trees.
 def crossover_trees(FUNCTIONS):

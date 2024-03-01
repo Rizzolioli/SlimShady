@@ -1,11 +1,10 @@
-import torch
 from utils.utils import protected_div, mean_
 
 
 from evaluators.fitness_functions import rmse
-from operators.initializers import rhh
-from operators.crossover_operators import crossover_trees
-from operators.selection_algorithms import tournament_selection_min
+from algorithms.GP.operators.initializers import rhh
+from algorithms.GP.operators.crossover_operators import crossover_trees
+from algorithms.GP.operators.selection_algorithms import tournament_selection_min
 from datasets.data_loader import *
 
 ########################################################################################################################
