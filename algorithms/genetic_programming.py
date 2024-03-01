@@ -36,6 +36,7 @@ class GP:
         # setting the seeds
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
+        random.seed(self.seed)
 
         start = time.time()
 

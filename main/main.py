@@ -1,16 +1,14 @@
 import logging
 import os
 import torch
+
 from problem_instance import FUNCTIONS, CONSTANTS, get_terminals
 from algorithms.genetic_programming import GP
 from evaluators.fitness_functions import rmse
 from operators.initializers import rhh
 from operators.crossover_operators import crossover_trees
 from operators.mutators import mutate_tree_node
-
 from operators.selection_algorithms import tournament_selection_min
-
-
 import datasets.data_loader as ds
 from datasets.data_loader import *
 
