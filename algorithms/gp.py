@@ -73,8 +73,6 @@ class GP:
             self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
         if log != 0:
-            if run_info != None:
-                run_info.append(curr_dataset.split("load_")[-1])
 
             if max_:
                 logger(log_path, 0, max(pop.fit), end-start, float(pop.nodes_count),
@@ -158,10 +156,6 @@ class GP:
                 self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
             if log != 0:
-
-                if run_info != None:
-                    run_info[-1] = curr_dataset.split("load_")[-1]
-
                 if max_:
                     logger(log_path, it, max(pop.fit), end - start, float(pop.nodes_count),
                            pop_test_report=[
@@ -172,11 +166,8 @@ class GP:
                            pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
             if verbose != 0:
-                if run_info != None:
-                    run_info[-1] = curr_dataset.split("load_")[-1]
-
                 if max_:
-                    verbose_reporter(curr_dataset.split("load_")[-1], it, max(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+                    verbose_reporter(run_info[-1], it, max(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
                 else:
-                    verbose_reporter(curr_dataset.split("load_")[-1], it, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+                    verbose_reporter(run_info[-1],it, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
 

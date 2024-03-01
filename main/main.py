@@ -51,7 +51,7 @@ for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo in algos:
         # adding the dataset name and algorithm name to the run info for the logger
-        solve_parameters['run_info'] = [algo]
+        solve_parameters['run_info'] = [algo, dataset]
 
         # running each dataset + algo configuration n_runs times
         for seed in range(n_runs):

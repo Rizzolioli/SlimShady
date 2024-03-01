@@ -5,14 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/algorithms/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/gp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/log/logger.csv" beforeDir="false" afterPath="$PROJECT_DIR$/main/log/logger.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/representations/tree_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/representations/tree_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -60,7 +60,6 @@ class Tree:
         self.depth = len(repr_)
         self.fitness = None
         self.test_fitness = None
-        self.validation_fitness = None
 
     # Function to evaluate a tree on input vectors x and y.
     def apply_tree(self, inputs):
