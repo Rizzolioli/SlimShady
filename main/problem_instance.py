@@ -12,9 +12,6 @@ FUNCTIONS = {
     'cos': {'function': lambda x: torch.cos(x), 'arity': 1},
 }
 
-# TODO: make this dataset dependent
-TERMINALS = {f"x{i}": i for i in range(5)}
-
 CONSTANTS = {
     'constant_2': lambda x: torch.tensor(2).float(),
     'constant_3': lambda x: torch.tensor(3).float(),
@@ -22,3 +19,8 @@ CONSTANTS = {
     'constant_5': lambda x: torch.tensor(5).float(),
     'constant__1': lambda x: torch.tensor(-1).float()
 }
+
+
+def get_terminals(data_loader):
+    TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
+    return TERMINALS

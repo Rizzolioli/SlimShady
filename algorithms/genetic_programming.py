@@ -11,20 +11,17 @@ from representations.tree_utils import tree_pruning, tree_depth
 
 class GP:
 
-    def __init__(self, pi_eval, pi_init, initializer, selector, mutator, crossover,
-                 p_m=0.2, p_c=0.8, pop_size=100, elitism=True, seed=0, pi_test=None,
+    def __init__(self, pi_init, initializer, selector, mutator, crossover,
+                 p_m=0.2, p_c=0.8, pop_size=100, seed=0,
                  settings_dict=None):
 
         #other initial parameters, tipo dataset
-        self.pi_eval = pi_eval #dictionary with all the parameters needed for evaluation
         self.pi_init = pi_init  # dictionary with all the parameters needed for evaluation
-        self.pi_test = pi_test
         self.selector = selector
         self.p_m = p_m
         self.crossover = crossover
         self.mutator = mutator
         self.p_c = p_c
-        self.elitism = elitism
         self.initializer = initializer
         self.pop_size = pop_size
         self.seed = seed
@@ -48,21 +45,8 @@ class GP:
         # getting the name of the dataset:
         curr_dataset = dataset_loader.__name__
 
-        # checking if a validation set is to be used
-        if self.settings_dict["p_val"] is not None:
-
-            # obtaining the % of the data that is dedicated to training
-            training_ratio = 1 - self.settings_dict["p_val"] - self.settings_dict["p_test"]
-
-            # Performs train/validation/test split
-            X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=1 - training_ratio, seed=self.seed)
-
-            X_val, x_test, y_val, y_test = train_test_split(X_test, y_test,
-                test_size=self.settings_dict["p_test"] / (self.settings_dict["p_test"] + self.settings_dict["p_val"]))
-
-        else:
-            # Performs train/test split
-            X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=self.settings_dict['p_test'], seed=self.seed)
+        # Performs train/test split
+        X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=self.settings_dict['p_test'], seed=self.seed)
 
         ################################################################################################################
 
@@ -83,11 +67,9 @@ class GP:
             self.elite = pop.pop[np.argmin(pop.fit)]
 
         # testing the elite on validation/testing, if applicable
-        # TODO: I assumed that if we dont want to evaluate on testing, we dont want on validation. yes?
+
         if test_elite:
             self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
-            if self.settings_dict["p_val"] is not None:
-                self.elite.evaluate(ffunction, X=X_val, y=y_val, validation=True)
 
         if log != 0:
             if run_info != None:
@@ -96,17 +78,17 @@ class GP:
             if max_:
                 logger(log_path, 0, max(pop.fit), end-start, float(pop.nodes_count),
                     pop_test_report = [float(self.elite.test_fitness),
-                                       ], run_info=run_info)
+                                       ], run_info=run_info, seed=self.seed)
 
             else:
                 logger(log_path, 0, min(pop.fit), end - start, float(pop.nodes_count),
-                       pop_test_report=float(self.elite.test_fitness), run_info=run_info)
+                       pop_test_report=float(self.elite.test_fitness), run_info=run_info, seed=self.seed)
 
         if verbose != 0:
             if max_:
-                verbose_reporter(curr_dataset, 0, max(pop.fit), self.elite.test_fitness, end-start, pop.nodes)
+                verbose_reporter(curr_dataset, 0, max(pop.fit), self.elite.test_fitness, end-start, pop.nodes_count)
             else:
-                verbose_reporter(curr_dataset, 0, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes)
+                verbose_reporter(curr_dataset, 0, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
 
         ################################################################################################################
 
@@ -174,8 +156,6 @@ class GP:
 
             if test_elite:
                 self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
-                if self.settings_dict["p_val"] is not None:
-                    self.elite.evaluate(ffunction, X=X_val, y=y_val, validation=True)
 
             if log != 0:
 
@@ -186,17 +166,17 @@ class GP:
                     logger(log_path, it, max(pop.fit), end - start, float(pop.nodes_count),
                            pop_test_report=[
                                        float(self.elite.test_fitness),
-                                       ], run_info=run_info)
+                                       ], run_info=run_info, seed=self.seed)
                 else:
                     logger(log_path, it, min(pop.fit), end - start, float(pop.nodes_count),
-                           pop_test_report=float(self.elite.test_fitness), run_info=run_info)
+                           pop_test_report=float(self.elite.test_fitness), run_info=run_info, seed=self.seed)
 
             if verbose != 0:
                 if run_info != None:
                     run_info[-1] = curr_dataset
 
                 if max_:
-                    verbose_reporter(curr_dataset, it, max(pop.fit), self.elite.test_fitness, end - start, pop.nodes)
+                    verbose_reporter(curr_dataset, it, max(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
                 else:
-                    verbose_reporter(curr_dataset, it, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes)
+                    verbose_reporter(curr_dataset, it, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
 
