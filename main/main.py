@@ -13,7 +13,7 @@ import datasets.data_loader as ds
 from datasets.data_loader import *
 
 # creating a list with the datasets that are to be benchmarked
-datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump" ,"concrete_slump",
+datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump",
             "forest_fires", "efficiency_cooling", "diabetes", "parkinson_updrs", "efficiency_heating"]
 
 # obtaining the data loading functions using the dataset name
@@ -58,4 +58,4 @@ for loader in data_loaders:
 
     for seed in [1, 2]:
         optimizer = GP(pi_init=pi_init, **GP_parameters, seed=seed)
-        optimizer.solve(dataset_loader=data_loaders[0], **solve_parameters)
+        optimizer.solve(dataset_loader=loader, **solve_parameters)

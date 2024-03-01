@@ -46,7 +46,7 @@ def flatten(data):
         yield data
 
 # Function to create a random grow tree.
-def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3): # TODO: make seeding work
+def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
     """
         Generates a random tree using the Grow method with a specified depth.
 
@@ -65,7 +65,7 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3): 
             Dictionary of constant values allowed in the tree.
 
         p_c : float, optional
-            Probability of choosing a function node. Default is 0.3.  # TODO: do you mean choosing a constant?
+            Probability of choosing a constant node. Default is 0.3.
 
         Returns
         -------
