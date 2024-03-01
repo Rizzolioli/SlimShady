@@ -13,13 +13,17 @@ data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_
 
 TERMINALS = get_terminals(data_loaders[0])
 
-tree1 = create_grow_random_tree(4, FUNCTIONS, TERMINALS, CONSTANTS)
+tree1 = create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS)
 tree2 = create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS)
 
 print(tree1)
 print(tree2)
 
-mutation = mutate_tree_subtree(4, TERMINALS, CONSTANTS, FUNCTIONS, 0.1)
-tree3 = mutation(tree2)
+# mutation = mutate_tree_subtree(4, TERMINALS, CONSTANTS, FUNCTIONS, 0.1)
+# tree3 = mutation(tree2)
+
+xo = crossover_trees(FUNCTIONS)
+tree3, tree4  = xo(tree1, tree2)
 
 print(tree3)
+print(tree4)

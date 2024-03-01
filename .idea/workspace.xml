@@ -8,8 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/checker.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/log/bla.csv" beforeDir="false" afterPath="$PROJECT_DIR$/main/log/bla.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/operators/mutators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/representations/tree_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/representations/tree_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +120,7 @@
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.checker">
+  <component name="RunManager" selected="Python.main (1)">
     <configuration name="checker" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -229,8 +228,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.checker" />
         <item itemvalue="Python.main (1)" />
+        <item itemvalue="Python.checker" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.understanding" />
         <item itemvalue="Python.tree" />
