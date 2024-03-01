@@ -170,6 +170,7 @@ def random_subtree(tree, FUNCTIONS, first_call = True):
         # Randomly choose to explore left or right or return the current subtree
         if FUNCTIONS[tree[0]]['arity'] == 2:
             if first_call:
+                # if it's the first time, 0 (the root node) cannot be returned
                 subtree_exploration = np.random.randint(1, 3)
             else:
                 subtree_exploration = np.random.randint(0, 3)

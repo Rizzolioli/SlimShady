@@ -78,12 +78,12 @@ class GP:
 
             if max_:
                 logger(log_path, 0, max(pop.fit), end-start, float(pop.nodes_count),
-                    pop_test_report = [float(self.elite.test_fitness),
+                    pop_test_report = [self.elite.test_fitness,
                                        ], run_info=run_info, seed=self.seed)
 
             else:
                 logger(log_path, 0, min(pop.fit), end - start, float(pop.nodes_count),
-                       pop_test_report=float(self.elite.test_fitness), run_info=run_info, seed=self.seed)
+                       pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
         if verbose != 0:
             if max_:
@@ -166,11 +166,11 @@ class GP:
                 if max_:
                     logger(log_path, it, max(pop.fit), end - start, float(pop.nodes_count),
                            pop_test_report=[
-                                       float(self.elite.test_fitness),
+                                       self.elite.test_fitness,
                                        ], run_info=run_info, seed=self.seed)
                 else:
                     logger(log_path, it, min(pop.fit), end - start, float(pop.nodes_count),
-                           pop_test_report=float(self.elite.test_fitness), run_info=run_info, seed=self.seed)
+                           pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
             if verbose != 0:
                 if run_info != None:

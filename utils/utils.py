@@ -130,7 +130,14 @@ def verbose_reporter(dataset, generation, pop_val_fitness, pop_test_fitness, tim
     digits_dataset = len(str(dataset))
     digits_generation = len(str(generation))
     digits_val_fit = len(str(float(pop_val_fitness)))
-    digits_test_fit = len(str(float(pop_test_fitness)))
+    if pop_test_fitness is not None:
+        digits_test_fit = len(str(float(pop_test_fitness)))
+        test_text_init = "|" + " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
+        test_text = " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
+    else:
+        digits_test_fit = 4
+        test_text_init = "|" + " " * 3 + "None" + " " * (23 - digits_test_fit) + "|"
+        test_text = " " * 3 + "None" + " " * (23 - digits_test_fit) + "|"
     digits_timing = len(str(timing))
     digits_nodes = len(str(nodes))
 
@@ -147,7 +154,7 @@ def verbose_reporter(dataset, generation, pop_val_fitness, pop_test_fitness, tim
               " " * 7 + str(generation) + " " * (7 - digits_generation) + "|"
               + " " * 3 + str(float(pop_val_fitness))
               + " " * (20 - digits_val_fit) +
-              "|" + " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|" +
+              test_text_init +
               " " * 3 + str(timing) + " " * (21 - digits_timing) + "|" +
               " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
     else:
@@ -155,8 +162,7 @@ def verbose_reporter(dataset, generation, pop_val_fitness, pop_test_fitness, tim
               " " * 7 + str(generation) + " " * (7 - digits_generation) + "|"
               + " " * 3 + str(float(pop_val_fitness))
               + " " * (20 - digits_val_fit) + "|"
-              + " " * 3 + str(float(pop_test_fitness)) + " " *
-              (23 - digits_test_fit) + "|" +
+              + test_text +
               " " * 3 + str(timing) + " " * (21 - digits_timing) + "|" +
               " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
 
@@ -195,9 +201,10 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
             infos.extend([seed, generation, float(pop_val_fitness), timing, nodes])
 
         else:
-            infos = [seed, generation, float(pop_val_fitness), timing]
+            infos = [seed, generation, float(pop_val_fitness), timing, nodes]
         if pop_test_report != None and isinstance(pop_test_report, list):
-            infos.extend(pop_test_report)
+            infos.extend(float(pop_test_report))
         elif pop_test_report != None:
-            infos.extend([pop_test_report])
+            infos.extend([float(pop_test_report)])
+
         writer.writerow(infos)
