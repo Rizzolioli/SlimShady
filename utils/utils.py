@@ -207,9 +207,7 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
 
         else:
             infos = [seed, generation, float(pop_val_fitness), timing, nodes]
-        if pop_test_report != None and isinstance(pop_test_report, list):
-            infos.extend(float(pop_test_report))
-        elif pop_test_report != None:
+        if pop_test_report != None:
             infos.extend([float(pop_test_report)])
 
         writer.writerow(infos)

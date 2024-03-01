@@ -46,7 +46,7 @@ def flatten(data):
         yield data
 
 # Function to create a random grow tree.
-def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call = True):
+def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True):
     """
         Generates a random tree using the Grow method with a specified depth.
 
