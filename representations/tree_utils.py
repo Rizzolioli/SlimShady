@@ -46,7 +46,7 @@ def flatten(data):
         yield data
 
 # Function to create a random grow tree.
-def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
+def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call = True):
     """
         Generates a random tree using the Grow method with a specified depth.
 
@@ -78,7 +78,7 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
     num_terminals = len(list(TERMINALS.keys()))
     p_t = (num_terminals + num_constants) / (num_terminals + num_constants + num_functions)
 
-    if depth <= 1 or random.random() < p_t:
+    if (depth <= 1 or random.random() < p_t) and not first_call:
 
         # Choose a terminal node (input or constant)
         if random.random() > p_c:
@@ -90,12 +90,12 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
         node = np.random.choice(list(FUNCTIONS.keys()))
         if FUNCTIONS[node]['arity'] == 2:
             # Recursively create left and right subtrees
-            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
-            right_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
+            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, first_call=False)
+            right_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, first_call=False)
             node = (node, left_subtree, right_subtree)
         else:
             # Recursively create left and right subtrees
-            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
+            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, first_call=False)
             node = (node, left_subtree)
 
     return node
