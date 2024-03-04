@@ -1,4 +1,10 @@
+
 *.idea/workspace.xml
 *.iml
 *.idea
 *.xml
+*.idea/misc.xml
+.idea/workspace.xml
+.idea/misc.xml
+.idea/SlimShady.iml
+*.idea/
