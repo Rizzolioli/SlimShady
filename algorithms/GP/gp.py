@@ -121,7 +121,7 @@ class GP:
 
                 if max_depth != None:
 
-                    if tree_depth(offs1, self.pi_init["FUNCTIONS"]) > max_depth:
+                    if tree_depth(offs1, self.pi_init["FUNCTIONS"]) > max_depth: #TODO change this to keep one of the parents instead ?? offs1 = p1 FASTER less DIVERSITY
 
                         offs1 = tree_pruning(offs1, max_depth,
                                                   self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"],

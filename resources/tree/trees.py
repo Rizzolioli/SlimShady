@@ -31,7 +31,7 @@ class Tree():
             Evaluates the tree on input vectors x and y.
 
         print_tree_representation(indent="")
-            Prints the tree representation with indentation.
+            Prints the tree representations with indentation.
         """
 
     def __init__(self, repr_, FUNCTIONS, TERMINALS, CONSTANTS):
@@ -117,12 +117,12 @@ class Tree():
     def print_tree_representation(self, indent=""):
 
         """
-                Prints the tree representation with indentation.
+                Prints the tree representations with indentation.
 
                 Parameters
                 ----------
                 indent : str, optional
-                    Indentation for tree structure representation.
+                    Indentation for tree structure representations.
         """
 
         if isinstance(self.repr_, tuple):  # If it's a function node

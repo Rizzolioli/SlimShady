@@ -1,7 +1,12 @@
-from parametrization import FUNCTIONS, get_terminals, CONSTANTS
+from parametrization import FUNCTIONS, CONSTANTS
+from utils.utils import get_terminals
 from algorithms.GP.representations.tree_utils import create_full_random_tree
 import datasets.data_loader as ds
-from algorithms.GP.operators.crossover_operators import *
+from algorithms.GSGP.representations.tree import Tree
+from algorithms.GSGP.operators.crossover_operators import *
+from algorithms.GSGP.operators.mutators import *
+from evaluators.fitness_functions import rmse
+from algorithms.GSGP.representations.population import Population
 
 datas = ["ppb"]
 
@@ -10,17 +15,44 @@ data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_
 
 TERMINALS = get_terminals(data_loaders[0])
 
-tree1 = create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS)
-tree2 = create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS)
+tree1 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS)
+tree2 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS)
+
+random_tree1 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS)
+random_tree2 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS)
+
+X, y = data_loaders[0](X_y = True)
+
+pop = Population([tree1, tree2, random_tree1, random_tree2])
+pop.calculate_semantics(X)
+pop.evaluate(rmse, y)
+
+tree1.calculate_semantics(X)
+tree2.calculate_semantics(X)
+random_tree1.calculate_semantics(X)
+random_tree2.calculate_semantics(X)
+
+tree1.calculate_semantics(X, testing = True)
+tree2.calculate_semantics(X, testing = True)
+random_tree1.calculate_semantics(X, testing = True)
+random_tree2.calculate_semantics(X, testing = True)
 
 print(tree1)
 print(tree2)
+print(random_tree1)
 
-# mutation = mutate_tree_subtree(4, TERMINALS, CONSTANTS, FUNCTIONS, 0.1)
-# tree3 = mutation(tree2)
+tree3 = Tree([geometric_crossover, tree1, tree2, random_tree1], tree1.FUNCTIONS, tree1.TERMINALS, tree1.CONSTANTS)
+tree3.calculate_semantics(X)
+tree3.calculate_semantics(X, testing=True)
 
-xo = crossover_trees(FUNCTIONS)
-tree3, tree4  = xo(tree1, tree2)
+ms = torch.arange(0.25, 5.25, 0.25, device='cpu')
 
-print(tree3)
-print(tree4)
+tree4 = Tree([geometric_mutation, tree1, tree2, random_tree1, ms[random.randint(0, len(ms) - 1)]], tree1.FUNCTIONS, tree1.TERMINALS, tree1.CONSTANTS)
+tree4.calculate_semantics(X)
+tree4.calculate_semantics(X, testing=True)
+
+pop = Population([tree1, tree2, tree3, tree4, random_tree1, random_tree2])
+
+pop.evaluate(rmse, y)
+
+
