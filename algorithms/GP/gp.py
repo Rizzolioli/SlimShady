@@ -56,7 +56,8 @@ class GP:
         ################################################################################################################
 
         # initializing the population
-        pop = Population(self.initializer(**self.pi_init))
+        pop = Population([Tree(tree,  self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
+                          for tree in self.initializer(**self.pi_init)])
         pop.evaluate(ffunction, X=X_train, y=y_train)
 
         end = time.time()

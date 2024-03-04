@@ -38,7 +38,7 @@ def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, seed=0):
            A list of Individual objects containing random trees and input sets based on the parameters provided.
        """
 
-    return [Tree(create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c), FUNCTIONS, TERMINALS, CONSTANTS)
+    return [create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
               for _ in range(2, size+1)]
 
 
@@ -78,7 +78,7 @@ def full(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,  p_c=0.3):
                A list of Individual objects containing random trees and input sets based on the parameters provided.
            """
 
-    return [Tree(create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c),  FUNCTIONS, TERMINALS, CONSTANTS)
+    return [create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
               for _ in range(2, size+1)]
 
 def rhh(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,p_c =0.3):
@@ -131,4 +131,4 @@ def rhh(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,p_c =0.3):
     while len(population) < size:
         population.append(create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c))
 
-    return [Tree(tree, FUNCTIONS, TERMINALS, CONSTANTS) for tree in population]
+    return population
