@@ -4,9 +4,9 @@ import torch
 import numpy as np
 
 from utils.utils import verbose_reporter, logger, train_test_split
-from representations.population import Population
-from representations.tree import Tree
-from representations.tree_utils import tree_pruning, tree_depth
+from algorithms.GP.representations.population import Population
+from algorithms.GP.representations.tree import Tree
+from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
 
 
 class GP:
