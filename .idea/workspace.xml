@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/representations/tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/Representations/tree.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/representations/tree_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/Representations/tree_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/tree/mutators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/population.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/tree/population.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/utils/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/tree/utils/functions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/tree/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resources/tree/utils/understanding.py" beforeDir="false" afterPath="$PROJECT_DIR$/resources/tree/utils/understanding.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/gp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/checker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/logger.csv" beforeDir="false" afterPath="$PROJECT_DIR$/main/log/logger.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/operators/crossover_operators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/crossover_operators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/operators/initializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/initializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/mutators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/operators/selection_algorithms.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/selection_algorithms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/representations/population.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/population.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/representations/tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/tree.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/representations/tree_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/tree_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +55,10 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="91" />
     <option name="y" value="25" />
@@ -101,10 +115,88 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.main (1).executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "resource-adaptation",
+    "last_opened_file_path": "/Users/jimmy/Documents/Refresh/SLIMSHADY/SlimShady",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Datasets/data" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
+    </key>
   </component>
-  <component name="RunManager" selected="Python.understanding">
+  <component name="RunManager" selected="Python.main (1)">
+    <configuration name="checker" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SlimShady" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/main" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/checker.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SlimShady" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/main" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SlimShady" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main\main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="tree" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -149,6 +241,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main (1)" />
+        <item itemvalue="Python.checker" />
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.understanding" />
         <item itemvalue="Python.tree" />
       </list>
@@ -157,17 +252,17 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-5a2391486177-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.13763.11" />
+        <option value="bundled-python-sdk-d68999036c7f-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.14475.56" />
       </set>
     </attachedChunks>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="false" />
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="49df40b3-d5fb-4e33-8981-9a97b863a0d2" name="Changes" comment="" />
+      <changelist id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="" />
       <created>1708627802378</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -207,6 +302,17 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main/checker.py</url>
+          <line>18</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/resources/tree/trees.py">

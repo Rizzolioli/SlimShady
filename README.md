@@ -1,4 +1,7 @@
 # SlimShady
 
+GP version 1. done
+
 Current TODO:
-    Liah - update tree/initialization/GP code and upload V1.0 of the code. 
+   Davide - first GSGP implementation based on tables 
+

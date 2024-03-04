@@ -1,4 +1,4 @@
-from Representations.tree_utils import bound_value
+from algorithms.GP.representations.tree_utils import bound_value
 class Tree:
 
     """
@@ -58,6 +58,8 @@ class Tree:
         self.TERMINALS = TERMINALS
         self.CONSTANTS = CONSTANTS
         self.depth = len(repr_)
+        self.fitness = None
+        self.test_fitness = None
 
     # Function to evaluate a tree on input vectors x and y.
     def apply_tree(self, inputs):
@@ -75,8 +77,6 @@ class Tree:
                 float
                     Output of the evaluated tree.
         """
-
-
 
         if isinstance(self.repr_, tuple):  # If it's a function node
             function_name = self.repr_[0]
@@ -101,7 +101,7 @@ class Tree:
             # if self.repr_ == '_':
             #     output = '_'
             if self.repr_ in list(self.TERMINALS.keys()):
-                output = inputs[self.TERMINALS[self.repr_]]
+                output = inputs[:, self.TERMINALS[self.repr_]]
 
                 return output
 
@@ -111,9 +111,34 @@ class Tree:
 
                 return output
 
-    def evaluate_tree(self, solver, std_params, test = False):
+    def evaluate(self, ffunction, X, y, testing=False, validation=False): # TODO: fix documentation
 
-        pass
+        """
+        evaluates the tree given a certain fitness function, input data(x) and target data (y)
+        Parameters
+        ----------
+        ffunction: function
+            fitness function to evaluate the individual
+        X: torch tensor
+            the input data (which can be training or testing)
+        y: torch tensor
+            the expected output (target) values
+
+        Returns
+        -------
+        None
+            attributes a fitness value to the tree
+        """
+        # obtaining the output of the tree from input data
+        preds = self.apply_tree(X)
+
+        # attributing the tree fitness
+        if testing:
+            self.test_fitness = ffunction(y, preds)
+        elif validation:
+            self.validation_fitness = ffunction(y, preds)
+        else:
+            self.fitness = ffunction(y, preds)
 
     def print_tree_representation(self, indent=""):
 
