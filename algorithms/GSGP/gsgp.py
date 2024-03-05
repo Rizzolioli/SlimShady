@@ -42,6 +42,8 @@ class GSGP:
 
         start = time.time()
 
+        # TODO move outisde the gsgp code
+
         # Loads the data via the dataset loader
         X, y = dataset_loader(X_y=True)
 
@@ -108,6 +110,7 @@ class GSGP:
 
         ################################################################################################################
 
+        #TODO add reconstruct bool
         ancestry = []
 
         for it in range(1, n_iter +1, 1):

@@ -2,6 +2,7 @@ from algorithms.GSGP.representations.tree_utils import apply_tree
 from algorithms.GP.representations.tree_utils import flatten
 
 class Tree:
+    #TODO add sigmoid
 
     def __init__(self, structure, FUNCTIONS, TERMINALS, CONSTANTS):
 
@@ -9,14 +10,17 @@ class Tree:
         self.FUNCTIONS = FUNCTIONS
         self.TERMINALS = TERMINALS
         self.CONSTANTS = CONSTANTS
+
         if isinstance(structure, tuple):
             self.depth = len(structure)
         else:
-            self.depth = sum([tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)])
+            self.depth = [max(tree.depth) + 1 for tree in self.structure[1:] if isinstance(tree, Tree)] #TODO not the sum, and put inside function
+
         if isinstance(structure, tuple):
             self.nodes = len(list(flatten(structure)))
         else:
-            self.nodes = sum([tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)])
+            self.nodes = sum([tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)] + [2]) #TODO not exactly the sum, and put inside function
+
         self.fitness = None
         self.test_fitness = None
 
