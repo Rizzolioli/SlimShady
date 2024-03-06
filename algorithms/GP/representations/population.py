@@ -1,11 +1,10 @@
-from algorithms.GP.representations.tree_utils import flatten
 
 class Population:
 
     def __init__(self, pop):
         self.pop = pop
         self.size = len(pop)
-        self.nodes_count = sum([len(list(flatten(ind.repr_))) for ind in pop])
+        self.nodes_count = sum([ind.node_count for ind in pop])
 
     def evaluate(self, ffunction, X, y):
 

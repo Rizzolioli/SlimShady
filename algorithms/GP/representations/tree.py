@@ -1,4 +1,6 @@
 from algorithms.GP.representations.tree_utils import bound_value
+from algorithms.GP.representations.tree_utils import flatten
+
 class Tree:
 
     """
@@ -60,7 +62,7 @@ class Tree:
         self.depth = len(repr_)
         self.fitness = None
         self.test_fitness = None
-
+        self.node_count = len(list(flatten(self.repr_)))
     # Function to evaluate a tree on input vectors x and y.
     def apply_tree(self, inputs):
 

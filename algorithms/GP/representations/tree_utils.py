@@ -148,7 +148,7 @@ def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
     return node
 
 # Helper function to select a random subtree from a tree.
-def random_subtree(tree, FUNCTIONS, first_call = True):
+def random_subtree(tree, FUNCTIONS, num_nodes, first_call = True):
     """
         Selects a random subtree from a given tree.
 
@@ -166,26 +166,33 @@ def random_subtree(tree, FUNCTIONS, first_call = True):
             The randomly selected subtree from the input tree.
         """
 
+    # defining the the probability for each node to be selected, not considering the root
+    node_probability = 1 / (num_nodes - 1)
+
     if isinstance(tree, tuple):
         # Randomly choose to explore left or right or return the current subtree
         if FUNCTIONS[tree[0]]['arity'] == 2:
             if first_call:
                 # if it's the first time, 0 (the root node) cannot be returned
-                subtree_exploration = np.random.randint(1, 3)
+                # normalizing the probability of choosing left or right based on the number of nodes in each side
+                subtree_exploration = 1 if random.random() < len(list(flatten(tree[1]))) / (num_nodes -1) else 2
             else:
-                subtree_exploration = np.random.randint(0, 3)
+                p = random.random()
+                subtree_exploration = 0 if p < node_probability else \
+                                        (1 if p < len(list(flatten(tree[1]))) / (num_nodes - 1) else 2)
+
         elif FUNCTIONS[tree[0]]['arity'] == 1:
             if first_call:
-                subtree_exploration = np.random.randint(1, 2)
+                subtree_exploration = 1
             else:
-                subtree_exploration = np.random.randint(0, 2)
+                subtree_exploration = 0 if random.random() < node_probability else 1
 
         if subtree_exploration == 0:
             return tree
         elif subtree_exploration == 1:
-            return random_subtree(tree[1], FUNCTIONS, first_call = False) if isinstance(tree[1], tuple) else tree[1]
+            return random_subtree(tree[1], FUNCTIONS, first_call = False, num_nodes=len(list(flatten(tree[1])))) if isinstance(tree[1], tuple) else tree[1]
         elif subtree_exploration == 2:
-            return random_subtree(tree[2], FUNCTIONS, first_call = False) if isinstance(tree[2], tuple) else tree[2]
+            return random_subtree(tree[2], FUNCTIONS, first_call = False, num_nodes=len(list(flatten(tree[2])))) if isinstance(tree[2], tuple) else tree[2]
     else:
         # If the tree is a terminal node, return it as is
         return tree
@@ -223,8 +230,7 @@ def substitute_subtree(tree, target_subtree, new_subtree, FUNCTIONS):
             return (tree[0], substitute_subtree(tree[1], target_subtree, new_subtree, FUNCTIONS),
                     substitute_subtree(tree[2], target_subtree, new_subtree, FUNCTIONS))
         elif FUNCTIONS[tree[0]]['arity'] == 1:
-            return (tree[0], substitute_subtree(tree[1], target_subtree, new_subtree, FUNCTIONS)
-                    )
+            return (tree[0], substitute_subtree(tree[1], target_subtree, new_subtree, FUNCTIONS))
     else:
         return tree
 

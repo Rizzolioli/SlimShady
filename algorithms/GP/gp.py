@@ -9,6 +9,17 @@ from algorithms.GP.representations.tree import Tree
 from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
 
 
+# small fixes - Liah
+# TODO: confirm that the mutated tree cannot be used for crossover! CONFIRMED
+
+# TODO: make crossover random subtree uniform distribution (use depth; kill recursion)!
+# TODO: change the name of pi_init depth and size to init_depth and init_size
+# TODO: make elitism parametrized
+# TODO: change pop to population
+# TODO: make get best min and get best max
+# TODO: change tournament selection names
+# TODO: change to only choose one parent if mutation and two parents if xover --> first operator then parents
+
 class GP:
 
     def __init__(self, pi_init, initializer, selector, mutator, crossover,
@@ -69,7 +80,6 @@ class GP:
             self.elite = pop.pop[np.argmin(pop.fit)]
 
         # testing the elite on validation/testing, if applicable
-
         if test_elite:
             self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
@@ -113,11 +123,11 @@ class GP:
                 # choosing between crossover and mutation
                 if random.random() < self.p_xo:
 
-                    offs1, offs2 = self.crossover(p1.repr_, p2.repr_)
+                    offs1, offs2 = self.crossover(p1.repr_, p2.repr_, node_count1=p1.node_count, node_count2=p2.node_count)
 
                 else:
 
-                    offs1, offs2 = self.mutator(p1.repr_), self.mutator(p2.repr_)
+                    offs1, offs2 = self.mutator(p1.repr_, p1.node_count), self.mutator(p2.repr_, p2.node_count)
 
                 if max_depth is not None:
 
