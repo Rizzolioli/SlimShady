@@ -31,27 +31,40 @@ class Individual():
 
     def remove_block(self, index):
 
-        self.collection.pop(index)
-        self.structure.pop(index)
-        self.size -= 1
-        self.nodes_count = sum([ind.nodes for ind in self.collection])
+        new_collection = self.collection[:index] + self.collection[index+1:]
 
-        if self.train_semantics != None:
-            self.train_semantics.pop(index)
-        if self.test_semantics != None:
-            self.test_semantics.pop(index)
+        new_individual = Individual(new_collection)
+
+        return new_individual
+        #
+        # self.structure.pop(index)
+        # self.size -= 1
+        # self.nodes_count = sum([ind.nodes for ind in self.collection])
+        #
+        # if self.train_semantics != None:
+        #     self.train_semantics.pop(index)
+        # if self.test_semantics != None:
+        #     self.test_semantics.pop(index)
 
 
     def add_block(self, tree):
-        self.collection.append(tree)
-        self.structure.append(tree)
-        self.size += 1
-        self.nodes_count += tree.nodes
+        # Old
+        # self.collection.append(tree)
+        # New
+        new_collection = self.collection + [tree]
+        new_individual = Individual(new_collection)
 
-        if self.train_semantics != None:
-            self.train_semantics.append(tree.train_semantics)
-        if self.test_semantics != None:
-            self.test_semantics.append(tree.test_semantics)
+        return new_individual
+        #
+        #
+        # self.structure.append(tree)
+        # self.size += 1
+        # self.nodes_count += tree.nodes
+        #
+        # if self.train_semantics != None:
+        #     self.train_semantics.append(tree.train_semantics)
+        # if self.test_semantics != None:
+        #     self.test_semantics.append(tree.test_semantics)
 
 
 
