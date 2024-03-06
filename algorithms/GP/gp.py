@@ -119,9 +119,10 @@ class GP:
 
                     offs1, offs2 = self.mutator(p1.repr_), self.mutator(p2.repr_)
 
-                if max_depth != None:
+                if max_depth is not None:
 
-                    if tree_depth(offs1, self.pi_init["FUNCTIONS"]) > max_depth: #TODO change this to keep one of the parents instead ?? offs1 = p1 FASTER less DIVERSITY
+                    if tree_depth(offs1, self.pi_init["FUNCTIONS"]) > max_depth:
+                        # TODO change this to keep one of the parents instead ?? offs1 = p1 FASTER less DIVERSITY
 
                         offs1 = tree_pruning(offs1, max_depth,
                                                   self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"],
@@ -136,7 +137,6 @@ class GP:
                                                   self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"]),
                                  Tree(offs2, self.pi_init["FUNCTIONS"],
                                                   self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"])])
-
 
             if len(offs_pop) > pop.size:
 

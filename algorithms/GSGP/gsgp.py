@@ -26,7 +26,7 @@ class GSGP:
         self.initializer = initializer
         self.pop_size = pop_size
         self.seed = seed
-        #TODO check wheter to include max_depth
+        # TODO check whether to include max_depth
 
         self.settings_dict = settings_dict
 
@@ -59,7 +59,8 @@ class GSGP:
 
         # and the population of random trees
         random_trees = Population([Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
-                          for tree in self.initializer(**self.pi_init)]) #TODO rn same size as initial population, decide wheter to create new rt at each variation
+                          for tree in self.initializer(**self.pi_init)])
+        # TODO rn same size as initial population, decide whether to create new rt at each variation
         random_trees.calculate_semantics(X_train)
         if test_elite:
             random_trees.calculate_semantics(X_test, testing=True)

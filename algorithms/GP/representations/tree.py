@@ -111,10 +111,17 @@ class Tree:
 
                 return output
 
-    def evaluate(self, ffunction, X, y, testing=False, validation=False): # TODO: fix documentation
+    def evaluate(self, ffunction, X, y, testing=False, validation=False):
+        # TODO: Do we need validation? GSGP only uses testing and we agreed we wouldn't do a 3 part split
+        #  inside the algorithm.
 
         """
-        evaluates the tree given a certain fitness function, input data(x) and target data (y)
+        evaluates the tree given a certain fitness function, input data(x) and target data (y).
+
+        The result of this evaluation (given the output of ffunction) will be stored as a parameter of self.
+        The testing and validation optional parameters specify which partition of the data will the fitness be
+        attributed to. If both are False the data is considered training data.
+
         Parameters
         ----------
         ffunction: function
@@ -123,6 +130,10 @@ class Tree:
             the input data (which can be training or testing)
         y: torch tensor
             the expected output (target) values
+        testing: bool
+            Flag symbolizing if the data is testing data.
+        validation: bool
+            Flag symbolizing if the data is validation data.
 
         Returns
         -------
