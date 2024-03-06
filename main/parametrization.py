@@ -64,6 +64,7 @@ GP_parameters = {"initializer": rhh,
                   "settings_dict": settings_dict,
     }
 GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
+
 pi_init = {'size': GP_parameters["pop_size"],
            'depth': 8,
            'FUNCTIONS': FUNCTIONS,

@@ -17,12 +17,12 @@ def crossover_trees(FUNCTIONS):
         Function to perform crossover between two trees.
     """
 
-    def inner_xo(tree1, tree2):
+    def inner_xo(tree1, tree2, node_count1, node_count2):
 
         if isinstance(tree1, tuple) and isinstance(tree2, tuple):
             # Randomly select crossover points in both trees
-            crossover_point_tree1 = random_subtree(tree1, FUNCTIONS)
-            crossover_point_tree2 = random_subtree(tree2, FUNCTIONS)
+            crossover_point_tree1 = random_subtree(tree1, FUNCTIONS, num_nodes=node_count1)
+            crossover_point_tree2 = random_subtree(tree2, FUNCTIONS, num_nodes=node_count2)
 
             # Swap subtrees at the crossover points
             new_tree1 = substitute_subtree(tree1, crossover_point_tree1, crossover_point_tree2, FUNCTIONS)

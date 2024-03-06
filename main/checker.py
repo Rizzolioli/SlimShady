@@ -21,6 +21,9 @@ tree2 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTI
 random_tree1 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS)
 random_tree2 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS)
 
+print(random_tree1.structure)
+
+
 X, y = data_loaders[0](X_y = True)
 
 pop = Population([tree1, tree2, random_tree1, random_tree2])
