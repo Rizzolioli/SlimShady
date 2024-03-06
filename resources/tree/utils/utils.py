@@ -75,7 +75,7 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
             The generated tree according to the specified parameters.
         """
 
-    if depth <= 1 or random.random() < 0.33:  # TODO: why is this 0.33 here?
+    if depth <= 1 or random.random() < 0.33:  # TODO: Delete this folder??
 
         # Choose a terminal node (input or constant)
         if random.random() > p_c:
