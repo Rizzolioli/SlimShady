@@ -172,7 +172,7 @@ def random_subtree(tree, FUNCTIONS, first_call = True):
         # Randomly choose to explore left or right or return the current subtree
 
         #calculating the number of nodes of the current tree
-        current_number_of_nodes = len(list(flatten(tree)))
+        current_number_of_nodes = len(list(flatten(tree))) #TODO move it out of here? so we save a calculation?
         if FUNCTIONS[tree[0]]['arity'] == 2:
             if first_call:
                 # if it's the first time, 0 (the root node) cannot be returned
