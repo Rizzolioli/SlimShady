@@ -123,11 +123,11 @@ class GP:
                 # choosing between crossover and mutation
                 if random.random() < self.p_xo:
 
-                    offs1, offs2 = self.crossover(p1.repr_, p2.repr_, node_count1=p1.node_count, node_count2=p2.node_count)
+                    offs1, offs2 = self.crossover(p1.repr_, p2.repr_)
 
                 else:
 
-                    offs1, offs2 = self.mutator(p1.repr_, p1.node_count), self.mutator(p2.repr_, p2.node_count)
+                    offs1, offs2 = self.mutator(p1.repr_), self.mutator(p2.repr_)
 
                 if max_depth is not None:
 
