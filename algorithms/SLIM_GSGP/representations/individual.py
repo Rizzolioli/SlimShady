@@ -31,7 +31,7 @@ class Individual():
 
     def remove_block(self, index):
 
-        new_collection = self.collection[:index] + self.collection[index+1:]
+        new_collection = [*self.collection[:index], *self.collection[index+1:]]
 
         new_individual = Individual(new_collection)
 
@@ -51,7 +51,7 @@ class Individual():
         # Old
         # self.collection.append(tree)
         # New
-        new_collection = self.collection + [tree]
+        new_collection = [*self.collection, tree]
         new_individual = Individual(new_collection)
 
         return new_individual

@@ -1,3 +1,5 @@
+import time
+
 from parametrization import *
 from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
 import datasets.data_loader as ds
@@ -52,6 +54,8 @@ for loader in data_loaders:
         gsgp_solve_parameters['run_info'] = [algo, dataset]
 
         # running each dataset + algo configuration n_runs times
-        for seed in range(n_runs):
+        for seed in range(1):
+            start = time.time()
             optimizer = SLIM_GSGP(pi_init=gsgp_pi_init, **GSGP_parameters, seed=seed)
             optimizer.solve(dataset_loader=loader, **gsgp_solve_parameters)
+            print(time.time() - start)
