@@ -2,6 +2,7 @@ import torch
 import math
 import csv
 from copy import copy
+import numpy as np
 
 """
 Taken from GPOL
@@ -215,3 +216,9 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
 def get_terminals(data_loader):
     TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
     return TERMINALS
+
+def get_best_min(population):
+    return population.population[np.argmin(population.fit)]
+
+def get_best_max(population):
+    return population.population[np.argmax(population.fit)]

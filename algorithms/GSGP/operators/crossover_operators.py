@@ -7,3 +7,4 @@ def geometric_crossover(tree1, tree2, random_tree, testing):
 
     else:
         return torch.add(torch.mul(tree1.train_semantics, random_tree.train_semantics), torch.mul(torch.sub(1, random_tree.train_semantics), tree2.train_semantics))
+

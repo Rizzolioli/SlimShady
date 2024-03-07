@@ -1,6 +1,4 @@
-from utils.utils import protected_div, mean_
-
-
+from utils.utils import protected_div, mean_, get_best_min, get_best_max
 from evaluators.fitness_functions import rmse
 from algorithms.GP.operators.initializers import rhh
 from algorithms.GP.operators.crossover_operators import crossover_trees
@@ -62,14 +60,17 @@ GP_parameters = {"initializer": rhh,
                   "p_xo": 0.2,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
+                 "find_elit_func": get_best_max if solve_parameters["max_"] else get_best_min
     }
 GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
-pi_init = {'size': GP_parameters["pop_size"],
-           'depth': 8,
+pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the initial population size is the same as the GP pop size
+           'init_depth': 8,
            'FUNCTIONS': FUNCTIONS,
            'CONSTANTS': CONSTANTS,
-           "p_c": 0.1}
+           "p_c": 0.1,
+           "p_terminals": 0.5}
+
 
 
 ########################################################################################################################
@@ -88,6 +89,7 @@ gsgp_solve_parameters = {"elitism": True,
                     "ffunction": rmse,
                     "n_iter": 100
                     }
+
 GSGP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min(2),
                   "crossover": geometric_crossover,
@@ -96,11 +98,12 @@ GSGP_parameters = {"initializer": rhh,
                   "p_xo": 0.8,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
+                "find_elit_func": get_best_max if solve_parameters["max_"] else get_best_min
     }
 GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
-gsgp_pi_init = {'size': GSGP_parameters["pop_size"],
-           'depth': 8,
+gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
+           'init_depth': 8,
            'FUNCTIONS': FUNCTIONS,
            'CONSTANTS': CONSTANTS,
            "p_c": 0.1}

@@ -39,7 +39,7 @@ for loader in data_loaders:
     # getting the terminals and defining the terminal-dependant parameters
     TERMINALS = get_terminals(loader)
     pi_init["TERMINALS"] = TERMINALS
-    GP_parameters["mutator"] = mutate_tree_subtree(pi_init['depth'], TERMINALS, CONSTANTS, FUNCTIONS,
+    GP_parameters["mutator"] = mutate_tree_subtree(pi_init['init_depth'], TERMINALS, CONSTANTS, FUNCTIONS,
                                                    p_c=pi_init['p_c'])
 
     # for each dataset, run all the planned algorithms
