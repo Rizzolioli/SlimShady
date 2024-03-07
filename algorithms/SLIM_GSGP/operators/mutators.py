@@ -3,6 +3,7 @@ from copy import deepcopy, copy
 from algorithms.GP.representations.tree_utils import create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
 import torch
+from algorithms.SLIM_GSGP.representations.individual import Individual
 
 def delta_tree(tr1, tr2, ms, testing):
     if testing:
@@ -31,7 +32,7 @@ def two_trees_inflate_mutation(individual, ms, X, max_depth = 8, p_c = 0.1, X_te
         random_tree1.calculate_semantics(X_test, testing=True)
         random_tree2.calculate_semantics(X_test, testing=True)
 
-    new_block = Tree([delta_tree,  # TODO could create a function outside
+    new_block = Tree([delta_tree,
                       random_tree1, random_tree2, ms],
                      individual.collection[0].FUNCTIONS,
                      individual.collection[0].TERMINALS,
@@ -40,13 +41,14 @@ def two_trees_inflate_mutation(individual, ms, X, max_depth = 8, p_c = 0.1, X_te
 
     new_block.calculate_semantics(X, testing=False)
     if X_test != None:
-        new_block.calculate_semantics(X, testing=True)
+        new_block.calculate_semantics(X_test, testing=True)
     offs = individual.add_block(new_block)
 
     if individual.train_semantics != None:
         offs.train_semantics = individual.train_semantics + [new_block.train_semantics]
     if individual.test_semantics != None:
         offs.test_semantics = individual.test_semantics + [new_block.test_semantics]
+
 
 
     return offs
@@ -65,6 +67,6 @@ def deflate_mutation(individual):
         if individual.test_semantics != None:
             offs.test_semantics = individual.test_semantics[:mut_point] + individual.test_semantics[mut_point+1:]
     else:
-        offs = individual
+        offs = Individual(individual.collection)
 
     return offs
