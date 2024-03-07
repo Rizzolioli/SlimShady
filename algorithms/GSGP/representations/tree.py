@@ -12,7 +12,7 @@ class Tree:
         if isinstance(structure, tuple):
             self.depth = len(structure)
         else:
-            self.depth = [max(tree.depth) + 1 for tree in self.structure[1:] if isinstance(tree, Tree)]
+            self.depth = max([tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)]) + 1
 
         if isinstance(structure, tuple):
             self.nodes = len(list(flatten(structure)))

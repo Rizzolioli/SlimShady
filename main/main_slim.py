@@ -44,6 +44,7 @@ for loader in data_loaders:
     GSGP_parameters["p_inflate"] = 0.3
     GSGP_parameters["p_deflate"] = 1 - GSGP_parameters["p_inflate"]
     del GSGP_parameters["mutator"]
+    del GSGP_parameters['find_elit_func']
     GSGP_parameters["inflate_mutator"] = two_trees_inflate_mutation
     GSGP_parameters["deflate_mutator"] = deflate_mutation
 

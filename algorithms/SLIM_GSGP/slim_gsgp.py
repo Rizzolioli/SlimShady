@@ -74,9 +74,9 @@ class SLIM_GSGP:
 
         # obtaining the initial population elite
         if max_:
-            self.elite = pop.pop[np.argmax(pop.fit)]
+            self.elite = pop.population[np.argmax(pop.fit)]
         else:
-            self.elite = pop.pop[np.argmin(pop.fit)]
+            self.elite = pop.population[np.argmin(pop.fit)]
 
         # testing the elite on validation/testing, if applicable
 
@@ -140,7 +140,7 @@ class SLIM_GSGP:
 
                         ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)]
 
-                        off1 = self.inflate_mutator(p1, ms_, X_train, max_depth = self.pi_init["depth"]
+                        off1 = self.inflate_mutator(p1, ms_, X_train, max_depth = self.pi_init["init_depth"]
                                                     , p_c = self.pi_init["p_c"], X_test = X_test)
 
                     offs_pop.append(off1)
@@ -160,9 +160,9 @@ class SLIM_GSGP:
             end = time.time()
 
             if max_:
-                self.elite = pop.pop[np.argmax(pop.fit)]
+                self.elite = pop.population[np.argmax(pop.fit)]
             else:
-                self.elite = pop.pop[np.argmin(pop.fit)]
+                self.elite = pop.population[np.argmin(pop.fit)]
 
             if test_elite:
                 self.elite.calculate_semantics(X_test, testing=True)
