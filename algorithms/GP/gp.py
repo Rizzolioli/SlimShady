@@ -51,6 +51,8 @@ class GP:
 
         start = time.time()
 
+        #TODO move outisde the gp code
+
         # Loads the data via the dataset loader
         X, y = dataset_loader(X_y=True)
 
@@ -133,9 +135,7 @@ class GP:
 
                     if tree_depth(offs1, self.pi_init["FUNCTIONS"]) > max_depth: # TODO change this to keep one of the parents instead ?? offs1 = p1 FASTER less DIVERSITY
 
-                        offs1 = tree_pruning(offs1, max_depth,
-                                                  self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"],
-                                                  self.pi_init["FUNCTIONS"], self.pi_init["p_c"])
+                        offs1 = p1
 
                     if tree_depth(offs2, self.pi_init["FUNCTIONS"]) > max_depth:
                         offs2 = tree_pruning(offs2, max_depth,
