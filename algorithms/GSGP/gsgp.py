@@ -8,10 +8,10 @@ from algorithms.GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
 
 
-
+# TODO: not to create a population of random trees, just add a tree to a table when we need them
 class GSGP:
 
-    def __init__(self, pi_init, initializer, selector, mutator, ms, crossover,
+    def __init__(self, pi_init, initializer, selector, mutator, ms, crossover, find_elit_func,
                  p_m=0.8, p_xo=0.2, pop_size=100, seed=0,
                  settings_dict=None):
 
@@ -26,9 +26,10 @@ class GSGP:
         self.initializer = initializer
         self.pop_size = pop_size
         self.seed = seed
-        #TODO check wheter to include max_depth
+        # TODO check whether to include max_depth
 
         self.settings_dict = settings_dict
+        self.find_elit_func = find_elit_func
 
     def solve(self, n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, run_info=None,
@@ -61,27 +62,28 @@ class GSGP:
 
         # and the population of random trees
         random_trees = Population([Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
-                          for tree in self.initializer(**self.pi_init)]) #TODO rn same size as initial population, decide wheter to create new rt at each variation
+                          for tree in self.initializer(**self.pi_init)])
+        # TODO rn same size as initial population, decide whether to create new rt at each variation
         random_trees.calculate_semantics(X_train)
         if test_elite:
             random_trees.calculate_semantics(X_test, testing=True)
 
         # initializing the population
-        pop = Population([Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
+        population = Population([Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
                           for tree in self.initializer(**self.pi_init)])
-        pop.calculate_semantics(X_train)
+        population.calculate_semantics(X_train)
         if test_elite:
-            pop.calculate_semantics(X_test, testing=True)
+            population.calculate_semantics(X_test, testing=True)
 
-        pop.evaluate(ffunction,  y=y_train)
+        population.evaluate(ffunction,  y=y_train)
 
         end = time.time()
 
         # obtaining the initial population elite
         if max_:
-            self.elite = pop.pop[np.argmax(pop.fit)]
+            self.elite = population.population[np.argmax(population.fit)]
         else:
-            self.elite = pop.pop[np.argmin(pop.fit)]
+            self.elite = population.population[np.argmin(population.fit)]
 
         # testing the elite on validation/testing, if applicable
 
@@ -91,18 +93,18 @@ class GSGP:
         if log != 0:
 
             if max_:
-                logger(log_path, 0, max(pop.fit), end-start, float(pop.nodes_count),
+                logger(log_path, 0, max(population.fit), end-start, float(population.nodes_count),
                     pop_test_report = self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
             else:
-                logger(log_path, 0, min(pop.fit), end - start, float(pop.nodes_count),
+                logger(log_path, 0, min(population.fit), end - start, float(population.nodes_count),
                        pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
         if verbose != 0:
             if max_:
-                verbose_reporter(curr_dataset.split("load_")[-1], 0, max(pop.fit), self.elite.test_fitness, end-start, pop.nodes_count)
+                verbose_reporter(curr_dataset.split("load_")[-1], 0, max(population.fit), self.elite.test_fitness, end-start, population.nodes_count)
             else:
-                verbose_reporter(curr_dataset.split("load_")[-1], 0, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+                verbose_reporter(curr_dataset.split("load_")[-1], 0, min(population.fit), self.elite.test_fitness, end - start, population.nodes_count)
 
         ################################################################################################################
 
@@ -123,67 +125,72 @@ class GSGP:
 
             while len(offs_pop) < self.pop_size:
 
-                p1, p2 = self.selector(pop), self.selector(pop)
-
-                while p1 == p2:
-                    p1, p2 = self.selector(pop), self.selector(pop)
-
-                ancestry.extend([p1, p2])
-
                 # choosing between crossover and mutation
                 if random.random() < self.p_xo:
 
+                    # if crossover, select two parents
+                    p1, p2 = self.selector(population), self.selector(population)
+
+                    # the two parents generate one offspring
                     offs1 = Tree([self.crossover, p1, p2, random.choice(random_trees)],
                                  p1.FUNCTIONS, p1.TERMINALS, p1.CONSTANTS)
 
+                    # adding the offspring to the population
                     offs_pop.append(offs1)
 
+                    # adding the parent information to the ancestry
+                    ancestry.extend([p1, p2])
+
                 else:
+                    # if mutation choose one parent
+                    p1 = self.selector(population)
 
+                    # determining the mutation step
                     ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)]
-
+                    # mutating the individual
                     offs1 = Tree([self.mutator, p1, random.choice(random_trees), random.choice(random_trees), ms_],
                                  p1.FUNCTIONS, p1.TERMINALS, p1.CONSTANTS)
-                    offs2 = Tree([self.mutator, p2, random.choice(random_trees),  random.choice(random_trees), ms_],
-                                 p1.FUNCTIONS, p1.TERMINALS, p1.CONSTANTS)
 
-                    offs_pop.extend([offs1, offs2])
+                    # adding the individual to the population
+                    offs_pop.append(offs1)
 
+                    # adding the parent information to the ancestry
+                    ancestry.append(p1)
 
-            if len(offs_pop) > pop.size:
+            if len(offs_pop) > population.size:
 
-                offs_pop = offs_pop[:pop.size]
+                offs_pop = offs_pop[:population.size]
 
             offs_pop = Population(offs_pop)
             offs_pop.calculate_semantics(X_train)
             if test_elite:
                 offs_pop.calculate_semantics(X_test, testing=True)
             offs_pop.evaluate(ffunction, y=y_train)
-            pop = offs_pop
+            population = offs_pop
 
             end = time.time()
 
             if max_:
-                self.elite = pop.pop[np.argmax(pop.fit)]
+                self.elite = population.population[np.argmax(population.fit)]
             else:
-                self.elite = pop.pop[np.argmin(pop.fit)]
+                self.elite = population.population[np.argmin(population.fit)]
 
             if test_elite:
                 self.elite.evaluate(ffunction, y=y_test, testing=True)
 
             if log != 0:
                 if max_:
-                    logger(log_path, it, max(pop.fit), end - start, float(pop.nodes_count),
+                    logger(log_path, it, max(population.fit), end - start, float(population.nodes_count),
                            pop_test_report=[
                                        self.elite.test_fitness,
                                        ], run_info=run_info, seed=self.seed)
                 else:
-                    logger(log_path, it, min(pop.fit), end - start, float(pop.nodes_count),
+                    logger(log_path, it, min(population.fit), end - start, float(population.nodes_count),
                            pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
             if verbose != 0:
                 if max_:
-                    verbose_reporter(run_info[-1], it, max(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+                    verbose_reporter(run_info[-1], it, max(population.fit), self.elite.test_fitness, end - start, population.nodes_count)
                 else:
-                    verbose_reporter(run_info[-1],it, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+                    verbose_reporter(run_info[-1],it, min(population.fit), self.elite.test_fitness, end - start, population.nodes_count)
 
