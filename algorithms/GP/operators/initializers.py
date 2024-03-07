@@ -2,7 +2,7 @@ from algorithms.GP.representations.tree_utils import create_full_random_tree, cr
 from algorithms.GP.representations.tree import Tree
 
 
-def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, seed=0):
+def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, seed=0, p_terminal = 0.5): # TODO: why is seed being passed here?
     """
        Generates a list of individuals with random trees for a GM4OS population using the Grow method.
 
@@ -38,7 +38,7 @@ def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, seed=0):
            A list of Individual objects containing random trees and input sets based on the parameters provided.
        """
 
-    return [create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+    return [create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminal)
               for _ in range(2, size+1)]
 
 
@@ -81,7 +81,7 @@ def full(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,  p_c=0.3):
     return [create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
               for _ in range(2, size+1)]
 
-def rhh(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,p_c =0.3):
+def rhh(init_pop_size, init_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, p_terminals = 0.5):
     """
            Generates a list of individuals with random trees for a GM4OS population using the ramped-half-half method.
 
@@ -119,16 +119,16 @@ def rhh(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,p_c =0.3):
 
     population = []
 
-    inds_per_bin = size/(depth-1)
-    for curr_depth in range(2, depth+1):
+    inds_per_bin = init_pop_size/(init_depth-1)
+    for curr_depth in range(2, init_depth+1):
 
         population.extend([create_full_random_tree(curr_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
              for _ in range(int(inds_per_bin//2))])
 
-        population.extend([create_grow_random_tree(curr_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+        population.extend([create_grow_random_tree(curr_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminals)
               for _ in range(int(inds_per_bin//2))])
 
-    while len(population) < size:
-        population.append(create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c))
+    while len(population) < init_pop_size:
+        population.append(create_grow_random_tree(init_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminals))
 
-    return [Tree(tree, FUNCTIONS, TERMINALS, CONSTANTS) for tree in population]
+    return population

@@ -46,7 +46,7 @@ def flatten(data):
         yield data
 
 # Function to create a random grow tree.
-def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True):
+def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True, p_terminal = 0.5):
     """
         Generates a random tree using the Grow method with a specified depth.
 
@@ -67,19 +67,20 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
         p_c : float, optional
             Probability of choosing a constant node. Default is 0.3.
 
+        first_call: boolean, optional
+            variable that controls whether or not the function is being called for the first time. Used to assure
+            that the yielded tree isnt a terminal node
+
+        p_terminal: float, optional
+            probability of choosing a terminal node (rather than a function node)
+
         Returns
         -------
         tuple
             The generated tree according to the specified parameters.
         """
 
-    num_functions = len(list(FUNCTIONS.keys()))
-    num_constants = len(list(CONSTANTS.keys()))
-    num_terminals = len(list(TERMINALS.keys()))
-    p_t = (num_terminals + num_constants) / (num_terminals + num_constants + num_functions)
-
-    if (depth <= 1 or random.random() < p_t) and not first_call:
-
+    if (depth <= 1 or random.random() < p_terminal) and not first_call:
         # Choose a terminal node (input or constant)
         if random.random() > p_c:
             node = np.random.choice(list(TERMINALS.keys()))
@@ -88,14 +89,20 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
     else:
         # Choose a function node
         node = np.random.choice(list(FUNCTIONS.keys()))
+
         if FUNCTIONS[node]['arity'] == 2:
             # Recursively create left and right subtrees
-            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, first_call=False)
-            right_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, first_call=False)
+            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, p_c = p_c,
+                                                   first_call=False, p_terminal=p_terminal)
+
+            right_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS,p_c = p_c,
+                                                    first_call=False, p_terminal=p_terminal)
+
             node = (node, left_subtree, right_subtree)
         else:
             # Recursively create left and right subtrees
-            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, first_call=False)
+            left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS,p_c = p_c,
+                                                   first_call=False, p_terminal=p_terminal)
             node = (node, left_subtree)
 
     return node
@@ -166,19 +173,29 @@ def random_subtree(tree, FUNCTIONS, first_call = True):
             The randomly selected subtree from the input tree.
         """
 
+
+
     if isinstance(tree, tuple):
         # Randomly choose to explore left or right or return the current subtree
+
+        #calculating the number of nodes of the current tree
+        current_number_of_nodes = len(list(flatten(tree))) #TODO move it out of here? so we save a calculation?
+
         if FUNCTIONS[tree[0]]['arity'] == 2:
             if first_call:
                 # if it's the first time, 0 (the root node) cannot be returned
-                subtree_exploration = np.random.randint(1, 3)
+                # normalizing the probability of choosing left or right based on the number of nodes in each side
+                subtree_exploration = 1 if random.random() < len(list(flatten(tree[1]))) / (current_number_of_nodes -1) else 2
             else:
-                subtree_exploration = np.random.randint(0, 3)
+                p = random.random()
+                subtree_exploration = 0 if p < 1/current_number_of_nodes else \
+                                        (1 if p < len(list(flatten(tree[1]))) / current_number_of_nodes else 2)
+
         elif FUNCTIONS[tree[0]]['arity'] == 1:
             if first_call:
-                subtree_exploration = np.random.randint(1, 2)
+                subtree_exploration = 1
             else:
-                subtree_exploration = np.random.randint(0, 2)
+                subtree_exploration = 0 if random.random() < 1/current_number_of_nodes else 1
 
         if subtree_exploration == 0:
             return tree
@@ -223,8 +240,7 @@ def substitute_subtree(tree, target_subtree, new_subtree, FUNCTIONS):
             return (tree[0], substitute_subtree(tree[1], target_subtree, new_subtree, FUNCTIONS),
                     substitute_subtree(tree[2], target_subtree, new_subtree, FUNCTIONS))
         elif FUNCTIONS[tree[0]]['arity'] == 1:
-            return (tree[0], substitute_subtree(tree[1], target_subtree, new_subtree, FUNCTIONS)
-                    )
+            return (tree[0], substitute_subtree(tree[1], target_subtree, new_subtree, FUNCTIONS))
     else:
         return tree
 

@@ -4,14 +4,28 @@ import torch
 import numpy as np
 
 from utils.utils import verbose_reporter, logger, train_test_split
-from representations.population import Population
-from representations.tree import Tree
-from representations.tree_utils import tree_pruning, tree_depth
+from algorithms.GP.representations.population import Population
+from algorithms.GP.representations.tree import Tree
+from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
+
+
+# small fixes - Liah
+# TODO: confirm that the mutated tree cannot be used for crossover! CONFIRMED
+# TODO: make crossover random subtree uniform distribution ! DONE
+# TODO: change to only choose one parent if mutation and two parents if xover --> first operator then parents DONE GP + GSGP
+# TODO: create grow random tree add p_terminal DONE
+# TODO: change the name of pi_init depth and size to init_depth and init_size DONE
+# TODO: change pop to population DONE
+# TODO: make get best min and get best max DONE
+# TODO: change tournament selection names DONE
+
+# TODO: consider logger levels (pickel population)
+# TODO: make elitism parametrized
 
 
 class GP:
 
-    def __init__(self, pi_init, initializer, selector, mutator, crossover,
+    def __init__(self, pi_init, initializer, selector, mutator, crossover, find_elit_func,
                  p_m=0.2, p_xo=0.8, pop_size=100, seed=0,
                  settings_dict=None):
 
@@ -26,6 +40,7 @@ class GP:
         self.pop_size = pop_size
         self.seed = seed
 
+        self.find_elit_func = find_elit_func
         self.settings_dict = settings_dict
 
     def solve(self, n_iter=20, elitism=True, log=0, verbose=0,
@@ -38,7 +53,10 @@ class GP:
         np.random.seed(self.seed)
         random.seed(self.seed)
 
+        # starting the timer
         start = time.time()
+
+        #TODO move outisde the gp code
 
         # Loads the data via the dataset loader
         X, y = dataset_loader(X_y=True)
@@ -56,37 +74,32 @@ class GP:
         ################################################################################################################
 
         # initializing the population
-        pop = Population(self.initializer(**self.pi_init))
-        pop.evaluate(ffunction, X=X_train, y=y_train)
+        population = Population([Tree(tree,  self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
+                          for tree in self.initializer(**self.pi_init)])
+        population.evaluate(ffunction, X=X_train, y=y_train)
 
+        # ending the timer
         end = time.time()
 
         # obtaining the initial population elite
-        if max_:
-            self.elite = pop.pop[np.argmax(pop.fit)]
-        else:
-            self.elite = pop.pop[np.argmin(pop.fit)]
+        self.elite = self.find_elit_func(population)
 
         # testing the elite on validation/testing, if applicable
-
         if test_elite:
             self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
         if log != 0:
 
-            if max_:
-                logger(log_path, 0, max(pop.fit), end-start, float(pop.nodes_count),
-                    pop_test_report = self.elite.test_fitness, run_info=run_info, seed=self.seed)
+        # logging the results
 
-            else:
-                logger(log_path, 0, min(pop.fit), end - start, float(pop.nodes_count),
-                       pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
+            logger(log_path, 0, self.elite.fitness, end-start, float(population.nodes_count),
+                pop_test_report = self.elite.test_fitness, run_info=run_info, seed=self.seed)
+
 
         if verbose != 0:
-            if max_:
-                verbose_reporter(curr_dataset.split("load_")[-1], 0, max(pop.fit), self.elite.test_fitness, end-start, pop.nodes_count)
-            else:
-                verbose_reporter(curr_dataset.split("load_")[-1], 0, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+          # displaying the results on console
+          verbose_reporter(curr_dataset.split("load_")[-1], 0, self.elite.fitness, self.elite.test_fitness,
+                           end-start, population.nodes_count)
 
         ################################################################################################################
 
@@ -104,70 +117,68 @@ class GP:
 
             while len(offs_pop) < self.pop_size:
 
-                p1, p2 = self.selector(pop), self.selector(pop)
-
-                while p1 == p2:
-                    p1, p2 = self.selector(pop), self.selector(pop)
-
                 # choosing between crossover and mutation
                 if random.random() < self.p_xo:
 
+                    # if crossover, choose two parents
+                    p1, p2 = self.selector(population), self.selector(population)
+
+                    # getting the offspring
                     offs1, offs2 = self.crossover(p1.repr_, p2.repr_)
 
+                    # saving the offspring in an offspring list
+                    offspring = [offs1, offs2]
                 else:
+                    # if mutation, choose one parent
+                    p1 = self.selector(population)
 
-                    offs1, offs2 = self.mutator(p1.repr_), self.mutator(p2.repr_)
+                    # obtain one offspring
+                    offs1 = self.mutator(p1.repr_)
+
+                    # saving the offspring in an offspring list
+                    offspring = [offs1]
 
                 if max_depth != None:
 
-                    if tree_depth(offs1, self.pi_init["FUNCTIONS"]) > max_depth:
+                    # pruning all the offspring that are too big:
+                    offspring = [tree_pruning(child, max_depth,
+                                                      self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"],
+                                                      self.pi_init["FUNCTIONS"], self.pi_init["p_c"])
+                                 if tree_depth(child, self.pi_init["FUNCTIONS"]) > max_depth else child for child in offspring]
 
-                        offs1 = tree_pruning(offs1, max_depth,
-                                                  self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"],
-                                                  self.pi_init["FUNCTIONS"], self.pi_init["p_c"])
+<<<<<<< HEAD
+                        offs1 = p1
+=======
+                # adding the offspring to the offspring population
+                offs_pop.extend([Tree(child,self.pi_init["FUNCTIONS"],
+                                                  self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"])
+                                 for child in offspring])
+>>>>>>> gsgp-minor-improv
 
-                    if tree_depth(offs2, self.pi_init["FUNCTIONS"]) > max_depth:
-                        offs2 = tree_pruning(offs2, max_depth,
-                                             self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"],
-                                             self.pi_init["FUNCTIONS"], self.pi_init["p_c"])
+            # keeping only the amount of offspring that is equal to the population size
+            if len(offs_pop) > population.size:
 
-                offs_pop.extend([Tree(offs1,  self.pi_init["FUNCTIONS"],
-                                                  self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"]),
-                                 Tree(offs2, self.pi_init["FUNCTIONS"],
-                                                  self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"])])
+                offs_pop = offs_pop[:population.size]
 
-
-            if len(offs_pop) > pop.size:
-
-                offs_pop = offs_pop[:pop.size]
-
+            # overriding the current population as the offspring population
             offs_pop = Population(offs_pop)
             offs_pop.evaluate(ffunction, X=X_train, y=y_train)
-            pop = offs_pop
+            population = offs_pop
 
             end = time.time()
 
-            if max_:
-                self.elite = pop.pop[np.argmax(pop.fit)]
-            else:
-                self.elite = pop.pop[np.argmin(pop.fit)]
+            # getting the population elite
+            self.elite = self.find_elit_func(population)
 
+            # testing the elite if test_elite is True
             if test_elite:
                 self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
+            # logging the results
             if log != 0:
-                if max_:
-                    logger(log_path, it, max(pop.fit), end - start, float(pop.nodes_count),
-                           pop_test_report=[
-                                       self.elite.test_fitness,
-                                       ], run_info=run_info, seed=self.seed)
-                else:
-                    logger(log_path, it, min(pop.fit), end - start, float(pop.nodes_count),
+               logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
                            pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
-            if verbose != 0:
-                if max_:
-                    verbose_reporter(run_info[-1], it, max(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
-                else:
-                    verbose_reporter(run_info[-1],it, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+            if verbose != 0: # TODO: is there a reson we were doing max(pop.fit) and not using the elite?
+                verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start, population.nodes_count)
 
