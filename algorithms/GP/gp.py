@@ -10,17 +10,11 @@ from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
 
 
 # small fixes - Liah
-# TODO: confirm that the mutated tree cannot be used for crossover! CONFIRMED
-# TODO: make crossover random subtree uniform distribution ! DONE
-# TODO: change to only choose one parent if mutation and two parents if xover --> first operator then parents DONE GP + GSGP
-# TODO: create grow random tree add p_terminal DONE
-# TODO: change the name of pi_init depth and size to init_depth and init_size DONE
-# TODO: change pop to population DONE
-# TODO: make get best min and get best max DONE
-# TODO: change tournament selection names DONE
-
 # TODO: consider logger levels (pickel population)
 # TODO: make elitism parametrized
+
+#Diogo
+# TODO handling of TERMINALS FUNCTIONS etc in all scripts
 
 
 class GP:
@@ -56,7 +50,7 @@ class GP:
         # starting the timer
         start = time.time()
 
-        #TODO move outisde the gp code
+        #TODO move outisde the gp code(also for gsgp and slim)
 
         # Loads the data via the dataset loader
         X, y = dataset_loader(X_y=True)
@@ -146,14 +140,11 @@ class GP:
                                                       self.pi_init["FUNCTIONS"], self.pi_init["p_c"])
                                  if tree_depth(child, self.pi_init["FUNCTIONS"]) > max_depth else child for child in offspring]
 
-<<<<<<< HEAD
-                        offs1 = p1
-=======
                 # adding the offspring to the offspring population
                 offs_pop.extend([Tree(child,self.pi_init["FUNCTIONS"],
                                                   self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"])
                                  for child in offspring])
->>>>>>> gsgp-minor-improv
+
 
             # keeping only the amount of offspring that is equal to the population size
             if len(offs_pop) > population.size:
@@ -179,6 +170,6 @@ class GP:
                logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
                            pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
-            if verbose != 0: # TODO: is there a reson we were doing max(pop.fit) and not using the elite?
+            if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start, population.nodes_count)
 

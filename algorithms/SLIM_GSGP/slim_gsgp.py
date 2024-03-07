@@ -30,7 +30,7 @@ class SLIM_GSGP:
         self.initializer = initializer
         self.pop_size = pop_size
         self.seed = seed
-        #TODO check wheter to include max_depth
+        #TODO check wheter to include max_depth(Leo)
 
         self.settings_dict = settings_dict
 
@@ -126,13 +126,13 @@ class SLIM_GSGP:
                     while p1 == p2:
                         p1, p2 = self.selector(pop), self.selector(pop)
 
-                    pass #TODO implement crossover
+                    pass # implement crossover
 
                 else:
 
                     p1 = self.selector(pop)
 
-                    if random.random() < self.p_deflate and it != 1: #TODO can't deflate at the first generation
+                    if random.random() < self.p_deflate and it != 1: #TODO can't deflate at the first generation(Leo)
 
                         off1 = self.deflate_mutator(p1)
 

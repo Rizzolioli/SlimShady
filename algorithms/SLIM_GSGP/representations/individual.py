@@ -6,7 +6,7 @@ class Individual():
 
         self.collection = collection
         self.structure = [tree.structure for tree in collection]
-        self.size = len(collection) #TODO not really size(it's not the depth) it's the number of blocks
+        self.size = len(collection) #size == number of blocks
         self.nodes_count = sum([tree.nodes for tree in collection])
 
         self.train_semantics = None
@@ -36,35 +36,14 @@ class Individual():
         new_individual = Individual(new_collection)
 
         return new_individual
-        #
-        # self.structure.pop(index)
-        # self.size -= 1
-        # self.nodes_count = sum([ind.nodes for ind in self.collection])
-        #
-        # if self.train_semantics != None:
-        #     self.train_semantics.pop(index)
-        # if self.test_semantics != None:
-        #     self.test_semantics.pop(index)
 
 
-    def add_block(self, tree): #TODO should this be a method of Individual? I think it's more appropriate to put it somewhere else
-        # Old
-        # self.collection.append(tree)
-        # New
+    def add_block(self, tree):
+
         new_collection = [*self.collection, tree]
         new_individual = Individual(new_collection)
 
         return new_individual
-        #
-        #
-        # self.structure.append(tree)
-        # self.size += 1
-        # self.nodes_count += tree.nodes
-        #
-        # if self.train_semantics != None:
-        #     self.train_semantics.append(tree.train_semantics)
-        # if self.test_semantics != None:
-        #     self.test_semantics.append(tree.test_semantics)
 
 
 

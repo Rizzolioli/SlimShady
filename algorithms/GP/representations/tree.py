@@ -113,9 +113,7 @@ class Tree:
 
                 return output
 
-    def evaluate(self, ffunction, X, y, testing=False, validation=False):
-        # TODO: Do we need validation? GSGP only uses testing and we agreed we wouldn't do a 3 part split
-        #  inside the algorithm.
+    def evaluate(self, ffunction, X, y, testing=False):
 
         """
         evaluates the tree given a certain fitness function, input data(x) and target data (y).
@@ -134,8 +132,6 @@ class Tree:
             the expected output (target) values
         testing: bool
             Flag symbolizing if the data is testing data.
-        validation: bool
-            Flag symbolizing if the data is validation data.
 
         Returns
         -------
@@ -148,8 +144,6 @@ class Tree:
         # attributing the tree fitness
         if testing:
             self.test_fitness = ffunction(y, preds)
-        elif validation:
-            self.validation_fitness = ffunction(y, preds)
         else:
             self.fitness = ffunction(y, preds)
 

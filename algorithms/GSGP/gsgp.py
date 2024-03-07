@@ -26,7 +26,6 @@ class GSGP:
         self.initializer = initializer
         self.pop_size = pop_size
         self.seed = seed
-        # TODO check whether to include max_depth
 
         self.settings_dict = settings_dict
         self.find_elit_func = find_elit_func
