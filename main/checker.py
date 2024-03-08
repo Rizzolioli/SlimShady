@@ -1,3 +1,5 @@
+import random
+
 from parametrization import FUNCTIONS, CONSTANTS
 from utils.utils import get_terminals, get_best_min, get_best_max
 from algorithms.GP.representations.tree_utils import create_full_random_tree
@@ -56,11 +58,11 @@ pop.evaluate(rmse, y)
 
 res, elite = get_best_max(pop, 2)
 
-print("POP",pop.population)
-print(pop.fit)
-print("RES",res)
-print("ELITE",elite)
 
+ran = random.choice(pop)
+
+print("pop", pop.population)
+print("ran",ran)
 #ind3 = two_trees_inflate_mutation(ind1, 0.1, X)
 
 #ind4 = deflate_mutation(ind1)

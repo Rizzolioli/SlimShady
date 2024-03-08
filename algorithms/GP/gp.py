@@ -148,18 +148,19 @@ class GP:
 
             end = time.time()
 
-            # getting the population elite
+            # getting the population elites
             self.elites, self.elite = self.find_elit_func(population, n_elites)
 
             # testing the elite if test_elite is True
             if test_elite:
                 self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
-            # logging the results
+            # logging the results for the current generation
             if log != 0:
                logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
                            pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
+            # displaying the results for the current generation on console
             if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start, population.nodes_count)
 

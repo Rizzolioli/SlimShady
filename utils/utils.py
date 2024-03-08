@@ -1,8 +1,12 @@
+import random
 import torch
 import math
 import csv
 from copy import copy
 import numpy as np
+
+from algorithms.GP.representations.tree_utils import create_full_random_tree, create_grow_random_tree
+from algorithms.GSGP.representations.tree import Tree
 
 """
 Taken from GPOL
@@ -217,15 +221,15 @@ def get_terminals(data_loader):
     TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
     return TERMINALS
 
-def get_best_min(population, n_elits):
+def get_best_min(population, n_elites):
 
     # if more than one elite is to be saved
-    if n_elits > 1:
-        # getting the indexes of the lower n_elits fitnesses in the population
-        idx = np.argpartition(population.fit, n_elits)
+    if n_elites > 1:
+        # getting the indexes of the lower n_elites fitnesses in the population
+        idx = np.argpartition(population.fit, n_elites)
 
-        # getting the best n_elits individuals
-        elites = [population.population[i] for i in idx[:n_elits]]
+        # getting the best n_elites individuals
+        elites = [population.population[i] for i in idx[:n_elites]]
 
         # returning the elites and the best elite from among them
         return elites,  elites[np.argmin([elite.fitness for elite in elites])]
@@ -237,15 +241,15 @@ def get_best_min(population, n_elits):
 
         # returning the elite as the list of elites and the elite as the best in population
         return [elite], elite
-def get_best_max(population, n_elits):
+def get_best_max(population, n_elites):
 
     # if more than one elite is to be saved
-    if n_elits > 1:
-        # getting the indexes of the higher n_elits fitnesses in the population
-        idx = np.argpartition(population.fit, -n_elits)
+    if n_elites > 1:
+        # getting the indexes of the higher n_elites fitnesses in the population
+        idx = np.argpartition(population.fit, -n_elites)
 
-        # getting the best n_elits individuals
-        elites = [population.population[i] for i in idx[:-n_elits]]
+        # getting the best n_elites individuals
+        elites = [population.population[i] for i in idx[:-n_elites]]
 
         # returning the elites and the best elite from among them
         return elites, elites[np.argmax([elite.fitness for elite in elites])]
@@ -256,3 +260,16 @@ def get_best_max(population, n_elits):
 
         # returning the elite as the list of elites and the elite as the best in population
         return [elite], elite
+
+def get_random_tree(init_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs ,p_c = 0.3, p_terminals = 0.5, grow_probability=0.5):
+
+    # choose between grow and full
+    if random.random() < grow_probability:
+
+        tree = create_grow_random_tree(init_depth,FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminals)
+
+        tree = Tree(tree, FUNCTIONS, TERMINALS, CONSTANTS)
+
+        tree.calculate_semantics(inputs, testing=False)
+
+    return tree

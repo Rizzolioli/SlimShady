@@ -57,6 +57,20 @@ for loader in data_loaders:
         # running each dataset + algo configuration n_runs times
         for seed in range(1):
             start = time.time()
+
+            # Loads the data via the dataset loader
+            X, y = loader(X_y=True)
+
+            # getting the name of the dataset:
+            curr_dataset = loader.__name__
+
+            # Performs train/test split
+            X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=settings_dict['p_test'],
+                                                                seed=seed)
+
             optimizer = SLIM_GSGP(pi_init=gsgp_pi_init, **GSGP_parameters, seed=seed)
-            optimizer.solve(dataset_loader=loader, **gsgp_solve_parameters)
+
+            optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, curr_dataset=curr_dataset,
+                            **gsgp_solve_parameters)
+
             print(time.time() - start)

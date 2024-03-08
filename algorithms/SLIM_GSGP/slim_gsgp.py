@@ -34,9 +34,9 @@ class SLIM_GSGP:
 
         self.settings_dict = settings_dict
 
-    def solve(self, n_iter=20, elitism=True, log=0, verbose=0,
+    def solve(self, X_train, X_test, y_train, y_test, curr_dataset, n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, run_info=None,
-              max_=False, dataset_loader=None,
+              max_=False,
               ffunction=None):
 
         # setting the seeds
@@ -45,15 +45,6 @@ class SLIM_GSGP:
         random.seed(self.seed)
 
         start = time.time()
-
-        # Loads the data via the dataset loader
-        X, y = dataset_loader(X_y=True)
-
-        # getting the name of the dataset:
-        curr_dataset = dataset_loader.__name__
-
-        # Performs train/test split
-        X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=self.settings_dict['p_test'], seed=self.seed)
 
         ################################################################################################################
 

@@ -30,10 +30,9 @@ class GSGP:
         self.settings_dict = settings_dict
         self.find_elit_func = find_elit_func
 
-    def solve(self, n_iter=20, elitism=True, log=0, verbose=0,
+    def solve(self, X_train, X_test, y_train, y_test , curr_dataset, n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, run_info=None,
-              max_=False, dataset_loader=None,
-              ffunction=None):
+              max_=False, ffunction=None, reconstruct=False, n_elites=1):
 
         # setting the seeds
         torch.manual_seed(self.seed)
@@ -42,16 +41,6 @@ class GSGP:
 
         start = time.time()
 
-        # TODO move outisde the gsgp code
-
-        # Loads the data via the dataset loader
-        X, y = dataset_loader(X_y=True)
-
-        # getting the name of the dataset:
-        curr_dataset = dataset_loader.__name__
-
-        # Performs train/test split
-        X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=self.settings_dict['p_test'], seed=self.seed)
 
         ################################################################################################################
 
@@ -63,7 +52,9 @@ class GSGP:
         random_trees = Population([Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
                           for tree in self.initializer(**self.pi_init)])
         # TODO rn same size as initial population, decide whether to create new rt at each variation
+
         random_trees.calculate_semantics(X_train)
+
         if test_elite:
             random_trees.calculate_semantics(X_test, testing=True)
 
@@ -71,6 +62,7 @@ class GSGP:
         population = Population([Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
                           for tree in self.initializer(**self.pi_init)])
         population.calculate_semantics(X_train)
+
         if test_elite:
             population.calculate_semantics(X_test, testing=True)
 
@@ -78,32 +70,24 @@ class GSGP:
 
         end = time.time()
 
-        # obtaining the initial population elite
-        if max_:
-            self.elite = population.population[np.argmax(population.fit)]
-        else:
-            self.elite = population.population[np.argmin(population.fit)]
+        # obtaining the initial population elites
+        self.elites, self.elite = self.find_elit_func(population, n_elites)
 
         # testing the elite on validation/testing, if applicable
 
         if test_elite:
             self.elite.evaluate(ffunction, y=y_test, testing=True)
 
+        # logging the results for the population initialization
         if log != 0:
 
-            if max_:
-                logger(log_path, 0, max(population.fit), end-start, float(population.nodes_count),
-                    pop_test_report = self.elite.test_fitness, run_info=run_info, seed=self.seed)
+            logger(log_path, 0, self.elite.fitness, end-start, float(population.nodes_count),
+                pop_test_report = self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
-            else:
-                logger(log_path, 0, min(population.fit), end - start, float(population.nodes_count),
-                       pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
-
+        # displaying the results for the population initialization on console
         if verbose != 0:
-            if max_:
-                verbose_reporter(curr_dataset.split("load_")[-1], 0, max(population.fit), self.elite.test_fitness, end-start, population.nodes_count)
-            else:
-                verbose_reporter(curr_dataset.split("load_")[-1], 0, min(population.fit), self.elite.test_fitness, end - start, population.nodes_count)
+
+            verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start, population.nodes_count)
 
         ################################################################################################################
 
@@ -112,6 +96,7 @@ class GSGP:
         ################################################################################################################
 
         #TODO add reconstruct bool
+
         ancestry = []
 
         for it in range(1, n_iter +1, 1):
@@ -138,7 +123,8 @@ class GSGP:
                     offs_pop.append(offs1)
 
                     # adding the parent information to the ancestry
-                    ancestry.extend([p1, p2])
+                    if reconstruct:
+                        ancestry.extend([p1, p2])
 
                 else:
                     # if mutation choose one parent
@@ -154,7 +140,8 @@ class GSGP:
                     offs_pop.append(offs1)
 
                     # adding the parent information to the ancestry
-                    ancestry.append(p1)
+                    if reconstruct:
+                        ancestry.append(p1)
 
             if len(offs_pop) > population.size:
 
@@ -162,34 +149,31 @@ class GSGP:
 
             offs_pop = Population(offs_pop)
             offs_pop.calculate_semantics(X_train)
+
             if test_elite:
                 offs_pop.calculate_semantics(X_test, testing=True)
+
             offs_pop.evaluate(ffunction, y=y_train)
+
             population = offs_pop
 
             end = time.time()
 
-            if max_:
-                self.elite = population.population[np.argmax(population.fit)]
-            else:
-                self.elite = population.population[np.argmin(population.fit)]
+            # getting the population elite
+            self.elites, self.elite = self.find_elit_func(population, n_elites)
 
             if test_elite:
                 self.elite.evaluate(ffunction, y=y_test, testing=True)
 
+            # logging the results for the current generation
             if log != 0:
-                if max_:
-                    logger(log_path, it, max(population.fit), end - start, float(population.nodes_count),
-                           pop_test_report=[
-                                       self.elite.test_fitness,
-                                       ], run_info=run_info, seed=self.seed)
-                else:
-                    logger(log_path, it, min(population.fit), end - start, float(population.nodes_count),
-                           pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
+                logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
+                       pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
+            # displaying the results for the current generation on console
             if verbose != 0:
-                if max_:
-                    verbose_reporter(run_info[-1], it, max(population.fit), self.elite.test_fitness, end - start, population.nodes_count)
-                else:
-                    verbose_reporter(run_info[-1],it, min(population.fit), self.elite.test_fitness, end - start, population.nodes_count)
+                verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,
+                                 population.nodes_count)
+
+
 

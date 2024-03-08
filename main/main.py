@@ -36,7 +36,6 @@ for loader in data_loaders:
     # getting the name of the dataset
     dataset = loader.__name__.split("load_")[-1]
 
-
     # getting the terminals and defining the terminal-dependant parameters
     TERMINALS = get_terminals(loader)
     pi_init["TERMINALS"] = TERMINALS
