@@ -50,7 +50,8 @@ solve_parameters = {"elitism": True,
                     "max_depth": 17,
                     "max_": False,
                     "ffunction": rmse,
-                    "n_iter": 100
+                    "n_iter": 100,
+                    "n_elites": 1
                     }
 
 

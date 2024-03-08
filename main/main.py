@@ -2,7 +2,7 @@ from parametrization import *
 from algorithms.GP.gp import GP
 from algorithms.GP.operators.mutators import mutate_tree_subtree
 import datasets.data_loader as ds
-from utils.utils import get_terminals
+from utils.utils import get_terminals, train_test_split
 
 ########################################################################################################################
 
@@ -36,6 +36,7 @@ for loader in data_loaders:
     # getting the name of the dataset
     dataset = loader.__name__.split("load_")[-1]
 
+
     # getting the terminals and defining the terminal-dependant parameters
     TERMINALS = get_terminals(loader)
     pi_init["TERMINALS"] = TERMINALS
@@ -49,5 +50,16 @@ for loader in data_loaders:
 
         # running each dataset + algo configuration n_runs times
         for seed in range(n_runs):
+
+            # Loads the data via the dataset loader
+            X, y = loader(X_y=True)
+
+            # getting the name of the dataset:
+            curr_dataset = loader.__name__
+
+            # Performs train/test split
+            X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=settings_dict['p_test'],
+                                                                seed=seed)
+
             optimizer = GP(pi_init=pi_init, **GP_parameters, seed=seed)
-            optimizer.solve(dataset_loader=loader, **solve_parameters)
+            optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, curr_dataset=curr_dataset, **solve_parameters)
