@@ -217,8 +217,36 @@ def get_terminals(data_loader):
     TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
     return TERMINALS
 
-def get_best_min(population):
-    return population.population[np.argmin(population.fit)]
+def get_best_min(population, n_elits):
 
-def get_best_max(population):
-    return population.population[np.argmax(population.fit)]
+    # if more than one elite is to be saved
+    if n_elits > 1:
+        # getting the indexes of the lower n_elits fitnesses in the population
+        idx = np.argpartition(population.fit, n_elits)
+
+        # returning the best n_elits individuals and the elite from them
+        return [population.population[i] for i in idx[:n_elits]], population.population[np.argmin([population.fit[i] for i in idx[:n_elits]])]
+
+    # if only the best individual is to be obtained
+    else:
+
+        elite = population.population[np.argmin(population.fit)]
+
+        # returning the elite as the list of elites and the elite as the best in population
+        return [elite], elite
+def get_best_max(population, n_elits):
+
+    # if more than one elite is to be saved
+    if n_elits > 1:
+        # getting the indexes of the higher n_elits fitnesses in the population
+        idx = np.argpartition(population.fit, -n_elits)
+
+        # returning the best n_elits individuals and the elite from them
+        return [population.population[i] for i in idx[:-n_elits]], population.population[np.argmax([population.fit[i] for i in idx[:-n_elits]])]
+
+    # if only the best individual is to be obtained
+    else:
+        elite = population.population[np.argmax(population.fit)]
+
+        # returning the elite as the list of elites and the elite as the best in population
+        return [elite], elite

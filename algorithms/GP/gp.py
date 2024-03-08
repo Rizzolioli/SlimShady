@@ -40,7 +40,7 @@ class GP:
     def solve(self, n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, run_info=None,
               max_depth=None, max_=False, dataset_loader=None,
-              ffunction=None):
+              ffunction=None, n_elits = 1):
 
         # setting the seeds
         torch.manual_seed(self.seed)
@@ -50,7 +50,7 @@ class GP:
         # starting the timer
         start = time.time()
 
-        #TODO move outisde the gp code(also for gsgp and slim)
+        # TODO move outisde the gp code(also for gsgp and slim)
 
         # Loads the data via the dataset loader
         X, y = dataset_loader(X_y=True)
@@ -59,7 +59,7 @@ class GP:
         curr_dataset = dataset_loader.__name__
 
         # Performs train/test split
-        X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=self.settings_dict['p_test'], seed=self.seed)
+        X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=self.settings_dict['p_test'], seed=self.seed) # TODO: get this out of here
 
         ################################################################################################################
 
@@ -70,13 +70,14 @@ class GP:
         # initializing the population
         population = Population([Tree(tree,  self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
                           for tree in self.initializer(**self.pi_init)])
+
         population.evaluate(ffunction, X=X_train, y=y_train)
 
         # ending the timer
         end = time.time()
 
-        # obtaining the initial population elite
-        self.elite = self.find_elit_func(population)
+        # obtaining the initial population elites
+        self.elites, self.elite = self.find_elit_func(population, n_elits)
 
         # testing the elite on validation/testing, if applicable
         if test_elite:
@@ -107,7 +108,7 @@ class GP:
 
             if elitism:
 
-                offs_pop.append(self.elite)
+                offs_pop.extend(self.elites)
 
             while len(offs_pop) < self.pop_size:
 
@@ -159,7 +160,7 @@ class GP:
             end = time.time()
 
             # getting the population elite
-            self.elite = self.find_elit_func(population)
+            self.elites, self.elite = self.find_elit_func(population, n_elits)
 
             # testing the elite if test_elite is True
             if test_elite:
