@@ -25,7 +25,7 @@ class Tree:
         self.test_fitness = None
 
     def calculate_semantics(self, inputs, testing = False):
-        #TODO add sigmoid (check if also SLIM)
+        #TODO add logistic (check if also SLIM)
 
         if isinstance(self.structure, tuple):
             # will be done only for initial population (table) and random trees (table)
