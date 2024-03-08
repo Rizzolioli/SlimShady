@@ -1,5 +1,5 @@
 from parametrization import FUNCTIONS, CONSTANTS
-from utils.utils import get_terminals, get_best_min
+from utils.utils import get_terminals, get_best_min, get_best_max
 from algorithms.GP.representations.tree_utils import create_full_random_tree
 import datasets.data_loader as ds
 from algorithms.GSGP.representations.tree import Tree
@@ -49,15 +49,17 @@ ind2 = Individual([tree2, tree3, tree4, random_tree2])
 # ind1.calculate_semantics(X)
 # print(ind1.train_semantics)
 
-pop = Population([ind1])
+pop = Population([ind1, ind2, ind1, ind2])
 pop.calculate_semantics(X)
 
 pop.evaluate(rmse, y)
 
-res = get_best_min(pop, 1)
+res, elite = get_best_max(pop, 2)
 
-print(pop.population)
-print(res)
+print("POP",pop.population)
+print(pop.fit)
+print("RES",res)
+print("ELITE",elite)
 
 #ind3 = two_trees_inflate_mutation(ind1, 0.1, X)
 

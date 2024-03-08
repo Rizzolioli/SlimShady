@@ -27,12 +27,13 @@ class Tree:
     def calculate_semantics(self, inputs, testing = False):
         #TODO add logistic (check if also SLIM)
 
+        # checking if the individual is part of the initial population (table) or is a random tree (table)
         if isinstance(self.structure, tuple):
-            # will be done only for initial population (table) and random trees (table)
             if testing:
                 self.test_semantics = apply_tree(self, inputs)
             else:
                 self.train_semantics = apply_tree(self, inputs)
+        # if the individual is a result of GSGP evolution
         else:
             if testing:
                 # self.structure[0] is the operator (mutation or xo) while the remaining of the structure dare pointers to the trees

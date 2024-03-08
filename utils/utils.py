@@ -224,8 +224,11 @@ def get_best_min(population, n_elits):
         # getting the indexes of the lower n_elits fitnesses in the population
         idx = np.argpartition(population.fit, n_elits)
 
-        # returning the best n_elits individuals and the elite from them
-        return [population.population[i] for i in idx[:n_elits]], population.population[np.argmin([population.fit[i] for i in idx[:n_elits]])]
+        # getting the best n_elits individuals
+        elites = [population.population[i] for i in idx[:n_elits]]
+
+        # returning the elites and the best elite from among them
+        return elites,  elites[np.argmin([elite.fitness for elite in elites])]
 
     # if only the best individual is to be obtained
     else:
@@ -241,8 +244,11 @@ def get_best_max(population, n_elits):
         # getting the indexes of the higher n_elits fitnesses in the population
         idx = np.argpartition(population.fit, -n_elits)
 
-        # returning the best n_elits individuals and the elite from them
-        return [population.population[i] for i in idx[:-n_elits]], population.population[np.argmax([population.fit[i] for i in idx[:-n_elits]])]
+        # getting the best n_elits individuals
+        elites = [population.population[i] for i in idx[:-n_elits]]
+
+        # returning the elites and the best elite from among them
+        return elites, elites[np.argmax([elite.fitness for elite in elites])]
 
     # if only the best individual is to be obtained
     else:
