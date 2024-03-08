@@ -17,7 +17,9 @@ class Tree:
         if isinstance(structure, tuple):
             self.nodes = len(list(flatten(structure)))
         else:
-            self.nodes = sum([*[tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)], len(structure)-1]) #TODO Davide fix, not always +2
+            # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
+            self.nodes = sum([*[tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)],
+                              *([5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4])])
 
         self.fitness = None
         self.test_fitness = None

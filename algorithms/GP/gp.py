@@ -13,7 +13,7 @@ from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
 # TODO: consider logger levels (pickel population)
 # TODO: make elitism parametrized
 
-#Diogo
+# Diogo
 # TODO handling of TERMINALS FUNCTIONS etc in all scripts
 
 
