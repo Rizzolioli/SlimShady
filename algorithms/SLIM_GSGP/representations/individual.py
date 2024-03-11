@@ -1,5 +1,5 @@
 import torch
-
+from utils.utils import tensor_dimensioned_sum
 class Individual():
 
     def __init__(self, collection):
@@ -13,18 +13,19 @@ class Individual():
         self.train_semantics = None
         self.test_semantics = None
 
-    def calculate_semantics(self, inputs, testing = False):
+    def calculate_semantics(self, inputs, testing=False):
 
         [tree.calculate_semantics(inputs, testing) for tree in self.collection]
 
+
         if testing:
 
-            self.test_semantics = [tree.test_semantics for tree in self.collection]
+            self.test_semantics = torch.stack([tree.test_semantics if [*tree.test_semantics.size()] != [] \
+                                                    else tree.test_semantics.repeat(len(inputs)) for tree in self.collection])
 
         else:
-
-            self.train_semantics = [tree.train_semantics for tree in self.collection]
-
+            self.train_semantics = torch.stack([tree.train_semantics if [*tree.train_semantics.size()] != [] \
+                                                    else tree.train_semantics.repeat(len(inputs)) for tree in self.collection])
 
     def __len__(self):
         return self.size
@@ -68,14 +69,16 @@ class Individual():
                     attributes a fitness tensor to the population
                 """
         if operator == 'sum':
-            operator = sum
+            operator = tensor_dimensioned_sum(dim=0) # TODO: davide confirm that dim is 0 and not -1
         else:
-            # TODO: this is very wrong <3 add the multiplication
-            operator = lambda x:[x[i]*x[i+1] for i in range(len(x)-1)][0] # TODO could improve, change self.train_semantics to tensor??
-            
-            
+            # TODO: this is very wrong <3 add the multiplication - Davide
+            operator = lambda x:[x[i]*x[i+1] for i in range(len(x)-1)][0] #TODO could improve, change self.train_semantics to tensor?? Liah
+
         if testing:
             self.test_fitness = ffunction(operator(self.test_semantics), y)
 
         else:
             self.fitness = ffunction(operator(self.train_semantics), y)
+
+
+        # TODO: one tree mutation - Davide

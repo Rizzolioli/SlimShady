@@ -13,6 +13,11 @@ from algorithms.SLIM_GSGP.operators.mutators import *
                                             # TREE PARAMETERS
 
 ########################################################################################################################
+# TODO: add the settings to logger - Liah
+
+# TODO: add grid-search code to main - DIOGO
+
+# TODO: Davide add geno and pheno diversity --> logger level
 
 FUNCTIONS = {
     'add': {'function': lambda x, y: torch.add(x, y), 'arity': 2},
