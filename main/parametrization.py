@@ -142,15 +142,16 @@ slim_GSGP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min(2),
                   "crossover": geometric_crossover,
                    "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'),
-                 "inflate_mutator" : two_trees_inflate_mutation,
+                 "inflate_mutator" : None,
                   "deflate_mutator": deflate_mutation,
-                  "p_xo": 0.8,
+                  "p_xo": 0,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
                 "find_elit_func": get_best_max if solve_parameters["max_"] else get_best_min,
                 "p_inflate": 0.3
     }
 
+inflate_mutator = two_trees_inflate_mutation
 slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 slim_GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 

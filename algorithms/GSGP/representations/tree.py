@@ -27,6 +27,7 @@ class Tree:
     def calculate_semantics(self, inputs, testing = False):
 
         # checking if the individual is part of the initial population (table) or is a random tree (table)
+        # TODO : new parameter so that only random trees get sigmoid, if only one tree is used no sigmoid is needed
         if isinstance(self.structure, tuple):
             if testing:
                 self.test_semantics = torch.sigmoid(apply_tree(self, inputs))

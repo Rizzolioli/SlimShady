@@ -45,16 +45,16 @@ def two_trees_inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS ):
         if individual.test_semantics is not None:
             offs.test_semantics = [*individual.test_semantics, new_block.test_semantics]
 
-
         return offs
 
     return tt_inflate
 
 
 def deflate_mutation(individual):
-
+    # TODO: add to tournament selection the assurement that the individuals are of size 1!
     if individual.size > 1:
         mut_point = random.randint(1, individual.size - 1)
+
         offs = individual.remove_block(mut_point)
 
         if individual.train_semantics != None:

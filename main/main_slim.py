@@ -41,7 +41,8 @@ for loader in data_loaders:
     # getting the terminals and defining the terminal-dependant parameters
     TERMINALS = get_terminals(loader)
     slim_gsgp_pi_init["TERMINALS"] = TERMINALS
-    slim_GSGP_parameters["inflate_mutator"] = slim_GSGP_parameters["inflate_mutator"](FUNCTIONS=FUNCTIONS, TERMINALS=TERMINALS, CONSTANTS=CONSTANTS)
+    slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
+                                              TERMINALS=TERMINALS, CONSTANTS=CONSTANTS)
 
     # for each dataset, run all the planned algorithms
     for algo in algos:

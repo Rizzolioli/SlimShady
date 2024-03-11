@@ -11,6 +11,8 @@ from algorithms.SLIM_GSGP.representations.individual import Individual
 
 
 class SLIM_GSGP:
+    # TODO: implement improvement rate
+    # TODO: implement TIE & convex hull
 
     def __init__(self, pi_init, initializer, selector, inflate_mutator, deflate_mutator, ms, crossover, find_elit_func,
                  p_m=1, p_xo=0, p_inflate = 0.3, p_deflate = 0.7, pop_size=100, seed=0,

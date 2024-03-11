@@ -78,7 +78,7 @@ class GSGP:
         if verbose != 0:
 
             verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start, population.nodes_count)
-
+        # TODO: try to create the maximum needed amount of trees at the begining based on the pop size and operators
         # initializing a random tree list table
         random_trees = []
 

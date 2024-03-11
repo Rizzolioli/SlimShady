@@ -3,8 +3,9 @@ import torch
 class Individual():
 
     def __init__(self, collection):
-
+        # defining the list (block) of pointers
         self.collection = collection
+        # keeping the structure of the trees in the block
         self.structure = [tree.structure for tree in collection]
         self.size = len(collection) # size == number of blocks
         self.nodes_count = sum([tree.nodes for tree in collection])
@@ -69,7 +70,8 @@ class Individual():
         if operator == 'sum':
             operator = sum
         else:
-            operator = lambda x:[x[i]*x[i+1] for i in range(len(x)-1)][0] #TODO could improve, change self.train_semantics to tensor??
+            # TODO: this is very wrong <3 add the multiplication
+            operator = lambda x:[x[i]*x[i+1] for i in range(len(x)-1)][0] # TODO could improve, change self.train_semantics to tensor??
             
             
         if testing:
