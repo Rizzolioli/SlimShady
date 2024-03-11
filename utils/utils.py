@@ -107,20 +107,12 @@ def train_test_split(X, y, p_test=0.3, shuffle=True, indices_only=False, seed=0)
         y_train, y_test = y[train_indices], y[test_indices]
         return X_train, X_test, y_train, y_test
 
-    import csv
-    from copy import copy
-
 """
 
 Not taken from GPOL
 
 """
 
-def tensor_dimensioned_sum(dim):
-    def tensor_sum(input):
-        return torch.sum(input, dim)
-
-    return tensor_sum
 def verbose_reporter(dataset,generation, pop_val_fitness, pop_test_fitness, timing, nodes):
     """
         Prints a formatted report of generation, fitness values, timing, and node count.

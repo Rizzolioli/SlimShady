@@ -40,10 +40,16 @@ def two_trees_inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS ):
         offs = individual.add_block(new_block)
 
         if individual.train_semantics is not None:
-            # TODO if train semantics is a tensor of tensors this needs to change
-            offs.train_semantics = [*individual.train_semantics, new_block.train_semantics]
+
+            offs.train_semantics = torch.stack([*individual.train_semantics,
+                                    (new_block.train_semantics if new_block.train_semantics.shape != torch.Size([])
+                                    else new_block.train_semantics.repeat(len(X)))])
+
         if individual.test_semantics is not None:
-            offs.test_semantics = [*individual.test_semantics, new_block.test_semantics]
+
+            offs.test_semantics = torch.stack([*individual.test_semantics,
+                                (new_block.test_semantics if new_block.test_semantics.shape != torch.Size([])
+                                 else new_block.test_semantics.repeat(len(X_test)))])
 
         return offs
 
