@@ -7,34 +7,53 @@ from algorithms.SLIM_GSGP.representations.individual import Individual
 from utils.utils import get_random_tree
 
 
-def two_trees_delta(tr1, tr2, ms, testing):
-    if testing:
-        return torch.mul(ms, torch.sub(tr1.test_semantics, tr2.test_semantics))
-    else:
-        return torch.mul(ms, torch.sub(tr1.train_semantics, tr2.train_semantics))
+def two_trees_delta( operator = 'sum'):
 
-def one_tree_delta(tr1, ms, testing):
-    if testing:
-        return torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.test_semantics)))))
-    else:
-        return torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.train_semantics)))))
+    def tt_delta(tr1, tr2, ms, testing):
+
+        if testing:
+            return torch.mul(ms, torch.sub(tr1.test_semantics, tr2.test_semantics)) if operator == 'sum' else \
+                   torch.add(1, torch.mul(ms, torch.sub(tr1.test_semantics, tr2.test_semantics)))
+
+        else:
+            return torch.mul(ms, torch.sub(tr1.train_semantics, tr2.train_semantics)) if operator == 'sum' else \
+                   torch.add(1, torch.mul(ms, torch.sub(tr1.train_semantics, tr2.train_semantics)))
+
+    return tt_delta
+
+def one_tree_delta( operator = 'sum'):
+
+    def ot_delta(tr1, ms, testing):
+
+        if testing:
+            return torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.test_semantics))))) if operator == 'sum' else \
+                torch.add(1, torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.test_semantics))))))
+        else:
+            return torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.train_semantics))))) if operator == 'sum' else \
+                torch.add(1, torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.train_semantics))))))
+
+    return ot_delta
 
 
-def two_trees_inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS ):
+def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees = True, operator = 'sum'):
 
-    def tt_inflate(individual, ms, X,max_depth = 8, p_c = 0.1, X_test = None, p_terminal=0.5, grow_probability=1):
+    def inflate(individual, ms, X, max_depth = 8, p_c = 0.1, X_test = None, p_terminal=0.5, grow_probability=1):
 
         random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c, p_terminal=p_terminal, grow_probability=grow_probability)
-
-        random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c, p_terminal=p_terminal,
+        random_trees = [random_tree1]
+        if two_trees:
+            random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c, p_terminal=p_terminal,
                                        grow_probability=grow_probability)
+            random_trees.append(random_tree2)
 
+        [rt.calculate_semantics(X, testing=False) for rt in random_trees]
         if X_test is not None:
-            random_tree1.calculate_semantics(X_test, testing=True)
-            random_tree2.calculate_semantics(X_test, testing=True)
+            [rt.calculate_semantics(X_test, testing=True) for rt in random_trees]
 
-        new_block = Tree([two_trees_delta,
-                          random_tree1, random_tree2, ms],
+
+
+        new_block = Tree([(two_trees_delta(operator = operator) if two_trees else one_tree_delta(operator = operator)),
+                         *random_trees, ms],
                          FUNCTIONS,
                          TERMINALS,
                          CONSTANTS)
@@ -58,7 +77,8 @@ def two_trees_inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS ):
 
         return offs
 
-    return tt_inflate
+    return inflate
+
 
 
 def deflate_mutation(individual):
@@ -69,7 +89,6 @@ def deflate_mutation(individual):
         offs = individual.remove_block(mut_point)
 
         if individual.train_semantics != None:
-            #TODO if train semantics is a tensor of tensors this needs to change
             offs.train_semantics = torch.stack([*individual.train_semantics[:mut_point], *individual.train_semantics[mut_point+1:]])
         if individual.test_semantics != None:
             offs.test_semantics = torch.stack([*individual.test_semantics[:mut_point], *individual.test_semantics[mut_point+1:]])

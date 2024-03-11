@@ -42,7 +42,7 @@ for loader in data_loaders:
     TERMINALS = get_terminals(loader)
     slim_gsgp_pi_init["TERMINALS"] = TERMINALS
     slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
-                                              TERMINALS=TERMINALS, CONSTANTS=CONSTANTS)
+                                              TERMINALS=TERMINALS, CONSTANTS=CONSTANTS, two_trees=two_trees, operator=operator)
 
     # for each dataset, run all the planned algorithms
     for algo in algos:
@@ -50,7 +50,7 @@ for loader in data_loaders:
         slim_gsgp_solve_parameters['run_info'] = [algo, dataset]
 
         # running each dataset + algo configuration n_runs times
-        for seed in range(1):
+        for seed in range(7):
             start = time.time()
 
             # Loads the data via the dataset loader

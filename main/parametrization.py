@@ -156,9 +156,11 @@ slim_GSGP_parameters = {"initializer": rhh,
                 "p_inflate": 0.3
     }
 
-inflate_mutator = two_trees_inflate_mutation
+inflate_mutator = inflate_mutation
 slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 slim_GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
+two_trees = False
+operator = 'mul'
 
 slim_gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
            'init_depth': 8,
