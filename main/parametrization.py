@@ -3,7 +3,7 @@ from evaluators.fitness_functions import rmse
 from algorithms.GP.operators.initializers import rhh
 from algorithms.GP.operators.crossover_operators import crossover_trees
 from algorithms.GSGP.operators.crossover_operators import geometric_crossover
-from algorithms.GSGP.operators.mutators import geometric_mutation
+from algorithms.GSGP.operators.mutators import *
 from algorithms.GP.operators.selection_algorithms import tournament_selection_min
 from datasets.data_loader import *
 from algorithms.SLIM_GSGP.operators.mutators import *
@@ -110,7 +110,7 @@ GSGP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min(2),
                   "crossover": geometric_crossover,
                    "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'),
-                 "mutator" : geometric_mutation,
+                 "mutator" : standard_one_tree_geometric_mutation,
                   "p_xo": 0.8,
                   "pop_size": 100,
                   "settings_dict": settings_dict,

@@ -5,32 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/representations/tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/representations/tree.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/population.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/population.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/log/logger.csv" beforeDir="false" afterPath="$PROJECT_DIR$/main/log/logger.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/main_slim.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_slim.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/.idea/resources.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/algorithm/algorithm.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/crossover_operators.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/initializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/mutators.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/population.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/selection_algorithms.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/trees.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/utils/functions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/utils/understanding.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/utils/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/tree/utils/utils_info.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/operators/mutators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +111,7 @@
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main (1)">
+  <component name="RunManager" selected="Python.main_gsgp">
     <configuration name="checker" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -242,8 +219,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.main (1)" />
         <item itemvalue="Python.main_gsgp" />
+        <item itemvalue="Python.main (1)" />
         <item itemvalue="Python.main_slim" />
         <item itemvalue="Python.checker" />
         <item itemvalue="Python.main" />
@@ -314,7 +291,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py</url>
-          <line>168</line>
+          <line>156</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
