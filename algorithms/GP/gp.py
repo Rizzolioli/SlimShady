@@ -7,6 +7,7 @@ from utils.utils import verbose_reporter, logger
 from algorithms.GP.representations.population import Population
 from algorithms.GP.representations.tree import Tree
 from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
+from utils.diversity import niche_entropy
 
 
 # small fixes - Liah
@@ -74,9 +75,13 @@ class GP:
         if log != 0:
 
         # logging the results
+            if log > 1:
+                add_info = [self.elite.test_fitness, niche_entropy([ind.repr_ for ind in population.population]), np.std(population.fit)]
+            else:
+                add_info = [self.elite.test_fitness]
 
             logger(log_path, 0, self.elite.fitness, end-start, float(population.nodes_count),
-                pop_test_report = self.elite.test_fitness, run_info=run_info, seed=self.seed)
+                additional_infos = add_info, run_info=run_info, seed=self.seed)
 
 
         if verbose != 0:
@@ -159,8 +164,15 @@ class GP:
 
             # logging the results for the current generation
             if log != 0:
-               logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
-                           pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
+
+                if log > 1:
+                    add_info = [self.elite.test_fitness, niche_entropy([ind.repr_ for ind in population.population]),
+                                np.std(population.fit)]
+                else:
+                    add_info = [self.elite.test_fitness]
+
+                logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
+                           additional_infos=add_info, run_info=run_info, seed=self.seed)
 
             # displaying the results for the current generation on console
             if verbose != 0:

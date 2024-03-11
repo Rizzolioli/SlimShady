@@ -7,6 +7,8 @@ from utils.utils import verbose_reporter, logger, get_random_tree
 from algorithms.GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
 
+from utils.diversity import gsgp_pop_div_from_vectors
+
 class GSGP:
 
     def __init__(self, pi_init, initializer, selector, mutator, ms, crossover, find_elit_func,
@@ -71,8 +73,16 @@ class GSGP:
         # logging the results for the population initialization
         if log != 0:
 
+
+            if log > 1:
+                add_info = [self.elite.test_fitness,
+                            gsgp_pop_div_from_vectors(torch.stack([ind.train_semantics for ind in population.population])),
+                            np.std(population.fit)]
+            else:
+                add_info = [self.elite.test_fitness]
+
             logger(log_path, 0, self.elite.fitness, end-start, float(population.nodes_count),
-                pop_test_report = self.elite.test_fitness, run_info=run_info, seed=self.seed)
+                additional_infos = add_info, run_info=run_info, seed=self.seed)
 
         # displaying the results for the population initialization on console
         if verbose != 0:
@@ -190,8 +200,17 @@ class GSGP:
 
             # logging the results for the current generation
             if log != 0:
+
+                if log > 1:
+                    add_info = [self.elite.test_fitness,
+                                gsgp_pop_div_from_vectors(torch.stack([ind.train_semantics for ind in population.population])),
+                                np.std(population.fit)]
+                else:
+                    add_info = [self.elite.test_fitness]
+
+
                 logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
-                       pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
+                       additional_infos=add_info, run_info=run_info, seed=self.seed)
 
             # displaying the results for the current generation on console
             if verbose != 0:

@@ -8,6 +8,8 @@ from algorithms.SLIM_GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual
 
+from utils.diversity import gsgp_pop_div_from_vectors
+
 
 
 class SLIM_GSGP:
@@ -15,7 +17,7 @@ class SLIM_GSGP:
     # TODO: implement TIE & convex hull
 
     def __init__(self, pi_init, initializer, selector, inflate_mutator, deflate_mutator, ms, crossover, find_elit_func,
-                 p_m=1, p_xo=0, p_inflate = 0.3, p_deflate = 0.7, pop_size=100, seed=0,
+                 p_m=1, p_xo=0, p_inflate = 0.3, p_deflate = 0.7, pop_size=100, seed=0, operator = 'sum',
                  settings_dict=None):
 
         #other initial parameters, tipo dataset
@@ -32,6 +34,7 @@ class SLIM_GSGP:
         self.initializer = initializer
         self.pop_size = pop_size
         self.seed = seed
+        self.operator = operator
 
         self.settings_dict = settings_dict
         self.find_elit_func = find_elit_func
@@ -60,7 +63,7 @@ class SLIM_GSGP:
 
 
         population.calculate_semantics(X_train)
-        population.evaluate(ffunction,  y=y_train)
+        population.evaluate(ffunction,  y=y_train, operator=self.operator)
 
         end = time.time()
 
@@ -70,13 +73,26 @@ class SLIM_GSGP:
         # testing the elite on validation/testing, if applicable
         if test_elite:
             self.elite.calculate_semantics(X_test, testing=True)
-            self.elite.evaluate(ffunction, y=y_test, testing=True)
+            self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
 
         # logging the population initialization
         if log != 0:
 
+            if log > 1:
+                gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
+                                                                        for ind in population.population]),
+                                                           ) \
+                    if self.operator == 'sum' else \
+                    gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
+                                                           for ind in population.population]))
+                add_info = [self.elite.test_fitness,
+                            gen_diversity,
+                            np.std(population.fit)]
+            else:
+                add_info = [self.elite.test_fitness]
+
             logger(log_path, 0, self.elite.fitness, end - start, float(population.nodes_count),
-                   pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
+                   additional_infos=add_info, run_info=run_info, seed=self.seed)
 
         # displaying the results of the population initialization on console
         if verbose != 0:
@@ -139,7 +155,7 @@ class SLIM_GSGP:
             offs_pop = Population(offs_pop)
             offs_pop.calculate_semantics(X_train)
 
-            offs_pop.evaluate(ffunction, y=y_train)
+            offs_pop.evaluate(ffunction, y=y_train, operator=self.operator)
             population = offs_pop
 
             end = time.time()
@@ -149,11 +165,27 @@ class SLIM_GSGP:
 
             if test_elite:
                 self.elite.calculate_semantics(X_test, testing=True)
-                self.elite.evaluate(ffunction, y=y_test, testing=True)
+                self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
 
             if log != 0:
+
+                if log > 1:
+
+                    gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
+                                                                                     for ind in population.population]),
+                                                                        ) \
+                        if self.operator == 'sum' else \
+                        gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
+                                                                          for ind in population.population]))
+
+                    add_info = [self.elite.test_fitness,
+                                gen_diversity,
+                                np.std(population.fit)]
+                else:
+                    add_info = [self.elite.test_fitness]
+
                 logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
-                               pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
+                               additional_infos=add_info, run_info=run_info, seed=self.seed)
 
             if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,

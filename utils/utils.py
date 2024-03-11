@@ -175,7 +175,7 @@ def verbose_reporter(dataset,generation, pop_val_fitness, pop_test_fitness, timi
               " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
 
 def logger(path, generation, pop_val_fitness, timing, nodes,
-           pop_test_report=None, run_info=None,  seed=0):
+           additional_infos=None, run_info=None,  seed=0):
     """
         Logs information into a CSV file.
 
@@ -210,8 +210,8 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
 
         else:
             infos = [seed, generation, float(pop_val_fitness), timing, nodes]
-        if pop_test_report != None:
-            infos.extend([float(pop_test_report)])
+        if additional_infos != None:
+            infos.extend(additional_infos)
 
         writer.writerow(infos)
 

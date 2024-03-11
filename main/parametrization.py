@@ -55,7 +55,7 @@ settings_dict = {"p_test": 0.2}
 ########################################################################################################################
 
 solve_parameters = {"elitism": True,
-                    "log": 1,
+                    "log": 2,
                     "verbose": 1,
                     "test_elite": True,
                     "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
@@ -95,7 +95,7 @@ pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the initi
 
 
 gsgp_solve_parameters = {"elitism": True,
-                    "log": 1,
+                    "log": 2,
                     "verbose": 1,
                     "test_elite": True,
                     "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
@@ -131,7 +131,7 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
 ########################################################################################################################
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                    "log": 1,
+                    "log": 2,
                     "verbose": 1,
                     "test_elite": True,
                     "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
@@ -159,8 +159,8 @@ slim_GSGP_parameters = {"initializer": rhh,
 inflate_mutator = inflate_mutation
 slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 slim_GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
-two_trees = False
-operator = 'mul'
+two_trees = True
+operator = 'sum'
 
 slim_gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
            'init_depth': 8,
