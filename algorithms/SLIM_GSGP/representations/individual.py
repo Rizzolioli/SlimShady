@@ -65,7 +65,7 @@ class Individual():
                     attributes a fitness tensor to the population
                 """
         if operator == 'sum':
-            operator = sum #TODO double check if it's working
+            operator = sum
         else:
             # TODO could improve, change self.train_semantics to tensor??, the way it's coded now it's wrong
             operator = lambda x:[ x[i]*x[i+1] for i in range(len(x)-1)][0]
