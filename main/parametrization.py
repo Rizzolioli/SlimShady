@@ -6,6 +6,7 @@ from algorithms.GSGP.operators.crossover_operators import geometric_crossover
 from algorithms.GSGP.operators.mutators import geometric_mutation
 from algorithms.GP.operators.selection_algorithms import tournament_selection_min
 from datasets.data_loader import *
+from algorithms.SLIM_GSGP.operators.mutators import *
 
 ########################################################################################################################
 
@@ -118,3 +119,43 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
            'CONSTANTS': CONSTANTS,
            "p_c": 0.1}
 
+########################################################################################################################
+
+                                            # SLIM GSGP PARAMETERS
+
+########################################################################################################################
+
+slim_gsgp_solve_parameters = {"elitism": True,
+                    "log": 1,
+                    "verbose": 1,
+                    "test_elite": True,
+                    "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
+                    "run_info": None,
+                    "max_": False,
+                    "ffunction": rmse,
+                    "n_iter": 100,
+                    "max_depth": 17,
+                    "n_elites": 1
+                    }
+
+slim_GSGP_parameters = {"initializer": rhh,
+                  "selector": tournament_selection_min(2),
+                  "crossover": geometric_crossover,
+                   "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'),
+                 "inflate_mutator" : two_trees_inflate_mutation,
+                  "deflate_mutator": deflate_mutation,
+                  "p_xo": 0.8,
+                  "pop_size": 100,
+                  "settings_dict": settings_dict,
+                "find_elit_func": get_best_max if solve_parameters["max_"] else get_best_min,
+                "p_inflate": 0.3
+    }
+
+slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
+slim_GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
+
+slim_gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
+           'init_depth': 8,
+           'FUNCTIONS': FUNCTIONS,
+           'CONSTANTS': CONSTANTS,
+           "p_c": 0.1}

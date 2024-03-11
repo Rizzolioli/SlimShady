@@ -6,7 +6,7 @@ class Individual():
 
         self.collection = collection
         self.structure = [tree.structure for tree in collection]
-        self.size = len(collection) #size == number of blocks
+        self.size = len(collection) # size == number of blocks
         self.nodes_count = sum([tree.nodes for tree in collection])
 
         self.train_semantics = None
@@ -17,9 +17,11 @@ class Individual():
         [tree.calculate_semantics(inputs, testing) for tree in self.collection]
 
         if testing:
+
             self.test_semantics = [tree.test_semantics for tree in self.collection]
 
         else:
+
             self.train_semantics = [tree.train_semantics for tree in self.collection]
 
 
@@ -67,7 +69,7 @@ class Individual():
         if operator == 'sum':
             operator = sum
         else:
-            operator = lambda x:[ x[i]*x[i+1] for i in range(len(x)-1)][0] #TODO could improve, change self.train_semantics to tensor??
+            operator = lambda x:[x[i]*x[i+1] for i in range(len(x)-1)][0] #TODO could improve, change self.train_semantics to tensor??
             
             
         if testing:

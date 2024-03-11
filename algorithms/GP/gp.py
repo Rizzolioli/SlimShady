@@ -11,7 +11,6 @@ from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
 
 # small fixes - Liah
 # TODO: consider logger levels (pickel population)
-# TODO: make elitism parametrized DONE in GP
 
 # Diogo
 # TODO handling of TERMINALS FUNCTIONS etc in all scripts
@@ -106,6 +105,9 @@ class GP:
 
                     # if crossover, choose two parents
                     p1, p2 = self.selector(population), self.selector(population)
+
+                    while p1 == p2:
+                        p1, p2 = self.selector(population), self.selector(population)
 
                     # getting the offspring
                     offs1, offs2 = self.crossover(p1.repr_, p2.repr_)

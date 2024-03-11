@@ -12,7 +12,7 @@ from algorithms.SLIM_GSGP.representations.individual import Individual
 
 class SLIM_GSGP:
 
-    def __init__(self, pi_init, initializer, selector, inflate_mutator, deflate_mutator, ms, crossover,
+    def __init__(self, pi_init, initializer, selector, inflate_mutator, deflate_mutator, ms, crossover, find_elit_func,
                  p_m=1, p_xo=0, p_inflate = 0.3, p_deflate = 0.7, pop_size=100, seed=0,
                  settings_dict=None):
 
@@ -30,14 +30,13 @@ class SLIM_GSGP:
         self.initializer = initializer
         self.pop_size = pop_size
         self.seed = seed
-        #TODO check wheter to include max_depth(Leo)
 
         self.settings_dict = settings_dict
+        self.find_elit_func = find_elit_func
 
-    def solve(self, X_train, X_test, y_train, y_test, curr_dataset, n_iter=20, elitism=True, log=0, verbose=0,
-              test_elite=False, log_path=None, run_info=None,
-              max_=False,
-              ffunction=None):
+    def solve(self, X_train, X_test, y_train, y_test, curr_dataset, run_info ,n_iter=20, elitism=True, log=0, verbose=0,
+              test_elite=False, log_path=None,
+              max_=False, ffunction=None, max_depth=17, n_elites=1): # TODO: discuss how to impose max depth
 
         # setting the seeds
         torch.manual_seed(self.seed)
@@ -53,43 +52,33 @@ class SLIM_GSGP:
         ################################################################################################################
 
         # initializing the population
-        pop = Population([Individual([
+        population = Population([Individual([
                           Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS']) ])
                           for tree in self.initializer(**self.pi_init)])
 
 
-        pop.calculate_semantics(X_train)
-        pop.evaluate(ffunction,  y=y_train)
+        population.calculate_semantics(X_train)
+        population.evaluate(ffunction,  y=y_train)
 
         end = time.time()
 
-        # obtaining the initial population elite
-        if max_:
-            self.elite = pop.population[np.argmax(pop.fit)]
-        else:
-            self.elite = pop.population[np.argmin(pop.fit)]
+        # obtaining the initial population elites
+        self.elites, self.elite = self.find_elit_func(population, n_elites)
 
         # testing the elite on validation/testing, if applicable
-
         if test_elite:
             self.elite.calculate_semantics(X_test, testing=True)
             self.elite.evaluate(ffunction, y=y_test, testing=True)
 
+        # logging the population initialization
         if log != 0:
 
-            if max_:
-                logger(log_path, 0, max(pop.fit), end-start, float(pop.nodes_count),
-                    pop_test_report = self.elite.test_fitness, run_info=run_info, seed=self.seed)
+            logger(log_path, 0, self.elite.fitness, end - start, float(population.nodes_count),
+                   pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
-            else:
-                logger(log_path, 0, min(pop.fit), end - start, float(pop.nodes_count),
-                       pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
-
+        # displaying the results of the population initialization on console
         if verbose != 0:
-            if max_:
-                verbose_reporter(curr_dataset.split("load_")[-1], 0, max(pop.fit), self.elite.test_fitness, end-start, pop.nodes_count)
-            else:
-                verbose_reporter(curr_dataset.split("load_")[-1], 0, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
+            verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start, population.nodes_count)
 
         ################################################################################################################
 
@@ -103,27 +92,30 @@ class SLIM_GSGP:
 
             if elitism:
 
-                offs_pop.append(self.elite)
+                offs_pop.extend(self.elites)
 
             while len(offs_pop) < self.pop_size:
-
 
 
                 # choosing between crossover and mutation
                 if random.random() < self.p_xo:
 
-                    p1, p2 = self.selector(pop), self.selector(pop)
+                    # if crossover selecting two parents
+                    p1, p2 = self.selector(population), self.selector(population)
 
+                    # making sure the parents aren't the same
                     while p1 == p2:
-                        p1, p2 = self.selector(pop), self.selector(pop)
+                        p1, p2 = self.selector(population), self.selector(population)
 
                     pass # implement crossover
 
                 else:
 
-                    p1 = self.selector(pop)
+                    # if mutation, pick one individual
+                    p1 = self.selector(population)
 
-                    if random.random() < self.p_deflate and it != 1: #TODO can't deflate at the first generation(Leo)
+                    # choose between deflating or inflating the individual
+                    if random.random() < self.p_deflate and it != 1:
 
                         off1 = self.deflate_mutator(p1)
 
@@ -138,40 +130,29 @@ class SLIM_GSGP:
 
 
 
-            if len(offs_pop) > pop.size:
+            if len(offs_pop) > population.size:
 
-                offs_pop = offs_pop[:pop.size]
+                offs_pop = offs_pop[:population.size]
 
             offs_pop = Population(offs_pop)
             offs_pop.calculate_semantics(X_train)
 
             offs_pop.evaluate(ffunction, y=y_train)
-            pop = offs_pop
+            population = offs_pop
 
             end = time.time()
 
-            if max_:
-                self.elite = pop.population[np.argmax(pop.fit)]
-            else:
-                self.elite = pop.population[np.argmin(pop.fit)]
+            # obtaining the initial population elites
+            self.elites, self.elite = self.find_elit_func(population, n_elites)
 
             if test_elite:
                 self.elite.calculate_semantics(X_test, testing=True)
                 self.elite.evaluate(ffunction, y=y_test, testing=True)
 
             if log != 0:
-                if max_:
-                    logger(log_path, it, max(pop.fit), end - start, float(pop.nodes_count),
-                           pop_test_report=[
-                                       self.elite.test_fitness,
-                                       ], run_info=run_info, seed=self.seed)
-                else:
-                    logger(log_path, it, min(pop.fit), end - start, float(pop.nodes_count),
-                           pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
+                logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
+                               pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
 
             if verbose != 0:
-                if max_:
-                    verbose_reporter(run_info[-1], it, max(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
-                else:
-                    verbose_reporter(run_info[-1],it, min(pop.fit), self.elite.test_fitness, end - start, pop.nodes_count)
-
+                verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,
+                                         population.nodes_count)

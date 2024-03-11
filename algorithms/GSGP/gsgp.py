@@ -3,12 +3,10 @@ import random
 import torch
 import numpy as np
 
-from utils.utils import verbose_reporter, logger, train_test_split
+from utils.utils import verbose_reporter, logger, get_random_tree
 from algorithms.GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
 
-
-# TODO: not to create a population of random trees, just add a tree to a table when we need them
 class GSGP:
 
     def __init__(self, pi_init, initializer, selector, mutator, ms, crossover, find_elit_func,
@@ -48,24 +46,17 @@ class GSGP:
 
         ################################################################################################################
 
-        # and the population of random trees
-        random_trees = Population([Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
-                          for tree in self.initializer(**self.pi_init)])
-        # TODO rn same size as initial population, decide whether to create new rt at each variation
-
-        random_trees.calculate_semantics(X_train)
-
-        if test_elite:
-            random_trees.calculate_semantics(X_test, testing=True)
-
         # initializing the population
         population = Population([Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
                           for tree in self.initializer(**self.pi_init)])
+
+        # getting the individuals' semantics
         population.calculate_semantics(X_train)
 
         if test_elite:
             population.calculate_semantics(X_test, testing=True)
 
+        # getting individuals' fitness
         population.evaluate(ffunction,  y=y_train)
 
         end = time.time()
@@ -74,7 +65,6 @@ class GSGP:
         self.elites, self.elite = self.find_elit_func(population, n_elites)
 
         # testing the elite on validation/testing, if applicable
-
         if test_elite:
             self.elite.evaluate(ffunction, y=y_test, testing=True)
 
@@ -89,13 +79,14 @@ class GSGP:
 
             verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start, population.nodes_count)
 
+        # initializing a random tree list table
+        random_trees = []
+
         ################################################################################################################
 
                                                         # GP EVOLUTION #
 
         ################################################################################################################
-
-        #TODO add reconstruct bool
 
         ancestry = []
 
@@ -115,8 +106,22 @@ class GSGP:
                     # if crossover, select two parents
                     p1, p2 = self.selector(population), self.selector(population)
 
+                    while p1 == p2:
+                        p1, p2 = self.selector(population), self.selector(population)
+
+                    # getting a random tree
+                    r_tree = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'], TERMINALS=self.pi_init['TERMINALS'],
+                                             CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+
+                    # calculating its semantics on testing, if applicable
+                    if test_elite:
+                        r_tree.calculate_semantics(X_test, testing=True)
+
+                    # adding the random tree to the random tree list
+                    random_trees.append(r_tree)
+
                     # the two parents generate one offspring
-                    offs1 = Tree([self.crossover, p1, p2, random.choice(random_trees)],
+                    offs1 = Tree([self.crossover, p1, p2, r_tree],
                                  p1.FUNCTIONS, p1.TERMINALS, p1.CONSTANTS)
 
                     # adding the offspring to the population
@@ -132,8 +137,27 @@ class GSGP:
 
                     # determining the mutation step
                     ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)]
+
+                    # getting two random trees
+                    r_tree1 = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'],
+                                             TERMINALS=self.pi_init['TERMINALS'],
+                                             CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+
+                    r_tree2 = get_random_tree(max_depth=self.pi_init['init_depth'],
+                                              FUNCTIONS=self.pi_init['FUNCTIONS'],
+                                              TERMINALS=self.pi_init['TERMINALS'],
+                                              CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+
+                    # calculating random trees' semantics on testing, if applicable
+                    if test_elite:
+                        r_tree1.calculate_semantics(X_test, testing=True)
+                        r_tree2.calculate_semantics(X_test, testing=True)
+
+                    # adding the random trees to the random tree list
+                    random_trees.extend([r_tree1, r_tree2])
+
                     # mutating the individual
-                    offs1 = Tree([self.mutator, p1, random.choice(random_trees), random.choice(random_trees), ms_],
+                    offs1 = Tree([self.mutator, p1, r_tree1, r_tree2, ms_],
                                  p1.FUNCTIONS, p1.TERMINALS, p1.CONSTANTS)
 
                     # adding the individual to the population

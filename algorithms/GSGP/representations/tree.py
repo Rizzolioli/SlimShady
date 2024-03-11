@@ -1,6 +1,6 @@
 from algorithms.GSGP.representations.tree_utils import apply_tree
 from algorithms.GP.representations.tree_utils import flatten
-
+import torch
 class Tree:
     def __init__(self, structure, FUNCTIONS, TERMINALS, CONSTANTS):
 
@@ -25,14 +25,15 @@ class Tree:
         self.test_fitness = None
 
     def calculate_semantics(self, inputs, testing = False):
-        # TODO add logistic (check if also SLIM)
 
         # checking if the individual is part of the initial population (table) or is a random tree (table)
         if isinstance(self.structure, tuple):
             if testing:
-                self.test_semantics = apply_tree(self, inputs)
+                self.test_semantics = torch.sigmoid(apply_tree(self, inputs))
+
             else:
-                self.train_semantics = apply_tree(self, inputs)
+                self.train_semantics = torch.sigmoid(apply_tree(self, inputs))
+
         # if the individual is a result of GSGP evolution
         else:
             if testing:

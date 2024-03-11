@@ -1,7 +1,7 @@
 from parametrization import *
 from algorithms.GSGP.gsgp import GSGP
 import datasets.data_loader as ds
-from utils.utils import get_terminals
+from utils.utils import get_terminals, train_test_split
 
 ########################################################################################################################
 

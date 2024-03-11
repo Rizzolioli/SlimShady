@@ -3,7 +3,7 @@ import time
 from parametrization import *
 from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
 import datasets.data_loader as ds
-from utils.utils import get_terminals
+from utils.utils import get_terminals, train_test_split
 from algorithms.SLIM_GSGP.operators.mutators import *
 
 ########################################################################################################################
@@ -40,19 +40,13 @@ for loader in data_loaders:
 
     # getting the terminals and defining the terminal-dependant parameters
     TERMINALS = get_terminals(loader)
-    gsgp_pi_init["TERMINALS"] = TERMINALS
-    GSGP_parameters["p_inflate"] = 0.3
-    GSGP_parameters["p_deflate"] = 1 - GSGP_parameters["p_inflate"]
-    del GSGP_parameters["mutator"]
-    del GSGP_parameters['find_elit_func']
-    GSGP_parameters["inflate_mutator"] = two_trees_inflate_mutation
-    GSGP_parameters["deflate_mutator"] = deflate_mutation
-
+    slim_gsgp_pi_init["TERMINALS"] = TERMINALS
+    slim_GSGP_parameters["inflate_mutator"] = slim_GSGP_parameters["inflate_mutator"](FUNCTIONS=FUNCTIONS, TERMINALS=TERMINALS, CONSTANTS=CONSTANTS)
 
     # for each dataset, run all the planned algorithms
     for algo in algos:
         # adding the dataset name and algorithm name to the run info for the logger
-        gsgp_solve_parameters['run_info'] = [algo, dataset]
+        slim_gsgp_solve_parameters['run_info'] = [algo, dataset]
 
         # running each dataset + algo configuration n_runs times
         for seed in range(1):
@@ -68,9 +62,9 @@ for loader in data_loaders:
             X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=settings_dict['p_test'],
                                                                 seed=seed)
 
-            optimizer = SLIM_GSGP(pi_init=gsgp_pi_init, **GSGP_parameters, seed=seed)
+            optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
 
             optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, curr_dataset=curr_dataset,
-                            **gsgp_solve_parameters)
+                            **slim_gsgp_solve_parameters)
 
             print(time.time() - start)
