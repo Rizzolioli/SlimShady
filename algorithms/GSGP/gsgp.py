@@ -79,16 +79,16 @@ class GSGP:
 
             verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start, population.nodes_count)
         # TODO: try to create the maximum needed amount of trees at the begining based on the pop size and operators
-        # initializing a random tree list table
-        random_trees = []
+
 
         ################################################################################################################
 
                                                         # GP EVOLUTION #
 
         ################################################################################################################
-
-        ancestry = []
+        # initializing a random tree list table and ancestry tree list table
+        if reconstruct:
+            ancestry = []
 
         for it in range(1, n_iter +1, 1):
 
@@ -117,8 +117,6 @@ class GSGP:
                     if test_elite:
                         r_tree.calculate_semantics(X_test, testing=True)
 
-                    # adding the random tree to the random tree list
-                    random_trees.append(r_tree)
 
                     # the two parents generate one offspring
                     offs1 = Tree([self.crossover, p1, p2, r_tree],
@@ -129,7 +127,7 @@ class GSGP:
 
                     # adding the parent information to the ancestry
                     if reconstruct:
-                        ancestry.extend([p1, p2])
+                        ancestry.extend([p1, p2, r_tree])
 
                 else:
                     # if mutation choose one parent
@@ -143,21 +141,22 @@ class GSGP:
                                              TERMINALS=self.pi_init['TERMINALS'],
                                              CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
 
-                    r_tree2 = get_random_tree(max_depth=self.pi_init['init_depth'],
-                                              FUNCTIONS=self.pi_init['FUNCTIONS'],
-                                              TERMINALS=self.pi_init['TERMINALS'],
-                                              CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+                    mutation_trees = [r_tree1]
+
+                    if self.mutator.__name__ in ['standard_geometric_mutation', 'product_two_trees_geometric_mutation']:
+
+                        r_tree2 = get_random_tree(max_depth=self.pi_init['init_depth'],
+                                                  FUNCTIONS=self.pi_init['FUNCTIONS'],
+                                                  TERMINALS=self.pi_init['TERMINALS'],
+                                                  CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+                        mutation_trees.append(r_tree2)
 
                     # calculating random trees' semantics on testing, if applicable
                     if test_elite:
-                        r_tree1.calculate_semantics(X_test, testing=True)
-                        r_tree2.calculate_semantics(X_test, testing=True)
-
-                    # adding the random trees to the random tree list
-                    random_trees.extend([r_tree1, r_tree2])
+                        [rt.calculate_semantics(X_test, testing=True) for rt in mutation_trees]
 
                     # mutating the individual
-                    offs1 = Tree([self.mutator, p1, r_tree1, r_tree2, ms_],
+                    offs1 = Tree([self.mutator, p1, *mutation_trees, ms_],
                                  p1.FUNCTIONS, p1.TERMINALS, p1.CONSTANTS)
 
                     # adding the individual to the population
@@ -165,7 +164,7 @@ class GSGP:
 
                     # adding the parent information to the ancestry
                     if reconstruct:
-                        ancestry.append(p1)
+                        ancestry.extend([p1, *mutation_trees])
 
             if len(offs_pop) > population.size:
 
