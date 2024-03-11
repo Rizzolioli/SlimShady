@@ -67,7 +67,8 @@ class Individual():
         if operator == 'sum':
             operator = sum
         else:
-            operator = lambda x:[ x[i]*x[i+1] for i in range(len(x)-1)][0] #TODO could improve, change self.train_semantics to tensor??
+            # TODO could improve, change self.train_semantics to tensor??, the way it's coded now it's worng
+            operator = lambda x:[ x[i]*x[i+1] for i in range(len(x)-1)][0]
             
             
         if testing:
