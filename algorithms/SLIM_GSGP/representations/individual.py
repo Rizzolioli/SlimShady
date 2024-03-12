@@ -1,5 +1,4 @@
 import torch
-from utils.utils import tensor_dimensioned_sum
 class Individual():
 
     def __init__(self, collection):
@@ -20,12 +19,16 @@ class Individual():
 
         if testing:
 
-            self.test_semantics = torch.stack([tree.test_semantics if [*tree.test_semantics.size()] != [] \
+            self.test_semantics = torch.stack([tree.test_semantics if tree.test_semantics.shape != torch.Size([]) \
                                                     else tree.test_semantics.repeat(len(inputs)) for tree in self.collection])
 
+
         else:
-            self.train_semantics = torch.stack([tree.train_semantics if [*tree.train_semantics.size()] != [] \
+
+            self.train_semantics = torch.stack([tree.train_semantics if tree.train_semantics.shape != torch.Size([]) \
                                                     else tree.train_semantics.repeat(len(inputs)) for tree in self.collection])
+
+
 
     def __len__(self):
         return self.size
@@ -69,16 +72,15 @@ class Individual():
                     attributes a fitness tensor to the population
                 """
         if operator == 'sum':
-            operator = tensor_dimensioned_sum(dim=0) # TODO: davide confirm that dim is 0 and not -1
+            operator = torch.sum
         else:
-            # TODO: this is very wrong <3 add the multiplication - Davide
-            operator = lambda x:[x[i]*x[i+1] for i in range(len(x)-1)][0] #TODO could improve, change self.train_semantics to tensor?? Liah
+            operator = torch.prod
 
         if testing:
-            self.test_fitness = ffunction(operator(self.test_semantics), y)
+            self.test_fitness = ffunction(operator(self.test_semantics, dim = 0), y)
 
         else:
-            self.fitness = ffunction(operator(self.train_semantics), y)
+            self.fitness = ffunction(operator(self.train_semantics, dim = 0), y)
 
 
         # TODO: one tree mutation - Davide
