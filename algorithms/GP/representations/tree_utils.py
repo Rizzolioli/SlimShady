@@ -145,12 +145,12 @@ def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
         node = np.random.choice(list(FUNCTIONS.keys()))
         if FUNCTIONS[node]['arity'] == 2:
             # Recursively create left and right subtrees
-            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
-            right_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
+            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+            right_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, p_c)
             node = (node, left_subtree, right_subtree)
         else:
             # Recursively create left and right subtrees
-            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
+            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, p_c)
             node = (node, left_subtree)
     return node
 
