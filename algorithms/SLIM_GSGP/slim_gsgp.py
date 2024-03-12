@@ -130,15 +130,19 @@ class SLIM_GSGP:
 
                 else:
 
-                    # if mutation, pick one individual
-                    p1 = self.selector(population)
 
                     # choose between deflating or inflating the individual
                     if random.random() < self.p_deflate and it != 1:
 
+                        # if deflate mutation, pick one individual that is of size > 1
+                        p1 = self.selector(population, deflate=True)
+
                         off1 = self.deflate_mutator(p1)
 
                     else:
+                        # if inlate mutation, pick a random individual with no restrictions
+
+                        p1 = self.selector(population, deflate=False)
 
                         ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)]
 
@@ -169,7 +173,7 @@ class SLIM_GSGP:
                 self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
 
             if log != 0:
-
+                
                 if log > 1:
 
                     gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
@@ -183,6 +187,7 @@ class SLIM_GSGP:
                                 gen_diversity,
                                 np.std(population.fit)]
                 else:
+
                     add_info = [self.elite.test_fitness]
 
                 logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),

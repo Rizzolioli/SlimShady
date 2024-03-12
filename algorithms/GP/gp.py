@@ -8,7 +8,7 @@ from algorithms.GP.representations.population import Population
 from algorithms.GP.representations.tree import Tree
 from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
 from utils.diversity import niche_entropy
-
+from utils.logger import logger
 
 # small fixes - Liah
 # TODO: consider logger levels (pickel population)

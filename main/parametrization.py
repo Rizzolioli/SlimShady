@@ -5,6 +5,7 @@ from algorithms.GP.operators.crossover_operators import crossover_trees
 from algorithms.GSGP.operators.crossover_operators import geometric_crossover
 from algorithms.GSGP.operators.mutators import *
 from algorithms.GP.operators.selection_algorithms import tournament_selection_min
+from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
 from datasets.data_loader import *
 from algorithms.SLIM_GSGP.operators.mutators import *
 
@@ -144,7 +145,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                     }
 
 slim_GSGP_parameters = {"initializer": rhh,
-                  "selector": tournament_selection_min(2),
+                  "selector": tournament_selection_min_slim(2),
                   "crossover": geometric_crossover,
                    "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'),
                  "inflate_mutator" : None,
@@ -156,7 +157,7 @@ slim_GSGP_parameters = {"initializer": rhh,
                 "p_inflate": 0.3
     }
 
-inflate_mutator = two_trees_inflate_mutation
+inflate_mutator = inflate_mutation
 slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 slim_GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
