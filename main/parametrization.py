@@ -54,7 +54,7 @@ settings_dict = {"p_test": 0.2}
 
 ########################################################################################################################
 
-solve_parameters = {"elitism": True,
+gp_solve_parameters = {"elitism": True,
                     "log": 1,
                     "verbose": 1,
                     "test_elite": True,
@@ -74,11 +74,11 @@ GP_parameters = {"initializer": rhh,
                   "p_xo": 0.2,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
-                 "find_elit_func": get_best_max if solve_parameters["max_"] else get_best_min
+                 "find_elit_func": get_best_max if gp_solve_parameters["max_"] else get_best_min
     }
 GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
-pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the initial population size is the same as the GP pop size
+gp_pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the initial population size is the same as the GP pop size
            'init_depth': 8,
            'FUNCTIONS': FUNCTIONS,
            'CONSTANTS': CONSTANTS,
@@ -114,7 +114,7 @@ GSGP_parameters = {"initializer": rhh,
                   "p_xo": 0.8,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
-                "find_elit_func": get_best_max if solve_parameters["max_"] else get_best_min
+                "find_elit_func": get_best_max if gsgp_solve_parameters["max_"] else get_best_min
     }
 GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
@@ -152,7 +152,7 @@ slim_GSGP_parameters = {"initializer": rhh,
                   "p_xo": 0,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
-                "find_elit_func": get_best_max if solve_parameters["max_"] else get_best_min,
+                "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
                 "p_inflate": 0.3
     }
 
@@ -165,3 +165,7 @@ slim_gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
            'FUNCTIONS': FUNCTIONS,
            'CONSTANTS': CONSTANTS,
            "p_c": 0.1}
+
+all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters", "slim_gsgp_pi_init", "settings_dict"],
+              "GSGP": ["gsgp_solve_parameters", "GSGP_parameters", "gsgp_pi_init", "settings_dict"],
+              "GP": ["gp_solve_parameters", "GP_parameters", "gp_pi_init", "settings_dict"]}

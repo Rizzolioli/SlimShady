@@ -3,9 +3,10 @@ import random
 import torch
 import numpy as np
 
-from utils.utils import verbose_reporter, logger, get_random_tree
+from utils.utils import verbose_reporter, get_random_tree
 from algorithms.GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
+from utils.logger import logger
 
 class GSGP:
 
@@ -115,7 +116,7 @@ class GSGP:
 
                     # calculating its semantics on testing, if applicable
                     if test_elite:
-                        r_tree.calculate_semantics(X_test, testing=True)
+                        r_tree.calculate_semantics(X_test, testing=True, logistic=True)
 
 
                     # the two parents generate one offspring
@@ -153,7 +154,7 @@ class GSGP:
 
                     # calculating random trees' semantics on testing, if applicable
                     if test_elite:
-                        [rt.calculate_semantics(X_test, testing=True) for rt in mutation_trees]
+                        [rt.calculate_semantics(X_test, testing=True, logistic=True) for rt in mutation_trees]
 
                     # mutating the individual
                     offs1 = Tree([self.mutator, p1, *mutation_trees, ms_],

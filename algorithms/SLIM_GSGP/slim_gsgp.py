@@ -3,7 +3,8 @@ import random
 import torch
 import numpy as np
 
-from utils.utils import verbose_reporter, logger, train_test_split
+from utils.utils import verbose_reporter, train_test_split
+from utils.logger import logger
 from algorithms.SLIM_GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual

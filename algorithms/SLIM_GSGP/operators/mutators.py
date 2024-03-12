@@ -13,7 +13,7 @@ def delta_tree(tr1, tr2, ms, testing):
     else:
         return torch.mul(ms, torch.sub(tr1.train_semantics, tr2.train_semantics))
 
-def two_trees_inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS ):
+def two_trees_inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS):
 
     def tt_inflate(individual, ms, X,max_depth = 8, p_c = 0.1, X_test = None, p_terminal=0.5, grow_probability=1):
 
@@ -25,8 +25,8 @@ def two_trees_inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS ):
                                        grow_probability=grow_probability)
 
         if X_test is not None:
-            random_tree1.calculate_semantics(X_test, testing=True)
-            random_tree2.calculate_semantics(X_test, testing=True)
+            random_tree1.calculate_semantics(X_test, testing=True, logistic=True)
+            random_tree2.calculate_semantics(X_test, testing=True, logistic=True)
 
         new_block = Tree([delta_tree,
                           random_tree1, random_tree2, ms],

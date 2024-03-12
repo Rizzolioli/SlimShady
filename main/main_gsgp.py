@@ -1,7 +1,9 @@
+import uuid
 from parametrization import *
 from algorithms.GSGP.gsgp import GSGP
 import datasets.data_loader as ds
 from utils.utils import get_terminals, train_test_split
+from utils.logger import log_settings
 
 ########################################################################################################################
 
@@ -29,6 +31,8 @@ algos = ["StandardGSGP"]
                                             #    DATA-DEPENDANT PARAMETERS
 
 ########################################################################################################################
+# attibuting a unique id to the run
+unique_run_id = uuid.uuid1()
 
 # for each dataset
 for loader in data_loaders:
@@ -42,7 +46,7 @@ for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo in algos:
         # adding the dataset name and algorithm name to the run info for the logger
-        gsgp_solve_parameters['run_info'] = [algo, dataset]
+        gsgp_solve_parameters['run_info'] = [algo, unique_run_id ,dataset]
 
         # running each dataset + algo configuration n_runs times
         for seed in range(n_runs):
@@ -60,3 +64,6 @@ for loader in data_loaders:
             optimizer = GSGP(pi_init=gsgp_pi_init, **GSGP_parameters, seed=seed)
 
             optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, curr_dataset=curr_dataset, **gsgp_solve_parameters)
+
+log_settings(path=os.path.join(os.getcwd(), "log", "settings.csv"), settings_dict=[globals()[d] for d in all_params["GSGP"]], unique_run_id=unique_run_id)
+

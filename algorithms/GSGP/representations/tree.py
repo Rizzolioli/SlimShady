@@ -24,16 +24,15 @@ class Tree:
         self.fitness = None
         self.test_fitness = None
 
-    def calculate_semantics(self, inputs, testing = False):
+    def calculate_semantics(self, inputs, testing = False, logistic=False):
 
         # checking if the individual is part of the initial population (table) or is a random tree (table)
-        # TODO : new parameter so that only random trees get sigmoid, if only one tree is used no sigmoid is needed
         if isinstance(self.structure, tuple):
             if testing:
-                self.test_semantics = torch.sigmoid(apply_tree(self, inputs))
+                self.test_semantics = torch.sigmoid(apply_tree(self, inputs)) if logistic else apply_tree(self, inputs)
 
             else:
-                self.train_semantics = torch.sigmoid(apply_tree(self, inputs))
+                self.train_semantics = torch.sigmoid(apply_tree(self, inputs)) if logistic else apply_tree(self, inputs)
 
         # if the individual is a result of GSGP evolution
         else:

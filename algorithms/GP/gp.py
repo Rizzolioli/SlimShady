@@ -3,11 +3,11 @@ import random
 import torch
 import numpy as np
 
-from utils.utils import verbose_reporter, logger
+from utils.utils import verbose_reporter
 from algorithms.GP.representations.population import Population
 from algorithms.GP.representations.tree import Tree
 from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
-
+from utils.logger import logger
 
 # small fixes - Liah
 # TODO: consider logger levels (pickel population)
