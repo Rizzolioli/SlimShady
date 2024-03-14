@@ -42,7 +42,7 @@ class SLIM_GSGP:
 
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset, run_info ,n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None,
-              max_=False, ffunction=None, max_depth=17, n_elites=1): # TODO: discuss how to impose max depth
+              max_=False, ffunction=None, max_depth=17, n_elites=1):
 
         # TO REMOVE:
 
@@ -173,10 +173,20 @@ class SLIM_GSGP:
 
                         ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)]
 
-                        off1 = self.inflate_mutator(p1, ms_, X_train, max_depth = self.pi_init["init_depth"]
+                        if p1.depth == max_depth:
+
+                            off1 = self.deflate_mutator(p1) #TODO is it okay?
+
+                        else:
+
+                            off1 = self.inflate_mutator(p1, ms_, X_train, max_depth = self.pi_init["init_depth"]
                                                     , p_c = self.pi_init["p_c"], X_test = X_test)
 
-                    offs_pop.append(off1)
+
+                        # if off1.depth < max_depth: #todo check with leo, if we don't append trees that are too big it gets very slow
+                        #
+                            # off1 = self.deflate_mutator(p1)
+                        offs_pop.append(off1)
 
 
 

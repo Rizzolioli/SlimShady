@@ -47,7 +47,9 @@ for loader in data_loaders:
     slim_gsgp_pi_init["TERMINALS"] = TERMINALS
     slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
                                               TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
-                                            two_trees=slim_GSGP_parameters["two_trees"], operator=slim_GSGP_parameters['sum'])
+                                            two_trees=True, #TODO liah pls check I had to set it here
+                                                              operator=slim_GSGP_parameters['operator']
+                                                              )
 
     # for each dataset, run all the planned algorithms
     for algo in algos:
