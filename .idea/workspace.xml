@@ -6,8 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/operators/mutators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main_slim.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_slim.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/.ipynb_checkpoints/results_analyser-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/.ipynb_checkpoints/results_analyser-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/results_analyser.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/results_analyser.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +43,10 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 1
+}]]></component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="91" />
     <option name="y" value="25" />
@@ -98,6 +103,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.main_slim.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "git-widget-placeholder": "slim__and__gp__fixing"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
@@ -111,9 +123,10 @@
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main_gsgp">
+  <component name="RunManager" selected="Python.main_slim">
     <configuration name="checker" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -135,6 +148,7 @@
     </configuration>
     <configuration name="main (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -156,6 +170,7 @@
     </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -177,6 +192,7 @@
     </configuration>
     <configuration name="main_gsgp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -198,6 +214,7 @@
     </configuration>
     <configuration name="main_slim" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -219,9 +236,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main_slim" />
         <item itemvalue="Python.main_gsgp" />
         <item itemvalue="Python.main (1)" />
-        <item itemvalue="Python.main_slim" />
         <item itemvalue="Python.checker" />
         <item itemvalue="Python.main" />
       </list>

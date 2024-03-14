@@ -26,7 +26,7 @@ data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_
 
 # defining the names of the algorithms to be run
 
-algos = ["StandardGSGP"]
+algos = ["StandardGSGP", "alsoStandard"]
 
 ########################################################################################################################
 
@@ -55,6 +55,7 @@ for loader in data_loaders:
 
         # running each dataset + algo configuration n_runs times
         for seed in range(2):
+            if algo == "alsoStandard": seed = seed + 10
             start = time.time()
 
             # Loads the data via the dataset loader
