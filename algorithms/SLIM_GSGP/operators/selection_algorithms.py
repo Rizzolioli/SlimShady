@@ -23,7 +23,7 @@ def tournament_selection_min_slim(pool_size):
 
             valid_pop = [ind for ind in pop.population if ind.size > 1]
 
-            pool = random.sample(valid_pop, k = pool_size)
+            pool = random.sample(valid_pop, k=pool_size)
 
         else:
 

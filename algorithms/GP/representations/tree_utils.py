@@ -155,7 +155,7 @@ def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
     return node
 
 # Helper function to select a random subtree from a tree.
-def random_subtree(tree, FUNCTIONS, first_call = True):
+def random_subtree(tree, FUNCTIONS, first_call = True, num_of_nodes=None):
     """
         Selects a random subtree from a given tree.
 
@@ -177,9 +177,12 @@ def random_subtree(tree, FUNCTIONS, first_call = True):
 
     if isinstance(tree, tuple):
         # Randomly choose to explore left or right or return the current subtree
+        if first_call:
+            current_number_of_nodes = num_of_nodes
+        else:
 
-        #calculating the number of nodes of the current tree
-        current_number_of_nodes = len(list(flatten(tree))) # TODO if first call use the input num of nodes (needs to change all the mutation and xo)
+            #calculating the number of nodes of the current tree
+            current_number_of_nodes = len(list(flatten(tree))) # TODO if first call use the input num of nodes (needs to change all the mutation and xo)
 
         if FUNCTIONS[tree[0]]['arity'] == 2:
             if first_call:
@@ -245,54 +248,58 @@ def substitute_subtree(tree, target_subtree, new_subtree, FUNCTIONS):
         return tree
 
 # Function to reduce both sides of a tree to a specific depth.
-def tree_pruning(tree, target_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c = 0.3):
-    """
-       Reduces both sides of a tree to a specific depth.
+def tree_pruning(TERMINALS, CONSTANTS, FUNCTIONS, target_depth ,p_c = 0.3):
 
-       Parameters
-       ----------
-       tree : tuple
-           The tree to be pruned.
+    def pruning(tree):
+        """
+           Reduces both sides of a tree to a specific depth.
 
-       target_depth : int
-           The depth to reduce the tree to.
+           Parameters
+           ----------
+           tree : tuple
+               The tree to be pruned.
 
-       TERMINALS : dict
-           Dictionary of terminal symbols allowed in the tree.
+           target_depth : int
+               The depth to reduce the tree to.
 
-       CONSTANTS : dict
-           Dictionary of constant values allowed in the tree.
+           TERMINALS : dict
+               Dictionary of terminal symbols allowed in the tree.
 
-       FUNCTIONS : dict
-           Dictionary of functions allowed in the tree.
+           CONSTANTS : dict
+               Dictionary of constant values allowed in the tree.
 
-       p_c : float, optional
-           Probability of choosing a constant node. Default is 0.3.
+           FUNCTIONS : dict
+               Dictionary of functions allowed in the tree.
 
-       Returns
-       -------
-       tuple
-           The pruned tree according to the specified depth.
-       """
+           p_c : float, optional
+               Probability of choosing a constant node. Default is 0.3.
 
-    if target_depth <= 1 and not tree in list(TERMINALS.keys()):
-        # If the target depth is 1 or less, return a terminal node
-        if random.random() > p_c:
-            return np.random.choice(list(TERMINALS.keys()))
-        else:
-            return np.random.choice(list(CONSTANTS.keys()))
-    elif not isinstance(tree, tuple):
-        # If the tree is already a terminal node, return it
-        return tree
-    # Recursively reduce the left and right subtrees
-    if FUNCTIONS[tree[0]]['arity'] == 2:
-        new_left_subtree = tree_pruning(tree[1], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
-        new_right_subtree = tree_pruning(tree[2], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
-        return (tree[0], new_left_subtree, new_right_subtree)
-    elif FUNCTIONS[tree[0]]['arity'] == 1:
-        new_left_subtree = tree_pruning(tree[1], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
-        # new_right_subtree = tree_pruning(tree[2], target_depth - 1, TERMINALS, CONSTANTS, p_c)
-        return (tree[0], new_left_subtree)
+           Returns
+           -------
+           tuple
+               The pruned tree according to the specified depth.
+           """
+
+        if target_depth <= 1 and not tree in list(TERMINALS.keys()):
+            # If the target depth is 1 or less, return a terminal node
+            if random.random() > p_c:
+                return np.random.choice(list(TERMINALS.keys()))
+            else:
+                return np.random.choice(list(CONSTANTS.keys()))
+        elif not isinstance(tree, tuple):
+            # If the tree is already a terminal node, return it
+            return tree
+        # Recursively reduce the left and right subtrees
+        if FUNCTIONS[tree[0]]['arity'] == 2:
+            new_left_subtree = tree_pruning(tree[1], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
+            new_right_subtree = tree_pruning(tree[2], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
+            return (tree[0], new_left_subtree, new_right_subtree)
+        elif FUNCTIONS[tree[0]]['arity'] == 1:
+            new_left_subtree = tree_pruning(tree[1], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
+            # new_right_subtree = tree_pruning(tree[2], target_depth - 1, TERMINALS, CONSTANTS, p_c)
+            return (tree[0], new_left_subtree)
+
+    return pruning
 
 
 # Function to calculate the depth of a tree.

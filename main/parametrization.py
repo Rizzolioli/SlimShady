@@ -150,7 +150,9 @@ slim_GSGP_parameters = {"initializer": rhh,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
                 "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
-                "p_inflate": 0.3
+                "p_inflate": 0.3,
+                        "two_trees": True,
+                        "operator": 'sum'
     }
 
 inflate_mutator = inflate_mutation

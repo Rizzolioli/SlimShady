@@ -43,6 +43,7 @@ class SLIM_GSGP:
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset, run_info ,n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None,
               max_=False, ffunction=None, max_depth=17, n_elites=1): # TODO: discuss how to impose max depth
+
         # TO REMOVE:
 
         # setting the seeds

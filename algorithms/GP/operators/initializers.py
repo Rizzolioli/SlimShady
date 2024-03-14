@@ -2,7 +2,7 @@ from algorithms.GP.representations.tree_utils import create_full_random_tree, cr
 from algorithms.GP.representations.tree import Tree
 
 
-def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, seed=0, p_terminal = 0.5): # TODO: why is seed being passed here?
+def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, p_terminal = 0.5):
     """
        Generates a list of individuals with random trees for a GM4OS population using the Grow method.
 

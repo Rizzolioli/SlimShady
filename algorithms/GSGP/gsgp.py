@@ -89,7 +89,8 @@ class GSGP:
         if verbose != 0:
 
             verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start, population.nodes_count)
-        # TODO: try to create the maximum needed amount of trees at the begining based on the pop size and operators
+
+        # TODO: try to create the maximum needed amount of trees at the begining based on the pop size and operators liah
 
 
         ################################################################################################################
@@ -119,7 +120,7 @@ class GSGP:
 
                     while p1 == p2:
                         p1, p2 = self.selector(population), self.selector(population)
-
+                    # todo: when its one tree mutation on GSGP and SLIM no logistic needed Liah
                     # getting a random tree
                     r_tree = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'], TERMINALS=self.pi_init['TERMINALS'],
                                              CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)

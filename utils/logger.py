@@ -2,6 +2,7 @@ import csv
 from copy import copy
 import pandas as pd
 
+# todo: liah add changes of logger to gsgp and gp
 def log_settings(path, settings_dict, unique_run_id):
 
     settings_dict = merge_settings(*settings_dict)

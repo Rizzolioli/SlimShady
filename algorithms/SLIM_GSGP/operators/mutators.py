@@ -7,7 +7,7 @@ from algorithms.SLIM_GSGP.representations.individual import Individual
 from utils.utils import get_random_tree
 
 
-def two_trees_delta( operator = 'sum'):
+def two_trees_delta(operator='sum'):
 
     def tt_delta(tr1, tr2, ms, testing):
 
@@ -21,7 +21,7 @@ def two_trees_delta( operator = 'sum'):
 
     return tt_delta
 
-def one_tree_delta( operator = 'sum'):
+def one_tree_delta(operator='sum'):
 
     def ot_delta(tr1, ms, testing):
 
@@ -85,8 +85,6 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees = True, operator
         return offs
 
     return inflate
-
-
 
 def deflate_mutation(individual):
 

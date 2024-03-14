@@ -6,8 +6,18 @@
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/.ipynb_checkpoints/results_analyser-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/.ipynb_checkpoints/results_analyser-checkpoint.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/results_analyser.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/results_analyser.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GP/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/gp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GP/operators/crossover_operators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/crossover_operators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GP/operators/initializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/initializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GP/representations/tree_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/tree_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/gsgp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/operators/mutators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/selection_algorithms.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/selection_algorithms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main_slim.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_slim.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/logger.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,10 +52,10 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 1
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="91" />
     <option name="y" value="25" />
@@ -102,13 +112,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.main_slim.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "git-widget-placeholder": "slim__and__gp__fixing"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.main_slim.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;slim__and__gp__fixing&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
@@ -233,6 +243,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.checker" />
+      <item itemvalue="Python.main" />
+      <item itemvalue="Python.main_gsgp" />
+      <item itemvalue="Python.main_slim" />
+      <item itemvalue="Python.main (1)" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.main_slim" />
@@ -304,16 +321,6 @@
           <url>file://$PROJECT_DIR$/main/checker.py</url>
           <line>60</line>
           <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py</url>
-          <line>156</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/algorithms/GSGP/representations/tree.py</url>
-          <line>14</line>
-          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -13,8 +13,6 @@ def standard_geometric_mutation(tree, random_tree_1, random_tree_2, ms, testing)
 
 def standard_one_tree_geometric_mutation(tree, random_tree_1, ms, testing):
 
-    #TODO absolute value could be included in semantics calculation
-
     if testing:
         return torch.add(tree.test_semantics, torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(random_tree_1.test_semantics))))))
 
