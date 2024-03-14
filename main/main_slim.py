@@ -1,10 +1,12 @@
 import time
+import uuid
 
 from parametrization import *
 from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
 import datasets.data_loader as ds
 from utils.utils import get_terminals, train_test_split
 from algorithms.SLIM_GSGP.operators.mutators import *
+from utils.logger import log_settings
 
 ########################################################################################################################
 
@@ -32,6 +34,8 @@ algos = ["StandardGSGP"]
                                             #    DATA-DEPENDANT PARAMETERS
 
 ########################################################################################################################
+# attibuting a unique id to the run
+unique_run_id = uuid.uuid1()
 
 # for each dataset
 for loader in data_loaders:
@@ -47,10 +51,10 @@ for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo in algos:
         # adding the dataset name and algorithm name to the run info for the logger
-        slim_gsgp_solve_parameters['run_info'] = [algo, dataset]
+        slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]
 
         # running each dataset + algo configuration n_runs times
-        for seed in range(7):
+        for seed in range(2):
             start = time.time()
 
             # Loads the data via the dataset loader
@@ -69,3 +73,5 @@ for loader in data_loaders:
                             **slim_gsgp_solve_parameters)
 
             print(time.time() - start)
+
+log_settings(path=os.path.join(os.getcwd(), "log", "settings.csv"), settings_dict=[globals()[d] for d in all_params["SLIM_GSGP"]], unique_run_id=unique_run_id)

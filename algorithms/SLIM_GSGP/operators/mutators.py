@@ -89,7 +89,6 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees = True, operator
 
 
 def deflate_mutation(individual):
-    # TODO: add to tournament selection the assurement that the individuals are of size 1!
 
     mut_point = random.randint(1, individual.size - 1)
 

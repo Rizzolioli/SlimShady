@@ -1,48 +1,6 @@
 import csv
 from copy import copy
-
-
-def logger(path, generation, pop_val_fitness, timing, nodes,
-           pop_test_report=None, run_info=None,  seed=0):
-    """
-        Logs information into a CSV file.
-
-        Parameters
-        ----------
-        path : str
-            Path to the CSV file.
-        generation : int
-            Current generation number.
-        pop_val_fitness : float
-            Population's validation fitness value.
-        timing : float
-            Time taken for the process.
-        nodes : int
-            Count of nodes in the population.
-        pop_test_report : float or list, optional
-            Population's test fitness value(s). Defaults to None.
-        run_info : list, optional
-            Information about the run. Defaults to None.
-
-        Returns
-        -------
-        None
-            Writes data to a CSV file as a log.
-    """
-
-    with open(path, 'a', newline='') as file:
-        writer = csv.writer(file)
-        if run_info != None:
-            infos = copy(run_info)
-            infos.extend([seed, generation, float(pop_val_fitness), timing, nodes])
-
-        else:
-            infos = [seed, generation, float(pop_val_fitness), timing, nodes]
-
-        if pop_test_report != None:
-            infos.extend([float(pop_test_report)])
-
-        writer.writerow(infos)
+import pandas as pd
 
 def log_settings(path, settings_dict, unique_run_id):
 
@@ -101,6 +59,43 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
             infos = [seed, generation, float(pop_val_fitness), timing, nodes]
 
         if additional_infos != None:
+            try:
+                additional_infos[0] = float(additional_infos[0])
+            except:
+                additional_infos[0] = "None"
             infos.extend(additional_infos)
 
         writer.writerow(infos)
+
+def drop_experiment_from_logger(experiment_id, log_path):
+
+    """
+    Eliminates an experiment from the logger csv file. If the given experiment_id is -1, the lastly saved experiment is
+    eliminated
+
+    Parameters
+    ----------
+    experiment_id : str or int
+        the expriment id that is to be eliminated. If -1, the most recent experiment is eliminated
+
+    log_path : str
+        the path to the file that contains the logging information
+
+    Returns
+    -------
+    None
+        deletes the rows with the corresponding experiment id from the logger csv file.
+
+    """
+
+    logger_data = pd.read_csv(log_path)
+
+    # if we choose the remove the lastly stored experiment
+    if experiment_id == -1:
+        # finding the experiment id of the last row in the csv file
+        experiment_id = logger_data.iloc[-1][1]
+
+    # excluding the logger data with the chosen id
+    to_keep = logger_data[logger_data[1] != experiment_id]
+    # saving the new excluded dataset
+    logger_data.to_csv(log_path, index=False, header=None)

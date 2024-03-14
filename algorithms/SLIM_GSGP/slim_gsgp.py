@@ -43,6 +43,7 @@ class SLIM_GSGP:
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset, run_info ,n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None,
               max_=False, ffunction=None, max_depth=17, n_elites=1): # TODO: discuss how to impose max depth
+        # TO REMOVE:
 
         # setting the seeds
         torch.manual_seed(self.seed)
@@ -79,7 +80,7 @@ class SLIM_GSGP:
         # logging the population initialization
         if log != 0:
 
-            if log > 1:
+            if log == 2:
                 gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
                                                                         for ind in population.population]),
                                                            ) \
@@ -87,10 +88,35 @@ class SLIM_GSGP:
                     gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
                                                            for ind in population.population]))
                 add_info = [self.elite.test_fitness,
-                            gen_diversity,
-                            np.std(population.fit)]
+                            float(gen_diversity),
+                            np.std(population.fit), log]
+
+            # log level 3 saves the number of nodes and fitness of all the individuals in the population
+            elif log == 3:
+
+                add_info = [self.elite.test_fitness,
+                        " ".join([str(ind.nodes_count) for ind in population.population]),
+                        " ".join([str(f) for f in population.fit]), log]
+
+            elif log == 4:
+
+                gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
+                                                                       for ind in population.population]),
+                                                          ) \
+                    if self.operator == 'sum' else \
+                    gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
+                                                           for ind in population.population]))
+                add_info = [self.elite.test_fitness,
+                            float(gen_diversity),
+                            np.std(population.fit),
+                            " ".join([str(ind.nodes_count) for ind in population.population]),
+                            " ".join([str(f) for f in population.fit]), log
+                            ]
+
+
             else:
-                add_info = [self.elite.test_fitness]
+
+                add_info = [self.elite.test_fitness, log]
 
             logger(log_path, 0, self.elite.fitness, end - start, float(population.nodes_count),
                    additional_infos=add_info, run_info=run_info, seed=self.seed)
@@ -172,24 +198,48 @@ class SLIM_GSGP:
                 self.elite.calculate_semantics(X_test, testing=True)
                 self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
 
+            # logging the population initialization
             if log != 0:
-                
-                if log > 1:
 
+                if log == 2:
                     gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
-                                                                                     for ind in population.population]),
-                                                                        ) \
+                                                                           for ind in population.population]),
+                                                              ) \
                         if self.operator == 'sum' else \
                         gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
-                                                                          for ind in population.population]))
+                                                               for ind in population.population]))
+                    add_info = [self.elite.test_fitness,
+                                float(gen_diversity),
+                                np.std(population.fit), log]
+
+                # log level 3 saves the number of nodes and fitness of all the individuals in the population
+                elif log == 3:
 
                     add_info = [self.elite.test_fitness,
-                                gen_diversity,
-                                np.std(population.fit)]
+                                " ".join([str(ind.nodes_count) for ind in population.population]),
+                                " ".join([str(f) for f in population.fit]), log]
+
+                elif log == 4:
+
+                    gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
+                                                                           for ind in population.population]),
+                                                              ) \
+                        if self.operator == 'sum' else \
+                        gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
+                                                               for ind in population.population]))
+                    add_info = [self.elite.test_fitness,
+                                float(gen_diversity),
+                                np.std(population.fit),
+                                " ".join([str(ind.nodes_count) for ind in population.population]),
+                                " ".join([str(f) for f in population.fit]), log
+                                ]
+
+
                 else:
 
-                    add_info = [self.elite.test_fitness]
+                    add_info = [self.elite.test_fitness, log]
 
+                # logging the desired results
                 logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
                                additional_infos=add_info, run_info=run_info, seed=self.seed)
 

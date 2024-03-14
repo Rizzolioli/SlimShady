@@ -9,8 +9,11 @@ class Individual():
         self.size = len(collection) # size == number of blocks
         self.nodes_count = sum([tree.nodes for tree in collection])
 
+        # starting the individual with empty semantics and fitnesses
         self.train_semantics = None
         self.test_semantics = None
+        self.fitness =  None
+        self.test_fitness = None
 
     def calculate_semantics(self, inputs, testing=False):
 

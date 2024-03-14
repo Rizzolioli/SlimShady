@@ -14,11 +14,7 @@ from algorithms.SLIM_GSGP.operators.mutators import *
                                             # TREE PARAMETERS
 
 ########################################################################################################################
-# TODO: add the settings to logger - Liah
-
 # TODO: add grid-search code to main - DIOGO
-
-# TODO: Davide add geno and pheno diversity --> logger level
 
 FUNCTIONS = {
     'add': {'function': lambda x, y: torch.add(x, y), 'arity': 2},
@@ -132,10 +128,10 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
 ########################################################################################################################
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                    "log": 1,
+                    "log": 2,
                     "verbose": 1,
                     "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
+                    "log_path": os.path.join(os.getcwd(), "log", "logger_checking.csv"),
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,
