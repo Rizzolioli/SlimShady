@@ -16,7 +16,7 @@ from utils.logger import log_settings
 
 # creating a list with the datasets that are to be benchmarked
 
-datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump", "forest_fires", \
+datas = [ "boston", "concrete_slump", "concrete_slump", "forest_fires", \
 "efficiency_cooling", "diabetes", "parkinson_updrs", "efficiency_heating"]
 
 # datas = ["ppb"]
