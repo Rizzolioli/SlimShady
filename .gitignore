@@ -10,3 +10,7 @@
 *.idea/
 *.pyc
 *.pyc
+algorithms/GP/__pycache__/gp.cpython-310.pyc
+.idea/workspace.xml
+.idea/SlimShady.iml
+.idea/misc.xml

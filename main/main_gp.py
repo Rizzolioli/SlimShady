@@ -4,7 +4,7 @@ from algorithms.GP.operators.mutators import mutate_tree_subtree
 import datasets.data_loader as ds
 from utils.utils import get_terminals, train_test_split
 from utils.logger import logger, log_settings
-from algorithms.GP.representations.tree_utils import tree_pruning
+from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
 import uuid
 
 
@@ -49,6 +49,7 @@ for loader in data_loaders:
                                                    p_c=gp_pi_init['p_c'])
     gp_solve_parameters["tree_pruner"] = tree_pruning(TERMINALS=TERMINALS, CONSTANTS=CONSTANTS, FUNCTIONS=FUNCTIONS,
                                                        p_c=gp_pi_init["p_c"])
+    gp_solve_parameters['depth_calculator'] = tree_depth(FUNCTIONS=FUNCTIONS)
 
     # for each dataset, run all the planned algorithms
     for algo in algos:

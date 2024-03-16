@@ -5,14 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/log/logger_checking.csv" beforeDir="false" afterPath="$PROJECT_DIR$/main/log/logger_checking.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/main_slim.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_slim.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GP/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/gp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GP/representations/tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/tree.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GP/representations/tree_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/tree_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/logger.csv" beforeDir="false" afterPath="$PROJECT_DIR$/main/log/logger.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main_gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_gp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,10 +48,6 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 1
-}</component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="91" />
     <option name="y" value="25" />
@@ -107,14 +104,6 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.main_slim.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "git-widget-placeholder": "slim__and__gp__fixing",
-    "last_opened_file_path": "C:/Users/utente/OneDrive - NOVAIMS/dottorato/SLIM-GSGP/SlimShady"
-  }
-}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
@@ -128,7 +117,7 @@
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main_slim">
+  <component name="RunManager" selected="Python.main_gp">
     <configuration name="checker" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -171,7 +160,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="main_gp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -179,11 +168,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/main" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main\main.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/main_gp.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -236,18 +225,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.checker" />
-      <item itemvalue="Python.main" />
       <item itemvalue="Python.main_gsgp" />
       <item itemvalue="Python.main_slim" />
       <item itemvalue="Python.main (1)" />
+      <item itemvalue="Python.main_gp" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.main_slim" />
+        <item itemvalue="Python.main_gp" />
         <item itemvalue="Python.main_gsgp" />
+        <item itemvalue="Python.main_slim" />
         <item itemvalue="Python.main (1)" />
         <item itemvalue="Python.checker" />
-        <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
   </component>
@@ -304,6 +293,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -35,7 +35,7 @@ class Tree:
                 Prints the tree representation with indentation.
             """
 
-    def __init__(self, repr_, FUNCTIONS, TERMINALS, CONSTANTS):
+    def __init__(self, repr_):
 
         """
                 Initializes a Tree object.
@@ -56,9 +56,6 @@ class Tree:
         """
 
         self.repr_ = repr_
-        self.FUNCTIONS = FUNCTIONS
-        self.TERMINALS = TERMINALS
-        self.CONSTANTS = CONSTANTS
         self.depth = len(repr_)
         self.fitness = None
         self.test_fitness = None
@@ -82,28 +79,28 @@ class Tree:
 
         if isinstance(self.repr_, tuple):  # If it's a function node
             function_name = self.repr_[0]
-            if self.FUNCTIONS[function_name]['arity'] == 2:
+            if Tree.FUNCTIONS[function_name]['arity'] == 2:
                 left_subtree, right_subtree = self.repr_[1], self.repr_[2]
-                left_subtree = Tree(left_subtree, self.FUNCTIONS, self.TERMINALS, self.CONSTANTS)
-                right_subtree = Tree(right_subtree, self.FUNCTIONS, self.TERMINALS, self.CONSTANTS)
+                left_subtree = Tree(left_subtree)
+                right_subtree = Tree(right_subtree)
                 left_result = left_subtree.apply_tree(inputs)
                 right_result = right_subtree.apply_tree(inputs)
-                output = self.FUNCTIONS[function_name]['function'](left_result, right_result)
+                output = Tree.FUNCTIONS[function_name]['function'](left_result, right_result)
             else:
                 left_subtree = self.repr_[1]
-                left_subtree = Tree(left_subtree, self.FUNCTIONS, self.TERMINALS, self.CONSTANTS)
-                # right_subtree = Tree(right_subtree, self.FUNCTIONS, self.TERMINALS, self.CONSTANTS)
+                left_subtree = Tree(left_subtree)
+                # right_subtree = Tree(right_subtree, Tree.FUNCTIONS, Tree.TERMINALS, self.CONSTANTS)
                 left_result = left_subtree.apply_tree(inputs)
                 # right_result = right_subtree.apply_tree(inputs)
-                output = self.FUNCTIONS[function_name]['function'](left_result)
+                output = Tree.FUNCTIONS[function_name]['function'](left_result)
 
             return bound_value(output, -1000000000000.0, 10000000000000.0)
 
         else:  # If it's a terminal node
             # if self.repr_ == '_':
             #     output = '_'
-            if self.repr_ in list(self.TERMINALS.keys()):
-                output = inputs[:, self.TERMINALS[self.repr_]]
+            if self.repr_ in list(Tree.TERMINALS.keys()):
+                output = inputs[:, Tree.TERMINALS[self.repr_]]
 
                 return output
 
@@ -162,15 +159,15 @@ class Tree:
             function_name = self.repr_[0]
 
             print(indent + f"{function_name}(")
-            if self.FUNCTIONS[function_name]['arity'] == 2:
+            if Tree.FUNCTIONS[function_name]['arity'] == 2:
                 left_subtree, right_subtree = self.repr_[1], self.repr_[2]
-                left_subtree = Tree(left_subtree, self.FUNCTIONS, self.TERMINALS, self.CONSTANTS)
-                right_subtree = Tree(right_subtree, self.FUNCTIONS, self.TERMINALS, self.CONSTANTS)
+                left_subtree = Tree(left_subtree)
+                right_subtree = Tree(right_subtree)
                 left_subtree.print_tree_representation(indent + "  ")
                 right_subtree.print_tree_representation(indent + "  ")
             else:
                 left_subtree = self.repr_[1]
-                left_subtree = Tree(left_subtree, self.FUNCTIONS, self.TERMINALS, self.CONSTANTS)
+                left_subtree = Tree(left_subtree)
                 left_subtree.print_tree_representation(indent + "  ")
             print(indent + ")")
         else:  # If it's a terminal node

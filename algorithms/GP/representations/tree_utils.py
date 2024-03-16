@@ -45,6 +45,7 @@ def flatten(data):
     else:
         yield data
 
+
 # Function to create a random grow tree.
 def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True, p_terminal = 0.5):
     """
@@ -302,7 +303,7 @@ def tree_pruning(TERMINALS, CONSTANTS, FUNCTIONS , p_c = 0.3):
 
 
 # Function to calculate the depth of a tree.
-def tree_depth(tree, FUNCTIONS):
+def tree_depth(FUNCTIONS):
     """
         Calculates the depth of a given tree.
 
@@ -320,16 +321,18 @@ def tree_depth(tree, FUNCTIONS):
             The depth of the input tree.
         """
 
-    if not isinstance(tree, tuple):
-        # If it's a terminal node, the depth is 1
-        return 1
-    else:
-        # Recursively calculate the depth of the left and right subtrees
-        if FUNCTIONS[tree[0]]['arity'] == 2:
-            left_depth = tree_depth(tree[1], FUNCTIONS)
-            right_depth = tree_depth(tree[2], FUNCTIONS)
-        elif FUNCTIONS[tree[0]]['arity'] == 1:
-            left_depth = tree_depth(tree[1], FUNCTIONS)
-            right_depth = 0
-        # The depth of the tree is one more than the maximum depth of its subtrees
-        return 1 + max(left_depth, right_depth)
+    def depth(tree):
+        if not isinstance(tree, tuple):
+            # If it's a terminal node, the depth is 1
+            return 1
+        else:
+            # Recursively calculate the depth of the left and right subtrees
+            if FUNCTIONS[tree[0]]['arity'] == 2:
+                left_depth = depth(tree[1])
+                right_depth = depth(tree[2])
+            elif FUNCTIONS[tree[0]]['arity'] == 1:
+                left_depth = depth(tree[1])
+                right_depth = 0
+            # The depth of the tree is one more than the maximum depth of its subtrees
+            return 1 + max(left_depth, right_depth)
+    return depth
