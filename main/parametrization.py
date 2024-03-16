@@ -8,6 +8,7 @@ from algorithms.GP.operators.selection_algorithms import tournament_selection_mi
 from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
 from datasets.data_loader import *
 from algorithms.SLIM_GSGP.operators.mutators import *
+from algorithms.GP.representations.tree_utils import tree_pruning
 
 ########################################################################################################################
 
@@ -61,7 +62,8 @@ gp_solve_parameters = {"elitism": True,
                     "max_": False,
                     "ffunction": rmse,
                     "n_iter": 100,
-                    "n_elites": 1
+                    "n_elites": 1,
+                       "tree_pruner": None
                     }
 
 

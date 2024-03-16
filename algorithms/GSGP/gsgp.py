@@ -74,13 +74,31 @@ class GSGP:
         # logging the results for the population initialization
         if log != 0:
 
+            if log == 2:
+                add_info = [self.elite.test_fitness, gsgp_pop_div_from_vectors(torch.stack([ind.train_semantics for ind in population.population])),
+                            np.std(population.fit), log]
 
-            if log > 1:
+            # log level 3 saves the number of nodes and fitness of all the individuals in the population
+            elif log == 3:
+
                 add_info = [self.elite.test_fitness,
-                            gsgp_pop_div_from_vectors(torch.stack([ind.train_semantics for ind in population.population])),
-                            np.std(population.fit)]
+                        " ".join([str(ind.nodes_count) for ind in population.population]),
+                        " ".join([str(f) for f in population.fit]), log]
+
+            elif log == 4:
+
+                add_info = [self.elite.test_fitness,
+                            gsgp_pop_div_from_vectors(
+                                torch.stack([ind.train_semantics for ind in population.population])),
+                            np.std(population.fit),
+                            " ".join([str(ind.nodes_count) for ind in population.population]),
+                            " ".join([str(f) for f in population.fit]), log
+                            ]
+
             else:
-                add_info = [self.elite.test_fitness]
+
+                add_info = [self.elite.test_fitness, log]
+
 
             logger(log_path, 0, self.elite.fitness, end-start, float(population.nodes_count),
                 additional_infos = add_info, run_info=run_info, seed=self.seed)
@@ -203,13 +221,32 @@ class GSGP:
             # logging the results for the current generation
             if log != 0:
 
-                if log > 1:
-                    add_info = [self.elite.test_fitness,
-                                gsgp_pop_div_from_vectors(torch.stack([ind.train_semantics for ind in population.population])),
-                                np.std(population.fit)]
-                else:
-                    add_info = [self.elite.test_fitness]
 
+                if log == 2:
+                    add_info = [self.elite.test_fitness, gsgp_pop_div_from_vectors(
+                        torch.stack([ind.train_semantics for ind in population.population])),
+                                np.std(population.fit), log]
+
+                # log level 3 saves the number of nodes and fitness of all the individuals in the population
+                elif log == 3:
+
+                    add_info = [self.elite.test_fitness,
+                                " ".join([str(ind.nodes_count) for ind in population.population]),
+                                " ".join([str(f) for f in population.fit]), log]
+
+                elif log == 4:
+
+                    add_info = [self.elite.test_fitness,
+                                gsgp_pop_div_from_vectors(
+                                    torch.stack([ind.train_semantics for ind in population.population])),
+                                np.std(population.fit),
+                                " ".join([str(ind.nodes_count) for ind in population.population]),
+                                " ".join([str(f) for f in population.fit]), log
+                                ]
+
+                else:
+
+                    add_info = [self.elite.test_fitness, log]
 
                 logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
                        additional_infos=add_info, run_info=run_info, seed=self.seed)

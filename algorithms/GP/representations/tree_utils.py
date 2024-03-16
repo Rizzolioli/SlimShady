@@ -180,7 +180,6 @@ def random_subtree(tree, FUNCTIONS, first_call = True, num_of_nodes=None):
         if first_call:
             current_number_of_nodes = num_of_nodes
         else:
-
             #calculating the number of nodes of the current tree
             current_number_of_nodes = len(list(flatten(tree))) # TODO if first call use the input num of nodes (needs to change all the mutation and xo)
 
@@ -248,9 +247,9 @@ def substitute_subtree(tree, target_subtree, new_subtree, FUNCTIONS):
         return tree
 
 # Function to reduce both sides of a tree to a specific depth.
-def tree_pruning(TERMINALS, CONSTANTS, FUNCTIONS, target_depth ,p_c = 0.3):
+def tree_pruning(TERMINALS, CONSTANTS, FUNCTIONS , p_c = 0.3):
 
-    def pruning(tree):
+    def pruning(tree, target_depth):
         """
            Reduces both sides of a tree to a specific depth.
 
@@ -291,11 +290,11 @@ def tree_pruning(TERMINALS, CONSTANTS, FUNCTIONS, target_depth ,p_c = 0.3):
             return tree
         # Recursively reduce the left and right subtrees
         if FUNCTIONS[tree[0]]['arity'] == 2:
-            new_left_subtree = tree_pruning(tree[1], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
-            new_right_subtree = tree_pruning(tree[2], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
+            new_left_subtree = pruning(tree[1], target_depth - 1)
+            new_right_subtree = pruning(tree[2], target_depth - 1)
             return (tree[0], new_left_subtree, new_right_subtree)
         elif FUNCTIONS[tree[0]]['arity'] == 1:
-            new_left_subtree = tree_pruning(tree[1], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
+            new_left_subtree = pruning(tree[1], target_depth - 1)
             # new_right_subtree = tree_pruning(tree[2], target_depth - 1, TERMINALS, CONSTANTS, p_c)
             return (tree[0], new_left_subtree)
 
