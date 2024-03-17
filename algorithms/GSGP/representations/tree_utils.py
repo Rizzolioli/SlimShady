@@ -20,14 +20,14 @@ def apply_tree(tree, inputs):
         function_name = tree.structure[0]
         if tree.FUNCTIONS[function_name]['arity'] == 2:
             left_subtree, right_subtree = tree.structure[1], tree.structure[2]
-            left_subtree = Tree(left_subtree, tree.FUNCTIONS, tree.TERMINALS, tree.CONSTANTS)
-            right_subtree = Tree(right_subtree, tree.FUNCTIONS, tree.TERMINALS, tree.CONSTANTS)
+            left_subtree = Tree(left_subtree)
+            right_subtree = Tree(right_subtree, )
             left_result = left_subtree.apply_tree(inputs)
             right_result = right_subtree.apply_tree(inputs)
             output = tree.FUNCTIONS[function_name]['function'](left_result, right_result)
         else:
             left_subtree = tree.structure[1]
-            left_subtree = Tree(left_subtree, tree.FUNCTIONS, tree.TERMINALS, tree.CONSTANTS)
+            left_subtree = Tree(left_subtree)
             # right_subtree = Tree(right_subtree, tree.FUNCTIONS, tree.TERMINALS, tree.CONSTANTS)
             left_result = left_subtree.apply_tree(inputs)
             # right_result = right_subtree.apply_tree(inputs)

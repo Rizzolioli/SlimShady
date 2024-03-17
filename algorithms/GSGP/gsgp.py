@@ -6,6 +6,7 @@ import numpy as np
 from utils.utils import verbose_reporter, get_random_tree
 from algorithms.GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
+from algorithms.GP.representations.tree import Tree as GP_Tree
 from utils.logger import logger
 
 from utils.diversity import gsgp_pop_div_from_vectors
@@ -31,6 +32,13 @@ class GSGP:
         self.settings_dict = settings_dict
         self.find_elit_func = find_elit_func
 
+        Tree.FUNCTIONS = pi_init['FUNCTIONS']
+        Tree.TERMINALS = pi_init['TERMINALS']
+        Tree.CONSTANTS = pi_init['CONSTANTS']
+        GP_Tree.FUNCTIONS = pi_init['FUNCTIONS']
+        GP_Tree.TERMINALS = pi_init['TERMINALS']
+        GP_Tree.CONSTANTS = pi_init['CONSTANTS']
+
     def solve(self, X_train, X_test, y_train, y_test , curr_dataset, n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, run_info=None,
               max_=False, ffunction=None, reconstruct=False, n_elites=1):
@@ -50,8 +58,7 @@ class GSGP:
         ################################################################################################################
 
         # initializing the population
-        population = Population([Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
-                          for tree in self.initializer(**self.pi_init)])
+        population = Population([Tree(tree) for tree in self.initializer(**self.pi_init)])
 
         # getting the individuals' semantics
         population.calculate_semantics(X_train)
@@ -149,8 +156,7 @@ class GSGP:
 
 
                     # the two parents generate one offspring
-                    offs1 = Tree([self.crossover, p1, p2, r_tree],
-                                 p1.FUNCTIONS, p1.TERMINALS, p1.CONSTANTS)
+                    offs1 = Tree([self.crossover, p1, p2, r_tree])
 
                     # adding the offspring to the population
                     offs_pop.append(offs1)
@@ -186,8 +192,7 @@ class GSGP:
                         [rt.calculate_semantics(X_test, testing=True, logistic=True) for rt in mutation_trees]
 
                     # mutating the individual
-                    offs1 = Tree([self.mutator, p1, *mutation_trees, ms_],
-                                 p1.FUNCTIONS, p1.TERMINALS, p1.CONSTANTS)
+                    offs1 = Tree([self.mutator, p1, *mutation_trees, ms_])
 
                     # adding the individual to the population
                     offs_pop.append(offs1)

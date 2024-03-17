@@ -1,13 +1,20 @@
 from algorithms.GSGP.representations.tree_utils import apply_tree
 from algorithms.GP.representations.tree_utils import flatten
+from algorithms.GP.representations import tree
 import torch
-class Tree:
-    def __init__(self, structure, FUNCTIONS, TERMINALS, CONSTANTS):
+
+
+class Tree(tree.Tree):
+    FUNCTIONS = None
+    TERMINALS = None
+    CONSTANTS = None
+
+    def __init__(self, structure):
+        self.FUNCTIONS = Tree.FUNCTIONS
+        self.TERMINALS = Tree.TERMINALS
+        self.CONSTANTS = Tree.CONSTANTS
 
         self.structure = structure # either repr_ from gp(tuple) or list of pointers
-        self.FUNCTIONS = FUNCTIONS
-        self.TERMINALS = TERMINALS
-        self.CONSTANTS = CONSTANTS
 
         if isinstance(structure, tuple):
             self.depth = len(structure)

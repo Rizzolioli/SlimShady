@@ -35,6 +35,10 @@ class Tree:
                 Prints the tree representation with indentation.
             """
 
+    TERMINALS = None
+    FUNCTIONS = None
+    CONSTANTS = None
+
     def __init__(self, repr_):
 
         """
@@ -54,6 +58,9 @@ class Tree:
                 constants : dict
                     Dictionary of constant values allowed in the tree.
         """
+        self.FUNCTIONS = Tree.FUNCTIONS
+        self.TERMINALS = Tree.TERMINALS
+        self.CONSTANTS = Tree.CONSTANTS
 
         self.repr_ = repr_
         self.depth = len(repr_)
@@ -99,8 +106,8 @@ class Tree:
         else:  # If it's a terminal node
             # if self.repr_ == '_':
             #     output = '_'
-            if self.repr_ in list(Tree.TERMINALS.keys()):
-                output = inputs[:, Tree.TERMINALS[self.repr_]]
+            if self.repr_ in list(self.TERMINALS.keys()):
+                output = inputs[:, self.TERMINALS[self.repr_]]
 
                 return output
 

@@ -229,7 +229,7 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.
 
         tree = create_grow_random_tree(max_depth,FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminal)
 
-        tree = Tree(tree, FUNCTIONS, TERMINALS, CONSTANTS)
+        tree = Tree(tree)
 
         tree.calculate_semantics(inputs, testing=False, logistic=True)
 
@@ -237,7 +237,7 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.
 
         tree = create_full_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
-        tree = Tree(tree, FUNCTIONS, TERMINALS, CONSTANTS)
+        tree = Tree(tree)
 
         tree.calculate_semantics(inputs, testing=False, logistic=True)
 
