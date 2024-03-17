@@ -7,6 +7,7 @@ from utils.utils import verbose_reporter, train_test_split
 from utils.logger import logger
 from algorithms.SLIM_GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
+from algorithms.GP.representations.tree import Tree as GP_Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual
 
 from utils.diversity import gsgp_pop_div_from_vectors
@@ -39,6 +40,13 @@ class SLIM_GSGP:
 
         self.settings_dict = settings_dict
         self.find_elit_func = find_elit_func
+        
+        Tree.FUNCTIONS = pi_init['FUNCTIONS']
+        Tree.TERMINALS = pi_init['TERMINALS']
+        Tree.CONSTANTS = pi_init['CONSTANTS']
+        GP_Tree.FUNCTIONS = pi_init['FUNCTIONS']
+        GP_Tree.TERMINALS = pi_init['TERMINALS']
+        GP_Tree.CONSTANTS = pi_init['CONSTANTS']
 
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset, run_info ,n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None,
@@ -60,9 +68,7 @@ class SLIM_GSGP:
         ################################################################################################################
 
         # initializing the population
-        population = Population([Individual([
-                          Tree(tree, self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS']) ])
-                          for tree in self.initializer(**self.pi_init)])
+        population = Population([Individual([Tree(tree)])for tree in self.initializer(**self.pi_init)])
 
 
         population.calculate_semantics(X_train)

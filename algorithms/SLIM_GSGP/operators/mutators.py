@@ -45,8 +45,8 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees = True, operator
 
         # getting another random tree if two trees are to be used
         if two_trees:
-            random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c, p_terminal=p_terminal,
-                                       grow_probability=grow_probability)
+            random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                           p_terminal=p_terminal, grow_probability=grow_probability)
 
             random_trees.append(random_tree2)
 
@@ -55,11 +55,8 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees = True, operator
             [rt.calculate_semantics(X_test, testing=True, logistic=True) for rt in random_trees]
 
         # creating the mutation resulting block to be added to the individual
-        new_block = Tree([(two_trees_delta(operator = operator) if two_trees else one_tree_delta(operator = operator)),
-                         *random_trees, ms],
-                         FUNCTIONS,
-                         TERMINALS,
-                         CONSTANTS)
+        new_block = Tree([(two_trees_delta(operator=operator) if two_trees else one_tree_delta(operator=operator)),
+                         *random_trees, ms],)
 
         # getting the semantics for this new block
         new_block.calculate_semantics(X, testing=False)
