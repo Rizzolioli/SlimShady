@@ -4,7 +4,7 @@ from algorithms.GP.representations import tree
 import torch
 
 
-class Tree(tree.Tree):
+class Tree():
     FUNCTIONS = None
     TERMINALS = None
     CONSTANTS = None
