@@ -175,7 +175,7 @@ class SLIM_GSGP:
 
                         if p1.depth == max_depth:
 
-                            off1 = self.deflate_mutator(p1) #TODO is it okay?
+                            off1 = self.deflate_mutator(p1) #TODO if parent depth == max depth, apply deflate instead of deflate, ok?
 
                         else:
 
@@ -183,10 +183,11 @@ class SLIM_GSGP:
                                                     , p_c = self.pi_init["p_c"], X_test = X_test)
 
 
-                        # if off1.depth < max_depth: #todo check with leo, if we don't append trees that are too big it gets very slow
+                        # if off1.depth < max_depth: #TODO if offspring too big return parent (Koza)
                         #
                             # off1 = self.deflate_mutator(p1)
-                        offs_pop.append(off1)
+
+                    offs_pop.append(off1)
 
 
 
