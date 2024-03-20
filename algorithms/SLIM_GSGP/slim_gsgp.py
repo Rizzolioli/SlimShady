@@ -162,7 +162,7 @@ class SLIM_GSGP:
                     if random.random() < self.p_deflate and it != 1:
 
                         # if deflate mutation, pick one individual that is of size > 1
-                        p1 = self.selector(population, deflate=True)
+                        p1 = self.selector(population, deflate=True) #TODO check what happend if entire population is invalide(size == 1)
 
                         off1 = self.deflate_mutator(p1)
 
