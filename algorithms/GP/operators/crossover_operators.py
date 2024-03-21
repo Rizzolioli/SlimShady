@@ -19,7 +19,7 @@ def crossover_trees(FUNCTIONS):
     subtree_substitution = substitute_subtree(FUNCTIONS=FUNCTIONS)
     random_subtree_picker = random_subtree(FUNCTIONS=FUNCTIONS)
 
-    def inner_xo(tree1, tree2, tree1_n_nodes, tree2_n_nodes): #todo: finish this liah
+    def inner_xo(tree1, tree2, tree1_n_nodes, tree2_n_nodes):
 
         if isinstance(tree1, tuple) and isinstance(tree2, tuple):
             # Randomly select crossover points in both trees

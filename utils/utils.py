@@ -222,7 +222,7 @@ def get_best_max(population, n_elites):
         # returning the elite as the list of elites and the elite as the best in population
         return [elite], elite
 
-def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.3, p_terminal = 0.5, grow_probability=1):
+def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.3, p_terminal = 0.5, grow_probability=1, logistic=True):
 
     # choose between grow and full
     if random.random() < grow_probability:
@@ -231,7 +231,7 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.
 
         tree = Tree(tree)
 
-        tree.calculate_semantics(inputs, testing=False, logistic=True)
+        tree.calculate_semantics(inputs, testing=False, logistic=logistic)
 
     else:
 
@@ -239,7 +239,7 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.
 
         tree = Tree(tree)
 
-        tree.calculate_semantics(inputs, testing=False, logistic=True)
+        tree.calculate_semantics(inputs, testing=False, logistic=logistic)
 
 
     return tree

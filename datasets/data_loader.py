@@ -8,6 +8,19 @@ Taken from GPOL.
 
 """
 
+
+def load_preloaded(dataset_name, seed, training=True ,X_y=False):
+
+    filename = f"TRAINING_{seed}_{dataset_name.upper()}.txt" if training else f"TEST_{seed}_{dataset_name.upper()}.txt"
+
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "pre_loaded_data", filename), sep=" ")
+
+    if X_y:
+        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    else:
+        return df
+
+
 def load_airfoil(X_y=False):
     """ Loads and returns the Airfoil Self-Noise data set (regression)
 

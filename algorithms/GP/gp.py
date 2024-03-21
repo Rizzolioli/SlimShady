@@ -84,7 +84,7 @@ class GP:
             elif log == 3:
 
                 add_info = [self.elite.test_fitness,
-                        " ".join([str(ind.nodes_count) for ind in population.population]),
+                        " ".join([str(ind.node_count) for ind in population.population]),
                         " ".join([str(f) for f in population.fit]), log]
 
             elif log == 4:
@@ -92,7 +92,7 @@ class GP:
                 add_info = [self.elite.test_fitness,
                             float(niche_entropy([ind.repr_ for ind in population.population])),
                             np.std(population.fit),
-                            " ".join([str(ind.nodes_count) for ind in population.population]),
+                            " ".join([str(ind.node_count) for ind in population.population]),
                             " ".join([str(f) for f in population.fit]), log
                             ]
 
@@ -194,7 +194,7 @@ class GP:
                     elif log == 3:
 
                         add_info = [self.elite.test_fitness,
-                                    " ".join([str(ind.nodes_count) for ind in population.population]),
+                                    " ".join([str(ind.node_count) for ind in population.population]),
                                     " ".join([str(f) for f in population.fit]), log]
 
                     elif log == 4:
@@ -202,7 +202,7 @@ class GP:
                         add_info = [self.elite.test_fitness,
                                     float(niche_entropy([ind.repr_ for ind in population.population])),
                                     np.std(population.fit),
-                                    " ".join([str(ind.nodes_count) for ind in population.population]),
+                                    " ".join([str(ind.node_count) for ind in population.population]),
                                     " ".join([str(f) for f in population.fit]), log
                                     ]
 

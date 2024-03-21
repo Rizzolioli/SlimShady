@@ -82,7 +82,9 @@ class GSGP:
         if log != 0:
 
             if log == 2:
-                add_info = [self.elite.test_fitness, gsgp_pop_div_from_vectors(torch.stack([ind.train_semantics for ind in population.population])),
+                add_info = [self.elite.test_fitness, gsgp_pop_div_from_vectors(torch.stack([ind.train_semantics if ind.train_semantics.shape != torch.Size([]) \
+                                                 else ind.train_semantics.repeat(len(X_train)) for ind in
+                                             population.population])),
                             np.std(population.fit), log]
 
             # log level 3 saves the number of nodes and fitness of all the individuals in the population
@@ -94,11 +96,16 @@ class GSGP:
 
             elif log == 4:
 
+
+
+
                 add_info = [self.elite.test_fitness,
                             gsgp_pop_div_from_vectors(
-                                torch.stack([ind.train_semantics for ind in population.population])),
+                                torch.stack([ind.train_semantics if ind.train_semantics.shape != torch.Size([]) \
+                                                 else ind.train_semantics.repeat(len(X_train)) for ind in
+                                             population.population])),
                             np.std(population.fit),
-                            " ".join([str(ind.nodes_count) for ind in population.population]),
+                            " ".join([str(ind.nodes) for ind in population.population]),
                             " ".join([str(f) for f in population.fit]), log
                             ]
 
@@ -115,7 +122,6 @@ class GSGP:
 
             verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start, population.nodes_count)
 
-        # TODO: try to create the maximum needed amount of trees at the begining based on the pop size and operators liah
 
 
         ################################################################################################################
@@ -145,15 +151,14 @@ class GSGP:
 
                     while p1 == p2:
                         p1, p2 = self.selector(population), self.selector(population)
-                    # todo: when its one tree mutation on GSGP and SLIM no logistic needed Liah
+
                     # getting a random tree
                     r_tree = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'], TERMINALS=self.pi_init['TERMINALS'],
-                                             CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+                                             CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train, logistic=True)
 
                     # calculating its semantics on testing, if applicable
                     if test_elite:
                         r_tree.calculate_semantics(X_test, testing=True, logistic=True)
-
 
                     # the two parents generate one offspring
                     offs1 = Tree([self.crossover, p1, p2, r_tree])
@@ -170,26 +175,38 @@ class GSGP:
                     p1 = self.selector(population)
 
                     # determining the mutation step
-                    ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)]
-
-                    # getting two random trees
-                    r_tree1 = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'],
-                                             TERMINALS=self.pi_init['TERMINALS'],
-                                             CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
-
-                    mutation_trees = [r_tree1]
-
+                    ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)] # todo Liah change this davide is silly <3
+                    
+                    # checking if one or two trees are required for mutation
                     if self.mutator.__name__ in ['standard_geometric_mutation', 'product_two_trees_geometric_mutation']:
+                    
+                        r_tree1 = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'],
+                                                 TERMINALS=self.pi_init['TERMINALS'],
+                                                 CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
 
                         r_tree2 = get_random_tree(max_depth=self.pi_init['init_depth'],
                                                   FUNCTIONS=self.pi_init['FUNCTIONS'],
                                                   TERMINALS=self.pi_init['TERMINALS'],
                                                   CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
-                        mutation_trees.append(r_tree2)
 
-                    # calculating random trees' semantics on testing, if applicable
-                    if test_elite:
-                        [rt.calculate_semantics(X_test, testing=True, logistic=True) for rt in mutation_trees]
+                        mutation_trees = [r_tree1, r_tree2]
+
+                        # calculating random trees' semantics on testing, if applicable
+                        if test_elite:
+                            [rt.calculate_semantics(X_test, testing=True, logistic=True) for rt in mutation_trees]
+
+                    else:
+                        # if only one tree is used, no logistic function is needed
+                        r_tree1 = get_random_tree(max_depth=self.pi_init['init_depth'],
+                                                  FUNCTIONS=self.pi_init['FUNCTIONS'],
+                                                  TERMINALS=self.pi_init['TERMINALS'],
+                                                  CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train, logistic=False)
+
+                        mutation_trees = [r_tree1]
+
+                        # calculating random trees' semantics on testing, if applicable
+                        if test_elite:
+                            r_tree1.calculate_semantics(X_test, testing=True, logistic=False)
 
                     # mutating the individual
                     offs1 = Tree([self.mutator, p1, *mutation_trees, ms_])
@@ -229,7 +246,9 @@ class GSGP:
 
                 if log == 2:
                     add_info = [self.elite.test_fitness, gsgp_pop_div_from_vectors(
-                        torch.stack([ind.train_semantics for ind in population.population])),
+                        torch.stack([ind.train_semantics if ind.train_semantics.shape != torch.Size([]) \
+                                         else ind.train_semantics.repeat(len(X_train)) for ind in
+                                     population.population])),
                                 np.std(population.fit), log]
 
                 # log level 3 saves the number of nodes and fitness of all the individuals in the population
@@ -243,9 +262,11 @@ class GSGP:
 
                     add_info = [self.elite.test_fitness,
                                 gsgp_pop_div_from_vectors(
-                                    torch.stack([ind.train_semantics for ind in population.population])),
+                                    torch.stack([ind.train_semantics if ind.train_semantics.shape != torch.Size([]) \
+                                                     else ind.train_semantics.repeat(len(X_train)) for ind in
+                                                 population.population])),
                                 np.std(population.fit),
-                                " ".join([str(ind.nodes_count) for ind in population.population]),
+                                " ".join([str(ind.nodes) for ind in population.population]),
                                 " ".join([str(f) for f in population.fit]), log
                                 ]
 
