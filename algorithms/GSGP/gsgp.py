@@ -144,15 +144,14 @@ class GSGP:
 
                     while p1 == p2:
                         p1, p2 = self.selector(population), self.selector(population)
-                    # todo: is the one crossover rt logistic or not?
+
                     # getting a random tree
                     r_tree = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'], TERMINALS=self.pi_init['TERMINALS'],
-                                             CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+                                             CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train, logistic=True)
 
                     # calculating its semantics on testing, if applicable
                     if test_elite:
                         r_tree.calculate_semantics(X_test, testing=True, logistic=True)
-
 
                     # the two parents generate one offspring
                     offs1 = Tree([self.crossover, p1, p2, r_tree],
@@ -170,7 +169,7 @@ class GSGP:
                     p1 = self.selector(population)
 
                     # determining the mutation step
-                    ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)]
+                    ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)] # todo Liah change this davide is silly <3
                     
                     # checking if one or two trees are required for mutation
                     if self.mutator.__name__ in ['standard_geometric_mutation', 'product_two_trees_geometric_mutation']:

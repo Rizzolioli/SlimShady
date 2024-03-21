@@ -23,8 +23,7 @@ def tournament_selection_min_slim(pool_size):
 
             valid_pop = [ind for ind in pop.population if ind.size > 1]
 
-            if len(valid_pop) < 0:
-
+            if len(valid_pop) < 1:
                  pool = random.sample(pop.population, k=pool_size) #TODO if entire population is invalid(all size == 1)
 
             else:
@@ -34,8 +33,6 @@ def tournament_selection_min_slim(pool_size):
         else:
 
             pool = random.sample(pop.population, k=pool_size)
-
-
 
         return pool[np.argmin([ind.fitness for ind in pool])]
 

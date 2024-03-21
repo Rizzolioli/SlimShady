@@ -16,8 +16,7 @@ from utils.logger import log_settings
 
 # creating a list with the datasets that are to be benchmarked
 
-datas = [ "boston", "concrete_slump", "concrete_slump", "forest_fires", \
-"efficiency_cooling", "diabetes", "parkinson_updrs", "efficiency_heating"]
+datas = ["ld50"]
 
 # datas = ["ppb"]
 
@@ -26,7 +25,9 @@ data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_
 
 # defining the names of the algorithms to be run
 
-algos = ["StandardGSGP", "alsoStandard"]
+algos = ["SlimGSGP"]
+
+pre_loaded = False
 
 ########################################################################################################################
 
@@ -58,7 +59,6 @@ for loader in data_loaders:
 
         # running each dataset + algo configuration n_runs times
         for seed in range(2):
-            if algo == "alsoStandard": seed = seed + 10
             start = time.time()
 
             # Loads the data via the dataset loader
@@ -67,9 +67,12 @@ for loader in data_loaders:
             # getting the name of the dataset:
             curr_dataset = loader.__name__
 
-            # Performs train/test split
-            X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=settings_dict['p_test'],
-                                                                seed=seed)
+            if pre_loaded:
+                pass
+            else:
+                # Performs train/test split
+                X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=settings_dict['p_test'], seed=seed)
+
 
             optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
 

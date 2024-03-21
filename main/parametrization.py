@@ -138,7 +138,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,
-                    "n_iter": 100,
+                    "n_iter": 2000,
                     "max_depth": 17,
                     "n_elites": 1
                     }
@@ -146,14 +146,14 @@ slim_gsgp_solve_parameters = {"elitism": True,
 slim_GSGP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min_slim(2),
                   "crossover": geometric_crossover,
-                   "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'),
+                   "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'), #todo: why is this here with these values?
                  "inflate_mutator" : None,
                   "deflate_mutator": deflate_mutation,
                   "p_xo": 0,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
                 "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
-                "p_inflate": 0.3,
+                "p_inflate": 0.1,
                         # "two_trees": True,
                         "operator": 'sum'
     }
@@ -163,7 +163,7 @@ slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 slim_GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
 slim_gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
-           'init_depth': 8,
+           'init_depth': 6,
            'FUNCTIONS': FUNCTIONS,
            'CONSTANTS': CONSTANTS,
            "p_c": 0.1}
