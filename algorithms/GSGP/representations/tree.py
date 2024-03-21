@@ -15,7 +15,7 @@ class Tree:
             self.depth = max([tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)]) + 1
 
         if isinstance(structure, tuple):
-            self.nodes = len(list(flatten(structure)))
+                    self.nodes = len(list(flatten(structure)))
         else:
             # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
             self.nodes = sum([*[tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)],

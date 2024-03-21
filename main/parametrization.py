@@ -53,7 +53,7 @@ settings_dict = {"p_test": 0.2}
 ########################################################################################################################
 
 gp_solve_parameters = {"elitism": True,
-                    "log": 1,
+                    "log": 4,
                     "verbose": 1,
                     "test_elite": True,
                     "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
@@ -94,7 +94,7 @@ gp_pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the in
 
 
 gsgp_solve_parameters = {"elitism": True,
-                    "log": 1,
+                    "log": 4,
                     "verbose": 1,
                     "test_elite": True,
                     "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
@@ -102,7 +102,8 @@ gsgp_solve_parameters = {"elitism": True,
                     "max_": False,
                     "ffunction": rmse,
                     "n_iter": 100,
-                    "reconstruct": False
+                    "reconstruct": False,
+                         "n_elites": 1
                     }
 
 GSGP_parameters = {"initializer": rhh,
@@ -130,10 +131,10 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
 ########################################################################################################################
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                    "log": 2,
+                    "log": 4,
                     "verbose": 1,
                     "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "logger_checking.csv"),
+                    "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,

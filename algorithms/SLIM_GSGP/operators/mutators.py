@@ -40,19 +40,32 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees = True, operator
     def inflate(individual, ms, X, max_depth = 8, p_c = 0.1, X_test = None, p_terminal=0.5, grow_probability=1):
 
         # getting a random tree
-        random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c, p_terminal=p_terminal, grow_probability=grow_probability)
-        random_trees = [random_tree1]
+
+
 
         # getting another random tree if two trees are to be used
         if two_trees:
+            # getting two random trees
+            random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                           p_terminal=p_terminal, grow_probability=grow_probability)
             random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c, p_terminal=p_terminal,
                                        grow_probability=grow_probability)
 
-            random_trees.append(random_tree2)
+            random_trees = [random_tree1, random_tree2]
 
-        # getting the testing semantics of the random trees
-        if X_test is not None:
-            [rt.calculate_semantics(X_test, testing=True, logistic=True) for rt in random_trees]
+            # getting the testing semantics of the random trees
+            if X_test is not None:
+                [rt.calculate_semantics(X_test, testing=True, logistic=True) for rt in random_trees]
+
+        else:
+            # getting one random tree
+            random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                           p_terminal=p_terminal, grow_probability=grow_probability, logistic=False)
+
+            random_trees = [random_tree1]
+
+            if X_test is not None:
+                random_trees.calculate_semantics(X_test, testing=True, logistic=False)
 
         # creating the mutation resulting block to be added to the individual
         new_block = Tree([(two_trees_delta(operator = operator) if two_trees else one_tree_delta(operator = operator)),

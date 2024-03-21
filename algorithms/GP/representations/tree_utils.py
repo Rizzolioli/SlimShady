@@ -181,7 +181,7 @@ def random_subtree(tree, FUNCTIONS, first_call = True, num_of_nodes=None):
             current_number_of_nodes = num_of_nodes
         else:
             #calculating the number of nodes of the current tree
-            current_number_of_nodes = len(list(flatten(tree))) # TODO if first call use the input num of nodes (needs to change all the mutation and xo)
+            current_number_of_nodes = len(list(flatten(tree)))
 
         if FUNCTIONS[tree[0]]['arity'] == 2:
             if first_call:
