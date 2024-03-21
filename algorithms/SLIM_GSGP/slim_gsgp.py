@@ -173,9 +173,9 @@ class SLIM_GSGP:
 
                         ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)]
 
-                        if p1.depth == max_depth:
+                        if max_depth is not None and p1.depth == max_depth:
 
-                            off1 = self.deflate_mutator(p1) #TODO if parent depth == max depth, apply deflate instead of deflate, ok?
+                            off1 = Individual(p1.collection) #TODO if parent depth == max depth, return parent
 
                         else:
 
@@ -183,7 +183,7 @@ class SLIM_GSGP:
                                                     , p_c = self.pi_init["p_c"], X_test = X_test)
 
 
-                        if off1.depth > max_depth: #TODO if offspring too big return parent (Koza)
+                        if max_depth is not None and off1.depth > max_depth: #TODO if offspring too big return parent (Koza)
 
                             off1 = Individual(p1.collection)
 

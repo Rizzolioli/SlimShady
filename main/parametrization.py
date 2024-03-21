@@ -146,7 +146,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
 slim_GSGP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min_slim(2),
                   "crossover": geometric_crossover,
-                   "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'), #todo: why is this here with these values?
+                   "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'), # TODO: why is this here with these values?
                  "inflate_mutator" : None,
                   "deflate_mutator": deflate_mutation,
                   "p_xo": 0,
