@@ -123,7 +123,7 @@ class SLIM_GSGP:
 
             else:
 
-                add_info = [self.elite.test_fitness, log]
+                add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
 
             logger(log_path, 0, self.elite.fitness, end - start, float(population.nodes_count),
                    additional_infos=add_info, run_info=run_info, seed=self.seed)
