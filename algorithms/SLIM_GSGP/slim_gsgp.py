@@ -177,7 +177,8 @@ class SLIM_GSGP:
 
                         p1 = self.selector(population, deflate=False)
 
-                        ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)]
+                        # obtaining the random mutation step
+                        ms_ = self.ms()
 
                         if max_depth is not None and p1.depth == max_depth:
 

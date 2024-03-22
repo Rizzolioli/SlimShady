@@ -9,6 +9,7 @@ from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selec
 from datasets.data_loader import *
 from algorithms.SLIM_GSGP.operators.mutators import *
 from algorithms.GP.representations.tree_utils import tree_pruning
+from utils.utils import generate_random_uniform
 
 ########################################################################################################################
 
@@ -103,7 +104,7 @@ gsgp_solve_parameters = {"elitism": True,
                     "ffunction": rmse,
                     "n_iter": 100,
                     "reconstruct": False,
-                         "n_elites": 1
+                     "n_elites": 1
                     }
 
 GSGP_parameters = {"initializer": rhh,
@@ -146,14 +147,14 @@ slim_gsgp_solve_parameters = {"elitism": True,
 slim_GSGP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min_slim(2),
                   "crossover": geometric_crossover,
-                   "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'), # TODO: why is this here with these values?
+                   "ms" : generate_random_uniform(0, 0.3),
                  "inflate_mutator" : None,
                   "deflate_mutator": deflate_mutation,
                   "p_xo": 0,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
                 "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
-                "p_inflate": 0.1,
+                "p_inflate": 0.5,
                         # "two_trees": True,
                         "operator": 'sum'
     }
@@ -166,7 +167,7 @@ slim_gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
            'init_depth': 6,
            'FUNCTIONS': FUNCTIONS,
            'CONSTANTS': CONSTANTS,
-           "p_c": 0.1}
+           "p_c": 0}
 
 all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters", "slim_gsgp_pi_init", "settings_dict"],
               "GSGP": ["gsgp_solve_parameters", "GSGP_parameters", "gsgp_pi_init", "settings_dict"],

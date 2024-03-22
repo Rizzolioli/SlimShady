@@ -21,13 +21,15 @@ datas = ["ld50"]
 # datas = ["ppb"]
 
 # obtaining the data loading functions using the dataset name
-data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
+# data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
 
 # defining the names of the algorithms to be run
 
 algos = ["SlimGSGP"]
 
-pre_loaded = False
+#data_loaders = [ "concrete", "instanbul", "ppb", "resid_build_sale_price"]
+
+data_loaders = [ "concrete"]
 
 ########################################################################################################################
 
@@ -40,37 +42,53 @@ unique_run_id = uuid.uuid1()
 
 # for each dataset
 for loader in data_loaders:
-    # getting the name of the dataset
-    dataset = loader.__name__.split("load_")[-1]
 
-    # getting the terminals and defining the terminal-dependant parameters
-    TERMINALS = get_terminals(loader)
-    slim_gsgp_pi_init["TERMINALS"] = TERMINALS
-    slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
-                                              TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
-                                            two_trees=True, operator=slim_GSGP_parameters['operator'])
 
     # for each dataset, run all the planned algorithms
     for algo in algos:
-        # adding the dataset name and algorithm name to the run info for the logger
-        slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]
 
         # running each dataset + algo configuration n_runs times
-        for seed in range(2):
+        for seed in range(30):
             start = time.time()
 
-            # Loads the data via the dataset loader
-            X, y = loader(X_y=True)
+            if isinstance(loader, str):
+                # getting the name of the dataset
+                dataset = loader
 
-            # getting the name of the dataset:
-            curr_dataset = loader.__name__
+                curr_dataset = f"load_{dataset}"
 
-            if pre_loaded:
-                pass
+                TERMINALS = get_terminals(loader, seed+1)
+
+                X_train, y_train = load_preloaded(loader, seed=seed+1, training=True, X_y=True)
+
+                X_test, y_test = load_preloaded(loader, seed=seed+1, training=False, X_y=True)
+
             else:
+
+                # Loads the data via the dataset loader
+                X, y = loader(X_y=True)
+
+                # getting the name of the dataset:
+                curr_dataset = loader.__name__
+
+                # getting the name of the dataset
+                dataset = loader.__name__.split("load_")[-1]
+
+                # getting the terminals and defining the terminal-dependant parameters
+                TERMINALS = get_terminals(loader)
+
                 # Performs train/test split
                 X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=settings_dict['p_test'], seed=seed)
 
+            slim_gsgp_pi_init["TERMINALS"] = TERMINALS
+
+            slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
+                                                                      TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
+                                                                      two_trees=True,
+                                                                      operator=slim_GSGP_parameters['operator'])
+
+            # adding the dataset name and algorithm name to the run info for the logger
+            slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]
 
             optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
 

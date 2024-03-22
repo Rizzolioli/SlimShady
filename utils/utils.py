@@ -6,6 +6,7 @@ import numpy as np
 
 from algorithms.GP.representations.tree_utils import create_full_random_tree, create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
+from datasets.data_loader import load_preloaded
 
 """
 Taken from GPOL
@@ -178,8 +179,11 @@ def verbose_reporter(dataset,generation, pop_val_fitness, pop_test_fitness, timi
               " " * 3 + str(timing) + " " * (21 - digits_timing) + "|" +
               " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
 
-def get_terminals(data_loader):
-    TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
+def get_terminals(data_loader, seed = 0):
+    if isinstance(data_loader, str):
+        TERMINALS = {f"x{i}": i for i in range(len(load_preloaded(data_loader, seed, training=True, X_y=True)[0][0]))}
+    else:
+        TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
     return TERMINALS
 
 def get_best_min(population, n_elites):
@@ -243,3 +247,10 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.
 
 
     return tree
+
+def generate_random_uniform(lower, upper):
+
+    def generate_num():
+        return random.uniform(lower, upper)
+
+    return generate_num
