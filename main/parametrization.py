@@ -141,7 +141,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                     "log": 1,
                     "verbose": 1,
                     "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "davide_logger.csv"),
+                    "log_path": os.path.join(os.getcwd(), "log", "diogo_logger.csv"),
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,
@@ -161,7 +161,7 @@ slim_GSGP_parameters = {"initializer": rhh,
                   "settings_dict": settings_dict,
                 "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
                 "p_inflate": 0.1,
-                        # "two_trees": True,
+                        "two_trees": True,
                         "operator": 'sum'
     }
 

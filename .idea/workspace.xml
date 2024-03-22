@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="" />
+    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main_slim.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_slim.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -38,10 +45,6 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 1
-}</component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="91" />
     <option name="y" value="25" />
@@ -98,15 +101,6 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.extra_checker.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main_gp.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main_slim.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;slim__and__gp__fixing&quot;
-  }
-}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
@@ -299,6 +293,18 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py</url>
+          <line>189</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/resources/tree/trees.py">

@@ -20,7 +20,7 @@ class SLIM_GSGP:
 
     def __init__(self, pi_init, initializer, selector, inflate_mutator, deflate_mutator, ms, crossover, find_elit_func,
                  p_m=1, p_xo=0, p_inflate = 0.3, p_deflate = 0.7, pop_size=100, seed=0, operator = 'sum',
-                 settings_dict=None):
+                 two_trees=True, settings_dict=None):
 
         #other initial parameters, tipo dataset
         self.pi_init = pi_init  # dictionary with all the parameters needed for evaluation
@@ -37,6 +37,7 @@ class SLIM_GSGP:
         self.pop_size = pop_size
         self.seed = seed
         self.operator = operator
+        self.two_trees = two_trees
 
         self.settings_dict = settings_dict
         self.find_elit_func = find_elit_func
