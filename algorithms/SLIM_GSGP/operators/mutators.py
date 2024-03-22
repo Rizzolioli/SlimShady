@@ -66,7 +66,7 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees = True, operator
             random_trees = [random_tree1]
 
             if X_test is not None:
-                [rt.calculate_semantics(X_test, testing=True, logistic=True) for rt in random_trees]
+                [rt.calculate_semantics(X_test, testing=True, logistic=False) for rt in random_trees]
 
         # creating the mutation resulting block to be added to the individual
         new_block = Tree([(two_trees_delta(operator=operator) if two_trees else one_tree_delta(operator=operator)),
