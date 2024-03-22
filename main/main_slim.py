@@ -76,12 +76,9 @@ for ttress in [False, True]:
                                                                           TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
                                                                           two_trees=ttress,
                                                                           operator=slim_GSGP_parameters['operator'])
-
                 # getting the log file name according to the used parameters:
-                log_file_name = f'{dataset}_{1 + slim_GSGP_parameters["inflate_mutator"].__closure__[4].cell_contents * 1}_{slim_GSGP_parameters["operator"]}.csv'
+                algo = f'{algo}_{1 + slim_GSGP_parameters["inflate_mutator"].__closure__[4].cell_contents * 1}_{slim_GSGP_parameters["operator"]}.csv'
 
-                # changing the logger path to the full file name
-                slim_gsgp_solve_parameters["log_path"] = os.path.join(log_path, log_file_name)
 
                 # adding the dataset name and algorithm name to the run info for the logger
                 slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]
