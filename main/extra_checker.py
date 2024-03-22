@@ -8,5 +8,3 @@ print(x)
 
 print(y)"""
 
-torch.FloatTensor(1, 1).uniform_(0, 0.1)
-
