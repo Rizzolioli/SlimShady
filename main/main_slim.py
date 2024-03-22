@@ -29,7 +29,7 @@ algos = ["SlimGSGP"]
 
 #data_loaders = [ "concrete", "instanbul", "ppb", "resid_build_sale_price"]
 
-data_loaders = [ "concrete"]
+data_loaders = ["toxicity"]
 
 ########################################################################################################################
 
@@ -48,7 +48,7 @@ for loader in data_loaders:
     for algo in algos:
 
         # running each dataset + algo configuration n_runs times
-        for seed in range(30):
+        for seed in range(n_runs):
             start = time.time()
 
             if isinstance(loader, str):

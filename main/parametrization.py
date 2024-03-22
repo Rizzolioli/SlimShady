@@ -22,12 +22,17 @@ FUNCTIONS = {
     'add': {'function': lambda x, y: torch.add(x, y), 'arity': 2},
     'subtract': {'function': lambda x, y: torch.sub(x, y), 'arity': 2},
     'multiply': {'function': lambda x, y: torch.mul(x, y), 'arity': 2},
-    'divide': {'function': lambda x, y: protected_div(x, y), 'arity': 2},
-    'mean': {'function': lambda x, y: mean_(x, y), 'arity': 2},
+    'divide': {'function': lambda x, y: protected_div(x, y), 'arity': 2}
+}
+
+"""
+
+'mean': {'function': lambda x, y: mean_(x, y), 'arity': 2},
     'tan': {'function': lambda x: torch.tan(x), 'arity': 1},
     'sin': {'function': lambda x: torch.sin(x), 'arity': 1},
     'cos': {'function': lambda x: torch.cos(x), 'arity': 1},
-}
+    
+"""
 
 CONSTANTS = {
     'constant_2': lambda x: torch.tensor(2).float(),
@@ -135,7 +140,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                     "log": 1,
                     "verbose": 1,
                     "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
+                    "log_path": os.path.join(os.getcwd(), "log", "logger_checking.csv"),
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,
@@ -147,16 +152,16 @@ slim_gsgp_solve_parameters = {"elitism": True,
 slim_GSGP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min_slim(2),
                   "crossover": geometric_crossover,
-                   "ms" : generate_random_uniform(0, 0.3),
+                   "ms" : generate_random_uniform(0, 0.1),
                  "inflate_mutator" : None,
                   "deflate_mutator": deflate_mutation,
                   "p_xo": 0,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
                 "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
-                "p_inflate": 0.5,
+                "p_inflate": 0.1,
                         # "two_trees": True,
-                        "operator": 'sum'
+                        "operator": 'mul'
     }
 
 inflate_mutator = inflate_mutation

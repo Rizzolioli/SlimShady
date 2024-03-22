@@ -231,24 +231,37 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.
     # choose between grow and full
     if random.random() < grow_probability:
 
+        # creating a tree using grow
         tree = create_grow_random_tree(max_depth,FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminal)
 
         tree = Tree(tree)
 
+        # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
 
     else:
-
+        # creating a full tree
         tree = create_full_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
         tree = Tree(tree)
 
+        # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
 
 
     return tree
 
 def generate_random_uniform(lower, upper):
+    """
+    Generate a random number within a specified range using numpy random.uniform.
+
+    Parameters:
+    lower (float): The lower bound of the range for generating the random number.
+    upper (float): The upper bound of the range for generating the random number.
+
+    Returns:
+    function: A function that when called, generates a random number within the specified range.
+    """
 
     def generate_num():
         return random.uniform(lower, upper)

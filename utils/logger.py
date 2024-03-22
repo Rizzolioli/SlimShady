@@ -15,7 +15,6 @@ def log_settings(path, settings_dict, unique_run_id):
         writer = csv.writer(file)
         writer.writerow(infos)
 
-
 def merge_settings(sd1, sd2, sd3, sd4):
     return {**sd1, **sd2, **sd3, **sd4}
 

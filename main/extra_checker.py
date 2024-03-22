@@ -8,6 +8,5 @@ print(x)
 
 print(y)"""
 
-r = generate_random_uniform(0, 0.1)
+torch.FloatTensor(1, 1).uniform_(0, 0.1)
 
-print(r())

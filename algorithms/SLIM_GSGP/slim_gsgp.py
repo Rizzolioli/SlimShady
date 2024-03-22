@@ -168,7 +168,7 @@ class SLIM_GSGP:
                     if random.random() < self.p_deflate and it != 1:
 
                         # if deflate mutation, pick one individual that is of size > 1
-                        p1 = self.selector(population, deflate=True) #TODO check what happend if entire population is invalide(size == 1) A: we just inflate all
+                        p1 = self.selector(population, deflate=True) #TODO check what happend if entire population is invalide(size == 1) A: we just inflate all. fix this
 
                         off1 = self.deflate_mutator(p1)
 
@@ -182,7 +182,7 @@ class SLIM_GSGP:
 
                         if max_depth is not None and p1.depth == max_depth:
 
-                            off1 = Individual(p1.collection) #TODO if parent depth == max depth, return parent
+                            off1 = self.deflate_mutator(p1)
 
                         else:
 
@@ -192,7 +192,8 @@ class SLIM_GSGP:
 
                         if max_depth is not None and off1.depth > max_depth: #TODO if offspring too big return parent (Koza)
 
-                            off1 = Individual(p1.collection)
+                            off1 = self.deflate_mutator(p1)
+
 
                     offs_pop.append(off1)
 
@@ -252,7 +253,6 @@ class SLIM_GSGP:
                                 " ".join([str(ind.nodes_count) for ind in population.population]),
                                 " ".join([str(f) for f in population.fit]), log
                                 ]
-
 
                 else:
 

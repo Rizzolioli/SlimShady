@@ -48,6 +48,7 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees = True, operator
             # getting two random trees
             random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
                                            p_terminal=p_terminal, grow_probability=grow_probability)
+
             random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c, p_terminal=p_terminal,
                                        grow_probability=grow_probability)
 
