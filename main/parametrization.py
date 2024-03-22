@@ -136,13 +136,12 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
 
 ########################################################################################################################
 
-log_path = os.path.join(os.getcwd(), "log")
 
 slim_gsgp_solve_parameters = {"elitism": True,
                     "log": 1,
                     "verbose": 1,
                     "test_elite": True,
-                    # "log_path": ,
+                    "log_path": os.path.join(os.getcwd(), "log", "davide_logger.csv"),
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,
