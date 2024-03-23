@@ -1,5 +1,7 @@
 import torch
 import numpy as np
+from algorithms.GSGP.representations.tree_utils import apply_tree
+
 class Individual():
 
     def __init__(self, collection):
@@ -87,3 +89,6 @@ class Individual():
 
         else:
             self.fitness = ffunction(operator(self.train_semantics, dim = 0), y)
+
+    def apply_individual(self, data): # TODO Davide or Liah verify. I get slightly different RMSE on the elite using this
+        return [apply_tree(tree, data) for tree in self.collection]
