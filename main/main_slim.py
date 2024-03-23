@@ -39,8 +39,6 @@ for loader in data_loaders:
         # getting the log file name according to the used parameters:
         algo = f'{algo}_{1 + slim_GSGP_parameters["two_trees"] * 1}_{slim_GSGP_parameters["operator"]}.csv'
 
-        print("THE ALGO IS", algo)
-
         # running each dataset + algo configuration n_runs times
         for seed in range(n_runs):
             start = time.time()

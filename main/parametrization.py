@@ -145,7 +145,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,
-                    "n_iter": 4,
+                    "n_iter": 2000,
                     "max_depth": None,
                     "n_elites": 1
                     }
