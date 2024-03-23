@@ -104,8 +104,15 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
             sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0], palette = "Accent")
             sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1], palette = "Paired")
 
-            plt.xlabel(x_var)
-            plt.ylabel(y_var)
+            ax[0].set_xlabel("generation")
+            ax[0].set_ylabel("training fitness")
+
+            ax[1].set_xlabel("generation")
+            ax[1].set_ylabel("testing fitness")
+
+            fig.tight_layout()
+            fig.subplots_adjust(top=0.8)
+            fig.suptitle(f'{ds.capitalize()}', fontsize=16)
             plt.title(f'{dataset.capitalize()}')
             fig.show()
 
@@ -123,9 +130,14 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
                 sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0],palette = "Accent")
                 sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1], palette = "Paired")
 
-                plt.xlabel(x_var)
-                plt.ylabel(y_var)
-                plt.title(f'{ds.capitalize()}')
+                ax[0].set_xlabel("generation")
+                ax[0].set_ylabel("training fitness")
+
+                ax[1].set_xlabel("generation")
+                ax[1].set_ylabel("testing fitness")
+                fig.tight_layout()
+                fig.subplots_adjust(top=0.8)
+                fig.suptitle(f'{ds.capitalize()}', fontsize=16)
                 plt.show()
 
 
