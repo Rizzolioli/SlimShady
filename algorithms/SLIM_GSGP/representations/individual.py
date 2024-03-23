@@ -90,5 +90,6 @@ class Individual():
         else:
             self.fitness = ffunction(operator(self.train_semantics, dim = 0), y)
 
-    def apply_individual(self, data): # TODO Davide or Liah verify. I get slightly different RMSE on the elite using this
-        return [apply_tree(tree, data) for tree in self.collection]
+    def apply_individual(self, data, operator="sum"): # TODO Davide or Liah verify. I get slightly different RMSE on the elite using this
+        return [apply_tree(tree, data) for tree in self.collection][0]
+

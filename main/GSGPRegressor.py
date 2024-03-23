@@ -1,7 +1,6 @@
 import torch
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
-from sklearn.utils.multiclass import unique_labels
 from sklearn.utils.estimator_checks import check_estimator
 import pandas as pd
 import numpy as np
@@ -70,7 +69,7 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
         if len(X[0])!= self.n_features_in_:
             raise ValueError("The number of features present in the data to predict is different from the number used in fit.")
         result = self.optimizer.elite.apply_individual(torch.from_numpy(X))
-        return result[0]
+        return result
 
 
 if __name__ == '__main__':
@@ -83,6 +82,8 @@ if __name__ == '__main__':
     gsgp_reg.fit(X, y)
     result = gsgp_reg.predict(X)
     score = gsgp_reg.score(X, y)
+    print(result)
+    print(score)
     print("Finish")
 
 
