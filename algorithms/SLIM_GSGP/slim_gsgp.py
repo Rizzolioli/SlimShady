@@ -96,6 +96,7 @@ class SLIM_GSGP:
                     gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
                                                            for ind in population.population]))
                 add_info = [self.elite.test_fitness,
+                            self.elite.nodes_count,
                             float(gen_diversity),
                             np.std(population.fit), log]
 
@@ -103,6 +104,7 @@ class SLIM_GSGP:
             elif log == 3:
 
                 add_info = [self.elite.test_fitness,
+                            self.elite.nodes_count,
                         " ".join([str(ind.nodes_count) for ind in population.population]),
                         " ".join([str(f) for f in population.fit]), log]
 
@@ -115,6 +117,7 @@ class SLIM_GSGP:
                     gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
                                                            for ind in population.population]))
                 add_info = [self.elite.test_fitness,
+                            self.elite.nodes_count,
                             float(gen_diversity),
                             np.std(population.fit),
                             " ".join([str(ind.nodes_count) for ind in population.population]),
@@ -230,6 +233,7 @@ class SLIM_GSGP:
                         gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
                                                                for ind in population.population]))
                     add_info = [self.elite.test_fitness,
+                                self.elite.nodes_count,
                                 float(gen_diversity),
                                 np.std(population.fit), log]
 
@@ -237,6 +241,7 @@ class SLIM_GSGP:
                 elif log == 3:
 
                     add_info = [self.elite.test_fitness,
+                                self.elite.nodes_count,
                                 " ".join([str(ind.nodes_count) for ind in population.population]),
                                 " ".join([str(f) for f in population.fit]), log]
 
@@ -249,6 +254,7 @@ class SLIM_GSGP:
                         gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
                                                                for ind in population.population]))
                     add_info = [self.elite.test_fitness,
+                                self.elite.nodes_count,
                                 float(gen_diversity),
                                 np.std(population.fit),
                                 " ".join([str(ind.nodes_count) for ind in population.population]),

@@ -36,6 +36,9 @@ for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo in algos:
 
+        # getting the log file name according to the used parameters:
+        algo = f'{algo}_{1 + slim_GSGP_parameters["two_trees"] * 1}_{slim_GSGP_parameters["operator"]}.csv'
+
         # running each dataset + algo configuration n_runs times
         for seed in range(n_runs):
             start = time.time()
@@ -69,14 +72,25 @@ for loader in data_loaders:
                 # Performs train/test split
                 X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=settings_dict['p_test'], seed=seed)
 
+
+            # setting up the dataset related slim parameters:
+            if dataset in slim_GSGP_parameters.keys():
+                slim_GSGP_parameters["ms"] = slim_dataset_params[dataset]["ms"]
+                slim_GSGP_parameters['p_inflate'] = slim_dataset_params[dataset]["p_inflate"]
+
+            else:
+                slim_GSGP_parameters["ms"] = slim_dataset_params["other"]["ms"]
+                slim_GSGP_parameters['p_inflate'] = slim_dataset_params["other"]["p_inflate"]
+
+            slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
+
+            # setting up the dataset related parameters:
             slim_gsgp_pi_init["TERMINALS"] = TERMINALS
 
             slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
                                                                       TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
                                                                       two_trees=slim_GSGP_parameters['two_trees'],
                                                                       operator=slim_GSGP_parameters['operator'])
-            # getting the log file name according to the used parameters:
-            algo = f'{algo}_{1 + slim_GSGP_parameters["inflate_mutator"].__closure__[4].cell_contents * 1}_{slim_GSGP_parameters["operator"]}.csv'
 
 
             # adding the dataset name and algorithm name to the run info for the logger
