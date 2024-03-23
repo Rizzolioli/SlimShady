@@ -98,3 +98,4 @@ def drop_experiment_from_logger(experiment_id, log_path):
     to_keep = logger_data[logger_data[1] != experiment_id]
     # saving the new excluded dataset
     logger_data.to_csv(log_path, index=False, header=None)
+
