@@ -17,9 +17,10 @@ from utils.logger import log_settings
 
 class GSGPRegressor(BaseEstimator, RegressorMixin):
 
-    def __init__(self, random_state=0, algo="SlimGSGP", **params):
+    def __init__(self, random_state=0, algo="SlimGSGP", ms=generate_random_uniform(0, 1), **params):
         self.algo = algo
         self.random_state = random_state
+        self.ms = ms
         for key, value in params.items():
             if key in slim_gsgp_pi_init.keys():
                 slim_gsgp_pi_init[key] = value

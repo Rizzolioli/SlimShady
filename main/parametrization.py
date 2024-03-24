@@ -62,12 +62,12 @@ gp_solve_parameters = {"elitism": True,
                     "log": 4,
                     "verbose": 1,
                     "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
+                    "log_path": os.path.join(os.getcwd(), "log", "diogo_gp_logger.csv"),
                     "run_info": None,
                     "max_depth": 17,
                     "max_": False,
                     "ffunction": rmse,
-                    "n_iter": 100,
+                    "n_iter": 2000,
                     "n_elites": 1,
                        "tree_pruner": None
                     }
@@ -76,7 +76,7 @@ gp_solve_parameters = {"elitism": True,
 GP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min(2),
                   "crossover": crossover_trees(FUNCTIONS),
-                  "p_xo": 0.2,
+                  "p_xo": 0.8,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
                  "find_elit_func": get_best_max if gp_solve_parameters["max_"] else get_best_min
@@ -84,10 +84,10 @@ GP_parameters = {"initializer": rhh,
 GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
 gp_pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the initial population size is the same as the GP pop size
-           'init_depth': 8,
+           'init_depth': 6,
            'FUNCTIONS': FUNCTIONS,
            'CONSTANTS': CONSTANTS,
-           "p_c": 0.1,
+           "p_c": 0,
            "p_terminals": 0.5}
 
 
