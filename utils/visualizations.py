@@ -100,8 +100,8 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
 
             # plotting training and testing side by side
             fig, ax = plt.subplots(1, 2, figsize=(14, 5))
-            sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0], palette = "Accent")
-            sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1], palette = "Paired")
+            sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0])
+            sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1])
 
             ax[0].set_xlabel("generation")
             ax[0].set_ylabel("training fitness")
@@ -126,8 +126,8 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
 
                 # plotting training and testing side by side
                 fig, ax = plt.subplots(1, 2, figsize=(14, 5))
-                sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0],palette = "Accent")
-                sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1], palette = "Paired")
+                sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0])
+                sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1])
 
                 ax[0].set_xlabel("generation")
                 ax[0].set_ylabel("training fitness")
