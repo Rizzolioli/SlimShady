@@ -10,9 +10,9 @@ class Individual():
         # keeping the structure of the trees in the block
         self.structure = [tree.structure for tree in collection]
         self.size = len(collection) # size == number of blocks
-        self.nodes_count = sum([tree.nodes for tree in collection]) + self.size
+        self.nodes_count = sum([tree.nodes for tree in collection]) + (self.size-1)
 
-        self.depth = max([tree.depth - (i-1) if i != 0 else tree.depth for i, tree in enumerate(collection) ]) + self.size
+        self.depth = max([tree.depth - (i-1) if i != 0 else tree.depth for i, tree in enumerate(collection) ]) + (self.size-1)
 
         # starting the individual with empty semantics and fitnesses
         self.train_semantics = None
