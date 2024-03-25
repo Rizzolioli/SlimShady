@@ -4,7 +4,6 @@ import os
 from copy import copy
 import seaborn as sb
 import matplotlib.pyplot as plt
-import torch
 
 columns = ["algo", "experiment_id", "dataset", "seed", "generation", "training_fitness", "timing", "pop_node_count"]
 
