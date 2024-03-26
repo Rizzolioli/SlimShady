@@ -37,10 +37,11 @@ for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo_name in algos:
 
-        for ttress in [False]:
+        for ttress in [True]:
+
             slim_GSGP_parameters["two_trees"] = ttress
 
-            for op in ['sum']:
+            for op in ['sum', "mul"]:
 
                 slim_GSGP_parameters["operator"] = op
 

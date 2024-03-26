@@ -171,10 +171,31 @@ class SLIM_GSGP:
                     # choose between deflating or inflating the individual
                     if random.random() < self.p_deflate and it != 1:
 
-                        # if deflate mutation, pick one individual that is of size > 1
-                        p1 = self.selector(population, deflate=True) #TODO check what happend if entire population is invalide(size == 1) A: we just inflate all. fix this
+                        # getting a list with the valid population
+                        valid_pop = [ind for ind in population.population if ind.size > 1]
 
-                        off1 = self.deflate_mutator(p1)
+                        # if the valid population list is enough for the tournament size:
+
+                        # if deflate mutation, pick one individual that is of size > 1
+                        p1 = self.selector(population, deflate=True)
+
+                        # if a valid deflatable individual was found and selected
+                        if p1 is not None:
+
+                            off1 = self.deflate_mutator(p1)
+
+                        # if there arent enough valid individuals for deflating, we inflate instead
+                        else:
+                            # selecting  a random individual with no restrictions
+                            p1 = self.selector(population, deflate=False)
+
+                            # obtaining the random mutation step
+                            ms_ = self.ms()
+
+                            # inflating the individual
+                            off1 = self.inflate_mutator(p1, ms_, X_train, max_depth=self.pi_init["init_depth"]
+                                                        , p_c=self.pi_init["p_c"], X_test=X_test)
+
 
                     else:
                         # if inlate mutation, pick a random individual with no restrictions
