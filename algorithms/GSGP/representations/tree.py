@@ -1,13 +1,20 @@
 from algorithms.GSGP.representations.tree_utils import apply_tree
 from algorithms.GP.representations.tree_utils import flatten
+from algorithms.GP.representations import tree
+import torch
+
 
 class Tree:
-    def __init__(self, structure, FUNCTIONS, TERMINALS, CONSTANTS):
+    FUNCTIONS = None
+    TERMINALS = None
+    CONSTANTS = None
+
+    def __init__(self, structure):
+        self.FUNCTIONS = Tree.FUNCTIONS
+        self.TERMINALS = Tree.TERMINALS
+        self.CONSTANTS = Tree.CONSTANTS
 
         self.structure = structure # either repr_ from gp(tuple) or list of pointers
-        self.FUNCTIONS = FUNCTIONS
-        self.TERMINALS = TERMINALS
-        self.CONSTANTS = CONSTANTS
 
         if isinstance(structure, tuple):
             self.depth = len(structure)
@@ -15,24 +22,27 @@ class Tree:
             self.depth = max([tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)]) + 1
 
         if isinstance(structure, tuple):
-            self.nodes = len(list(flatten(structure)))
+                    self.nodes = len(list(flatten(structure)))
         else:
             # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
             self.nodes = sum([*[tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)],
-                              *([5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4])])
+                              *([5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else (
+                                 [9] if self.structure[0].__name__ == 'ot_delta' else [4])
+                                )])
 
         self.fitness = None
         self.test_fitness = None
 
-    def calculate_semantics(self, inputs, testing = False):
-        # TODO add logistic (check if also SLIM)
+    def calculate_semantics(self, inputs, testing = False, logistic=False):
 
         # checking if the individual is part of the initial population (table) or is a random tree (table)
         if isinstance(self.structure, tuple):
             if testing:
-                self.test_semantics = apply_tree(self, inputs)
+                self.test_semantics = torch.sigmoid(apply_tree(self, inputs)) if logistic else apply_tree(self, inputs)
+
             else:
-                self.train_semantics = apply_tree(self, inputs)
+                self.train_semantics = torch.sigmoid(apply_tree(self, inputs)) if logistic else apply_tree(self, inputs)
+
         # if the individual is a result of GSGP evolution
         else:
             if testing:

@@ -45,6 +45,7 @@ def flatten(data):
     else:
         yield data
 
+
 # Function to create a random grow tree.
 def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True, p_terminal = 0.5):
     """
@@ -145,17 +146,17 @@ def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
         node = np.random.choice(list(FUNCTIONS.keys()))
         if FUNCTIONS[node]['arity'] == 2:
             # Recursively create left and right subtrees
-            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
-            right_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
+            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+            right_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, p_c)
             node = (node, left_subtree, right_subtree)
         else:
             # Recursively create left and right subtrees
-            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS)
+            left_subtree = create_full_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, p_c)
             node = (node, left_subtree)
     return node
 
 # Helper function to select a random subtree from a tree.
-def random_subtree(tree, FUNCTIONS, first_call = True):
+def random_subtree(FUNCTIONS):
     """
         Selects a random subtree from a given tree.
 
@@ -174,42 +175,45 @@ def random_subtree(tree, FUNCTIONS, first_call = True):
         """
 
 
-
-    if isinstance(tree, tuple):
-        # Randomly choose to explore left or right or return the current subtree
-
-        #calculating the number of nodes of the current tree
-        current_number_of_nodes = len(list(flatten(tree))) #TODO if first call use the input num of nodes(needs to change all the mutation and xo)
-
-        if FUNCTIONS[tree[0]]['arity'] == 2:
+    def random_subtree_picker(tree, first_call = True, num_of_nodes = None):
+        if isinstance(tree, tuple):
+            # Randomly choose to explore left or right or return the current subtree
             if first_call:
-                # if it's the first time, 0 (the root node) cannot be returned
-                # normalizing the probability of choosing left or right based on the number of nodes in each side
-                subtree_exploration = 1 if random.random() < len(list(flatten(tree[1]))) / (current_number_of_nodes -1) else 2
+                current_number_of_nodes = num_of_nodes
             else:
-                p = random.random()
-                subtree_exploration = 0 if p < 1/current_number_of_nodes else \
-                                        (1 if p < len(list(flatten(tree[1]))) / current_number_of_nodes else 2)
+                #calculating the number of nodes of the current tree
+                current_number_of_nodes = len(list(flatten(tree)))
 
-        elif FUNCTIONS[tree[0]]['arity'] == 1:
-            if first_call:
-                subtree_exploration = 1
-            else:
-                subtree_exploration = 0 if random.random() < 1/current_number_of_nodes else 1
+            if FUNCTIONS[tree[0]]['arity'] == 2:
+                if first_call:
+                    # if it's the first time, 0 (the root node) cannot be returned
+                    # normalizing the probability of choosing left or right based on the number of nodes in each side
+                    subtree_exploration = 1 if random.random() < len(list(flatten(tree[1]))) / (current_number_of_nodes -1) else 2
+                else:
+                    p = random.random()
+                    subtree_exploration = 0 if p < 1/current_number_of_nodes else \
+                                            (1 if p < len(list(flatten(tree[1]))) / current_number_of_nodes else 2)
 
-        if subtree_exploration == 0:
+            elif FUNCTIONS[tree[0]]['arity'] == 1:
+                if first_call:
+                    subtree_exploration = 1
+                else:
+                    subtree_exploration = 0 if random.random() < 1/current_number_of_nodes else 1
+
+            if subtree_exploration == 0:
+                return tree
+            elif subtree_exploration == 1:
+                return random_subtree_picker(tree[1], first_call = False) if isinstance(tree[1], tuple) else tree[1]
+            elif subtree_exploration == 2:
+                return random_subtree_picker(tree[2], first_call = False) if isinstance(tree[2], tuple) else tree[2]
+        else:
+            # If the tree is a terminal node, return it as is
             return tree
-        elif subtree_exploration == 1:
-            return random_subtree(tree[1], FUNCTIONS, first_call = False) if isinstance(tree[1], tuple) else tree[1]
-        elif subtree_exploration == 2:
-            return random_subtree(tree[2], FUNCTIONS, first_call = False) if isinstance(tree[2], tuple) else tree[2]
-    else:
-        # If the tree is a terminal node, return it as is
-        return tree
+    return random_subtree_picker
 
 
 # Helper function to substitute a subtree in a tree.
-def substitute_subtree(tree, target_subtree, new_subtree, FUNCTIONS):
+def substitute_subtree(FUNCTIONS):
     """
         Substitutes a specific subtree in a tree with a new subtree.
 
@@ -233,70 +237,76 @@ def substitute_subtree(tree, target_subtree, new_subtree, FUNCTIONS):
             The tree after the subtree substitution.
         """
 
-    if tree == target_subtree:
-        return new_subtree
-    elif isinstance(tree, tuple):
-        if FUNCTIONS[tree[0]]['arity'] == 2:
-            return (tree[0], substitute_subtree(tree[1], target_subtree, new_subtree, FUNCTIONS),
-                    substitute_subtree(tree[2], target_subtree, new_subtree, FUNCTIONS))
-        elif FUNCTIONS[tree[0]]['arity'] == 1:
-            return (tree[0], substitute_subtree(tree[1], target_subtree, new_subtree, FUNCTIONS))
-    else:
-        return tree
+    def substitute(tree, target_subtree, new_subtree):
+        if tree == target_subtree:
+            return new_subtree
+        elif isinstance(tree, tuple):
+            if FUNCTIONS[tree[0]]['arity'] == 2:
+                return tree[0], substitute(tree[1], target_subtree, new_subtree),\
+                       substitute(tree[2], target_subtree, new_subtree)
+            elif FUNCTIONS[tree[0]]['arity'] == 1:
+                return tree[0], substitute(tree[1], target_subtree, new_subtree)
+        else:
+            return tree
+    return substitute
 
 # Function to reduce both sides of a tree to a specific depth.
-def tree_pruning(tree, target_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c = 0.3):
-    """
-       Reduces both sides of a tree to a specific depth.
+def tree_pruning(TERMINALS, CONSTANTS, FUNCTIONS , p_c = 0.3):
 
-       Parameters
-       ----------
-       tree : tuple
-           The tree to be pruned.
+    def pruning(tree, target_depth):
+        """
+           Reduces both sides of a tree to a specific depth.
 
-       target_depth : int
-           The depth to reduce the tree to.
+           Parameters
+           ----------
+           tree : tuple
+               The tree to be pruned.
 
-       TERMINALS : dict
-           Dictionary of terminal symbols allowed in the tree.
+           target_depth : int
+               The depth to reduce the tree to.
 
-       CONSTANTS : dict
-           Dictionary of constant values allowed in the tree.
+           TERMINALS : dict
+               Dictionary of terminal symbols allowed in the tree.
 
-       FUNCTIONS : dict
-           Dictionary of functions allowed in the tree.
+           CONSTANTS : dict
+               Dictionary of constant values allowed in the tree.
 
-       p_c : float, optional
-           Probability of choosing a constant node. Default is 0.3.
+           FUNCTIONS : dict
+               Dictionary of functions allowed in the tree.
 
-       Returns
-       -------
-       tuple
-           The pruned tree according to the specified depth.
-       """
+           p_c : float, optional
+               Probability of choosing a constant node. Default is 0.3.
 
-    if target_depth <= 1 and not tree in list(TERMINALS.keys()):
-        # If the target depth is 1 or less, return a terminal node
-        if random.random() > p_c:
-            return np.random.choice(list(TERMINALS.keys()))
-        else:
-            return np.random.choice(list(CONSTANTS.keys()))
-    elif not isinstance(tree, tuple):
-        # If the tree is already a terminal node, return it
-        return tree
-    # Recursively reduce the left and right subtrees
-    if FUNCTIONS[tree[0]]['arity'] == 2:
-        new_left_subtree = tree_pruning(tree[1], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
-        new_right_subtree = tree_pruning(tree[2], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
-        return (tree[0], new_left_subtree, new_right_subtree)
-    elif FUNCTIONS[tree[0]]['arity'] == 1:
-        new_left_subtree = tree_pruning(tree[1], target_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
-        # new_right_subtree = tree_pruning(tree[2], target_depth - 1, TERMINALS, CONSTANTS, p_c)
-        return (tree[0], new_left_subtree)
+           Returns
+           -------
+           tuple
+               The pruned tree according to the specified depth.
+           """
+
+        if target_depth <= 1 and not tree in list(TERMINALS.keys()):
+            # If the target depth is 1 or less, return a terminal node
+            if random.random() > p_c:
+                return np.random.choice(list(TERMINALS.keys()))
+            else:
+                return np.random.choice(list(CONSTANTS.keys()))
+        elif not isinstance(tree, tuple):
+            # If the tree is already a terminal node, return it
+            return tree
+        # Recursively reduce the left and right subtrees
+        if FUNCTIONS[tree[0]]['arity'] == 2:
+            new_left_subtree = pruning(tree[1], target_depth - 1)
+            new_right_subtree = pruning(tree[2], target_depth - 1)
+            return (tree[0], new_left_subtree, new_right_subtree)
+        elif FUNCTIONS[tree[0]]['arity'] == 1:
+            new_left_subtree = pruning(tree[1], target_depth - 1)
+            # new_right_subtree = tree_pruning(tree[2], target_depth - 1, TERMINALS, CONSTANTS, p_c)
+            return (tree[0], new_left_subtree)
+
+    return pruning
 
 
 # Function to calculate the depth of a tree.
-def tree_depth(tree, FUNCTIONS):
+def tree_depth(FUNCTIONS):
     """
         Calculates the depth of a given tree.
 
@@ -314,16 +324,18 @@ def tree_depth(tree, FUNCTIONS):
             The depth of the input tree.
         """
 
-    if not isinstance(tree, tuple):
-        # If it's a terminal node, the depth is 1
-        return 1
-    else:
-        # Recursively calculate the depth of the left and right subtrees
-        if FUNCTIONS[tree[0]]['arity'] == 2:
-            left_depth = tree_depth(tree[1], FUNCTIONS)
-            right_depth = tree_depth(tree[2], FUNCTIONS)
-        elif FUNCTIONS[tree[0]]['arity'] == 1:
-            left_depth = tree_depth(tree[1], FUNCTIONS)
-            right_depth = 0
-        # The depth of the tree is one more than the maximum depth of its subtrees
-        return 1 + max(left_depth, right_depth)
+    def depth(tree):
+        if not isinstance(tree, tuple):
+            # If it's a terminal node, the depth is 1
+            return 1
+        else:
+            # Recursively calculate the depth of the left and right subtrees
+            if FUNCTIONS[tree[0]]['arity'] == 2:
+                left_depth = depth(tree[1])
+                right_depth = depth(tree[2])
+            elif FUNCTIONS[tree[0]]['arity'] == 1:
+                left_depth = depth(tree[1])
+                right_depth = 0
+            # The depth of the tree is one more than the maximum depth of its subtrees
+            return 1 + max(left_depth, right_depth)
+    return depth

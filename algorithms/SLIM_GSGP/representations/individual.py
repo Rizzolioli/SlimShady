@@ -1,26 +1,41 @@
 import torch
+import numpy as np
+from algorithms.GSGP.representations.tree_utils import apply_tree
 
 class Individual():
 
     def __init__(self, collection):
-
+        # defining the list (block) of pointers
         self.collection = collection
+        # keeping the structure of the trees in the block
         self.structure = [tree.structure for tree in collection]
-        self.size = len(collection) #size == number of blocks
-        self.nodes_count = sum([tree.nodes for tree in collection])
+        self.size = len(collection) # size == number of blocks
+        self.nodes_count = sum([tree.nodes for tree in collection]) + (self.size-1)
 
+        self.depth = max([tree.depth - (i-1) if i != 0 else tree.depth for i, tree in enumerate(collection) ]) + (self.size-1)
+
+        # starting the individual with empty semantics and fitnesses
         self.train_semantics = None
         self.test_semantics = None
+        self.fitness =  None
+        self.test_fitness = None
 
-    def calculate_semantics(self, inputs, testing = False):
+    def calculate_semantics(self, inputs, testing=False):
 
         [tree.calculate_semantics(inputs, testing) for tree in self.collection]
 
+
         if testing:
-            self.test_semantics = [tree.test_semantics for tree in self.collection]
+
+            self.test_semantics = torch.stack([tree.test_semantics if tree.test_semantics.shape != torch.Size([]) \
+                                                    else tree.test_semantics.repeat(len(inputs)) for tree in self.collection])
+
 
         else:
-            self.train_semantics = [tree.train_semantics for tree in self.collection]
+
+            self.train_semantics = torch.stack([tree.train_semantics if tree.train_semantics.shape != torch.Size([]) \
+                                                    else tree.train_semantics.repeat(len(inputs)) for tree in self.collection])
+
 
 
     def __len__(self):
@@ -65,15 +80,16 @@ class Individual():
                     attributes a fitness tensor to the population
                 """
         if operator == 'sum':
-            operator = sum
+            operator = torch.sum
         else:
+            operator = torch.prod
 
-            operator = lambda x:[ x[i]*x[i+1] for i in range(len(x)-1)][0] #TODO could improve, change self.train_semantics to tensor??
-
-            
-            
         if testing:
-            self.test_fitness = ffunction(operator(self.test_semantics), y)
+            self.test_fitness = ffunction(operator(self.test_semantics, dim = 0), y)
 
         else:
-            self.fitness = ffunction(operator(self.train_semantics), y)
+            self.fitness = ffunction(operator(self.train_semantics, dim = 0), y)
+
+    def apply_individual(self, data, operator="sum"): # TODO Davide or Liah verify. I get slightly different RMSE on the elite using this
+        return [apply_tree(tree, data) for tree in self.collection][0]
+

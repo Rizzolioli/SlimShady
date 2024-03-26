@@ -3,26 +3,36 @@ from evaluators.fitness_functions import rmse
 from algorithms.GP.operators.initializers import rhh
 from algorithms.GP.operators.crossover_operators import crossover_trees
 from algorithms.GSGP.operators.crossover_operators import geometric_crossover
-from algorithms.GSGP.operators.mutators import geometric_mutation
+from algorithms.GSGP.operators.mutators import *
 from algorithms.GP.operators.selection_algorithms import tournament_selection_min
+from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
 from datasets.data_loader import *
+from algorithms.SLIM_GSGP.operators.mutators import *
+from algorithms.GP.representations.tree_utils import tree_pruning
+from utils.utils import generate_random_uniform
 
 ########################################################################################################################
 
                                             # TREE PARAMETERS
 
 ########################################################################################################################
+# TODO: add grid-search code to main - DIOGO
 
 FUNCTIONS = {
     'add': {'function': lambda x, y: torch.add(x, y), 'arity': 2},
     'subtract': {'function': lambda x, y: torch.sub(x, y), 'arity': 2},
     'multiply': {'function': lambda x, y: torch.mul(x, y), 'arity': 2},
-    'divide': {'function': lambda x, y: protected_div(x, y), 'arity': 2},
-    'mean': {'function': lambda x, y: mean_(x, y), 'arity': 2},
+    'divide': {'function': lambda x, y: protected_div(x, y), 'arity': 2}
+}
+
+"""
+
+'mean': {'function': lambda x, y: mean_(x, y), 'arity': 2},
     'tan': {'function': lambda x: torch.tan(x), 'arity': 1},
     'sin': {'function': lambda x: torch.sin(x), 'arity': 1},
     'cos': {'function': lambda x: torch.cos(x), 'arity': 1},
-}
+    
+"""
 
 CONSTANTS = {
     'constant_2': lambda x: torch.tensor(2).float(),
@@ -48,35 +58,36 @@ settings_dict = {"p_test": 0.2}
 
 ########################################################################################################################
 
-solve_parameters = {"elitism": True,
-                    "log": 1,
+gp_solve_parameters = {"elitism": True,
+                    "log": 4,
                     "verbose": 1,
                     "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
+                    "log_path": os.path.join(os.getcwd(), "log", "diogo_gp_logger.csv"),
                     "run_info": None,
                     "max_depth": 17,
                     "max_": False,
                     "ffunction": rmse,
-                    "n_iter": 100,
-                    "n_elites": 1
+                    "n_iter": 2000,
+                    "n_elites": 1,
+                       "tree_pruner": None
                     }
 
 
 GP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min(2),
                   "crossover": crossover_trees(FUNCTIONS),
-                  "p_xo": 0.2,
+                  "p_xo": 0.8,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
-                 "find_elit_func": get_best_max if solve_parameters["max_"] else get_best_min
+                 "find_elit_func": get_best_max if gp_solve_parameters["max_"] else get_best_min
     }
 GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
-pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the initial population size is the same as the GP pop size
-           'init_depth': 8,
+gp_pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the initial population size is the same as the GP pop size
+           'init_depth': 6,
            'FUNCTIONS': FUNCTIONS,
            'CONSTANTS': CONSTANTS,
-           "p_c": 0.1,
+           "p_c": 0,
            "p_terminals": 0.5}
 
 
@@ -89,7 +100,7 @@ pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the initi
 
 
 gsgp_solve_parameters = {"elitism": True,
-                    "log": 1,
+                    "log": 4,
                     "verbose": 1,
                     "test_elite": True,
                     "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
@@ -97,18 +108,19 @@ gsgp_solve_parameters = {"elitism": True,
                     "max_": False,
                     "ffunction": rmse,
                     "n_iter": 100,
-                    "reconstruct": False
+                    "reconstruct": False,
+                     "n_elites": 1
                     }
 
 GSGP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min(2),
                   "crossover": geometric_crossover,
                    "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'),
-                 "mutator" : geometric_mutation,
+                 "mutator" : standard_one_tree_geometric_mutation,
                   "p_xo": 0.8,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
-                "find_elit_func": get_best_max if solve_parameters["max_"] else get_best_min
+                "find_elit_func": get_best_max if gsgp_solve_parameters["max_"] else get_best_min
     }
 GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
@@ -118,3 +130,55 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
            'CONSTANTS': CONSTANTS,
            "p_c": 0.1}
 
+########################################################################################################################
+
+                                            # SLIM GSGP PARAMETERS
+
+########################################################################################################################
+
+
+slim_gsgp_solve_parameters = {"elitism": True,
+                    "log": 1,
+                    "verbose": 1,
+                    "test_elite": True,
+                    "log_path": os.path.join(os.getcwd(), "log", "diogo_logger.csv"),
+                    "run_info": None,
+                    "max_": False,
+                    "ffunction": rmse,
+                    "n_iter": 2000,
+                    "max_depth": None,
+                    "n_elites": 1
+                    }
+
+slim_GSGP_parameters = {"initializer": rhh,
+                  "selector": tournament_selection_min_slim(2),
+                  "crossover": geometric_crossover,
+                   "ms" : None,
+                 "inflate_mutator" : None,
+                  "deflate_mutator": deflate_mutation,
+                  "p_xo": 0,
+                  "pop_size": 100,
+                  "settings_dict": settings_dict,
+                "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
+                "p_inflate": None,
+                        "two_trees": False,
+                        "operator": 'mul'
+    }
+
+inflate_mutator = inflate_mutation
+
+slim_GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
+
+slim_gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
+           'init_depth': 6,
+           'FUNCTIONS': FUNCTIONS,
+           'CONSTANTS': CONSTANTS,
+           "p_c": 0}
+
+all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters", "slim_gsgp_pi_init", "settings_dict"],
+              "GSGP": ["gsgp_solve_parameters", "GSGP_parameters", "gsgp_pi_init", "settings_dict"],
+              "GP": ["gp_solve_parameters", "GP_parameters", "gp_pi_init", "settings_dict"]}
+
+slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
+                       "concrete": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
+                       "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}} #todo: add this to settings logger, fix for the other datasets

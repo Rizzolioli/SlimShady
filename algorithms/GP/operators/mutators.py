@@ -99,15 +99,18 @@ def mutate_tree_subtree(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c, p_termi
             A function for mutating subtrees between two trees based on the specified functions.
         """
 
-    def inner_mut(tree1):
+    subtree_substitution = substitute_subtree(FUNCTIONS=FUNCTIONS)
+    random_subtree_picker = random_subtree(FUNCTIONS=FUNCTIONS)
+
+    def inner_mut(tree1, num_of_nodes=None):
 
         if isinstance(tree1, tuple):
             # Randomly select crossover points in both trees
-            crossover_point_tree1 = random_subtree(tree1, FUNCTIONS)
+            crossover_point_tree1 = random_subtree_picker(tree1, num_of_nodes=num_of_nodes)
             crossover_point_tree2 = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=p_c, p_terminal=p_terminals)
 
             # Swap subtrees at the crossover points
-            new_tree1 = substitute_subtree(tree1, crossover_point_tree1, crossover_point_tree2, FUNCTIONS)
+            new_tree1 = subtree_substitution(tree1, crossover_point_tree1, crossover_point_tree2)
 
             return new_tree1
         else:

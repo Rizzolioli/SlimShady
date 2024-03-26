@@ -3,18 +3,15 @@ import random
 import torch
 import numpy as np
 
-from utils.utils import verbose_reporter, logger
+from utils.utils import verbose_reporter
 from algorithms.GP.representations.population import Population
 from algorithms.GP.representations.tree import Tree
-from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
+from algorithms.GP.representations.tree_utils import tree_depth
+from utils.diversity import niche_entropy
+from utils.logger import logger
 
 
-# small fixes - Liah
-# TODO: consider logger levels (pickel population)
-# TODO: make elitism parametrized DONE in GP
-
-# Diogo
-# TODO handling of TERMINALS FUNCTIONS etc in all scripts
+# TODO handling of TERMINALS FUNCTIONS etc in all scripts diogo "is handling it"
 
 
 class GP:
@@ -37,10 +34,14 @@ class GP:
         self.find_elit_func = find_elit_func
         self.settings_dict = settings_dict
 
+        Tree.FUNCTIONS = pi_init['FUNCTIONS']
+        Tree.TERMINALS = pi_init['TERMINALS']
+        Tree.CONSTANTS = pi_init['CONSTANTS']
+
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset,n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, run_info=None,
               max_depth=None, max_=False,
-              ffunction=None, n_elites = 1):
+              ffunction=None, n_elites = 1, tree_pruner=None, depth_calculator = None):
 
         # setting the seeds
         torch.manual_seed(self.seed)
@@ -57,7 +58,7 @@ class GP:
         ################################################################################################################
 
         # initializing the population
-        population = Population([Tree(tree,  self.pi_init['FUNCTIONS'], self.pi_init['TERMINALS'], self.pi_init['CONSTANTS'])
+        population = Population([Tree(tree)
                           for tree in self.initializer(**self.pi_init)])
 
         population.evaluate(ffunction, X=X_train, y=y_train)
@@ -72,12 +73,36 @@ class GP:
         if test_elite:
             self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
+        # logging the population initialization
         if log != 0:
 
-        # logging the results
+            if log == 2:
+                add_info = [self.elite.test_fitness, float(niche_entropy([ind.repr_ for ind in population.population])),
+                            np.std(population.fit), log]
+
+            # log level 3 saves the number of nodes and fitness of all the individuals in the population
+            elif log == 3:
+
+                add_info = [self.elite.test_fitness,
+                        " ".join([str(ind.node_count) for ind in population.population]),
+                        " ".join([str(f) for f in population.fit]), log]
+
+            elif log == 4:
+
+                add_info = [self.elite.test_fitness,
+                            float(niche_entropy([ind.repr_ for ind in population.population])),
+                            np.std(population.fit),
+                            " ".join([str(ind.node_count) for ind in population.population]),
+                            " ".join([str(f) for f in population.fit]), log
+                            ]
+
+            else:
+
+                add_info = [self.elite.test_fitness, log]
+
 
             logger(log_path, 0, self.elite.fitness, end-start, float(population.nodes_count),
-                pop_test_report = self.elite.test_fitness, run_info=run_info, seed=self.seed)
+                additional_infos = add_info, run_info=run_info, seed=self.seed)
 
 
         if verbose != 0:
@@ -107,8 +132,11 @@ class GP:
                     # if crossover, choose two parents
                     p1, p2 = self.selector(population), self.selector(population)
 
+                    while p1 == p2:
+                        p1, p2 = self.selector(population), self.selector(population)
+
                     # getting the offspring
-                    offs1, offs2 = self.crossover(p1.repr_, p2.repr_)
+                    offs1, offs2 = self.crossover(p1.repr_, p2.repr_, tree1_n_nodes=p1.node_count, tree2_n_nodes=p2.node_count)
 
                     # saving the offspring in an offspring list
                     offspring = [offs1, offs2]
@@ -117,7 +145,7 @@ class GP:
                     p1 = self.selector(population)
 
                     # obtain one offspring
-                    offs1 = self.mutator(p1.repr_)
+                    offs1 = self.mutator(p1.repr_, num_of_nodes=p1.node_count)
 
                     # saving the offspring in an offspring list
                     offspring = [offs1]
@@ -125,15 +153,11 @@ class GP:
                 if max_depth != None:
 
                     # pruning all the offspring that are too big:
-                    offspring = [tree_pruning(child, max_depth,
-                                                      self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"],
-                                                      self.pi_init["FUNCTIONS"], self.pi_init["p_c"])
-                                 if tree_depth(child, self.pi_init["FUNCTIONS"]) > max_depth else child for child in offspring]
+                    offspring = [tree_pruner(child, max_depth)
+                                 if depth_calculator(child) > max_depth else child for child in offspring]
 
                 # adding the offspring to the offspring population
-                offs_pop.extend([Tree(child,self.pi_init["FUNCTIONS"],
-                                                  self.pi_init["TERMINALS"], self.pi_init["CONSTANTS"])
-                                 for child in offspring])
+                offs_pop.extend([Tree(child) for child in offspring])
 
 
             # keeping only the amount of offspring that is equal to the population size
@@ -157,8 +181,37 @@ class GP:
 
             # logging the results for the current generation
             if log != 0:
-               logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
-                           pop_test_report=self.elite.test_fitness, run_info=run_info, seed=self.seed)
+
+                # logging the population initialization
+                if log != 0:
+
+                    if log == 2:
+                        add_info = [self.elite.test_fitness,
+                                    float(niche_entropy([ind.repr_ for ind in population.population])),
+                                    np.std(population.fit), log]
+
+                    # log level 3 saves the number of nodes and fitness of all the individuals in the population
+                    elif log == 3:
+
+                        add_info = [self.elite.test_fitness,
+                                    " ".join([str(ind.node_count) for ind in population.population]),
+                                    " ".join([str(f) for f in population.fit]), log]
+
+                    elif log == 4:
+
+                        add_info = [self.elite.test_fitness,
+                                    float(niche_entropy([ind.repr_ for ind in population.population])),
+                                    np.std(population.fit),
+                                    " ".join([str(ind.node_count) for ind in population.population]),
+                                    " ".join([str(f) for f in population.fit]), log
+                                    ]
+
+                    else:
+
+                        add_info = [self.elite.test_fitness, log]
+
+                logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
+                           additional_infos=add_info, run_info=run_info, seed=self.seed)
 
             # displaying the results for the current generation on console
             if verbose != 0:

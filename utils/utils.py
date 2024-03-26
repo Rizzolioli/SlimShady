@@ -1,12 +1,12 @@
 import random
 import torch
 import math
-import csv
 from copy import copy
 import numpy as np
 
 from algorithms.GP.representations.tree_utils import create_full_random_tree, create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
+from datasets.data_loader import load_preloaded
 
 """
 Taken from GPOL
@@ -107,14 +107,17 @@ def train_test_split(X, y, p_test=0.3, shuffle=True, indices_only=False, seed=0)
         y_train, y_test = y[train_indices], y[test_indices]
         return X_train, X_test, y_train, y_test
 
-    import csv
-    from copy import copy
-
 """
 
 Not taken from GPOL
 
 """
+
+def tensor_dimensioned_sum(dim):
+    def tensor_sum(input):
+        return torch.sum(input, dim)
+
+    return tensor_sum
 def verbose_reporter(dataset,generation, pop_val_fitness, pop_test_fitness, timing, nodes):
     """
         Prints a formatted report of generation, fitness values, timing, and node count.
@@ -176,49 +179,11 @@ def verbose_reporter(dataset,generation, pop_val_fitness, pop_test_fitness, timi
               " " * 3 + str(timing) + " " * (21 - digits_timing) + "|" +
               " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
 
-def logger(path, generation, pop_val_fitness, timing, nodes,
-           pop_test_report=None, run_info=None,  seed=0):
-    """
-        Logs information into a CSV file.
-
-        Parameters
-        ----------
-        path : str
-            Path to the CSV file.
-        generation : int
-            Current generation number.
-        pop_val_fitness : float
-            Population's validation fitness value.
-        timing : float
-            Time taken for the process.
-        nodes : int
-            Count of nodes in the population.
-        pop_test_report : float or list, optional
-            Population's test fitness value(s). Defaults to None.
-        run_info : list, optional
-            Information about the run. Defaults to None.
-
-        Returns
-        -------
-        None
-            Writes data to a CSV file as a log.
-    """
-
-    with open(path, 'a', newline='') as file:
-        writer = csv.writer(file)
-        if run_info != None:
-            infos = copy(run_info)
-            infos.extend([seed, generation, float(pop_val_fitness), timing, nodes])
-
-        else:
-            infos = [seed, generation, float(pop_val_fitness), timing, nodes]
-        if pop_test_report != None:
-            infos.extend([float(pop_test_report)])
-
-        writer.writerow(infos)
-
-def get_terminals(data_loader):
-    TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
+def get_terminals(data_loader, seed = 0):
+    if isinstance(data_loader, str):
+        TERMINALS = {f"x{i}": i for i in range(len(load_preloaded(data_loader, seed, training=True, X_y=True)[0][0]))}
+    else:
+        TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
     return TERMINALS
 
 def get_best_min(population, n_elites):
@@ -261,15 +226,44 @@ def get_best_max(population, n_elites):
         # returning the elite as the list of elites and the elite as the best in population
         return [elite], elite
 
-def get_random_tree(init_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs ,p_c = 0.3, p_terminals = 0.5, grow_probability=0.5):
+def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.3, p_terminal = 0.5, grow_probability=1, logistic=True):
 
     # choose between grow and full
     if random.random() < grow_probability:
 
-        tree = create_grow_random_tree(init_depth,FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminals)
+        # creating a tree using grow
+        tree = create_grow_random_tree(max_depth,FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminal)
 
-        tree = Tree(tree, FUNCTIONS, TERMINALS, CONSTANTS)
+        tree = Tree(tree)
 
-        tree.calculate_semantics(inputs, testing=False)
+        # calculating the tree semantics
+        tree.calculate_semantics(inputs, testing=False, logistic=logistic)
+
+    else:
+        # creating a full tree
+        tree = create_full_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+
+        tree = Tree(tree)
+
+        # calculating the tree semantics
+        tree.calculate_semantics(inputs, testing=False, logistic=logistic)
+
 
     return tree
+
+def generate_random_uniform(lower, upper):
+    """
+    Generate a random number within a specified range using numpy random.uniform.
+
+    Parameters:
+    lower (float): The lower bound of the range for generating the random number.
+    upper (float): The upper bound of the range for generating the random number.
+
+    Returns:
+    function: A function that when called, generates a random number within the specified range.
+    """
+
+    def generate_num():
+        return random.uniform(lower, upper)
+
+    return generate_num

@@ -24,7 +24,7 @@ class Population():
         return self.population[item]
 
 
-    def evaluate(self, ffunction, y):
+    def evaluate(self, ffunction, y, operator = 'sum'):
         """
                 evaluates the population given a certain fitness function, input data(x) and target data (y)
                 Parameters
@@ -43,6 +43,6 @@ class Population():
                 """
 
         # evaluating all the individuals in the population on training
-        [individual.evaluate(ffunction, y) for individual in self.population]
+        [individual.evaluate(ffunction, y, operator = operator) for individual in self.population]
 
         self.fit = [individual.fitness for individual in self.population]
