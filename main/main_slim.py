@@ -37,10 +37,10 @@ for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo_name in algos:
 
-        for ttress in [True, False]:
+        for ttress in [False]:
             slim_GSGP_parameters["two_trees"] = ttress
 
-            for op in ['sum', 'mul']:
+            for op in ['sum']:
 
                 slim_GSGP_parameters["operator"] = op
 
@@ -48,7 +48,7 @@ for loader in data_loaders:
                 algo = f'{algo_name}_{1 + slim_GSGP_parameters["two_trees"] * 1}_{slim_GSGP_parameters["operator"]}'
 
                 # running each dataset + algo configuration n_runs times
-                for seed in range(10):
+                for seed in range(30):
                     start = time.time()
 
                     if isinstance(loader, str):
