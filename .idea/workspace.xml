@@ -121,7 +121,7 @@
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main_gsgp">
+  <component name="RunManager" selected="Python.main_gp">
     <configuration name="GSGPRegressor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -236,8 +236,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.main_gsgp" />
         <item itemvalue="Python.main_gp" />
+        <item itemvalue="Python.main_gsgp" />
         <item itemvalue="Python.main_slim" />
         <item itemvalue="Python.GSGPRegressor" />
         <item itemvalue="Python.extra_checker" />
