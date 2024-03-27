@@ -59,7 +59,7 @@ settings_dict = {"p_test": 0.2}
 ########################################################################################################################
 
 gp_solve_parameters = {"elitism": True,
-                    "log": 4,
+                    "log": 1,
                     "verbose": 1,
                     "test_elite": True,
                     "log_path": os.path.join(os.getcwd(), "log", "diogo_gp_logger.csv"),
@@ -100,7 +100,7 @@ gp_pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the in
 
 
 gsgp_solve_parameters = {"elitism": True,
-                    "log": 4,
+                    "log": 1,
                     "verbose": 1,
                     "test_elite": True,
                     "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
@@ -141,7 +141,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                     "log": 1,
                     "verbose": 1,
                     "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "diogo_logger.csv"),
+                    "log_path": os.path.join(os.getcwd(), "log", "diogo_slim_plus_one_logger_.csv"),
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,

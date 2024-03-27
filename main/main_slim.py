@@ -48,7 +48,7 @@ for loader in data_loaders:
                 algo = f'{algo_name}_{1 + slim_GSGP_parameters["two_trees"] * 1}_{slim_GSGP_parameters["operator"]}'
 
                 # running each dataset + algo configuration n_runs times
-                for seed in range(30):
+                for seed in range(7):
                     start = time.time()
 
                     if isinstance(loader, str):
