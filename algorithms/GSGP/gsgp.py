@@ -175,7 +175,7 @@ class GSGP:
                     p1 = self.selector(population)
 
                     # determining the mutation step
-                    ms_ = self.ms if len(self.ms) == 1 else self.ms[random.randint(0, len(self.ms) - 1)] # todo: liah change
+                    ms_ = self.ms()
                     
                     # checking if one or two trees are required for mutation
                     if self.mutator.__name__ in ['standard_geometric_mutation', 'product_two_trees_geometric_mutation']:

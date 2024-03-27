@@ -30,7 +30,7 @@ def get_column_names(log_level=1, base_cols=columns):
 
 
 def get_experiment_results(experiment_id=None, logger_name="logger_checking.csv", base_cols=columns,
-                           experiment_id_index=1):
+                           experiment_id_index=1, log_level=1):
     # getting the path to the logger file
     logger = os.path.join(os.getcwd().split("utils")[0], "main", "log", logger_name)
 
@@ -67,15 +67,16 @@ def get_experiment_results(experiment_id=None, logger_name="logger_checking.csv"
     else:
 
         # getting the column names from the inffered log level:
-        colnames = get_column_names(log_level=results.iloc[-1].iloc[-1], base_cols=base_cols)
+        colnames = get_column_names(log_level=log_level, base_cols=base_cols)
 
         results.columns = colnames
+
 
         # returning the results
         return results.drop(columns=["log_level"])
 
     # getting the column names from the inffered log level:
-    colnames = get_column_names(log_level=results.iloc[-1].iloc[-1], base_cols=base_cols)
+    colnames = get_column_names(log_level=log_level, base_cols=base_cols)
 
     results.columns = colnames
 
@@ -86,7 +87,7 @@ def get_experiment_results(experiment_id=None, logger_name="logger_checking.csv"
 def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1, logger_name="logger_checking.csv",
                  colnames=columns, log_level=2, dataset=None):
     # getting the results dataframe
-    df = get_experiment_results(experiment_id=experiment_id, logger_name=logger_name)
+    df = get_experiment_results(experiment_id=experiment_id, logger_name=logger_name, log_level=log_level)
 
     if y_var == "training_fitness":
 
@@ -111,8 +112,7 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
 
             fig.tight_layout()
             fig.subplots_adjust(top=0.8)
-            fig.suptitle(f'{ds.capitalize()}', fontsize=16)
-            plt.title(f'{dataset.capitalize()}')
+            fig.suptitle(f'{dataset.capitalize()}', fontsize=16)
             fig.show()
 
         else:
