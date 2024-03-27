@@ -103,11 +103,11 @@ gsgp_solve_parameters = {"elitism": True,
                     "log": 1,
                     "verbose": 1,
                     "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "logger.csv"),
+                    "log_path": os.path.join(os.getcwd(), "log", "diogo_gsgp_logger.csv"),
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,
-                    "n_iter": 100,
+                    "n_iter": 2000,
                     "reconstruct": False,
                      "n_elites": 1
                     }
@@ -115,9 +115,9 @@ gsgp_solve_parameters = {"elitism": True,
 GSGP_parameters = {"initializer": rhh,
                   "selector": tournament_selection_min(2),
                   "crossover": geometric_crossover,
-                   "ms" : torch.arange(0.25, 5.25, 0.25, device='cpu'),
+                   "ms" :  generate_random_uniform(0, 1),
                  "mutator" : standard_one_tree_geometric_mutation,
-                  "p_xo": 0.8,
+                  "p_xo": 0,
                   "pop_size": 100,
                   "settings_dict": settings_dict,
                 "find_elit_func": get_best_max if gsgp_solve_parameters["max_"] else get_best_min
@@ -128,7 +128,7 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
            'init_depth': 8,
            'FUNCTIONS': FUNCTIONS,
            'CONSTANTS': CONSTANTS,
-           "p_c": 0.1}
+           "p_c": 0}
 
 ########################################################################################################################
 

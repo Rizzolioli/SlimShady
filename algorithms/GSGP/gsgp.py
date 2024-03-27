@@ -11,13 +11,14 @@ from utils.logger import logger
 
 from utils.diversity import gsgp_pop_div_from_vectors
 
+
 class GSGP:
 
     def __init__(self, pi_init, initializer, selector, mutator, ms, crossover, find_elit_func,
                  p_m=0.8, p_xo=0.2, pop_size=100, seed=0,
                  settings_dict=None):
 
-        #other initial parameters, tipo dataset
+        # other initial parameters, tipo dataset
         self.pi_init = pi_init  # dictionary with all the parameters needed for evaluation
         self.selector = selector
         self.p_m = p_m
@@ -39,7 +40,7 @@ class GSGP:
         GP_Tree.TERMINALS = pi_init['TERMINALS']
         GP_Tree.CONSTANTS = pi_init['CONSTANTS']
 
-    def solve(self, X_train, X_test, y_train, y_test , curr_dataset, n_iter=20, elitism=True, log=0, verbose=0,
+    def solve(self, X_train, X_test, y_train, y_test, curr_dataset, n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, run_info=None,
               max_=False, ffunction=None, reconstruct=False, n_elites=1):
 
@@ -50,10 +51,9 @@ class GSGP:
 
         start = time.time()
 
-
         ################################################################################################################
 
-                                                        # INITIALIZATION #
+        # INITIALIZATION #
 
         ################################################################################################################
 
@@ -67,7 +67,7 @@ class GSGP:
             population.calculate_semantics(X_test, testing=True)
 
         # getting individuals' fitness
-        population.evaluate(ffunction,  y=y_train)
+        population.evaluate(ffunction, y=y_train)
 
         end = time.time()
 
@@ -82,24 +82,27 @@ class GSGP:
         if log != 0:
 
             if log == 2:
-                add_info = [self.elite.test_fitness, gsgp_pop_div_from_vectors(torch.stack([ind.train_semantics if ind.train_semantics.shape != torch.Size([]) \
-                                                 else ind.train_semantics.repeat(len(X_train)) for ind in
-                                             population.population])),
+                add_info = [self.elite.test_fitness,
+                            self.elite.nodes,
+                            gsgp_pop_div_from_vectors(torch.stack([ind.train_semantics
+                                                                   if ind.train_semantics.shape != torch.Size([])
+                                                                       else ind.train_semantics.repeat(len(X_train)) for
+                                                                   ind in
+                                                                   population.population])),
                             np.std(population.fit), log]
 
             # log level 3 saves the number of nodes and fitness of all the individuals in the population
             elif log == 3:
 
                 add_info = [self.elite.test_fitness,
-                        " ".join([str(ind.nodes_count) for ind in population.population]),
-                        " ".join([str(f) for f in population.fit]), log]
+                            self.elite.nodes,
+                            " ".join([str(ind.nodes_count) for ind in population.population]),
+                            " ".join([str(f) for f in population.fit]), log]
 
             elif log == 4:
 
-
-
-
                 add_info = [self.elite.test_fitness,
+                            self.elite.nodes,
                             gsgp_pop_div_from_vectors(
                                 torch.stack([ind.train_semantics if ind.train_semantics.shape != torch.Size([]) \
                                                  else ind.train_semantics.repeat(len(X_train)) for ind in
@@ -111,34 +114,30 @@ class GSGP:
 
             else:
 
-                add_info = [self.elite.test_fitness, log]
+                add_info = [self.elite.test_fitness, self.elite.nodes, log]
 
-
-            logger(log_path, 0, self.elite.fitness, end-start, float(population.nodes_count),
-                additional_infos = add_info, run_info=run_info, seed=self.seed)
+            logger(log_path, 0, self.elite.fitness, end - start, float(population.nodes_count),
+                   additional_infos=add_info, run_info=run_info, seed=self.seed)
 
         # displaying the results for the population initialization on console
         if verbose != 0:
-
-            verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start, population.nodes_count)
-
-
+            verbose_reporter(curr_dataset.split("load_")[-1], 0, self.elite.fitness, self.elite.test_fitness,
+                             end - start, population.nodes_count)
 
         ################################################################################################################
 
-                                                        # GP EVOLUTION #
+        # GP EVOLUTION #
 
         ################################################################################################################
         # initializing a random tree list table and ancestry tree list table
         if reconstruct:
             ancestry = []
 
-        for it in range(1, n_iter +1, 1):
+        for it in range(1, n_iter + 1, 1):
 
             offs_pop, start = [], time.time()
 
             if elitism:
-
                 offs_pop.append(self.elite)
 
             while len(offs_pop) < self.pop_size:
@@ -153,7 +152,8 @@ class GSGP:
                         p1, p2 = self.selector(population), self.selector(population)
 
                     # getting a random tree
-                    r_tree = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'], TERMINALS=self.pi_init['TERMINALS'],
+                    r_tree = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'],
+                                             TERMINALS=self.pi_init['TERMINALS'],
                                              CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train, logistic=True)
 
                     # calculating its semantics on testing, if applicable
@@ -176,13 +176,14 @@ class GSGP:
 
                     # determining the mutation step
                     ms_ = self.ms()
-                    
+
                     # checking if one or two trees are required for mutation
                     if self.mutator.__name__ in ['standard_geometric_mutation', 'product_two_trees_geometric_mutation']:
-                    
-                        r_tree1 = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'],
-                                                 TERMINALS=self.pi_init['TERMINALS'],
-                                                 CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+
+                        r_tree1 = get_random_tree(max_depth=self.pi_init['init_depth'],
+                                                  FUNCTIONS=self.pi_init['FUNCTIONS'],
+                                                  TERMINALS=self.pi_init['TERMINALS'],
+                                                  CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
 
                         r_tree2 = get_random_tree(max_depth=self.pi_init['init_depth'],
                                                   FUNCTIONS=self.pi_init['FUNCTIONS'],
@@ -219,7 +220,6 @@ class GSGP:
                         ancestry.extend([p1, *mutation_trees])
 
             if len(offs_pop) > population.size:
-
                 offs_pop = offs_pop[:population.size]
 
             offs_pop = Population(offs_pop)
@@ -243,9 +243,10 @@ class GSGP:
             # logging the results for the current generation
             if log != 0:
 
-
                 if log == 2:
-                    add_info = [self.elite.test_fitness, gsgp_pop_div_from_vectors(
+                    add_info = [self.elite.test_fitness,
+                                self.elite.nodes,
+                                gsgp_pop_div_from_vectors(
                         torch.stack([ind.train_semantics if ind.train_semantics.shape != torch.Size([]) \
                                          else ind.train_semantics.repeat(len(X_train)) for ind in
                                      population.population])),
@@ -255,12 +256,14 @@ class GSGP:
                 elif log == 3:
 
                     add_info = [self.elite.test_fitness,
+                                self.elite.nodes,
                                 " ".join([str(ind.nodes_count) for ind in population.population]),
                                 " ".join([str(f) for f in population.fit]), log]
 
                 elif log == 4:
 
                     add_info = [self.elite.test_fitness,
+                                self.elite.nodes,
                                 gsgp_pop_div_from_vectors(
                                     torch.stack([ind.train_semantics if ind.train_semantics.shape != torch.Size([]) \
                                                      else ind.train_semantics.repeat(len(X_train)) for ind in
@@ -272,7 +275,7 @@ class GSGP:
 
                 else:
 
-                    add_info = [self.elite.test_fitness, log]
+                    add_info = [self.elite.test_fitness, self.elite.nodes, log]
 
                 logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
                        additional_infos=add_info, run_info=run_info, seed=self.seed)
@@ -281,6 +284,3 @@ class GSGP:
             if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,
                                  population.nodes_count)
-
-
-

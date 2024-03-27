@@ -20,6 +20,7 @@ datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump", "
 
 # obtaining the data loading functions using the dataset name
 data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
+data_loaders = ["toxicity"]
 
 # defining the names of the algorithms to be run
 
@@ -37,30 +38,32 @@ unique_run_id = uuid.uuid1()
 # for each dataset
 for loader in data_loaders:
     # getting the name of the dataset
-    dataset = loader.__name__.split("load_")[-1]
+    dataset = loader
 
     # getting the terminals and defining the terminal-dependant parameters
-    TERMINALS = get_terminals(loader)
-    gsgp_pi_init["TERMINALS"] = TERMINALS
 
     # for each dataset, run all the planned algorithms
-    for algo in algos:
+    for algo_name in algos:
         # adding the dataset name and algorithm name to the run info for the logger
-        gsgp_solve_parameters['run_info'] = [algo, unique_run_id ,dataset]
+        gsgp_solve_parameters['run_info'] = [algo_name, unique_run_id ,dataset]
+        algo_name = f'{algo_name}.csv'
 
         # running each dataset + algo configuration n_runs times
         for seed in range(n_runs):
 
-            # Loads the data via the dataset loader
-            X, y = loader(X_y=True)
+            if isinstance(loader, str):
+                # getting the name of the dataset
+                dataset = loader
 
-            # getting the name of the dataset:
-            curr_dataset = loader.__name__
+                curr_dataset = f"load_{dataset}"
 
-            # Performs train/test split
-            X_train, X_test, y_train, y_test = train_test_split(X=X, y=y, p_test=settings_dict['p_test'],
-                                                                seed=seed)
+                TERMINALS = get_terminals(loader, seed + 1)
 
+                X_train, y_train = load_preloaded(loader, seed=seed + 1, training=True, X_y=True)
+
+                X_test, y_test = load_preloaded(loader, seed=seed + 1, training=False, X_y=True)
+
+            gsgp_pi_init["TERMINALS"] = TERMINALS
             optimizer = GSGP(pi_init=gsgp_pi_init, **GSGP_parameters, seed=seed)
 
             optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, curr_dataset=curr_dataset, **gsgp_solve_parameters)

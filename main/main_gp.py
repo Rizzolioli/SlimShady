@@ -54,7 +54,7 @@ for loader in data_loaders:
         algo = f'{algo}.csv'
 
         # running each dataset + algo configuration n_runs times
-        for seed in range(21, n_runs):
+        for seed in range(n_runs):
 
             start = time.time()
 
