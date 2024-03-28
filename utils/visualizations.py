@@ -101,8 +101,13 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
 
             # plotting training and testing side by side
             fig, ax = plt.subplots(1, 2, figsize=(14, 5))
-            sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0])
-            sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1])
+
+            num_algos = len(set([val[-1] for val in tr_plotting.index]))
+
+            sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0],
+                        palette = ["red", "green", "blue", "gold", "black", "gray"][:num_algos], linewidth=3 )
+            sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1]
+                        , palette = ["red", "green", "blue", "gold", "black", "gray"][:num_algos], linewidth=3 )
 
             ax[0].set_xlabel("generation")
             ax[0].set_ylabel("training fitness")
@@ -110,6 +115,8 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
             ax[1].set_xlabel("generation")
             ax[1].set_ylabel("testing fitness")
 
+            ax[0].legend(loc = 'center left', bbox_to_anchor = (1, 0.5))
+            ax[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
             fig.tight_layout()
             fig.subplots_adjust(top=0.8)
             fig.suptitle(f'{dataset.capitalize()}', fontsize=16)
@@ -167,3 +174,9 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
                 plt.ylabel(y_var)
                 plt.title(f'{ds.capitalize()}')
                 plt.show()
+
+def verify_integrity(df):
+    for a in df.algo.unique():
+        for s in range(len(df.seed.unique())):
+            temp = len(df[(df.algo == a) & (df.seed == s)])
+            print(f'for algo {a} and seed {s} we have {temp}')
