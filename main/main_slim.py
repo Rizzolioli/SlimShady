@@ -18,7 +18,7 @@ algos = ["SlimGSGP"]
 
 #data_loaders = [ "toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price"]
 
-data_loaders = ["toxicity"]
+data_loaders = ["resid_build_sale_price"]
 
 
 ########################################################################################################################
@@ -41,7 +41,7 @@ for loader in data_loaders:
 
             slim_GSGP_parameters["two_trees"] = ttress
 
-            for op in ['sum', "mul"]:
+            for op in ['mul']:
 
                 slim_GSGP_parameters["operator"] = op
 
