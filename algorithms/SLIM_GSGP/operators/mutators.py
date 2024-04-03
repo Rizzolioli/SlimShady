@@ -74,6 +74,7 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees = True, operator
 
         # getting the semantics for this new block
         new_block.calculate_semantics(X, testing=False)
+
         if X_test is not None:
             new_block.calculate_semantics(X_test, testing=True)
 

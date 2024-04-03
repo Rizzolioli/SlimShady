@@ -51,7 +51,6 @@ for loader in data_loaders:
     for algo in algos:
         # adding the dataset name and algorithm name to the run info for the logger
         gp_solve_parameters['run_info'] = [algo, unique_run_id ,loader]
-        algo = f'{algo}.csv'
 
         # running each dataset + algo configuration n_runs times
         for seed in range(2, n_runs):
