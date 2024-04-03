@@ -18,7 +18,7 @@ algos = ["SlimGSGP"]
 
 #data_loaders = [ "toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price"]
 
-data_loaders = ["resid_build_sale_price"]
+data_loaders = ["toxicity"]
 
 
 ########################################################################################################################
@@ -33,11 +33,10 @@ unique_run_id = uuid.uuid1()
 # for each dataset
 for loader in data_loaders:
 
-
     # for each dataset, run all the planned algorithms
     for algo_name in algos:
 
-        for ttress in [True]:
+        for ttress in [False]:
 
             slim_GSGP_parameters["two_trees"] = ttress
 
@@ -49,7 +48,7 @@ for loader in data_loaders:
                 algo = f'{algo_name}_{1 + slim_GSGP_parameters["two_trees"] * 1}_{slim_GSGP_parameters["operator"]}'
 
                 # running each dataset + algo configuration n_runs times
-                for seed in range(7):
+                for seed in range(n_runs):
                     start = time.time()
 
                     if isinstance(loader, str):

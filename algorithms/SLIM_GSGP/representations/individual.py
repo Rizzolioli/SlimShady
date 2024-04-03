@@ -93,3 +93,29 @@ class Individual():
     def apply_individual(self, data, operator="sum"): # TODO Davide or Liah verify. I get slightly different RMSE on the elite using this
         return [apply_tree(tree, data) for tree in self.collection][0]
 
+def apply_individual_fixed(tree, data, operator = "prod"):
+
+    semantics = []
+    for t in tree.collection:
+        # checking if the individual is part of the initial population (table) or is a random tree (table)
+        if isinstance(t.structure, tuple):
+            semantics.append(apply_tree(t, data))
+
+        else:
+            if len(t.structure) == 3 : # one tree
+                t.structure[1].previous_training = t.train_semantics
+                t.structure[1].train_semantics = apply_tree(t.structure[1], data)
+
+
+            elif len(t.structure == 4): # two tree
+                t.structure[1].previous_training = t.train_semantics
+                t.structure[1].train_semantics = apply_tree(t.structure[1], data)
+
+                t.structure[2].previous_training = t.train_semantics
+                t.structure[2].train_semantics = apply_tree(t.structure[2], data)
+
+            semantics.append(t.structure[0](*t.structure[1:], testing=False))
+
+    operator = torch.sum if operator == "sum" else torch.prod
+
+    return operator(torch.stack(semantics), dim=0)

@@ -45,6 +45,7 @@ class SLIM_GSGP:
         Tree.FUNCTIONS = pi_init['FUNCTIONS']
         Tree.TERMINALS = pi_init['TERMINALS']
         Tree.CONSTANTS = pi_init['CONSTANTS']
+
         GP_Tree.FUNCTIONS = pi_init['FUNCTIONS']
         GP_Tree.TERMINALS = pi_init['TERMINALS']
         GP_Tree.CONSTANTS = pi_init['CONSTANTS']

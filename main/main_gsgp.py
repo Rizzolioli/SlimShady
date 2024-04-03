@@ -13,14 +13,15 @@ from utils.logger import log_settings
 
 # creating a list with the datasets that are to be benchmarked
 
-datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump", "forest_fires", \
-"efficiency_cooling", "diabetes", "parkinson_updrs", "efficiency_heating"]
+#datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump", "forest_fires", \
+#"efficiency_cooling", "diabetes", "parkinson_updrs", "efficiency_heating"]
 
 # datas = ["ppb"]
 
 # obtaining the data loading functions using the dataset name
-data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
-data_loaders = ["toxicity"]
+#data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
+
+data_loaders = ["ppb"]
 
 # defining the names of the algorithms to be run
 
@@ -37,6 +38,7 @@ unique_run_id = uuid.uuid1()
 
 # for each dataset
 for loader in data_loaders:
+
     # getting the name of the dataset
     dataset = loader
 
@@ -46,7 +48,8 @@ for loader in data_loaders:
     for algo_name in algos:
         # adding the dataset name and algorithm name to the run info for the logger
         gsgp_solve_parameters['run_info'] = [algo_name, unique_run_id ,dataset]
-        algo_name = f'{algo_name}.csv'
+
+        algo_name = f'{algo_name}'
 
         # running each dataset + algo configuration n_runs times
         for seed in range(n_runs):
