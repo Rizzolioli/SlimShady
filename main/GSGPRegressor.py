@@ -4,7 +4,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.estimator_checks import check_estimator
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_validate, GridSearchCV
 from sklearn.metrics import root_mean_squared_error
 import time
 import uuid
@@ -13,8 +13,6 @@ from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
 import datasets.data_loader as ds
 from utils.utils import get_terminals, train_test_split
 from algorithms.SLIM_GSGP.operators.mutators import *
-from utils.logger import log_settings
-from algorithms.GSGP.representations.tree import Tree
 
 
 
@@ -35,15 +33,26 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
             setattr(self, key, value)
 
     def set_params(self, **params):
-        for parameter, value in params.items():
-            setattr(self, parameter, value)
+        for key, value in params.items():
+            if key in slim_gsgp_pi_init.keys():
+                slim_gsgp_pi_init[key] = value
+            elif key in slim_GSGP_parameters.keys():
+                slim_GSGP_parameters[key] = value
+            elif key in slim_gsgp_solve_parameters.keys():
+                slim_gsgp_solve_parameters[key] = value
+            setattr(self, key, value)
         return self
 
     def fit(self, X, y=None):
         X, y = check_X_y(X, y)
 
+
         if len(X) < 2:
             raise ValueError("Estimator requires more than 1 sample to function")
+        elif not np.issubdtype(X.dtype, np.number) or not np.issubdtype(y.dtype, np.number):
+            raise ValueError("Unknown label type")
+
+
 
         self.n_features_in_ = len(X[0])
 
@@ -67,10 +76,12 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
 
         self.optimizer.solve(X_train=self.X_train, X_test=None, y_train=self.y_train, y_test=None, curr_dataset="test",
                 **slim_gsgp_solve_parameters)
+        return self
 
     def score(self, X, y):
         # Implementation of score method
         return root_mean_squared_error(torch.from_numpy(y), self.predict(X))
+
     def predict(self, X):
         check_is_fitted(self)
         X = check_array(X)  # Input validation
@@ -87,17 +98,28 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
 if __name__ == '__main__':
     path = os.path.join(os.getcwd(), "..", "datasets/pre_loaded_data/TRAINING_1_TOXICITY.txt")
     df = pd.read_csv(path, sep = " ", header=None).iloc[:, :-1]
-    print(df.shape)
-    print({f"x{i}": i for i in range(len(df.iloc[0]))})
-    gsgp_reg = GSGPRegressor(random_state=0, test_elite = False, n_iter = 50)
+    # gsgp_reg = GSGPRegressor(random_state=0, test_elite = False, n_iter = 50)
     X, y = df.values[:, :-1], df.values[:, -1]
-    gsgp_reg.fit(X, y)
-    result = gsgp_reg.predict(X)
-    score = gsgp_reg.score(X, y)
-    #print("RESULT",result)
-    print("SCORE",score)
-    print("Finish")
 
+    params = {
+        'pop_size': [10],
+        'n_iter' : [10, 20]
+    }
+    model = GSGPRegressor(random_state=0, test_elite = False, verbose = 0)
+
+    search = GridSearchCV(model, params, verbose = 3)
+    search.fit(X, y)
+    print(f"Best mean score found was {search.best_score_}")
+    print(search.best_params_)
+
+
+    # gsgp_reg.fit(X, y)
+    # result = gsgp_reg.predict(X)
+    # score = gsgp_reg.score(X, y)
+    # #print("RESULT",result)
+    # print("SCORE",score)
+    # print(check_estimator(gsgp_reg))
+    print("Finished")
 
 
     # printed 2204.756630546981
