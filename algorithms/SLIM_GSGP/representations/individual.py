@@ -93,7 +93,7 @@ class Individual():
     def apply_individual(self, data, operator="sum"): # TODO Davide or Liah verify. I get slightly different RMSE on the elite using this
         return [apply_tree(tree, data) for tree in self.collection][0]
 
-def apply_individual_fixed(tree, data, operator = "prod"):
+def apply_individual_fixed(tree, data, operator = "sum"):
 
     semantics = []
     for t in tree.collection:
