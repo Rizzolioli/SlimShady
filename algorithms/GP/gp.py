@@ -150,7 +150,7 @@ class GP:
                     # saving the offspring in an offspring list
                     offspring = [offs1]
 
-                if max_depth != None:
+                if max_depth is not None:
 
                     # pruning all the offspring that are too big:
                     offspring = [tree_pruner(child, max_depth)

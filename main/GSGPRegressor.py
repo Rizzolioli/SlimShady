@@ -89,7 +89,7 @@ if __name__ == '__main__':
     df = pd.read_csv(path, sep = " ", header=None).iloc[:, :-1]
     print(df.shape)
     print({f"x{i}": i for i in range(len(df.iloc[0]))})
-    gsgp_reg = GSGPRegressor(random_state=0, test_elite = False, n_iter = 50)
+    gsgp_reg = GSGPRegressor(random_state=0, test_elite = False, n_iter = 100)
     X, y = df.values[:, :-1], df.values[:, -1]
     gsgp_reg.fit(X, y)
     result = gsgp_reg.predict(X)

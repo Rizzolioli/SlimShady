@@ -5,20 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/representations/tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/representations/tree.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/GP/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/gp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/GSGPRegressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/GSGPRegressor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/main_gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_gp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/main_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_gsgp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/main_slim.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_slim.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/.ipynb_checkpoints/results_analyser-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/.ipynb_checkpoints/results_analyser-checkpoint.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/results_analyser.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/results_analyser.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/visualizations.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/visualizations.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,11 +111,11 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "last_opened_file_path": "/Users/jimmy/Documents/Refresh/SLIMSHADY/SlimShady"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;last_opened_file_path&quot;: &quot;/Users/jimmy/Documents/Refresh/SLIMSHADY/SlimShady&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
