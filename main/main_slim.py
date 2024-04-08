@@ -18,7 +18,7 @@ algos = ["SlimGSGP"]
 
 #data_loaders = [ "toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price"]
 
-data_loaders = ["resid_build_sale_price"]
+data_loaders = ["istanbul"]
 
 
 ########################################################################################################################

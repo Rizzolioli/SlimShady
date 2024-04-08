@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/GSGPRegressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/GSGPRegressor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/results_analyser.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/results_analyser.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main_gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_gp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +118,7 @@
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.GSGPRegressor">
+  <component name="RunManager" selected="Python.main_slim">
     <configuration name="GSGPRegressor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -236,9 +233,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.GSGPRegressor" />
-        <item itemvalue="Python.main_gp" />
         <item itemvalue="Python.main_slim" />
+        <item itemvalue="Python.main_gp" />
+        <item itemvalue="Python.GSGPRegressor" />
         <item itemvalue="Python.main_gsgp" />
         <item itemvalue="Python.extra_checker" />
       </list>

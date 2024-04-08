@@ -53,7 +53,7 @@ for loader in data_loaders:
         gp_solve_parameters['run_info'] = [algo, unique_run_id ,loader]
 
         # running each dataset + algo configuration n_runs times
-        for seed in range(2, n_runs):
+        for seed in range(3, n_runs):
 
             start = time.time()
 
