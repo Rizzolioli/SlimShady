@@ -146,6 +146,40 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
                 fig.suptitle(f'{ds.capitalize()}', fontsize=16)
                 plt.show()
 
+    elif y_var == "nodes_count":
+
+        # obtaining the results only for the specific dataset
+        if dataset is not None:
+            plotting = df[df["dataset"] == dataset]
+
+            # performing a groupby on the variables of interest
+            plotting = pd.DataFrame(plotting.groupby([x_var, "algo"])[y_var].median())
+            num_algos = len(set([val[-1] for val in plotting.index]))
+            sb.lineplot(data=plotting, x=x_var, y=y_var, hue="algo",
+                        palette=["red", "green", "blue", "gold", "black", "gray"][:num_algos], linewidth=3)
+            plt.xlabel(x_var)
+            plt.ylabel(y_var)
+            plt.ylim([0, 1000])
+            plt.title(f'{dataset.capitalize()}')
+            plt.show()
+
+        else:
+            for ds in df.dataset.unique():
+                # keeping only one dataset at a time
+                plotting = df[df["dataset"] == ds]
+
+                # performing a groupby on the variables of interest
+                plotting = pd.DataFrame(plotting.groupby([x_var, "algo"])[y_var].median())
+                num_algos = len(set([val[-1] for val in plotting.index]))
+                sb.lineplot(data=plotting, x=x_var, y=y_var, hue="algo",
+                            palette=["red", "green", "blue", "gold", "black", "gray"][:num_algos], linewidth=3)
+                plt.xlabel(x_var)
+                plt.ylabel(y_var)
+                plt.ylim([0, 1000])
+                plt.title(f'{ds.capitalize()}')
+                plt.show()
+
+
 
     else:
         # obtaining the results only for the specific dataset
@@ -154,8 +188,9 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
 
             # performing a groupby on the variables of interest
             plotting = pd.DataFrame(plotting.groupby([x_var, "algo"])[y_var].median())
-
-            sb.lineplot(data=plotting, x=x_var, y=y_var, hue="algo")
+            num_algos = len(set([val[-1] for val in plotting.index]))
+            sb.lineplot(data=plotting, x=x_var, y=y_var, hue="algo",
+                        palette = ["red", "green", "blue", "gold", "black", "gray"][:num_algos], linewidth=3)
             plt.xlabel(x_var)
             plt.ylabel(y_var)
             plt.title(f'{dataset.capitalize()}')
@@ -168,12 +203,13 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
 
                 # performing a groupby on the variables of interest
                 plotting = pd.DataFrame(plotting.groupby([x_var, "algo"])[y_var].median())
-
-                sb.lineplot(data=plotting, x=x_var, y=y_var, hue="algo")
+                num_algos = len(set([val[-1] for val in plotting.index]))
+                sb.lineplot(data=plotting, x=x_var, y=y_var, hue="algo", palette = ["red", "green", "blue", "gold", "black", "gray"][:num_algos], linewidth=3)
                 plt.xlabel(x_var)
                 plt.ylabel(y_var)
                 plt.title(f'{ds.capitalize()}')
                 plt.show()
+                
 
 def verify_integrity(df):
     for a in df.algo.unique():

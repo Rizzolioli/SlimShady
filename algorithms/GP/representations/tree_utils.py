@@ -81,6 +81,9 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
             The generated tree according to the specified parameters.
         """
 
+    p_terminal = (len(list(TERMINALS.keys())) + len(list(CONSTANTS.keys())) ) / \
+                  (len(list(TERMINALS.keys())) + len(list(CONSTANTS.keys())) + len(list(FUNCTIONS.keys())) )
+
     if (depth <= 1 or random.random() < p_terminal) and not first_call:
         # Choose a terminal node (input or constant)
         if random.random() > p_c:

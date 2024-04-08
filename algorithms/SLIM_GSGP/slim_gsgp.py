@@ -173,7 +173,7 @@ class SLIM_GSGP:
                     if random.random() < self.p_deflate and it != 1:
 
                         # getting a list with the valid population
-                        valid_pop = [ind for ind in population.population if ind.size > 1]
+                        # valid_pop = [ind for ind in population.population if ind.size > 1]
 
                         # if the valid population list is enough for the tournament size:
 
@@ -234,6 +234,8 @@ class SLIM_GSGP:
 
             offs_pop.evaluate(ffunction, y=y_train, operator=self.operator)
             population = offs_pop
+
+            self.population = population
 
             end = time.time()
 

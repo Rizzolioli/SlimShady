@@ -267,3 +267,9 @@ def generate_random_uniform(lower, upper):
         return random.uniform(lower, upper)
 
     return generate_num
+
+def show_individual(tree, operator):
+    op = "+" if operator == "sum" else "*"
+
+    return f" {op} ".join([str(t.structure) if isinstance(t.structure, tuple) else f'f({t.structure[1].structure})' if len(t.structure) == 3
+                            else f'f({t.structure[1].structure} - {t.structure[2].structure})' for t in tree.collection])

@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from algorithms.GSGP.representations.tree_utils import apply_tree
+from utils.utils import show_individual
 
 class Individual():
 
@@ -93,19 +94,18 @@ class Individual():
     def apply_individual(self, data, operator="sum"): # TODO Davide or Liah verify. I get slightly different RMSE on the elite using this
         return [apply_tree(tree, data) for tree in self.collection][0]
 
-def apply_individual_fixed(tree, data, operator = "prod"):
+def apply_individual_fixed(tree, data, operator = "sum"):
 
     semantics = []
     for t in tree.collection:
         # checking if the individual is part of the initial population (table) or is a random tree (table)
         if isinstance(t.structure, tuple):
             semantics.append(apply_tree(t, data))
-
+        # if the tree structure is a list, checking if we are using one or two trees with our operator
         else:
             if len(t.structure) == 3 : # one tree
-                t.structure[1].previous_training = t.train_semantics
-                t.structure[1].train_semantics = apply_tree(t.structure[1], data)
-
+                t.structure[1].previous_training = t.train_semantics # saving the old training semantics in case its needed
+                t.structure[1].train_semantics = apply_tree(t.structure[1], data) # obtaining the new train_semantics for the new unseen data
 
             elif len(t.structure == 4): # two tree
                 t.structure[1].previous_training = t.train_semantics
@@ -118,4 +118,7 @@ def apply_individual_fixed(tree, data, operator = "prod"):
 
     operator = torch.sum if operator == "sum" else torch.prod
 
+    print("WORK PLEASE", show_individual(tree, operator=operator))
+
     return operator(torch.stack(semantics), dim=0)
+

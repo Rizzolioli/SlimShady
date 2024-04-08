@@ -7,18 +7,18 @@ import datasets.data_loader as ds
 from utils.utils import get_terminals, train_test_split
 from algorithms.SLIM_GSGP.operators.mutators import *
 from utils.logger import log_settings
-
+from utils.utils import show_individual
 ########################################################################################################################
 
                                             # DATASETS & ALGORITHMS
 
 ########################################################################################################################
 
-algos = ["SlimGSGP"]
+algos = ["SlimGSGP_looking_fixed"]
 
 #data_loaders = [ "toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price"]
 
-data_loaders = ["istanbul"]
+data_loaders = ["instanbul"]
 
 
 ########################################################################################################################
@@ -27,17 +27,21 @@ data_loaders = ["istanbul"]
                                             #    DATA-DEPENDANT PARAMETERS
 
 ########################################################################################################################
+
+# saving the elites looks:
+
+elites = {}
+
 # attibuting a unique id to the run
 unique_run_id = uuid.uuid1()
 
 # for each dataset
 for loader in data_loaders:
 
-
     # for each dataset, run all the planned algorithms
     for algo_name in algos:
 
-        for ttress in [True]:
+        for ttress in [False]:
 
             slim_GSGP_parameters["two_trees"] = ttress
 
@@ -49,7 +53,7 @@ for loader in data_loaders:
                 algo = f'{algo_name}_{1 + slim_GSGP_parameters["two_trees"] * 1}_{slim_GSGP_parameters["operator"]}'
 
                 # running each dataset + algo configuration n_runs times
-                for seed in range(13, n_runs):
+                for seed in range(n_runs):
                     start = time.time()
 
                     if isinstance(loader, str):
@@ -112,4 +116,13 @@ for loader in data_loaders:
 
                     print(time.time() - start)
 
+                    elites[seed] = {"structure":optimizer.elite.structure, "looks": show_individual(optimizer.elite, operator=slim_GSGP_parameters['operator']),
+                                    "collection": optimizer.elite.collection}
+                    print("THE USED SEED WAS", seed)
+
 log_settings(path=os.path.join(os.getcwd(), "log", "settings.csv"), settings_dict=[globals()[d] for d in all_params["SLIM_GSGP"]], unique_run_id=unique_run_id)
+
+elite_saving_path = os.path.join(os.getcwd(), "log", "elite_looks.txt")
+with open(elite_saving_path, 'w+') as file:
+    file.write(str(elites))
+
