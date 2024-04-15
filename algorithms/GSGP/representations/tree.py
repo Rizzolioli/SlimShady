@@ -27,7 +27,10 @@ class Tree:
             # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
             self.nodes = sum([*[tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)],
                               *([5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else (
-                                 [9] if self.structure[0].__name__ == 'ot_delta' else [4])
+                                 [10] if self.structure[0].__name__ == 'ot_delta_mul' else
+                                 ([6] if self.structure[0].__name__ == 'tt_delta_mul' else
+                                  ([8] if self.structure[0].__name__ == 'ot_delta_sum' else [4])))
+                                #TODO change checking performance aganist leo's
                                 )])
 
         self.fitness = None
