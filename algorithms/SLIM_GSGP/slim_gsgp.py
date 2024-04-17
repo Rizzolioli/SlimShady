@@ -171,7 +171,7 @@ class SLIM_GSGP:
 
 
                     # choose between deflating or inflating the individual
-                    if random.random() < self.p_deflate :
+                    if random.random() < self.p_deflate:
 
 
 
