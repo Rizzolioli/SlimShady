@@ -41,7 +41,7 @@ class GP:
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset,n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, run_info=None,
               max_depth=None, max_=False,
-              ffunction=None, n_elites = 1, tree_pruner=None, depth_calculator = None):
+              ffunction=None, n_elites=1, tree_pruner=None, depth_calculator = None):
 
         # setting the seeds
         torch.manual_seed(self.seed)
@@ -98,7 +98,7 @@ class GP:
 
             else:
 
-                add_info = [self.elite.test_fitness,self.elite.node_count, log]
+                add_info = [self.elite.test_fitness, self.elite.node_count, log]
 
 
             logger(log_path, 0, self.elite.fitness, end-start, float(population.nodes_count),
@@ -108,7 +108,7 @@ class GP:
         if verbose != 0:
           # displaying the results on console
           verbose_reporter(curr_dataset.split("load_")[-1], 0, self.elite.fitness, self.elite.test_fitness,
-                           end-start, population.nodes_count)
+                           end-start, self.elite.node_count)
 
         ################################################################################################################
 
@@ -138,6 +138,11 @@ class GP:
                     # getting the offspring
                     offs1, offs2 = self.crossover(p1.repr_, p2.repr_, tree1_n_nodes=p1.node_count, tree2_n_nodes=p2.node_count)
 
+                    if max_depth is not None:
+                        while depth_calculator(offs1) > max_depth or depth_calculator(offs2) > max_depth:
+                            offs1, offs2 = self.crossover(p1.repr_, p2.repr_, tree1_n_nodes=p1.node_count,
+                                                          tree2_n_nodes=p2.node_count)
+
                     # saving the offspring in an offspring list
                     offspring = [offs1, offs2]
                 else:
@@ -147,14 +152,12 @@ class GP:
                     # obtain one offspring
                     offs1 = self.mutator(p1.repr_, num_of_nodes=p1.node_count)
 
+                    if max_depth is not None:
+                        while depth_calculator(offs1) > max_depth:
+                            offs1 = self.mutator(p1.repr_, num_of_nodes=p1.node_count)
+
                     # saving the offspring in an offspring list
                     offspring = [offs1]
-
-                if max_depth is not None:
-
-                    # pruning all the offspring that are too big:
-                    offspring = [tree_pruner(child, max_depth)
-                                 if depth_calculator(child) > max_depth else child for child in offspring]
 
                 # adding the offspring to the offspring population
                 offs_pop.extend([Tree(child) for child in offspring])
@@ -215,5 +218,5 @@ class GP:
 
             # displaying the results for the current generation on console
             if verbose != 0:
-                verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start, population.nodes_count)
+                verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start, self.elite.node_count)
 
