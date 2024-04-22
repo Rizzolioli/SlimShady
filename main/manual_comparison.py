@@ -104,7 +104,7 @@ for i in range(len(deflation_points)):
 grown_pop = grow(2000, 6, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0)
 
 depths = [tree_depth(tree) for tree in grown_pop]
-sizes = [len(flatten(tree)) for tree in grown_pop]
+sizes = [len(list(flatten(tree))) for tree in grown_pop]
 
 
 
