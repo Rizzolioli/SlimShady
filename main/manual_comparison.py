@@ -10,6 +10,7 @@ from evaluators.fitness_functions import rmse
 from utils.utils import show_individual
 from algorithms.GP.operators.initializers import grow
 from algorithms.GP.representations.tree_utils import tree_depth, flatten
+import numpy as np
 
 datas = ["ppb"]
 
@@ -103,8 +104,16 @@ for i in range(len(deflation_points)):
 
 grown_pop = grow(2000, 6, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0)
 
-depths = [tree_depth(tree) for tree in grown_pop]
+depths = [tree_depth(FUNCTIONS)(tree) for tree in grown_pop]
 sizes = [len(list(flatten(tree))) for tree in grown_pop]
+
+print('MEAN NODES :', np.mean(sizes))
+print('MEDIAN NODES :', np.median(sizes))
+print('STD NODES :', np.std(sizes))
+print('\n')
+print('MEAN DEPTH :', np.mean(depths))
+print('MEDIAN DEPTH :', np.median(depths))
+print('STD DEPTH :', np.std(depths))
 
 
 
