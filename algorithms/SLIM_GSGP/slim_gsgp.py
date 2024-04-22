@@ -207,7 +207,7 @@ class SLIM_GSGP:
 
 
                     else:
-                        # if inlate mutation, pick a random individual with no restrictions
+                        # if inflate mutation, pick a random individual with no restrictions
 
                         p1 = self.selector(population, deflate=False)
 
