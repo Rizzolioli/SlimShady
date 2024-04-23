@@ -39,7 +39,7 @@ def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, p_terminal = 0.5
        """
 
     return [create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminal)
-              for _ in range(2, size+1)]
+              for _ in range(size)]
 
 
 def full(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,  p_c=0.3):
