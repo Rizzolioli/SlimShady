@@ -33,16 +33,28 @@ initial_tree = Individual([Tree(('add', 'x1', 'x2'))])
 initial_tree.calculate_semantics(X_train)
 initial_tree.calculate_semantics(X_test, testing=True)
 
+initial_tree.evaluate(rmse, y_train, testing=False, operator=operator_)
+initial_tree.evaluate(rmse, y_test, testing=True, operator=operator_)
 
-random_trees = [Tree(('add', 'x3', 'x4')),
-                Tree(('divide', 'x5', 'x9')),
-                Tree(('multiply', 'x6', 'x10')),
-                Tree(('subtract', 'x7', 'x11')),
-                Tree(('subtract', 'x8', 'x12'))
+print('INITIAL TREE :')
+print('STRUCTURE:', show_individual(initial_tree, operator_))
+print('TRAIN FITNESS:', float(initial_tree.fitness))
+print('TEST FITNESS :', float(initial_tree.test_fitness))
+print('SIZE (number of blocks):', initial_tree.size)
+print('DEPTH :', initial_tree.depth)
+print('NODES :', initial_tree.nodes_count)
+print('\n')
+
+
+random_trees = [[Tree(('add', 'x3', 'x4'))],
+                [Tree(('divide', 'x5', 'x9'))],
+                [Tree(('multiply', 'x6', 'x10'))],
+                [Tree(('subtract', 'x7', 'x11'))],
+                [Tree(('subtract', 'x8', 'x12'))]
                 ]
 
-[rt.calculate_semantics(X_train) for rt in random_trees]
-[rt.calculate_semantics(X_test, testing=True) for rt in random_trees]
+[[rt.calculate_semantics(X_train) for rt in rts] for rts in random_trees]
+[[rt.calculate_semantics(X_test, testing=True) for rt in rts] for rts in random_trees]
 
 mut_steps = [0.1, 0.2, 0.3, 0.4, 0.5]
 
@@ -52,7 +64,10 @@ otd = one_tree_delta(operator_)
 
 for i in range(len(random_trees)):
 
-    new_block = Tree([otd, random_trees[i], mut_steps[i]])
+    print('INITIAL STRUCTURE:', show_individual(initial_tree, operator_))
+    print(f'INFLATING WITH {[rt.structure for rt in random_trees[i]]}')
+
+    new_block = Tree([otd, *random_trees[i], mut_steps[i]])
     new_block.calculate_semantics(X_train, testing=False)
     new_block.calculate_semantics(X_test, testing=True)
     offspring = initial_tree.add_block( new_block )
@@ -68,7 +83,7 @@ for i in range(len(random_trees)):
     offspring.evaluate(rmse, y_train, testing= False, operator= operator_)
     offspring.evaluate(rmse, y_test, testing= True, operator= operator_)
 
-    print('STRUCTURE:', show_individual(offspring, operator_))
+    print('FINAL STRUCTURE:', show_individual(offspring, operator_))
     print('TRAIN FITNESS:', float(offspring.fitness))
     print('TEST FITNESS :', float(offspring.test_fitness))
     print('SIZE (number of blocks):', offspring.size)
@@ -79,6 +94,9 @@ for i in range(len(random_trees)):
     initial_tree = offspring
 
 for i in range(len(deflation_points)):
+
+    print('INITIAL STRUCTURE:', show_individual(initial_tree, operator_))
+    print(f'DEFLATING at {deflation_points[i]}')
 
     offspring = initial_tree.remove_block( deflation_points[i])
 
@@ -91,7 +109,7 @@ for i in range(len(deflation_points)):
     offspring.evaluate(rmse, y_train, testing= False, operator= operator_)
     offspring.evaluate(rmse, y_test, testing= True, operator= operator_)
 
-    print('STRUCTURE:', show_individual(offspring, operator_))
+    print('FINAL STRUCTURE:', show_individual(offspring, operator_))
     print('TRAIN FITNESS:', float(offspring.fitness))
     print('TEST FITNESS :', float(offspring.test_fitness))
     print('SIZE (number of blocks):', offspring.size)
