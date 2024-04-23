@@ -21,7 +21,7 @@ from utils.logger import log_settings
 # obtaining the data loading functions using the dataset name
 #data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
 
-data_loaders = ["ppb"]
+data_loaders = ["instanbul"]
 
 # defining the names of the algorithms to be run
 

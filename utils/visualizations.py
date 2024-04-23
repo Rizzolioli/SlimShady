@@ -131,10 +131,12 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
                 tr_plotting = pd.DataFrame(plotting.groupby([x_var, "algo"])[y_var].median())
                 te_plotting = pd.DataFrame(plotting.groupby([x_var, "algo"])['test_fitness'].median())
 
+                num_algos = len(set([val[-1] for val in tr_plotting.index]))
+
                 # plotting training and testing side by side
                 fig, ax = plt.subplots(1, 2, figsize=(14, 5))
-                sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0])
-                sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1])
+                sb.lineplot(data=tr_plotting, x=x_var, y=y_var, hue="algo", ax=ax[0], palette = ["red", "green", "blue", "gold", "black", "gray"][:num_algos], linewidth=3)
+                sb.lineplot(data=te_plotting, x=x_var, y='test_fitness', hue="algo", ax=ax[1], palette = ["red", "green", "blue", "gold", "black", "gray"][:num_algos], linewidth=3)
 
                 ax[0].set_xlabel("generation")
                 ax[0].set_ylabel("training fitness")
