@@ -33,7 +33,6 @@ class Tree:
                                   [11] if self.structure[0].__name__ == 'ot_delta_mul' else
                                   ([6] if self.structure[0].__name__ == 'tt_delta_mul' else
                                    ([9] if self.structure[0].__name__ == 'ot_delta_sum' else [4])))
-                                # TODO change checking performance aganist leo's
                                 )])
 
 
