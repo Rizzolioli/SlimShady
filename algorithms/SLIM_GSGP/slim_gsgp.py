@@ -20,7 +20,7 @@ class SLIM_GSGP:
 
     def __init__(self, pi_init, initializer, selector, inflate_mutator, deflate_mutator, ms, crossover, find_elit_func,
                  p_m=1, p_xo=0, p_inflate = 0.3, p_deflate = 0.7, pop_size=100, seed=0, operator = 'sum',
-                 two_trees=True, settings_dict=None):
+                 copy_parent=False, two_trees=True, settings_dict=None):
 
         #other initial parameters, tipo dataset
         self.pi_init = pi_init  # dictionary with all the parameters needed for evaluation
@@ -37,6 +37,7 @@ class SLIM_GSGP:
         self.pop_size = pop_size
         self.seed = seed
         self.operator = operator
+        self.copy_parent = copy_parent
         self.two_trees = two_trees
 
         self.settings_dict = settings_dict
@@ -173,7 +174,7 @@ class SLIM_GSGP:
                     # choose between deflating or inflating the individual
                     if random.random() < self.p_deflate:
 
-
+                        # deflating the individual
 
                         # getting a list with the valid population
                         # valid_pop = [ind for ind in population.population if ind.size > 1]
@@ -197,14 +198,24 @@ class SLIM_GSGP:
 
                         p1 = self.selector(population, deflate=False)
 
-                        off1 = self.deflate_mutator(p1)
+                        # if the chosen individual is only of size one, it cannot be deflated:
+                        if p1.size == 1:
+                            # if we choose to copy the parent when an operator cannot be applied
+                            if self.copy_parent:
+                                off1 = Individual(p1.collection)
+                                off1.train_semantics = p1.train_semantics
+                                if p1.test_semantics is not None:
+                                    off1.test_semantics = p1.test_semantics
+                            # otherwise, we choose the other operator
+                            else:
+                                # obtaining the random mutation step
+                                ms_ = self.ms()
 
-                        # off1 = Individual(p1.collection)
-                        # off1.train_semantics = p1.train_semantics
-                        # if p1.test_semantics != None:
-                        #     off1.test_semantics = p1.test_semantics
+                                off1 = self.inflate_mutator(p1, ms_, X_train, max_depth=self.pi_init["init_depth"]
+                                                            , p_c=self.pi_init["p_c"], X_test=X_test)
 
-
+                        else:
+                            off1 = self.deflate_mutator(p1)
 
                     else:
                         # if inflate mutation, pick a random individual with no restrictions
@@ -214,19 +225,32 @@ class SLIM_GSGP:
                         # obtaining the random mutation step
                         ms_ = self.ms()
 
+                        # if we cannot inflate the individual due to a max_depth constraint
                         if max_depth is not None and p1.depth == max_depth:
 
-                            off1 = self.deflate_mutator(p1)
+                            # seeing is we copy the parent or use the other operator
+                            if self.copy_parent:
+                                off1 = Individual(p1.collection)
+                                off1.train_semantics = p1.train_semantics
+                                if p1.test_semantics is not None:
+                                    off1.test_semantics = p1.test_semantics
+                            else:
+                                off1 = self.deflate_mutator(p1)
 
                         else:
 
                             off1 = self.inflate_mutator(p1, ms_, X_train, max_depth = self.pi_init["init_depth"]
                                                     , p_c = self.pi_init["p_c"], X_test = X_test)
 
-
-                        if max_depth is not None and off1.depth > max_depth: #TODO if offspring too big return parent (Koza)
-
-                            off1 = self.deflate_mutator(p1)
+                        # checking if after inflation the offspring isnt valid:
+                        if max_depth is not None and off1.depth > max_depth:
+                            if self.copy_parent:
+                                off1 = Individual(p1.collection)
+                                off1.train_semantics = p1.train_semantics
+                                if p1.test_semantics is not None:
+                                    off1.test_semantics = p1.test_semantics
+                            else:
+                                off1 = self.deflate_mutator(p1)
 
 
                     offs_pop.append(off1)

@@ -162,7 +162,8 @@ slim_GSGP_parameters = {"initializer": rhh,
                 "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
                 "p_inflate": None,
                         "two_trees": False,
-                        "operator": 'mul'
+                        "operator": 'mul',
+                        "copy_parent": False
     }
 
 inflate_mutator = inflate_mutation
@@ -179,6 +180,6 @@ all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters"
               "GSGP": ["gsgp_solve_parameters", "GSGP_parameters", "gsgp_pi_init", "settings_dict"],
               "GP": ["gp_solve_parameters", "GP_parameters", "gp_pi_init", "settings_dict"]}
 
-slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 1)},
+slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
                        "concrete": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
                        "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}} #todo: add this to settings logger, fix for the other datasets
