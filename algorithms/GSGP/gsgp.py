@@ -122,7 +122,7 @@ class GSGP:
         # displaying the results for the population initialization on console
         if verbose != 0:
             verbose_reporter(curr_dataset.split("load_")[-1], 0, self.elite.fitness, self.elite.test_fitness,
-                             end - start, population.nodes_count)
+                             end - start, self.elite.node_count)
 
         ################################################################################################################
 
@@ -154,7 +154,8 @@ class GSGP:
                     # getting a random tree
                     r_tree = get_random_tree(max_depth=self.pi_init['init_depth'], FUNCTIONS=self.pi_init['FUNCTIONS'],
                                              TERMINALS=self.pi_init['TERMINALS'],
-                                             CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train, logistic=True)
+                                             CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train, logistic=True,
+                                             p_c= self.pi_init['p_c'])
 
                     # calculating its semantics on testing, if applicable
                     if test_elite:
@@ -183,12 +184,14 @@ class GSGP:
                         r_tree1 = get_random_tree(max_depth=self.pi_init['init_depth'],
                                                   FUNCTIONS=self.pi_init['FUNCTIONS'],
                                                   TERMINALS=self.pi_init['TERMINALS'],
-                                                  CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+                                                  CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train,
+                                                  p_c= self.pi_init['p_c'])
 
                         r_tree2 = get_random_tree(max_depth=self.pi_init['init_depth'],
                                                   FUNCTIONS=self.pi_init['FUNCTIONS'],
                                                   TERMINALS=self.pi_init['TERMINALS'],
-                                                  CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train)
+                                                  CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train,
+                                                  p_c= self.pi_init['p_c'])
 
                         mutation_trees = [r_tree1, r_tree2]
 
@@ -201,7 +204,8 @@ class GSGP:
                         r_tree1 = get_random_tree(max_depth=self.pi_init['init_depth'],
                                                   FUNCTIONS=self.pi_init['FUNCTIONS'],
                                                   TERMINALS=self.pi_init['TERMINALS'],
-                                                  CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train, logistic=False)
+                                                  CONSTANTS=self.pi_init['CONSTANTS'], inputs=X_train, logistic=False,
+                                                  p_c= self.pi_init['p_c'])
 
                         mutation_trees = [r_tree1]
 
@@ -283,4 +287,4 @@ class GSGP:
             # displaying the results for the current generation on console
             if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,
-                                 population.nodes_count)
+                                 self.elite.node_count)

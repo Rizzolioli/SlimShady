@@ -1,8 +1,7 @@
 from algorithms.GSGP.representations.tree_utils import apply_tree
-from algorithms.GP.representations.tree_utils import flatten
+from algorithms.GP.representations.tree_utils import flatten, tree_depth
 from algorithms.GP.representations import tree
 import torch
-
 
 class Tree:
     FUNCTIONS = None
@@ -17,18 +16,25 @@ class Tree:
         self.structure = structure # either repr_ from gp(tuple) or list of pointers
 
         if isinstance(structure, tuple):
-            self.depth = len(structure)
+            self.depth = tree_depth(Tree.FUNCTIONS)(structure)
+            self.nodes = len(list(flatten(structure)))
         else:
-            self.depth = max([tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)]) + 1
-
-        if isinstance(structure, tuple):
-                    self.nodes = len(list(flatten(structure)))
-        else:
+            self.depth = max([tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)])\
+                         + (4 if self.structure[0].__name__ == 'ot_delta_sum' else(
+                            5 if self.structure[0].__name__ == 'ot_delta_mul' else(
+                            2 if self.structure[0].__name__ == 'tt_delta_sum' else(
+                            3 if self.structure[0].__name__ == 'tt_delta_mul' else(
+                            2 ))))
+                            )
             # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
             self.nodes = sum([*[tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)],
-                              *([5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else (
-                                 [9] if self.structure[0].__name__ == 'ot_delta' else [4])
+                              *([5, self.structure[-1].nodes] if self.structure[
+                                                                     0].__name__ == 'geometric_crossover' else (
+                                  [11] if self.structure[0].__name__ == 'ot_delta_mul' else
+                                  ([6] if self.structure[0].__name__ == 'tt_delta_mul' else
+                                   ([9] if self.structure[0].__name__ == 'ot_delta_sum' else [4])))
                                 )])
+
 
         self.fitness = None
         self.test_fitness = None

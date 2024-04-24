@@ -135,7 +135,8 @@ class SLIM_GSGP:
 
         # displaying the results of the population initialization on console
         if verbose != 0:
-            verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start, population.nodes_count)
+            verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start,
+                             self.elite.nodes_count)
 
         ################################################################################################################
 
@@ -170,7 +171,9 @@ class SLIM_GSGP:
 
 
                     # choose between deflating or inflating the individual
-                    if random.random() < self.p_deflate and it != 1:
+                    if random.random() < self.p_deflate:
+
+
 
                         # getting a list with the valid population
                         # valid_pop = [ind for ind in population.population if ind.size > 1]
@@ -178,28 +181,33 @@ class SLIM_GSGP:
                         # if the valid population list is enough for the tournament size:
 
                         # if deflate mutation, pick one individual that is of size > 1
-                        p1 = self.selector(population, deflate=True)
+                        # p1 = self.selector(population, deflate=True)
 
                         # if a valid deflatable individual was found and selected
-                        if p1 is not None:
-
-                            off1 = self.deflate_mutator(p1)
-
-                        # if there arent enough valid individuals for deflating, we inflate instead
-                        else:
+                        # if p1 is not None:
+                        #
+                        #
+                        #     off1 = self.deflate_mutator(p1)
+                        #     print('deflating')
+                        #
+                        # # if there arent enough valid individuals for deflating, we inflate instead
+                        # else:
                             # selecting  a random individual with no restrictions
-                            p1 = self.selector(population, deflate=False)
+                            # p1 = self.selector(population, deflate=False)
 
-                            # obtaining the random mutation step
-                            ms_ = self.ms()
+                        p1 = self.selector(population, deflate=False)
 
-                            # inflating the individual
-                            off1 = self.inflate_mutator(p1, ms_, X_train, max_depth=self.pi_init["init_depth"]
-                                                        , p_c=self.pi_init["p_c"], X_test=X_test)
+                        off1 = self.deflate_mutator(p1)
+
+                        # off1 = Individual(p1.collection)
+                        # off1.train_semantics = p1.train_semantics
+                        # if p1.test_semantics != None:
+                        #     off1.test_semantics = p1.test_semantics
+
 
 
                     else:
-                        # if inlate mutation, pick a random individual with no restrictions
+                        # if inflate mutation, pick a random individual with no restrictions
 
                         p1 = self.selector(population, deflate=False)
 
@@ -295,4 +303,4 @@ class SLIM_GSGP:
 
             if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,
-                                         population.nodes_count)
+                                         self.elite.nodes_count)

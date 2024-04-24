@@ -1,5 +1,5 @@
 from algorithms.GP.representations.tree_utils import bound_value
-from algorithms.GP.representations.tree_utils import flatten
+from algorithms.GP.representations.tree_utils import flatten, tree_depth
 
 class Tree:
 
@@ -63,7 +63,7 @@ class Tree:
         self.CONSTANTS = Tree.CONSTANTS
 
         self.repr_ = repr_
-        self.depth = len(repr_)
+        self.depth = tree_depth(Tree.FUNCTIONS)(repr_)
         self.fitness = None
         self.test_fitness = None
         self.node_count = len(list(flatten(self.repr_)))

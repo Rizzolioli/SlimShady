@@ -14,11 +14,11 @@ from utils.utils import show_individual
 
 ########################################################################################################################
 
-algos = ["SlimGSGP_looking_fixed"]
+algos = ["SlimGSGP_pls_work"]
 
 #data_loaders = [ "toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price"]
 
-data_loaders = ["instanbul"]
+data_loaders = ["concrete"]
 
 
 ########################################################################################################################
@@ -45,7 +45,7 @@ for loader in data_loaders:
 
             slim_GSGP_parameters["two_trees"] = ttress
 
-            for op in ['sum']:
+            for op in ["sum"]:
 
                 slim_GSGP_parameters["operator"] = op
 

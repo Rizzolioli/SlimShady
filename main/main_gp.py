@@ -25,7 +25,7 @@ datas = ["ld50", "bioav", "ppb", "boston", "concrete_slump", "concrete_slump", "
 # obtaining the data loading functions using the dataset name
 # data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
 # data_loaders = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price"]
-data_loaders = ['concrete']
+data_loaders = ['toxicity']
 
 # defining the names of the algorithms to be run
 
@@ -53,7 +53,7 @@ for loader in data_loaders:
         gp_solve_parameters['run_info'] = [algo, unique_run_id ,loader]
 
         # running each dataset + algo configuration n_runs times
-        for seed in range(3, n_runs):
+        for seed in range(2):
 
             start = time.time()
 
