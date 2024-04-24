@@ -17,6 +17,7 @@ class Tree:
 
         if isinstance(structure, tuple):
             self.depth = tree_depth(Tree.FUNCTIONS)(structure)
+            self.nodes = len(list(flatten(structure)))
         else:
             self.depth = max([tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)])\
                          + (4 if self.structure[0].__name__ == 'ot_delta_sum' else(
@@ -25,18 +26,16 @@ class Tree:
                             3 if self.structure[0].__name__ == 'tt_delta_mul' else(
                             2 ))))
                             )
-
-        if isinstance(structure, tuple):
-                    self.nodes = len(list(flatten(structure)))
-        else:
             # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
             self.nodes = sum([*[tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)],
-                              *([5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else (
-                                 [10] if self.structure[0].__name__ == 'ot_delta_mul' else
-                                 ([6] if self.structure[0].__name__ == 'tt_delta_mul' else
-                                  ([8] if self.structure[0].__name__ == 'ot_delta_sum' else [4])))
-                                #TODO change checking performance aganist leo's
+                              *([5, self.structure[-1].nodes] if self.structure[
+                                                                     0].__name__ == 'geometric_crossover' else (
+                                  [11] if self.structure[0].__name__ == 'ot_delta_mul' else
+                                  ([6] if self.structure[0].__name__ == 'tt_delta_mul' else
+                                   ([9] if self.structure[0].__name__ == 'ot_delta_sum' else [4])))
+                                # TODO change checking performance aganist leo's
                                 )])
+
 
         self.fitness = None
         self.test_fitness = None

@@ -180,10 +180,12 @@ def verbose_reporter(dataset,generation, pop_val_fitness, pop_test_fitness, timi
               " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
 
 def get_terminals(data_loader, seed = 0):
+
     if isinstance(data_loader, str):
         TERMINALS = {f"x{i}": i for i in range(len(load_preloaded(data_loader, seed, training=True, X_y=True)[0][0]))}
     else:
         TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
+
     return TERMINALS
 
 def get_best_min(population, n_elites):

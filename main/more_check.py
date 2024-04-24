@@ -1,3 +1,3 @@
 from datasets.data_loader import *
+from utils.utils import get_terminals
 
-print(load_dummy_test())

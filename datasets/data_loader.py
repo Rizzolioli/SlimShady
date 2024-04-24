@@ -8,15 +8,15 @@ Taken from GPOL.
 
 """
 
-def load_dummy_test():
-    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "TEST_1_myToySumDataset.txt"), sep = " ")
+def load_dummy_test(boo=True):
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "TEST_1_myToySumDataset.txt"), sep = " ", header=None)
 
-    return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    return torch.from_numpy(df.values[:, :-2]).float(), torch.from_numpy(df.values[:, -2]).float()
 
-def load_dummy_train():
-    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "TRAINING_1_myToySumDataset.txt"), sep = " ")
+def load_dummy_train(boo=True):
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "TRAINING_1_myToySumDataset.txt"), sep = " ", header=None)
 
-    return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    return torch.from_numpy(df.values[:, :-2]).float(), torch.from_numpy(df.values[:, -2]).float()
 
 def load_preloaded(dataset_name, seed, training=True ,X_y=False):
 
