@@ -1,20 +1,15 @@
-import torch
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.estimator_checks import check_estimator
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import root_mean_squared_error
-import time
-import uuid
 from parametrization import *
 from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
 import datasets.data_loader as ds
-from utils.utils import get_terminals, train_test_split
 from algorithms.SLIM_GSGP.operators.mutators import *
+from sklearn.model_selection import train_test_split, cross_validate, GridSearchCV
 from utils.logger import log_settings
-from algorithms.GSGP.representations.tree import Tree
 
 
 
@@ -86,18 +81,20 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
 
 if __name__ == '__main__':
     path = os.path.join(os.getcwd(), "..", "datasets/pre_loaded_data/TRAINING_1_TOXICITY.txt")
-    df = pd.read_csv(path, sep = " ", header=None).iloc[:, :-1]
-    print(df.shape)
-    print({f"x{i}": i for i in range(len(df.iloc[0]))})
-    gsgp_reg = GSGPRegressor(random_state=0, test_elite = False, n_iter = 100)
+    df = pd.read_csv(path, sep=" ", header=None).iloc[:, :-1]
+    # gsgp_reg = GSGPRegressor(random_state=0, test_elite = False, n_iter = 50)
     X, y = df.values[:, :-1], df.values[:, -1]
-    gsgp_reg.fit(X, y)
-    result = gsgp_reg.predict(X)
-    score = gsgp_reg.score(X, y)
-    #print("RESULT",result)
-    print("SCORE",score)
-    print("Finish")
 
+    params = {
+        'pop_size': [10],
+        'n_iter': [10, 20]
+    }
+    model = GSGPRegressor(random_state=0, test_elite=False, n_iter=50, verbose=0)
+
+    search = GridSearchCV(model, params, verbose=3)
+    search.fit(X, y)
+    print(f"Best mean score found was {search.best_score_}")
+    print(search.best_params_)
 
 
     # printed 2204.756630546981
