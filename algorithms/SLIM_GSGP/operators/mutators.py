@@ -66,20 +66,15 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS ,two_trees = True, operator
             # getting one random tree
 
             # checking if we choose to apply sigmoid to a single tree:
-            if single_tree_sigmoid:
-                random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
-                                               p_terminal=p_terminal, grow_probability=grow_probability, logistic=True)
-                sig = True
 
-            else:
-                random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
-                                               p_terminal=p_terminal, grow_probability=grow_probability, logistic=False)
-                sig = False
+            random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                           p_terminal=p_terminal, grow_probability=grow_probability, logistic=single_tree_sigmoid)
+
 
             random_trees = [random_tree1]
 
             if X_test is not None:
-                [rt.calculate_semantics(X_test, testing=True, logistic=sig) for rt in random_trees]
+                [rt.calculate_semantics(X_test, testing=True, logistic=single_tree_sigmoid) for rt in random_trees]
 
         # creating the mutation resulting block to be added to the individual
         new_block = Tree([(two_trees_delta(operator=operator) if two_trees else one_tree_delta(operator=operator)),
