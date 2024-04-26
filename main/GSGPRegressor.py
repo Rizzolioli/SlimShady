@@ -91,9 +91,6 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
         # Implementation of score method
         return root_mean_squared_error(torch.from_numpy(y), self.predict(X))
 
-    def size_score(self, X, Y):
-        return self.optimizer.elite.nodes_count
-
     def predict(self, X):
 
         check_is_fitted(self)
