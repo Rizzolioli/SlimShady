@@ -38,7 +38,6 @@ class SLIM_GSGP:
         self.seed = seed
         self.operator = operator
         self.copy_parent = copy_parent
-        self.two_trees = two_trees
 
         self.settings_dict = settings_dict
         self.find_elit_func = find_elit_func
@@ -211,8 +210,6 @@ class SLIM_GSGP:
                                 # obtaining the random mutation step
                                 ms_ = self.ms()
 
-                                print(ms_)
-
                                 off1 = self.inflate_mutator(p1, ms_, X_train, max_depth=self.pi_init["init_depth"]
                                                             , p_c=self.pi_init["p_c"], X_test=X_test)
 
@@ -241,7 +238,6 @@ class SLIM_GSGP:
 
                         else:
 
-                            print(ms_)
 
                             off1 = self.inflate_mutator(p1, ms_, X_train, max_depth = self.pi_init["init_depth"]
                                                     , p_c = self.pi_init["p_c"], X_test = X_test)

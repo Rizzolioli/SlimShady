@@ -265,8 +265,8 @@ def generate_random_uniform(lower, upper):
     """
 
     def generate_num():
-        #return random.uniform(lower, upper)
-        return 1.5
+        return random.uniform(lower, upper)
+        # return 1.5
 
     return generate_num
 

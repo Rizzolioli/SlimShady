@@ -141,11 +141,11 @@ slim_gsgp_solve_parameters = {"elitism": True,
                     "log": 1,
                     "verbose": 1,
                     "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "liah_fixed_concrete.csv"),
+                    "log_path": os.path.join(os.getcwd(), "log", "slim.csv"),
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,
-                    "n_iter": 500,
+                    "n_iter": 2000,
                     "max_depth": None,
                     "n_elites": 1
                     }
@@ -161,9 +161,7 @@ slim_GSGP_parameters = {"initializer": rhh,
                   "settings_dict": settings_dict,
                 "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
                 "p_inflate": None,
-                        "two_trees": False,
-                        "operator": 'mul',
-                        "copy_parent": False
+                "copy_parent": True
     }
 
 inflate_mutator = inflate_mutation
