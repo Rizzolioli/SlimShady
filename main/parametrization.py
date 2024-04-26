@@ -48,7 +48,7 @@ CONSTANTS = {
 
 ########################################################################################################################
 
-n_runs = 30
+n_runs = 10
 settings_dict = {"p_test": 0.2}
 
 
@@ -145,7 +145,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                     "run_info": None,
                     "max_": False,
                     "ffunction": rmse,
-                    "n_iter": 2000,
+                    "n_iter": 500,
                     "max_depth": None,
                     "n_elites": 1
                     }

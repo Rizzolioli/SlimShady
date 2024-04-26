@@ -18,7 +18,7 @@ algos = ["SlimGSGP_pls_work"]
 
 #data_loaders = [ "toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price"]
 
-data_loaders = ["concrete"]
+data_loaders = ["ppb"]
 
 
 ########################################################################################################################
@@ -45,7 +45,7 @@ for loader in data_loaders:
 
             slim_GSGP_parameters["two_trees"] = ttress
 
-            for op in ["sum"]:
+            for op in ["mul"]:
 
                 slim_GSGP_parameters["operator"] = op
 
@@ -62,12 +62,13 @@ for loader in data_loaders:
 
                         curr_dataset = f"load_{dataset}"
 
-                        TERMINALS = get_terminals(loader, seed+1)
+                        TERMINALS = get_terminals(loader, seed + 1)
 
-                        X_train, y_train = load_preloaded(loader, seed=seed+1, training=True, X_y=True)
+                        X_train, y_train = load_preloaded(loader, seed= seed + 1, training=True, X_y=True)
 
-                        X_test, y_test = load_preloaded(loader, seed=seed+1, training=False, X_y=True)
+                        X_test, y_test = load_preloaded(loader, seed=seed + 1, training=False, X_y=True)
 
+                        seed = seed + 74
                     else:
 
                         # Loads the data via the dataset loader
@@ -103,7 +104,8 @@ for loader in data_loaders:
                     slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
                                                                               TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
                                                                               two_trees=slim_GSGP_parameters['two_trees'],
-                                                                              operator=slim_GSGP_parameters['operator'])
+                                                                              operator=slim_GSGP_parameters['operator'],
+                                                                              new=True)
 
 
                     # adding the dataset name and algorithm name to the run info for the logger

@@ -148,6 +148,11 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
                 fig.suptitle(f'{ds.capitalize()}', fontsize=16)
                 plt.show()
 
+                # added here to see the final median:
+                print(tr_plotting[y_var])
+                # added here to see the final median:
+                print(te_plotting["test_fitness"])
+
     elif y_var == "nodes_count":
 
         # obtaining the results only for the specific dataset
@@ -181,6 +186,8 @@ def show_results(x_var="generation", y_var="training_fitness", experiment_id=-1,
                 plt.title(f'{ds.capitalize()}')
                 plt.show()
 
+                # added here to see the final median:
+                print(plotting[y_var])
 
 
     else:

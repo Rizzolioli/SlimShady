@@ -31,7 +31,6 @@ def protected_div(x1, x2):
         Result of protected division between x1 and x2.
     """
     # if  torch.is_tensor(x2):
-
     return torch.where(torch.abs(x2) > 0.001, torch.div(x1, x2), torch.tensor(1.0, dtype=x2.dtype, device=x2.device))
 
     # else:
@@ -266,7 +265,8 @@ def generate_random_uniform(lower, upper):
     """
 
     def generate_num():
-        return random.uniform(lower, upper)
+        #return random.uniform(lower, upper)
+        return 1.5
 
     return generate_num
 
