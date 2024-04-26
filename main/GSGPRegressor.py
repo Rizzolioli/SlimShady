@@ -134,7 +134,7 @@ if __name__ == '__main__':
 
     model = GSGPRegressor(random_state=0, test_elite=False, n_iter=100, verbose=0, pop_size = 200)
 
-    search = GridSearchCV(model, params, verbose=3, scoring=scorers, refit="rmse") # todo: remove none, do this
+    search = GridSearchCV(model, params, verbose=3, scoring=scorers, refit=False) # todo: remove none, do this
 
     search.fit(X, y)
 
