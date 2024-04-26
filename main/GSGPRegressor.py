@@ -10,7 +10,7 @@ import datasets.data_loader as ds
 from algorithms.SLIM_GSGP.operators.mutators import *
 from sklearn.model_selection import train_test_split, cross_validate, GridSearchCV
 from utils.logger import log_settings
-
+from sklearn.metrics import make_scorer
 
 
 from algorithms.SLIM_GSGP.representations.individual import apply_individual_fixed
@@ -86,12 +86,18 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
         self.optimizer.solve(X_train=self.X_train, X_test=None, y_train=self.y_train, y_test=None, curr_dataset="test",
                 **slim_gsgp_solve_parameters)
 
+
     def score(self, X, y):
         # Implementation of score method
         return root_mean_squared_error(torch.from_numpy(y), self.predict(X))
 
+    def size_score(self, X, Y):
+        return self.optimizer.elite.nodes_count
+
     def predict(self, X):
+
         check_is_fitted(self)
+
         X = check_array(X)  # Input validation
 
         if len(X[0])!= self.n_features_in_:
@@ -99,9 +105,9 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
 
         #result = self.optimizer.elite.apply_individual(torch.from_numpy(X))
 
-        result = apply_individual_fixed(self.optimizer.elite,data=torch.from_numpy(X), operator=slim_GSGP_parameters['operator'])
+        result = apply_individual_fixed(self.optimizer.elite, data=torch.from_numpy(X), operator=slim_GSGP_parameters['operator'])
 
-        return result
+        return result , self.optimizer.elite.nodes_count
 
 if __name__ == '__main__':
     path = os.path.join(os.getcwd(), "..", "datasets/pre_loaded_data/TRAINING_1_TOXICITY.txt")
@@ -119,9 +125,19 @@ if __name__ == '__main__':
 
     }
 
+
+    def rmse(y_true, y_pred):
+        return root_mean_squared_error(torch.from_numpy(y_true), y_pred[0])
+
+    def size (y_true, y_pred):
+        return y_pred[1]
+
+    scorers = {"rmse": make_scorer(rmse, greater_is_better=False),
+            "size": make_scorer(size, greater_is_better=False)}
+
     model = GSGPRegressor(random_state=0, test_elite=False, n_iter=100, verbose=0, pop_size = 200)
 
-    search = GridSearchCV(model, params, verbose=3)
+    search = GridSearchCV(model, params, verbose=3, scoring=scorers, refit="rmse") # todo: remove none, do this
 
     search.fit(X, y)
 
