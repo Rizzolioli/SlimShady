@@ -12,6 +12,7 @@ from datasets.data_loader import load_preloaded
 Taken from GPOL
 """
 
+
 def protected_div(x1, x2):
     """ Implements the division protected against zero denominator
 
@@ -106,18 +107,22 @@ def train_test_split(X, y, p_test=0.3, shuffle=True, indices_only=False, seed=0)
         y_train, y_test = y[train_indices], y[test_indices]
         return X_train, X_test, y_train, y_test
 
+
 """
 
 Not taken from GPOL
 
 """
 
+
 def tensor_dimensioned_sum(dim):
     def tensor_sum(input):
         return torch.sum(input, dim)
 
     return tensor_sum
-def verbose_reporter(dataset,generation, pop_val_fitness, pop_test_fitness, timing, nodes):
+
+
+def verbose_reporter(dataset, generation, pop_val_fitness, pop_test_fitness, timing, nodes):
     """
         Prints a formatted report of generation, fitness values, timing, and node count.
 
@@ -178,8 +183,8 @@ def verbose_reporter(dataset,generation, pop_val_fitness, pop_test_fitness, timi
               " " * 3 + str(timing) + " " * (21 - digits_timing) + "|" +
               " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
 
-def get_terminals(data_loader, seed = 0):
 
+def get_terminals(data_loader, seed=0):
     if isinstance(data_loader, str):
         TERMINALS = {f"x{i}": i for i in range(len(load_preloaded(data_loader, seed, training=True, X_y=True)[0][0]))}
     else:
@@ -187,8 +192,8 @@ def get_terminals(data_loader, seed = 0):
 
     return TERMINALS
 
-def get_best_min(population, n_elites):
 
+def get_best_min(population, n_elites):
     # if more than one elite is to be saved
     if n_elites > 1:
         # getting the indexes of the lower n_elites fitnesses in the population
@@ -198,7 +203,7 @@ def get_best_min(population, n_elites):
         elites = [population.population[i] for i in idx[:n_elites]]
 
         # returning the elites and the best elite from among them
-        return elites,  elites[np.argmin([elite.fitness for elite in elites])]
+        return elites, elites[np.argmin([elite.fitness for elite in elites])]
 
     # if only the best individual is to be obtained
     else:
@@ -207,8 +212,9 @@ def get_best_min(population, n_elites):
 
         # returning the elite as the list of elites and the elite as the best in population
         return [elite], elite
-def get_best_max(population, n_elites):
 
+
+def get_best_max(population, n_elites):
     # if more than one elite is to be saved
     if n_elites > 1:
         # getting the indexes of the higher n_elites fitnesses in the population
@@ -227,13 +233,14 @@ def get_best_max(population, n_elites):
         # returning the elite as the list of elites and the elite as the best in population
         return [elite], elite
 
-def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.3, p_terminal = 0.5, grow_probability=1, logistic=True):
 
+def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3, p_terminal=0.5, grow_probability=1,
+                    logistic=True):
     # choose between grow and full
     if random.random() < grow_probability:
 
         # creating a tree using grow
-        tree = create_grow_random_tree(max_depth,FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminal)
+        tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminal)
 
         tree = Tree(tree)
 
@@ -249,8 +256,8 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c = 0.
         # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
 
-
     return tree
+
 
 def generate_random_uniform(lower, upper):
     """
@@ -270,8 +277,11 @@ def generate_random_uniform(lower, upper):
 
     return generate_num
 
+
 def show_individual(tree, operator):
     op = "+" if operator == "sum" else "*"
 
-    return f" {op} ".join([str(t.structure) if isinstance(t.structure, tuple) else f'f({t.structure[1].structure})' if len(t.structure) == 3
-                            else f'f({t.structure[1].structure} - {t.structure[2].structure})' for t in tree.collection])
+    return f" {op} ".join([str(t.structure) if isinstance(t.structure,
+                                                          tuple) else f'f({t.structure[1].structure})' if len(
+        t.structure) == 3
+    else f'f({t.structure[1].structure} - {t.structure[2].structure})' for t in tree.collection])

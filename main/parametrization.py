@@ -13,7 +13,7 @@ from utils.utils import generate_random_uniform
 
 ########################################################################################################################
 
-                                            # TREE PARAMETERS
+# TREE PARAMETERS
 
 ########################################################################################################################
 # TODO: add grid-search code to main - DIOGO
@@ -44,135 +44,132 @@ CONSTANTS = {
 
 ########################################################################################################################
 
-                                            # RUN PARAMETERS & settings
+# RUN PARAMETERS & settings
 
 ########################################################################################################################
 
-n_runs = 10
+n_runs = 30
 settings_dict = {"p_test": 0.2}
 
-
 ########################################################################################################################
 
-                                            # GP PARAMETERS
+# GP PARAMETERS
 
 ########################################################################################################################
 
 gp_solve_parameters = {"elitism": True,
-                    "log": 1,
-                    "verbose": 1,
-                    "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "liah_gp_toxicity_2_seeds.csv"),
-                    "run_info": None,
-                    "max_depth": 17,
-                    "max_": False,
-                    "ffunction": rmse,
-                    "n_iter": 2000,
-                    "n_elites": 1,
+                       "log": 1,
+                       "verbose": 1,
+                       "test_elite": True,
+                       "log_path": os.path.join(os.getcwd(), "log", "liah_gp_toxicity_2_seeds.csv"),
+                       "run_info": None,
+                       "max_depth": 17,
+                       "max_": False,
+                       "ffunction": rmse,
+                       "n_iter": 2000,
+                       "n_elites": 1,
                        "tree_pruner": None
-                    }
-
+                       }
 
 GP_parameters = {"initializer": rhh,
-                  "selector": tournament_selection_min(2),
-                  "crossover": crossover_trees(FUNCTIONS),
-                  "p_xo": 0.8,
-                  "pop_size": 100,
-                  "settings_dict": settings_dict,
+                 "selector": tournament_selection_min(2),
+                 "crossover": crossover_trees(FUNCTIONS),
+                 "p_xo": 0.8,
+                 "pop_size": 100,
+                 "settings_dict": settings_dict,
                  "find_elit_func": get_best_max if gp_solve_parameters["max_"] else get_best_min
-    }
+                 }
 GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
-gp_pi_init = {'init_pop_size': GP_parameters["pop_size"], # assuming that the initial population size is the same as the GP pop size
-           'init_depth': 6,
-           'FUNCTIONS': FUNCTIONS,
-           'CONSTANTS': CONSTANTS,
-           "p_c": 0,
-           "p_terminals": 0.5}
-
-
+gp_pi_init = {'init_pop_size': GP_parameters["pop_size"],
+              # assuming that the initial population size is the same as the GP pop size
+              'init_depth': 6,
+              'FUNCTIONS': FUNCTIONS,
+              'CONSTANTS': CONSTANTS,
+              "p_c": 0,
+              "p_terminals": 0.5}
 
 ########################################################################################################################
 
-                                            # GSGP PARAMETERS
+# GSGP PARAMETERS
 
 ########################################################################################################################
 
 
 gsgp_solve_parameters = {"elitism": True,
-                    "log": 1,
-                    "verbose": 1,
-                    "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "davide_gsgp_istanbul.csv"),
-                    "run_info": None,
-                    "max_": False,
-                    "ffunction": rmse,
-                    "n_iter": 2000,
-                    "reconstruct": False,
-                     "n_elites": 1
-                    }
+                         "log": 1,
+                         "verbose": 1,
+                         "test_elite": True,
+                         "log_path": os.path.join(os.getcwd(), "log", "davide_gsgp_istanbul.csv"),
+                         "run_info": None,
+                         "max_": False,
+                         "ffunction": rmse,
+                         "n_iter": 2000,
+                         "reconstruct": False,
+                         "n_elites": 1
+                         }
 
 GSGP_parameters = {"initializer": rhh,
-                  "selector": tournament_selection_min(2),
-                  "crossover": geometric_crossover,
-                   "ms" :  generate_random_uniform(0, 1),
-                 "mutator" : standard_geometric_mutation,
-                  "p_xo": 0,
-                  "pop_size": 100,
-                  "settings_dict": settings_dict,
-                "find_elit_func": get_best_max if gsgp_solve_parameters["max_"] else get_best_min
-    }
+                   "selector": tournament_selection_min(2),
+                   "crossover": geometric_crossover,
+                   "ms": generate_random_uniform(0, 1),
+                   "mutator": standard_geometric_mutation,
+                   "p_xo": 0,
+                   "pop_size": 100,
+                   "settings_dict": settings_dict,
+                   "find_elit_func": get_best_max if gsgp_solve_parameters["max_"] else get_best_min
+                   }
 GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
 gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
-           'init_depth': 8,
-           'FUNCTIONS': FUNCTIONS,
-           'CONSTANTS': CONSTANTS,
-           "p_c": 0}
+                'init_depth': 8,
+                'FUNCTIONS': FUNCTIONS,
+                'CONSTANTS': CONSTANTS,
+                "p_c": 0}
 
 ########################################################################################################################
 
-                                            # SLIM GSGP PARAMETERS
+# SLIM GSGP PARAMETERS
 
 ########################################################################################################################
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                    "log": 1,
-                    "verbose": 1,
-                    "test_elite": True,
-                    "log_path": os.path.join(os.getcwd(), "log", "slim.csv"),
-                    "run_info": None,
-                    "max_": False,
-                    "ffunction": rmse,
-                    "n_iter": 2000,
-                    "max_depth": None,
-                    "n_elites": 1
-                    }
+                              "log": 1,
+                              "verbose": 1,
+                              "test_elite": True,
+                              "log_path": os.path.join(os.getcwd(), "log", "slim.csv"),
+                              "run_info": None,
+                              "max_": False,
+                              "ffunction": rmse,
+                              "n_iter": 2000,  # 2000
+                              "max_depth": None,
+                              "n_elites": 1
+                              }
 
 slim_GSGP_parameters = {"initializer": rhh,
-                  "selector": tournament_selection_min_slim(2),
-                  "crossover": geometric_crossover,
-                   "ms" : None,
-                 "inflate_mutator" : None,
-                  "deflate_mutator": deflate_mutation,
-                  "p_xo": 0,
-                  "pop_size": 100,
-                  "settings_dict": settings_dict,
-                "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
-                "p_inflate": None,
-                "copy_parent": True
-    }
+                        "selector": tournament_selection_min_slim(2),
+                        "crossover": geometric_crossover,
+                        "ms": None,
+                        "inflate_mutator": None,
+                        "deflate_mutator": deflate_mutation,
+                        "p_xo": 0,
+                        "pop_size": 100,  # 100
+                        "settings_dict": settings_dict,
+                        "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
+                        "p_inflate": None,
+                        "copy_parent": True
+                        }
 
 inflate_mutator = inflate_mutation
 
 slim_GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
 slim_gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
-           'init_depth': 6,
-           'FUNCTIONS': FUNCTIONS,
-           'CONSTANTS': CONSTANTS,
-           "p_c": 0}
+                     'init_depth': 6,
+                     'FUNCTIONS': FUNCTIONS,
+                     'CONSTANTS': CONSTANTS,
+                     "p_c": 0}
 
 all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters", "slim_gsgp_pi_init", "settings_dict"],
               "GSGP": ["gsgp_solve_parameters", "GSGP_parameters", "gsgp_pi_init", "settings_dict"],
@@ -180,4 +177,5 @@ all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters"
 
 slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
                        "concrete": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
-                       "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}} #todo: add this to settings logger, fix for the other datasets
+                       "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0,
+                                                                                 1)}}  #todo: add this to settings logger, fix for the other datasets
