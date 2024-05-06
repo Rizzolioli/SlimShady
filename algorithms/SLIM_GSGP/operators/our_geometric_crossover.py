@@ -11,6 +11,7 @@ def generate_mask(n, k):
         positions.add(random.randint(1, n-1))
     for pos in positions: 
         my_mask[pos] = 1
+    #the first block needs to always be saved(root block)
     my_mask[0] = 1
     return my_mask
 
