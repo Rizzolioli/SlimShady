@@ -84,7 +84,7 @@ def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
 
 
 # Function to perform crossover between two trees.
-def mutate_tree_subtree(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c, p_terminals = 0.5):
+def mutate_tree_subtree(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
     """
         Generates a function for performing subtree mutation between two trees.
 
