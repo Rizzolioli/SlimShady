@@ -53,7 +53,7 @@ def one_tree_delta(operator='sum', sig=False):
 
 def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='sum', single_tree_sigmoid=False,
                      sig=False):
-    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, p_terminal=0.5, grow_probability=1):
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1):
 
         # getting a random tree
 
