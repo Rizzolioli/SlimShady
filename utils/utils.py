@@ -240,7 +240,7 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3,
     if random.random() < grow_probability:
 
         # creating a tree using grow
-        tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminal)
+        tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
         tree = Tree(tree)
 

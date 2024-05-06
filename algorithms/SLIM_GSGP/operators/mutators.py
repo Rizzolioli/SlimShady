@@ -23,10 +23,10 @@ def two_trees_delta(operator='sum'):
     return tt_delta
 
 
-def one_tree_delta(operator='sum', new=False):
+def one_tree_delta(operator='sum', sig=False):
     def ot_delta(tr1, ms, testing):
 
-        if new:
+        if sig:
             if testing:
                 return torch.mul(ms, torch.sub(torch.mul(2, tr1.test_semantics), 1)) if operator == 'sum' else \
                     torch.add(1, torch.mul(ms, torch.sub(torch.mul(2, tr1.test_semantics), 1)))
@@ -52,8 +52,8 @@ def one_tree_delta(operator='sum', new=False):
 
 
 def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='sum', single_tree_sigmoid=False,
-                     new=False):
-    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, p_terminal=0.5, grow_probability=1, single_tree_sigmoid=False):
+                     sig=False):
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, p_terminal=0.5, grow_probability=1):
 
         # getting a random tree
 
@@ -78,21 +78,18 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
 
             # checking if we choose to apply sigmoid to a single tree:
 
-            if new:  # TODO: add warning or error
-                single_tree_sigmoid = True
-
             random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
                                            p_terminal=p_terminal, grow_probability=grow_probability,
-                                           logistic=single_tree_sigmoid)
+                                           logistic=single_tree_sigmoid or sig)
 
             random_trees = [random_tree1]
 
             if X_test is not None:
-                [rt.calculate_semantics(X_test, testing=True, logistic=single_tree_sigmoid) for rt in random_trees]
+                [rt.calculate_semantics(X_test, testing=True, logistic=single_tree_sigmoid or sig) for rt in random_trees]
 
         # creating the mutation resulting block to be added to the individual
         new_block = Tree(
-            [(two_trees_delta(operator=operator) if two_trees else one_tree_delta(operator=operator, new=new)),
+            [(two_trees_delta(operator=operator) if two_trees else one_tree_delta(operator=operator, sig=sig)),
              *random_trees, ms])
 
         # getting the semantics for this new block

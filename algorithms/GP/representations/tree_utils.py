@@ -47,7 +47,7 @@ def flatten(data):
 
 
 # Function to create a random grow tree.
-def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True, p_terminal = 0.5):
+def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True):
     """
         Generates a random tree using the Grow method with a specified depth.
 
@@ -71,9 +71,6 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
         first_call: boolean, optional
             variable that controls whether or not the function is being called for the first time. Used to assure
             that the yielded tree isnt a terminal node
-
-        p_terminal: float, optional
-            probability of choosing a terminal node (rather than a function node)
 
         Returns
         -------
@@ -101,16 +98,16 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
         if FUNCTIONS[node]['arity'] == 2:
             # Recursively create left and right subtrees
             left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS, p_c = p_c,
-                                                   first_call=False, p_terminal=p_terminal)
+                                                   first_call=False)
 
             right_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS,p_c = p_c,
-                                                    first_call=False, p_terminal=p_terminal)
+                                                    first_call=False)
 
             node = (node, left_subtree, right_subtree)
         else:
             # Recursively create left and right subtrees
             left_subtree = create_grow_random_tree(depth - 1,  FUNCTIONS, TERMINALS, CONSTANTS,p_c = p_c,
-                                                   first_call=False, p_terminal=p_terminal)
+                                                   first_call=False)
             node = (node, left_subtree)
 
     return node

@@ -42,7 +42,7 @@ for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo_name in algos:
 
-        for new_ in [True, False]:
+        for sig in [True, False]:
 
             for ttress in [False, True]:
 
@@ -52,7 +52,7 @@ for loader in data_loaders:
 
                     slim_GSGP_parameters["operator"] = op
 
-                    if ttress and new_:
+                    if ttress and sig:
 
                         pass
 
@@ -60,8 +60,8 @@ for loader in data_loaders:
 
                         # getting the log file name according to the used parameters:
                         algo = f'{algo_name}_{1 + slim_GSGP_parameters["two_trees"] * 1}_{slim_GSGP_parameters["operator"]}' \
-                               f'_{new_}'
-                        print(new_)
+                               f'_{sig}'
+                        print(sig)
                         print(ttress)
                         print(op)
                         # running each dataset + algo configuration n_runs times
@@ -93,7 +93,6 @@ for loader in data_loaders:
 
                                 # getting the terminals and defining the terminal-dependant parameters
                                 TERMINALS = get_terminals(loader)
-
                                 # Performs train/test split
                                 X_train, X_test, y_train, y_test = train_test_split(X=X, y=y,
                                                                                     p_test=settings_dict['p_test'],
@@ -120,7 +119,7 @@ for loader in data_loaders:
                                                                                           'two_trees'],
                                                                                       operator=slim_GSGP_parameters[
                                                                                           'operator'],
-                                                                                      new=new_)
+                                                                                      sig=sig)
 
                             # adding the dataset name and algorithm name to the run info for the logger
                             slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]

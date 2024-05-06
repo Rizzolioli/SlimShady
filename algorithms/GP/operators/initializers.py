@@ -38,7 +38,7 @@ def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, p_terminal = 0.5
            A list of Individual objects containing random trees and input sets based on the parameters provided.
        """
 
-    return [create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminal)
+    return [create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
               for _ in range(size)]
 
 
@@ -125,10 +125,10 @@ def rhh(init_pop_size, init_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, p
         population.extend([create_full_random_tree(curr_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
              for _ in range(int(inds_per_bin//2))])
 
-        population.extend([create_grow_random_tree(curr_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminals)
+        population.extend([create_grow_random_tree(curr_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
               for _ in range(int(inds_per_bin//2))])
 
     while len(population) < init_pop_size:
-        population.append(create_grow_random_tree(init_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, p_terminal=p_terminals))
+        population.append(create_grow_random_tree(init_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c))
 
     return population
