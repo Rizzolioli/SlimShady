@@ -86,8 +86,7 @@ gp_pi_init = {'init_pop_size': GP_parameters["pop_size"],
               'init_depth': 6,
               'FUNCTIONS': FUNCTIONS,
               'CONSTANTS': CONSTANTS,
-              "p_c": 0,
-              "p_terminals": 0.5}
+              "p_c": 0}
 
 ########################################################################################################################
 

@@ -81,7 +81,7 @@ def full(size, depth, FUNCTIONS, TERMINALS, CONSTANTS,  p_c=0.3):
     return [create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
               for _ in range(2, size+1)]
 
-def rhh(init_pop_size, init_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, p_terminals = 0.5):
+def rhh(init_pop_size, init_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
     """
            Generates a list of individuals with random trees for a GM4OS population using the ramped-half-half method.
 

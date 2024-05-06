@@ -234,7 +234,7 @@ def get_best_max(population, n_elites):
         return [elite], elite
 
 
-def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3, p_terminal=0.5, grow_probability=1,
+def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3, grow_probability=1,
                     logistic=True):
     # choose between grow and full
     if random.random() < grow_probability:
