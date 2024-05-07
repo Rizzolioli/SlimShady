@@ -53,7 +53,7 @@ def one_tree_delta(operator='sum', sig=False):
 
 def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='sum', single_tree_sigmoid=False,
                      sig=False):
-    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, p_terminal=0.5, grow_probability=1):
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1):
 
         # getting a random tree
 
@@ -61,10 +61,9 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
         if two_trees:
             # getting two random trees
             random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
-                                           p_terminal=p_terminal, grow_probability=grow_probability, logistic=True)
+                                            grow_probability=grow_probability, logistic=True)
 
             random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
-                                           p_terminal=p_terminal,
                                            grow_probability=grow_probability, logistic=True)
 
             random_trees = [random_tree1, random_tree2]
@@ -79,7 +78,7 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
             # checking if we choose to apply sigmoid to a single tree:
 
             random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
-                                           p_terminal=p_terminal, grow_probability=grow_probability,
+                                           grow_probability=grow_probability,
                                            logistic=single_tree_sigmoid or sig)
 
             random_trees = [random_tree1]
