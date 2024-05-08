@@ -166,7 +166,7 @@ class GSGP:
                         r_tree.calculate_semantics(X_test, testing=True, logistic=True)
 
                     # the two parents generate one offspring
-                    offs1 = Tree(structure = [self.crossover, p1, p2, r_tree],
+                    offs1 = Tree(structure = [self.crossover, p1, p2, r_tree] if reconstruct else None,
                                  train_semantics=self.crossover(p1, p2, r_tree, testing = False),
                                  test_semantics=self.crossover(p1, p2, r_tree, testing=True) if test_elite else None,
                                  reconstruct=reconstruct)
@@ -229,7 +229,7 @@ class GSGP:
                             r_tree1.calculate_semantics(X_test, testing=True, logistic=False)
 
                     # mutating the individual
-                    offs1 = Tree(structure = [self.mutator, p1, *mutation_trees, ms_],
+                    offs1 = Tree(structure = [self.mutator, p1, *mutation_trees, ms_] if reconstruct else None,
                                  train_semantics=self.mutator(p1, *mutation_trees, ms_, testing = False),
                                  test_semantics=self.mutator(p1, *mutation_trees, ms_, testing = True) if test_elite else None,
                                  reconstruct=reconstruct)
