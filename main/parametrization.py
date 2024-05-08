@@ -96,16 +96,16 @@ gp_pi_init = {'init_pop_size': GP_parameters["pop_size"],
 
 
 gsgp_solve_parameters = {"elitism": True,
-                         "log": 1,
+                         "log": 0,
                          "verbose": 1,
                          "test_elite": True,
                          "log_path": os.path.join(os.getcwd(), "log", "davide_gsgp_istanbul.csv"),
                          "run_info": None,
-                         "max_": False,
+                         # "max_": False,
                          "ffunction": rmse,
                          "n_iter": 2000,
                          "reconstruct": False,
-                         "n_elites": 1
+                         "n_elites": 1,
                          }
 
 GSGP_parameters = {"initializer": rhh,
@@ -113,10 +113,10 @@ GSGP_parameters = {"initializer": rhh,
                    "crossover": geometric_crossover,
                    "ms": generate_random_uniform(0, 1),
                    "mutator": standard_geometric_mutation,
-                   "p_xo": 0,
+                   "p_xo": 0.2,
                    "pop_size": 100,
                    "settings_dict": settings_dict,
-                   "find_elit_func": get_best_max if gsgp_solve_parameters["max_"] else get_best_min
+                   "find_elit_func": get_best_min
                    }
 GSGP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 

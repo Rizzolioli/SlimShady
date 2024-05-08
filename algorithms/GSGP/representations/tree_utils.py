@@ -48,3 +48,18 @@ def apply_tree(tree, inputs):
             output = tree.CONSTANTS[tree.structure](1)
 
             return output
+        
+def nested_depth_calculator(operator, depths):
+    return max(depths) + (4 if operator.__name__ == 'ot_delta_sum' else (
+                          5 if operator.__name__ == 'ot_delta_mul' else (
+                          2 if operator.__name__ == 'tt_delta_sum' else (
+                          3 if operator.__name__ == 'tt_delta_mul' else (2)
+                          ))))
+
+def nested_nodes_calculator(operator, nodes):
+    return sum([*nodes, *([5, nodes[-1]] if operator.__name__ == 'geometric_crossover'
+           else (
+             [9] if operator.__name__ == 'ot_delta_mul' else  # todo: revise
+             ([6] if operator.__name__ == 'tt_delta_mul' else
+             ([9] if operator.__name__ == 'ot_delta_sum' else [4])))
+           )])
