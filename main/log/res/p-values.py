@@ -29,7 +29,7 @@ def get_last_generation_data(data, algo_name):
     return last_gen_unique_runs
 
 
-def compute_pval(name_ds, argument):
+def compute_pval(alg1, alg2, name_ds, argument):
     print(name_ds)
     # Set paths and caption based on the argument
     if argument == 'elite_size':
@@ -76,19 +76,21 @@ def compute_pval(name_ds, argument):
                            }},
                  inplace=True)
 
-    slim_algo = ['SLIM-NORM*1', 'SLIM-SIG*1', 'SLIM-NORM+1', 'SLIM-SIG+1', 'SLIM*2', 'SLIM+2']
-    for alg in slim_algo:
-        result = get_last_generation_data(data, alg)
-        result_slim = list(result[argument])
+    if alg1 == "gp":
+        result_1 = gp_last_generation
+    if alg1 == "gsgp":
+        result_1 = gsgp_last_generation
 
-        # print(alg)
-        # print("slim " + str(np.mean(result_slim)))
-        # print("gp " + str(np.mean(gp_last_generation)))
+    result_slim = get_last_generation_data(data, alg2)
+    result_2 = list(result_slim[argument])
 
-        stat, p = wilcoxon(x=result_slim, y=gsgp_last_generation)
+    stat, p = wilcoxon(x=result_1, y=result_2)
 
-        print("%-15s %-10s" % (alg, p))
+    print("%-15s %-15s %-10s" % (alg1, alg2, p))
 
 
+slim_algs = ['SLIM-NORM*1', 'SLIM-SIG*1', 'SLIM-NORM+1', 'SLIM-SIG+1', 'SLIM*2', 'SLIM+2']
 for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
-    compute_pval(name_ds, "test_fitness")
+    alg1 = "gp"
+    alg2 = "SLIM-NORM*1"
+    compute_pval(alg1, alg2, name_ds, "test_fitness")
