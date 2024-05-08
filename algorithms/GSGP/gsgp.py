@@ -122,7 +122,7 @@ class GSGP:
         # displaying the results for the population initialization on console
         if verbose != 0:
             verbose_reporter(curr_dataset.split("load_")[-1], 0, self.elite.fitness, self.elite.test_fitness,
-                             end - start, self.elite.node_count)
+                             end - start, self.elite.nodes)
 
         ################################################################################################################
 
@@ -287,4 +287,4 @@ class GSGP:
             # displaying the results for the current generation on console
             if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,
-                                 self.elite.node_count)
+                                 self.elite.nodes)
