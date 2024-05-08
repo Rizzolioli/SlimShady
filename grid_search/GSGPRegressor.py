@@ -4,11 +4,11 @@ from sklearn.utils.estimator_checks import check_estimator
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import root_mean_squared_error
-from parametrization import *
+from main.parametrization import *
 from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
 import datasets.data_loader as ds
 from algorithms.SLIM_GSGP.operators.mutators import *
-from sklearn.model_selection import train_test_split, cross_validate, GridSearchCV
+from sklearn.model_selection import train_test_split, cross_validate
 from utils.logger import log_settings
 from sklearn.metrics import make_scorer
 
@@ -27,7 +27,8 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
                 slim_GSGP_parameters[key] = value
             elif key in slim_gsgp_solve_parameters.keys():
                 slim_gsgp_solve_parameters[key] = value
-
+            elif parameter in mutation_parameters.keys():
+                mutation_parameters[parameter] = value
             setattr(self, key, value)
 
 
@@ -41,7 +42,8 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
                 slim_GSGP_parameters[parameter] = value
             elif parameter in slim_gsgp_solve_parameters.keys():
                 slim_gsgp_solve_parameters[parameter] = value
-
+            elif parameter in mutation_parameters.keys():
+                mutation_parameters[parameter] = value
             setattr(self, parameter, value)
 
         # setting up probability of deflate in accordance to probability of inflating
@@ -69,12 +71,15 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
 
         slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
                                                                   TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
-                                                                  two_trees=slim_GSGP_parameters['two_trees'],
+                                                                  two_trees=mutation_parameters['two_trees'],
                                                                   operator=slim_GSGP_parameters['operator'],
-                                                                  single_tree_sigmoid=self.single_tree_sigmoid)
+                                                                  sig = mutation_parameters['sig'])
 
         # getting the log file name according to the used parameters:
-        algo_name = f'{self.algo}_{1 + slim_GSGP_parameters["inflate_mutator"].__closure__[4].cell_contents * 1}_{slim_GSGP_parameters["operator"]}.csv'
+        #algo_name = f'{self.algo}_{1 + slim_GSGP_parameters["inflate_mutator"].__closure__[4].cell_contents * 1}_{slim_GSGP_parameters["operator"]}.csv'
+
+        algo_name = f'{self.algo}_{1 + mutation_parameters["two_trees"] * 1}_{slim_GSGP_parameters["operator"]}' \
+               f'_{mutation_parameters["sig"]}'
 
         slim_gsgp_solve_parameters['run_info'] = [algo_name, 1, "test"]
 
@@ -105,42 +110,3 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
         result = apply_individual_fixed(self.optimizer.elite, data=torch.from_numpy(X), operator=slim_GSGP_parameters['operator'])
 
         return result , self.optimizer.elite.nodes_count
-
-if __name__ == '__main__':
-    path = os.path.join(os.getcwd(), "..", "datasets/pre_loaded_data/TRAINING_1_TOXICITY.txt")
-    df = pd.read_csv(path, sep=" ", header=None).iloc[:, :-1]
-    # gsgp_reg = GSGPRegressor(random_state=0, test_elite = False, n_iter = 50)
-    X, y = df.values[:, :-1], df.values[:, -1]
-
-    params = {
-        'ms': [generate_random_uniform(0, 0.01), generate_random_uniform(0, 0.1), generate_random_uniform(0, 1)
-            , generate_random_uniform(0, 3), generate_random_uniform(0, 10)],
-        'p_inflate': [0.1, 0.3, 0.5, 0.7, 0.9],
-        'max_depth': [None, 17, 50, 100],
-        'copy_parent': [True, False],
-        'single_tree_sigmoid': [True, False]
-
-    }
-
-
-    def rmse(y_true, y_pred):
-        return root_mean_squared_error(torch.from_numpy(y_true), y_pred[0])
-
-    def size (y_true, y_pred):
-        return y_pred[1]
-
-    scorers = {"rmse": make_scorer(rmse, greater_is_better=False),
-            "size": make_scorer(size, greater_is_better=False)}
-
-    model = GSGPRegressor(random_state=0, test_elite=False, n_iter=100, verbose=0, pop_size = 200)
-
-    search = GridSearchCV(model, params, verbose=3, scoring=scorers, refit=False) 
-    search.fit(X, y)
-
-    print(f"Best mean score found was {search.best_score_}")
-    print(search.best_params_)
-    # print([sc.cell_contents for sc in search.best_params_['ms'].__closure__]) # to find out what random mutation step params where best
-
-
-    # printed 2204.756630546981
-# during evolution 2105.099418297513

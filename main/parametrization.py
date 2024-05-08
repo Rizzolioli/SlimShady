@@ -137,7 +137,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", "slim.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", "why.csv"),
                               "run_info": None,
                               "max_": False,
                               "ffunction": rmse,
@@ -157,8 +157,14 @@ slim_GSGP_parameters = {"initializer": rhh,
                         "settings_dict": settings_dict,
                         "find_elit_func": get_best_max if slim_gsgp_solve_parameters["max_"] else get_best_min,
                         "p_inflate": None,
-                        "copy_parent": True
+                        "copy_parent": None,
+                        "operator": None
                         }
+
+mutation_parameters ={
+"sig": None,
+"two_trees": None
+}
 
 inflate_mutator = inflate_mutation
 

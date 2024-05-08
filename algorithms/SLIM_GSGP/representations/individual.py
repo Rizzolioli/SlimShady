@@ -103,11 +103,12 @@ def apply_individual_fixed(tree, data, operator = "sum"):
             semantics.append(apply_tree(t, data))
         # if the tree structure is a list, checking if we are using one or two trees with our operator
         else:
+
             if len(t.structure) == 3 : # one tree
                 t.structure[1].previous_training = t.train_semantics # saving the old training semantics in case its needed
                 t.structure[1].train_semantics = apply_tree(t.structure[1], data) # obtaining the new train_semantics for the new unseen data
 
-            elif len(t.structure == 4): # two tree
+            elif len(t.structure) == 4: # two tree
                 t.structure[1].previous_training = t.train_semantics
                 t.structure[1].train_semantics = apply_tree(t.structure[1], data)
 
