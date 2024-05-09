@@ -96,7 +96,7 @@ def slim_alpha_geometric_crossover(operator):
 
 
 
-def slim_swap_geometric_crossover(p1, p2):
+def slim_swap_geometric_crossover(p1, p2, X = None, X_test = None):
 
     mask = [random.randint(0,1) for _ in range(max(p1.size, p2.size))]
     inv_mask = [abs(v-1) for v in mask]
@@ -187,7 +187,7 @@ def slim_alpha_deflate_geometric_crossover(operator, perc_off_blocks):
 
 def slim_swap_deflate_geometric_crossover(perc_off_blocks):
     
-    def inner_ssd_gxo(p1, p2):
+    def inner_ssd_gxo(p1, p2, X = None, X_test = None):
 
         mask_selection = generate_mask(max(p1.size, p2.size), int(perc_off_blocks * max(p1.size, p2.size)))
         

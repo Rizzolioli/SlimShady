@@ -165,7 +165,13 @@ class SLIM_GSGP:
                     while p1 == p2:
                         p1, p2 = self.selector(population), self.selector(population)
 
-                    pass # implement crossover
+                    offs = self.crossover(p1, p2, X_train, X_test) # implement crossover
+                    # understand if xo return 1 or 2 offsprings
+                    if isinstance(offs, tuple):
+                        offs_pop.extend([offs[0], offs[1]])
+                    else:
+                        offs_pop.append(offs)
+
 
                 else:
 
