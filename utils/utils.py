@@ -243,7 +243,11 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3,
         # creating a tree using grow
         tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
-        tree = Tree(tree)
+        #reconstruct set to true to calculate the s
+        tree = Tree(structure=tree,
+                    train_semantics=None,
+                    test_semantics=None,
+                    reconstruct=True)
 
         # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
@@ -252,7 +256,10 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3,
         # creating a full tree
         tree = create_full_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
-        tree = Tree(tree)
+        tree = Tree(structure=tree,
+                    train_semantics=None,
+                    test_semantics=None,
+                    reconstruct=True)
 
         # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
