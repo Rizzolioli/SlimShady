@@ -86,7 +86,12 @@ def compute_pval(alg1, alg2, name_ds, argument):
 
     stat, p = wilcoxon(x=result_1, y=result_2)
 
-    print("%-15s %-15s %-10s" % (alg1, alg2, p))
+    if np.median(result_1) > np.median(result_2):
+        better = '*'
+    else:
+        better = ''
+
+    print("%-15s %-15s %-10s %-10s" % (alg1, alg2, p, better))
 
 
 slim_algs = ['SLIM-NORM*1', 'SLIM-SIG*1', 'SLIM-NORM+1', 'SLIM-SIG+1', 'SLIM*2', 'SLIM+2']
