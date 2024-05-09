@@ -6,7 +6,7 @@ import numpy as np
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.stats import wilcoxon
+from scipy.stats import wilcoxon, rankdata
 
 
 def parse_float(value):
@@ -94,8 +94,82 @@ def compute_pval(alg1, alg2, name_ds, argument):
     print("%-15s %-15s %-10s %-10s" % (alg1, alg2, p, better))
 
 
-slim_algs = ['SLIM-NORM*1', 'SLIM-SIG*1', 'SLIM-NORM+1', 'SLIM-SIG+1', 'SLIM*2', 'SLIM+2']
-for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
-    alg1 = "gp"
-    alg2 = "SLIM-NORM*1"
-    compute_pval(alg1, alg2, name_ds, "test_fitness")
+# slim_algs = ['SLIM-NORM*1', 'SLIM-SIG*1', 'SLIM-NORM+1', 'SLIM-SIG+1', 'SLIM*2', 'SLIM+2']
+# for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
+#     alg1 = "gp"
+#     alg2 = "SLIM-NORM*1"
+#     compute_pval(alg1, alg2, name_ds, "test_fitness")
+
+
+
+def compute_median_ranking(name_ds, argument):
+    print(name_ds)
+    # Set paths and caption based on the argument
+    if argument == 'elite_size':
+        gsgp_path = os.getcwd() + f'/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_GSGP_random_MS_04_09_2023_{name_ds.upper()}.txt'
+        gp_path = os.getcwd() + f'/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_STDGP_04_09_2023_{name_ds.upper()}.txt'
+    elif argument == 'test_fitness':
+        gsgp_path = os.getcwd() + f'/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_GSGP_random_MS_04_09_2023_{name_ds.upper()}.txt'
+        gp_path = os.getcwd() + f'/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_STDGP_04_09_2023_{name_ds.upper()}.txt'
+
+    # Read the file
+    with open(gp_path, "r") as file:
+        reader = csv.reader(file, delimiter=',')
+        data_gp = [[parse_float(num) for num in row if num] for row in reader]
+        # Filter out rows with None values or empty rows
+        data_gp = [row for row in data_gp if all(num is not None for num in row) and row]
+
+    # Now `data` is a 2D list (list of lists) containing the numbers
+    gp_last_generation = [row[-1] for row in data_gp if row]
+    # print(gp_last_generation)
+
+    # Read the file
+    with open(gsgp_path, "r") as file:
+        reader = csv.reader(file, delimiter=',')
+        data_gsgp = [[parse_float(num) for num in row if num] for row in reader]
+        # Filter out rows with None values or empty rows
+        data_gsgp = [row for row in data_gsgp if all(num is not None for num in row) and row]
+
+    # Now `data` is a 2D list (list of lists) containing the numbers
+    gsgp_last_generation = [row[-1] for row in data_gsgp if row]
+    # print(gsgp_last_generation)
+
+    csv_path = os.getcwd() + f'/../res/slim_{name_ds}.csv'
+    # Load data from the CSV file
+    data = pd.read_csv(csv_path, names=["algo", "experiment_id", "dataset", "seed", "generation", "training_fitness",
+                                        "timing", "pop_node_count", "test_fitness", "elite_size", "log_level"])
+
+    # Example replacements
+    data.replace({'algo': {'SlimGSGP_1_mul_False': 'SLIM-NORM*1',
+                           'SlimGSGP_1_mul_True': 'SLIM-SIG*1',
+                           'SlimGSGP_1_sum_False': 'SLIM-NORM+1',
+                           'SlimGSGP_1_sum_True': 'SLIM-SIG+1',
+                           'SlimGSGP_2_mul_False': 'SLIM*2',
+                           'SlimGSGP_2_sum_False': 'SLIM+2'
+                           }},
+                 inplace=True)
+
+    algos = [
+          'SLIM*2',
+          'SLIM+2',
+            'SLIM-NORM*1',
+            'SLIM-NORM+1',
+            'SLIM-SIG*1',
+            'SLIM-SIG+1',
+                ]
+
+    result_1 = gp_last_generation
+    gsgp_last_generation
+
+    all_results = [ *[list(get_last_generation_data(data, algo)[argument]) for algo in algos], gp_last_generation, gsgp_last_generation]
+
+    medians = [np.median(res) for res in all_results]
+
+    rankdata(medians, method='min')
+
+
+for metric in ["test_fitness", "elite_size"]:
+    print(metric)
+    for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
+       print(name_ds)
+       compute_median_ranking(name_ds, metric)
