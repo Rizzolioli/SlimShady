@@ -11,9 +11,8 @@ from GSGPRegressor import GSGPRegressor
 datas = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
 
 # obtaining the data looading functions from the dataset names
-data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
+#data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
 
-print(data_loaders) # TODO: FIX SO ALL DATA HAS A DATA LOADER
 
 # creating a list of parameter dictionaries where sigmoid is not used when ttres is true.
 params = [{
@@ -52,10 +51,10 @@ scorers = {"rmse": make_scorer(gs_rmse, greater_is_better=False),
                "size": make_scorer(gs_size, greater_is_better=False)}
 
 # running the grid search for all the intended datasets
-for i, loader in enumerate(data_loaders):
+for dataset in datas:
 
     # obtaining the data from the loader
-    X, y = loader(X_y=True)
+    X, y = ds.load_merged_data(dataset, X_y=True)
 
     # creating the gsgp regressor model
     model = GSGPRegressor(random_state=74, test_elite=False, n_iter=20, verbose=0, pop_size=50)
@@ -66,19 +65,15 @@ for i, loader in enumerate(data_loaders):
     # fitting the data
     search.fit(X, y)
 
+    # print(f"Best mean score found was {search.best_score_}")
+    # print(search.best_params_)
+
     # saving the cross validation results
     results =  pd.DataFrame(search.cv_results_)
-
-
 
     # saving the lower and upper bounds of the mutation step function
     results["param_ms"] = results["param_ms"].map(lambda x: (x.lower, x.upper))
 
-    # print(f"Best mean score found was {search.best_score_}")
-    #print(search.best_params_)
-    print(search.get_params())
     # logging the cross validation results
-    results.to_csv(f"log/{datas[i]}_grid_search.csv")
-
-    print(results["param_ms"])
+    results.to_csv(f"log/{dataset}_grid_search.csv")
 
