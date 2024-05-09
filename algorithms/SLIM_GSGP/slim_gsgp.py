@@ -83,7 +83,7 @@ class SLIM_GSGP:
 
         # testing the elite on validation/testing, if applicable
         if test_elite:
-            self.elite.calculate_semantics(X_test, testing=True)
+            population.calculate_semantics(X_test, testing=True)
             self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
 
         # logging the population initialization
@@ -216,8 +216,8 @@ class SLIM_GSGP:
                                 # obtaining the random mutation step
                                 ms_ = self.ms()
 
-                                off1 = self.inflate_mutator(p1, ms_, X_train, max_depth=self.pi_init["init_depth"]
-                                                            , p_c=self.pi_init["p_c"], X_test=X_test)
+                                off1 = self.inflate_mutator(p1, ms_, X_train, max_depth=self.pi_init["init_depth"],
+                                                            p_c=self.pi_init["p_c"], X_test=X_test)
 
                         else:
                             off1 = self.deflate_mutator(p1)
