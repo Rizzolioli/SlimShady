@@ -281,7 +281,8 @@ class SLIM_GSGP:
             self.elites, self.elite = self.find_elit_func(population, n_elites)
 
             if test_elite:
-                self.elite.calculate_semantics(X_test, testing=True)
+                self.population.calculate_semantics(X_test, testing=True)
+                # self.elite.calculate_semantics(X_test, testing=True)
                 self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
 
             # logging the population initialization
