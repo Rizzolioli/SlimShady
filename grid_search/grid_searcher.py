@@ -57,7 +57,8 @@ for dataset in datas:
     X, y = ds.load_merged_data(dataset, X_y=True)
 
     # creating the gsgp regressor model
-    model = GSGPRegressor(random_state=74, test_elite=False, n_iter=20, verbose=0, pop_size=50)
+    model = GSGPRegressor(random_state=74, test_elite=False, n_iter=20, verbose=0, pop_size=50, reconstruct=True) # reconstruct must be true
+                                                                                            # in order to evaluate the individual on new data
 
     # setting up the grid search
     search = GridSearchCV(model, params, verbose=3, scoring=scorers, refit=False, cv=5)
