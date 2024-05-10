@@ -134,10 +134,10 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 0,
+                              "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", "why.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", "concrete_toxicity_sig.csv"),
                               "run_info": None,
                               "ffunction": rmse,
                               "n_iter": 2000,  # 2000

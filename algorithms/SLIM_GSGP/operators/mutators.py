@@ -46,7 +46,7 @@ def one_tree_delta(operator='sum', sig=False):
                     torch.add(1,
                               torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.train_semantics))))))
 
-    ot_delta.__name__ += ('_' + operator + '_' + sig)
+    ot_delta.__name__ += ('_' + operator + '_' + str(sig))
 
     return ot_delta
 
