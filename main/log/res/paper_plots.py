@@ -7,6 +7,15 @@ import matplotlib.pyplot as plt
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
+base_palette = sns.color_palette("deep", 5)  # 'deep' is often used for its vibrant colors
+# Create a figure for the legend
+# Determine the number of columns for two rows, depending on the number of labels
+num_labels = 6
+columns = num_labels // 2 if num_labels % 2 == 0 else num_labels // 2 + 1
+
+# Create a figure for the legend that's wider to accommodate more entries per line
+fig_legend = plt.figure(figsize=(12, 3))  # Adjust figsize as needed to prevent clipping
+ax_legend = fig_legend.add_subplot(111)
 
 def plot_all_median_node_counts(name_ds, argument):
     csv_path = os.getcwd() + f'/../res/slim_{name_ds}.csv'
@@ -63,36 +72,84 @@ def plot_all_median_node_counts(name_ds, argument):
     sns.set_theme(style="white", palette="colorblind")
     palette = sns.color_palette("tab10", n_colors=len(median_node_count['algo'].unique()))
 
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(8, 8))
+
+    # Set line colors and styles
+    # Define specific colors for each algorithm, using shades of base colors for similar algorithms
+    color_map = {
+        'GSGP': base_palette[0],
+        'GP': base_palette[1],
+        'SLIM-SIG*1': sns.light_palette(base_palette[2], n_colors=3)[1],  # Slightly lighter
+        'SLIM-NORM*1': sns.dark_palette(base_palette[2], n_colors=3)[1],  # Slightly darker
+        'SLIM*2': base_palette[2],  # Base color for multiplicative versions
+        'SLIM-SIG+1': sns.light_palette(base_palette[3], n_colors=3)[1],  # Slightly lighter
+        'SLIM-NORM+1': sns.dark_palette(base_palette[3], n_colors=3)[1],  # Slightly darker
+        'SLIM+2': base_palette[3]  # Base color for additive versions
+    }
+    style_map = {'GSGP': "solid", 'GP': "solid",
+                 'SLIM-SIG*1': "dashed", 'SLIM-NORM*1': (0, (1, 1)), 'SLIM*2': (0, (3, 1, 1, 1)),
+                 'SLIM-SIG+1': "dashed", 'SLIM-NORM+1': (0, (1, 1)), 'SLIM+2': (0, (3, 1, 1, 1))}
+    # style_map = {
+    #              'SLIM-SIG*1': "solid", 'SLIM-NORM*1': "solid", 'SLIM*2': "solid",
+    # R             'SLIM-SIG+1': "solid", 'SLIM-NORM+1': "solid", 'SLIM+2': "solid"}
 
     # Adjust font sizes
-    plt.rc('axes', titlesize=20)  # Title size
-    plt.rc('axes', labelsize=18)  # Label size
-    plt.rc('xtick', labelsize=20)  # X-tick size
-    plt.rc('ytick', labelsize=20)  # Y-tick size
-    plt.rc('legend', fontsize=12)  # Legend size
+    plt.rc('axes', titlesize=40)  # Title size
+    plt.rc('axes', labelsize=40)  # Label size
+    plt.rc('xtick', labelsize=40)  # X-tick size
+    plt.rc('ytick', labelsize=40)  # Y-tick size
+    plt.rc('legend', fontsize=20)  # Legend size
 
     # Plot data from the CSV file
-    for i, algo in enumerate(median_node_count['algo'].unique()):
+    # Plot data for each algorithm
+    for algo in median_node_count['algo'].unique():
         subset = median_node_count[median_node_count['algo'] == algo]
-        plt.plot(subset['generation'], subset[argument], label=algo, color=palette[i], linewidth=2)
+        plt.plot(subset['generation'], subset[argument], label=algo, color=color_map[algo], linestyle=style_map[algo],
+                 linewidth=5)
 
-    # Plot GSGP data
-    plt.plot(gsgp_data['generation'], gsgp_data[argument], label='GSGP', color='blue', linewidth=2)
+    # Special handling for GSGP and GP data
+    plt.plot(range(len(gsgp_values)), gsgp_values, label='GSGP', color=base_palette[0], linestyle='-', linewidth=4)
+    plt.plot(range(len(gp_values)), gp_values, label='STDGP', color=base_palette[4], linestyle='-', linewidth=4)
 
-    # Plot GP data
-    plt.plot(gp_data['generation'], gp_data[argument], label='GP', color='green', linewidth=2)
 
     plt.xlabel('Generation')
     plt.ylabel(caption)
     if argument == 'elite_size':
         plt.ylim(0, 2500)
 
-    plt.title(name_ds.upper())
-    plt.legend(title='Algorithm', loc='upper left')
+    #if argument == "test_fitness":
+    #    plt.title(name_ds.upper())
+    # plt.legend(title='Algorithm', loc='upper left')
     plt.tight_layout()
-    plt.savefig(os.getcwd() + f"/../plots/{argument}_{name_ds}_png")
-    plt.close()
+    plt.savefig(os.getcwd() + f"/../plots/{argument}_{name_ds}_png", dpi=300)
+    # plt.close()
+
+    # After your plotting code, assume you have retrieved handles and labels
+    handles, labels = plt.gca().get_legend_handles_labels()
+
+    # Define your custom order as a list of labels in the order you want them to appear
+    custom_order = ['STDGP', 'GSGP', 'SLIM-NORM*1', 'SLIM-NORM+1', 'SLIM-SIG*1', 'SLIM-SIG+1',  'SLIM*2', 'SLIM+2']
+
+    # Create new lists for handles and labels based on the custom order
+    ordered_handles = []
+    ordered_labels = []
+
+    for label in custom_order:
+        if label in labels:
+            index = labels.index(label)
+            ordered_handles.append(handles[index])
+            ordered_labels.append(label)
+
+    # Now save the legend separately
+    handles, labels = plt.gca().get_legend_handles_labels()
+    fig_legend = plt.figure(figsize=(10, 2))
+    ax_legend = fig_legend.add_subplot(111)
+    ax_legend.legend(ordered_handles, ordered_labels, loc='center', ncol=4, frameon=False)
+    ax_legend.axis('off')
+    fig_legend.tight_layout()
+
+    fig_legend.savefig(os.getcwd() + "/../legend.png", dpi=300)
+    plt.close(fig_legend)  # Close the figure to free resources
 
 
 # Example usage

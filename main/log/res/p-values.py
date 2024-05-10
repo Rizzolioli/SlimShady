@@ -165,11 +165,16 @@ def compute_median_ranking(name_ds, argument):
 
     medians = [np.median(res) for res in all_results]
 
-    rankdata(medians, method='min')
+    return rankdata(medians, method='min')
 
 
 for metric in ["test_fitness", "elite_size"]:
     print(metric)
+    rank_list = []
     for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
-       print(name_ds)
-       compute_median_ranking(name_ds, metric)
+       rank = compute_median_ranking(name_ds, metric)
+       rank_list.append(rank)
+       print(rank)
+    rank_list = np.array(rank_list)
+    median = np.median(rank_list, axis=0)
+    print(f"median {median}")
