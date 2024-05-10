@@ -77,18 +77,16 @@ def plot_all_median_node_counts(name_ds, argument):
     # Set line colors and styles
     # Define specific colors for each algorithm, using shades of base colors for similar algorithms
     color_map = {
-        'GSGP': base_palette[0],
-        'GP': base_palette[1],
-        'SLIM-SIG*1': sns.light_palette(base_palette[2], n_colors=3)[1],  # Slightly lighter
-        'SLIM-NORM*1': sns.dark_palette(base_palette[2], n_colors=3)[1],  # Slightly darker
-        'SLIM*2': base_palette[2],  # Base color for multiplicative versions
-        'SLIM-SIG+1': sns.light_palette(base_palette[3], n_colors=3)[1],  # Slightly lighter
-        'SLIM-NORM+1': sns.dark_palette(base_palette[3], n_colors=3)[1],  # Slightly darker
-        'SLIM+2': base_palette[3]  # Base color for additive versions
+        'SLIM-SIG*1': "red",  # Slightly lighter
+        'SLIM-NORM*1': "green",  # Slightly darker
+        'SLIM*2': "blue",  # Base color for multiplicative versions
+        'SLIM-SIG+1': "red",  # Slightly lighter
+        'SLIM-NORM+1': "green",  # Slightly darker
+        'SLIM+2': "blue"  # Base color for additive versions
     }
     style_map = {'GSGP': "solid", 'GP': "solid",
-                 'SLIM-SIG*1': "dashed", 'SLIM-NORM*1': (0, (1, 1)), 'SLIM*2': (0, (3, 1, 1, 1)),
-                 'SLIM-SIG+1': "dashed", 'SLIM-NORM+1': (0, (1, 1)), 'SLIM+2': (0, (3, 1, 1, 1))}
+                 'SLIM-SIG*1': "dashed", 'SLIM-NORM*1': "dashed", 'SLIM*2': "dashed",
+                 'SLIM-SIG+1': "solid", 'SLIM-NORM+1': "solid", 'SLIM+2': "solid"}
     # style_map = {
     #              'SLIM-SIG*1': "solid", 'SLIM-NORM*1': "solid", 'SLIM*2': "solid",
     # R             'SLIM-SIG+1': "solid", 'SLIM-NORM+1': "solid", 'SLIM+2': "solid"}
@@ -105,11 +103,11 @@ def plot_all_median_node_counts(name_ds, argument):
     for algo in median_node_count['algo'].unique():
         subset = median_node_count[median_node_count['algo'] == algo]
         plt.plot(subset['generation'], subset[argument], label=algo, color=color_map[algo], linestyle=style_map[algo],
-                 linewidth=5)
+                 linewidth=6)
 
     # Special handling for GSGP and GP data
-    plt.plot(range(len(gsgp_values)), gsgp_values, label='GSGP', color=base_palette[0], linestyle='-', linewidth=4)
-    plt.plot(range(len(gp_values)), gp_values, label='STDGP', color=base_palette[4], linestyle='-', linewidth=4)
+    plt.plot(range(len(gsgp_values)), gsgp_values, label='GSGP', color="silver", linestyle='-', linewidth=6)
+    plt.plot(range(len(gp_values)), gp_values, label='STDGP', color="k", linestyle='-', linewidth=6)
 
 
     plt.xlabel('Generation')

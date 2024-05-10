@@ -94,11 +94,11 @@ def compute_pval(alg1, alg2, name_ds, argument):
     print("%-15s %-15s %-10s %-10s" % (alg1, alg2, p, better))
 
 
-# slim_algs = ['SLIM-NORM*1', 'SLIM-SIG*1', 'SLIM-NORM+1', 'SLIM-SIG+1', 'SLIM*2', 'SLIM+2']
-# for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
-#     alg1 = "gp"
-#     alg2 = "SLIM-NORM*1"
-#     compute_pval(alg1, alg2, name_ds, "test_fitness")
+slim_algs = ['SLIM-NORM*1', 'SLIM-SIG*1', 'SLIM-NORM+1', 'SLIM-SIG+1', 'SLIM*2', 'SLIM+2']
+for name_ds in ["concrete"]:
+    alg2 = "SLIM+2"
+    compute_pval("gp", alg2, name_ds, "elite_size")
+    compute_pval("gsgp", alg2, name_ds, "elite_size")
 
 
 
@@ -174,7 +174,6 @@ for metric in ["test_fitness", "elite_size"]:
     for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
        rank = compute_median_ranking(name_ds, metric)
        rank_list.append(rank)
-       print(rank)
     rank_list = np.array(rank_list)
     median = np.median(rank_list, axis=0)
     print(f"median {median}")
