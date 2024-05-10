@@ -46,6 +46,8 @@ def std_xo_ot_delta(which, operator='sum'):
                 return torch.mul(p.train_semantics, torch.sub(1, tr.train_semantics)) if operator == 'sum' else \
                     torch.pow(p.train_semantics, torch.sub(1, tr.train_semantics))
 
+    stdxo_ot_delta.__name__ += '_' + which
+
 
     return stdxo_ot_delta
 
@@ -61,11 +63,15 @@ def slim_geometric_crossover(FUNCTIONS, TERMINALS, CONSTANTS, operator, max_dept
         if X_test != None:
             random_tree.calculate_semantics(X_test, testing=True, logistic=True )
 
+        random_tree.depth += 1
+
         offs = [Tree([std_xo_delta(operator=operator),
                       p1.collection[i], p2.collection[i],
                       random_tree]) for i in range(min(p1.size, p2.size))]
 
         if p1.size > p2.size:
+
+            random_tree.depth -= 1
 
             which = 'first'
 

@@ -57,6 +57,8 @@ def std_xo_alpha_ot_delta(which, operator='sum'):
                 return torch.mul(p.train_semantics, torch.sub(1, alpha)) if operator == 'sum' else \
                     torch.pow(p.train_semantics, torch.sub(1, alpha))
 
+    stdxo_ot_a_delta.__name__ += '_' + which
+
 
     return stdxo_ot_a_delta
 

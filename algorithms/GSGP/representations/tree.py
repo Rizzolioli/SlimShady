@@ -19,20 +19,31 @@ class Tree:
             self.depth = tree_depth(Tree.FUNCTIONS)(structure)
             self.nodes = len(list(flatten(structure)))
         else:
+            # todo this depth calculation is not reliable
             self.depth = max([tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)])\
                          + (4 if self.structure[0].__name__ == 'ot_delta_sum' else(
+                            1 if self.structure[0].__name__ in  ['stdxo_delta',
+                                                                 'stdxo_ot_a_delta_first',
+                                                                 'stdxo_ot_a_delta_second'] else(
+                            2 if self.structure[0].__name__ in ['stdxo_ot_delta_first', 'stdxo_ot_delta_second',
+                                                                'stdxo_a_delta', 'tt_delta_sum'] else (
                             5 if self.structure[0].__name__ == 'ot_delta_mul' else(
-                            2 if self.structure[0].__name__ == 'tt_delta_sum' else(
                             3 if self.structure[0].__name__ == 'tt_delta_mul' else(
-                            2 ))))
+                            0 )))))
                             )
             # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
             self.nodes = sum([*[tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)],
-                              *([5, self.structure[-1].nodes] if self.structure[
-                                                                     0].__name__ == 'geometric_crossover' else (
-                                  [9] if self.structure[0].__name__ == 'ot_delta_mul' else # todo: revise
-                                  ([6] if self.structure[0].__name__ == 'tt_delta_mul' else
-                                   ([9] if self.structure[0].__name__ == 'ot_delta_sum' else [4])))
+                              *([5, self.structure[-1].nodes] if self.structure[0].__name__
+                                                                 in ['geometric_crossover', 'stdxo_delta']
+                                else (
+                              [1] if  self.structure[0].__name__ == 'stdxo_ot_delta_first' else
+                              ([3] if self.structure[0].__name__ == 'stdxo_ot_delta_second' else
+                               ([9] if self.structure[0].__name__ == 'ot_delta_mul' else
+                                ([7] if self.structure[0].__name__ == 'stdxo_a_delta' else
+                                 ([2] if self.structure[0].__name__ == 'stdxo_ot_a_delta_first' else
+                                  ([4] if self.structure[0].__name__ in ['stdxo_ot_a_delta_second', 'tt_delta_sum'] else
+                              ([6] if self.structure[0].__name__ == 'tt_delta_mul' else
+                                   ([9] if self.structure[0].__name__ == 'ot_delta_sum' else [0]))))))))
                                 )])
 
 
