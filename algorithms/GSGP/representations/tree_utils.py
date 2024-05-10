@@ -56,10 +56,27 @@ def nested_depth_calculator(operator, depths):
                           3 if operator.__name__ == 'tt_delta_mul' else (2)
                           ))))
 
+# def nested_nodes_calculator(operator, nodes):
+#     extra_operators_nodes = [5, nodes[-1]] if operator.__name__ == 'geometric_crossover' \
+#            else (
+#            [9] if operator.__name__ == 'ot_delta_mul' else  # todo: revise
+#            ([6] if operator.__name__ == 'tt_delta_mul' else
+#            ([9] if operator.__name__ == 'ot_delta_sum' else
+#            ([4] if operator.__name__ == 'tt_delta_sum' else [0]
+#             ))))
+#
+#     return sum([*nodes, *extra_operators_nodes])
+
+
 def nested_nodes_calculator(operator, nodes):
-    return sum([*nodes, *([5, nodes[-1]] if operator.__name__ == 'geometric_crossover'
-           else (
-             [9] if operator.__name__ == 'ot_delta_mul' else  # todo: revise
-             ([6] if operator.__name__ == 'tt_delta_mul' else
-             ([9] if operator.__name__ == 'ot_delta_sum' else [4])))
-           )])
+    extra_operators_nodes = [5, nodes[-1]] if operator.__name__ == 'geometric_crossover' \
+        else (
+        [9] if operator.__name__ == 'ot_delta_mul_True' else
+        ([7] if operator.__name__ == 'ot_delta_sum_True' else
+         ([11] if operator.__name__ == 'ot_delta_mul_False' else
+         ([9] if operator.__name__ == 'ot_delta_sum_False' else
+        ([6] if operator.__name__ == 'tt_delta_mul' else
+          ([4] if operator.__name__ == 'tt_delta_sum' else [0]
+           ))))))
+
+    return sum([*nodes, *extra_operators_nodes])
