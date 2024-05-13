@@ -116,7 +116,6 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
         offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
 
         offs.depth_collection = [*individual.depth_collection, new_block.depth]
-        offs.depth_collection[0] += 1
         offs.depth = max([depth - (i - 1) if i != 0 else depth
                           for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
 
