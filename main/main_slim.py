@@ -50,7 +50,7 @@ for loader in data_loaders:
 
                 slim_GSGP_parameters["two_trees"] = ttress
 
-                for op in ["mul", "sum"]:
+                for op in ["sum"]:
 
                     slim_GSGP_parameters["operator"] = op
 
