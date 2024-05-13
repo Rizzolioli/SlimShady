@@ -3,6 +3,7 @@ import torch
 import math
 from copy import copy
 import numpy as np
+from sklearn.metrics import root_mean_squared_error
 
 from algorithms.GP.representations.tree_utils import create_full_random_tree, create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
@@ -242,7 +243,11 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3,
         # creating a tree using grow
         tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
-        tree = Tree(tree)
+        #reconstruct set to true to calculate the s
+        tree = Tree(structure=tree,
+                    train_semantics=None,
+                    test_semantics=None,
+                    reconstruct=True)
 
         # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
@@ -251,7 +256,10 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3,
         # creating a full tree
         tree = create_full_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
-        tree = Tree(tree)
+        tree = Tree(structure=tree,
+                    train_semantics=None,
+                    test_semantics=None,
+                    reconstruct=True)
 
         # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
@@ -274,7 +282,8 @@ def generate_random_uniform(lower, upper):
     def generate_num():
         return random.uniform(lower, upper)
         # return 1.5
-
+    generate_num.lower = lower
+    generate_num.upper = upper
     return generate_num
 
 
@@ -285,3 +294,10 @@ def show_individual(tree, operator):
                                                           tuple) else f'f({t.structure[1].structure})' if len(
         t.structure) == 3
     else f'f({t.structure[1].structure} - {t.structure[2].structure})' for t in tree.collection])
+
+
+def gs_rmse(y_true, y_pred):
+    return root_mean_squared_error(y_true, y_pred[0])
+
+def gs_size (y_true, y_pred):
+    return y_pred[1]

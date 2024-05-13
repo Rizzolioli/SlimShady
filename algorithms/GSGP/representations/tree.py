@@ -1,50 +1,34 @@
-from algorithms.GSGP.representations.tree_utils import apply_tree
+from algorithms.GSGP.representations.tree_utils import apply_tree, nested_depth_calculator, nested_nodes_calculator
 from algorithms.GP.representations.tree_utils import flatten, tree_depth
-from algorithms.GP.representations import tree
 import torch
+
 
 class Tree:
     FUNCTIONS = None
     TERMINALS = None
     CONSTANTS = None
 
-    def __init__(self, structure):
+    def __init__(self, structure, train_semantics, test_semantics, reconstruct):
         self.FUNCTIONS = Tree.FUNCTIONS
         self.TERMINALS = Tree.TERMINALS
         self.CONSTANTS = Tree.CONSTANTS
+        
+        if structure is not None and reconstruct:
+            self.structure = structure # either repr_ from gp(tuple) or list of pointers
 
-        self.structure = structure # either repr_ from gp(tuple) or list of pointers
+        self.train_semantics = train_semantics
+        self.test_semantics = test_semantics
 
         if isinstance(structure, tuple):
             self.depth = tree_depth(Tree.FUNCTIONS)(structure)
             self.nodes = len(list(flatten(structure)))
-        else:
-            # todo this depth calculation is not reliable
-            self.depth = max([tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)])\
-                         + (4 if self.structure[0].__name__ == 'ot_delta_sum' else(
-                            1 if self.structure[0].__name__ in  ['stdxo_delta',
-                                                                 'stdxo_ot_a_delta_first',
-                                                                 'stdxo_ot_a_delta_second'] else(
-                            2 if self.structure[0].__name__ in ['stdxo_ot_delta_first', 'stdxo_ot_delta_second',
-                                                                'stdxo_a_delta', 'tt_delta_sum'] else (
-                            5 if self.structure[0].__name__ == 'ot_delta_mul' else(
-                            3 if self.structure[0].__name__ == 'tt_delta_mul' else(
-                            0 )))))
-                            )
+        elif reconstruct:
+            self.depth = nested_depth_calculator(self.structure[0],
+                                                  [tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)])
             # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
-            self.nodes = sum([*[tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)],
-                              *([5, self.structure[-1].nodes] if self.structure[0].__name__
-                                                                 in ['geometric_crossover', 'stdxo_delta']
-                                else (
-                              [1] if  self.structure[0].__name__ == 'stdxo_ot_delta_first' else
-                              ([3] if self.structure[0].__name__ == 'stdxo_ot_delta_second' else
-                               ([9] if self.structure[0].__name__ == 'ot_delta_mul' else
-                                ([7] if self.structure[0].__name__ == 'stdxo_a_delta' else
-                                 ([2] if self.structure[0].__name__ == 'stdxo_ot_a_delta_first' else
-                                  ([4] if self.structure[0].__name__ in ['stdxo_ot_a_delta_second', 'tt_delta_sum'] else
-                              ([6] if self.structure[0].__name__ == 'tt_delta_mul' else
-                                   ([9] if self.structure[0].__name__ == 'ot_delta_sum' else [0]))))))))
-                                )])
+            self.nodes = nested_nodes_calculator(self.structure[0],
+                                                 [tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)])
+
 
 
         self.fitness = None
@@ -52,21 +36,19 @@ class Tree:
 
     def calculate_semantics(self, inputs, testing = False, logistic=False):
 
-        # checking if the individual is part of the initial population (table) or is a random tree (table)
-        if isinstance(self.structure, tuple):
-            if testing:
+        if testing and self.test_semantics is None:
+            # checking if the individual is part of the initial population (table) or is a random tree (table)
+            if isinstance(self.structure, tuple):
                 self.test_semantics = torch.sigmoid(apply_tree(self, inputs)) if logistic else apply_tree(self, inputs)
-
             else:
-                self.train_semantics = torch.sigmoid(apply_tree(self, inputs)) if logistic else apply_tree(self, inputs)
-
-        # if the individual is a result of GSGP evolution
-        else:
-            if testing:
                 # self.structure[0] is the operator (mutation or xo) while the remaining of the structure dare pointers to the trees
-                self.test_semantics = self.structure[0](*self.structure[1:], testing = True)
+                self.test_semantics = self.structure[0](*self.structure[1:], testing=True)
+        elif self.train_semantics is None:
+            if isinstance(self.structure, tuple):
+                self.train_semantics = torch.sigmoid(apply_tree(self, inputs)) if logistic else apply_tree(self, inputs)
             else:
-                self.train_semantics = self.structure[0](*self.structure[1:], testing = False)
+                self.train_semantics = self.structure[0](*self.structure[1:], testing=False)
+
 
     def evaluate(self, ffunction, y, testing=False):
 
