@@ -2,11 +2,17 @@ import pandas as pd
 import os
 import torch
 
-"""
 
-Taken from GPOL.
 
-"""
+def load_merged_data(dataset, X_y=False):
+
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "merged_data", f"{dataset}_merged.txt"), sep = " ", header = None)
+
+
+    if X_y:
+        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    else:
+        return df
 
 def load_dummy_test(boo=True):
     df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "TEST_1_myToySumDataset.txt"), sep = " ", header=None)
@@ -30,6 +36,11 @@ def load_preloaded(dataset_name, seed, training=True ,X_y=False):
     else:
         return df
 
+"""
+
+Taken from GPOL.
+
+"""
 
 def load_airfoil(X_y=False):
     """ Loads and returns the Airfoil Self-Noise data set (regression)
@@ -364,6 +375,8 @@ def load_parkinson_updrs(X_y=False):
         return df
 
 
+
+
 def load_ld50(X_y=False):
     """ Loads and returns the LD50 data set(regression)
 
@@ -466,3 +479,4 @@ def load_bioav(X_y=False):
         return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
     else:
         return df
+

@@ -46,14 +46,14 @@ def one_tree_delta(operator='sum', sig=False):
                     torch.add(1,
                               torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.train_semantics))))))
 
-    ot_delta.__name__ += ('_' + operator)
+    ot_delta.__name__ += ('_' + operator + '_' + str(sig))
 
     return ot_delta
 
 
 def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='sum', single_tree_sigmoid=False,
                      sig=False):
-    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1):
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1, reconstruct = True):
 
         # getting a random tree
 
@@ -87,50 +87,65 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
                 [rt.calculate_semantics(X_test, testing=True, logistic=single_tree_sigmoid or sig) for rt in random_trees]
 
         # creating the mutation resulting block to be added to the individual
+        variator = two_trees_delta(operator=operator) if two_trees else one_tree_delta(operator=operator, sig=sig)
         new_block = Tree(
-            [(two_trees_delta(operator=operator) if two_trees else one_tree_delta(operator=operator, sig=sig)),
-             *random_trees, ms])
+            structure = [variator, *random_trees, ms],
+            train_semantics=variator( *random_trees, ms, testing= False),
+            test_semantics=variator( *random_trees, ms, testing = True) if X_test is not None else None,
+            reconstruct=True
+        )
 
-        # getting the semantics for this new block
-        new_block.calculate_semantics(X, testing=False)
-
-        if X_test is not None:
-            new_block.calculate_semantics(X_test, testing=True)
 
         # adding the mutation block to the individual
-        offs = individual.add_block(new_block)
+        offs = Individual(collection = [*individual.collection, new_block] if reconstruct else None,
+                          train_semantics=torch.stack([*individual.train_semantics,
+                                                (new_block.train_semantics
+                                                 if new_block.train_semantics.shape != torch.Size([])
+                                                 else new_block.train_semantics.repeat(len(X)))]),
+                          test_semantics=(torch.stack([*individual.test_semantics,
+                                               (new_block.test_semantics
+                                                if new_block.test_semantics.shape != torch.Size([])
+                                                else new_block.test_semantics.repeat(len(X_test)))]))
+                                            if individual.test_semantics is not None
+                                            else None,
+                          reconstruct=reconstruct
+                          )
 
-        if individual.train_semantics is not None:
-            # adding the new block's training semantics to the now mutated individual
-            offs.train_semantics = torch.stack([*individual.train_semantics,
-                                                (
-                                                    new_block.train_semantics if new_block.train_semantics.shape != torch.Size(
-                                                        [])
-                                                    else new_block.train_semantics.repeat(len(X)))])
+        offs.size = individual.size + 1
+        offs.nodes_collection = [*individual.nodes_collection, new_block.nodes]
+        offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
 
-        if individual.test_semantics is not None:
-            # adding the new block's testing semantics to the now mutated individual, if applicable
-            offs.test_semantics = torch.stack([*individual.test_semantics,
-                                               (
-                                                   new_block.test_semantics if new_block.test_semantics.shape != torch.Size(
-                                                       [])
-                                                   else new_block.test_semantics.repeat(len(X_test)))])
+        offs.depth_collection = [*individual.depth_collection, new_block.depth]
+        offs.depth_collection[0] += 1
+        offs.depth = max([depth - (i - 1) if i != 0 else depth
+                          for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
 
         return offs
 
     return inflate
 
 
-def deflate_mutation(individual):
+def deflate_mutation(individual, reconstruct):
+
     mut_point = random.randint(1, individual.size - 1)
+    offs = Individual(collection = [*individual.collection[:mut_point], *individual.collection[mut_point + 1:]]
+                                    if reconstruct else None,
+                      train_semantics=torch.stack(
+                                [*individual.train_semantics[:mut_point], *individual.train_semantics[mut_point + 1:]]
+                      ),
+                      test_semantics= torch.stack(
+                                [*individual.test_semantics[:mut_point], *individual.test_semantics[mut_point + 1:]]
+                      )
+                        if individual.test_semantics is not None
+                        else None,
+                      reconstruct=reconstruct)
+    
+    offs.size = individual.size - 1
+    offs.nodes_collection = [*individual.nodes_collection[:mut_point], *individual.nodes_collection[mut_point+1:] ]
+    offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
 
-    offs = individual.remove_block(mut_point)
-
-    if individual.train_semantics is not None:
-        offs.train_semantics = torch.stack(
-            [*individual.train_semantics[:mut_point], *individual.train_semantics[mut_point + 1:]])
-    if individual.test_semantics is not None:
-        offs.test_semantics = torch.stack(
-            [*individual.test_semantics[:mut_point], *individual.test_semantics[mut_point + 1:]])
+    offs.depth_collection = [*individual.depth_collection[:mut_point], *individual.depth_collection[mut_point+1:] ]
+    offs.depth = max([depth - (i - 1) if i != 0 else depth 
+                      for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
 
     return offs

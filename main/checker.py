@@ -10,7 +10,7 @@ from algorithms.GSGP.operators.crossover_operators import *
 from algorithms.GSGP.operators.mutators import *
 from evaluators.fitness_functions import rmse
 from algorithms.SLIM_GSGP.representations.population import Population
-
+from datasets.data_loader import *
 
 datas = ["ppb"]
 
