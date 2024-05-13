@@ -203,8 +203,14 @@ class SLIM_GSGP:
                                 # obtaining the random mutation step
                                 ms_ = self.ms()
 
-                                off1 = self.inflate_mutator(p1, ms_, X_train, max_depth=self.pi_init["init_depth"]
-                                                            , p_c=self.pi_init["p_c"], X_test=X_test)
+                                off1 = self.inflate_mutator(p1,
+                                                            ms_,
+                                                            X_train,
+                                                            max_depth=self.pi_init["init_depth"],
+                                                            p_c=self.pi_init["p_c"],
+                                                            X_test=X_test,
+                                                            reconstruct=reconstruct)
+                                
 
                         else:
                             off1 = self.deflate_mutator(p1, reconstruct = reconstruct)
