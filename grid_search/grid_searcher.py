@@ -35,16 +35,6 @@ params = [{
     'sig': [True, False],
     'two_trees': [False]}]
 
-# to delete:
-params = {
-    'ms': [generate_random_uniform(0, 0.01)],
-    'p_inflate': [0.1],
-    'max_depth': [None],
-    'copy_parent': [True],
-    'operator': ['mul'],
-    'sig': [False],
-    'two_trees': [True, False]}
-
 
 # setting up both the rmse and the individual size as fitness parameters
 scorers = {"rmse": make_scorer(gs_rmse, greater_is_better=False),
@@ -57,7 +47,7 @@ for dataset in datas:
     X, y = ds.load_merged_data(dataset, X_y=True)
 
     # creating the gsgp regressor model
-    model = GSGPRegressor(random_state=74, test_elite=False, n_iter=20, verbose=0, pop_size=50, reconstruct=True) # reconstruct must be true
+    model = GSGPRegressor(random_state=74, test_elite=False, n_iter=500, verbose=0, pop_size=200, reconstruct=True) # reconstruct must be true
                                                                                             # in order to evaluate the individual on new data
 
     # setting up the grid search
