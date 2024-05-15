@@ -71,29 +71,39 @@ class Individual():
         if testing:
             self.test_fitness = ffunction(y, torch.clamp(operator(self.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0))
 
-        else: # note: clamping in case the operator results in very very big semantics
+        else: # note: clamping in case the operator results in very big semantics
             self.fitness = ffunction(y, torch.clamp(operator(self.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0))
 
-def apply_individual_fixed(tree, data, operator = "sum"):
+def apply_individual_fixed(tree, data, operator = "sum", sig = False):
 
     semantics = []
+
     for t in tree.collection:
         # checking if the individual is part of the initial population (table) or is a random tree (table)
+
         if isinstance(t.structure, tuple):
             semantics.append(apply_tree(t, data))
         # if the tree structure is a list, checking if we are using one or two trees with our operator
         else:
 
-            if len(t.structure) == 3 : # one tree
-                t.structure[1].previous_training = t.train_semantics # saving the old training semantics in case its needed
-                t.structure[1].train_semantics = apply_tree(t.structure[1], data) # obtaining the new train_semantics for the new unseen data
+            if len(t.structure) == 3: # one tree
+                if sig:
+                    # saving the old training semantics in case its needed
+                    t.structure[1].previous_training = t.train_semantics
+                    # obtaining the new train_semantics for the new unseen data
+                    t.structure[1].train_semantics = torch.sigmoid(apply_tree(t.structure[1], data))
+                else:
+                    # saving the old training semantics in case its needed
+                    t.structure[1].previous_training = t.train_semantics
+                    # obtaining the new train_semantics for the new unseen data
+                    t.structure[1].train_semantics = apply_tree(t.structure[1], data)
 
             elif len(t.structure) == 4: # two tree
                 t.structure[1].previous_training = t.train_semantics
-                t.structure[1].train_semantics = apply_tree(t.structure[1], data)
+                t.structure[1].train_semantics = torch.sigmoid(apply_tree(t.structure[1], data))
 
                 t.structure[2].previous_training = t.train_semantics
-                t.structure[2].train_semantics = apply_tree(t.structure[2], data)
+                t.structure[2].train_semantics = torch.sigmoid(apply_tree(t.structure[2], data))
 
             semantics.append(t.structure[0](*t.structure[1:], testing=False))
 

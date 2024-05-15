@@ -5,19 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/data_loader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/merged_data/concrete_merged.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/merged_data/concrete_merged.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/merged_data/energy_merged.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/merged_data/energy_merged.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/merged_data/instanbul_merged.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/merged_data/instanbul_merged.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/merged_data/ppb_merged.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/merged_data/ppb_merged.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/merged_data/resid_build_sale_price_merged.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/merged_data/resid_build_sale_price_merged.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/merged_data/toxicity_merged.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/merged_data/toxicity_merged.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_search/GSGPRegressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search/GSGPRegressor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grid_search/grid_searcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search/grid_searcher.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/dataset_merger.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/dataset_merger.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,8 +113,9 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.GSGPRegressor.executor": "Debug",
     "Python.dataset_merger.executor": "Run",
-    "Python.grid_searcher.executor": "Run",
+    "Python.grid_searcher.executor": "Debug",
     "Python.main_slim.executor": "Run",
     "Python.results_study.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
@@ -146,6 +138,28 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.grid_searcher">
+    <configuration name="GSGPRegressor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/grid_search" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_search/GSGPRegressor.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="dataset_merger" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="ENV_FILES" value="" />
@@ -182,28 +196,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_search/grid_searcher.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="main_gp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="SlimShady" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/main" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/main_gp.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -259,17 +251,17 @@
     <list>
       <item itemvalue="Python.dataset_merger" />
       <item itemvalue="Python.grid_searcher" />
-      <item itemvalue="Python.main_gp" />
+      <item itemvalue="Python.GSGPRegressor" />
       <item itemvalue="Python.main_gsgp" />
       <item itemvalue="Python.main_slim" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.grid_searcher" />
+        <item itemvalue="Python.GSGPRegressor" />
         <item itemvalue="Python.dataset_merger" />
         <item itemvalue="Python.main_slim" />
         <item itemvalue="Python.main_gsgp" />
-        <item itemvalue="Python.main_gp" />
       </list>
     </recent_temporary>
   </component>
@@ -342,6 +334,11 @@
           <url>file://$PROJECT_DIR$/utils/utils.py</url>
           <line>299</line>
           <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py</url>
+          <line>111</line>
+          <option name="timeStamp" value="15" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

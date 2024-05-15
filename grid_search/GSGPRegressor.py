@@ -29,8 +29,8 @@ class GSGPRegressor(BaseEstimator, RegressorMixin): # TODO: remove algo as a giv
                 slim_GSGP_parameters[key] = value
             elif key in slim_gsgp_solve_parameters.keys():
                 slim_gsgp_solve_parameters[key] = value
-            elif parameter in mutation_parameters.keys():
-                mutation_parameters[parameter] = value
+            elif key in mutation_parameters.keys():
+                mutation_parameters[key] = value
 
             # setting up the given model creation parameters as GSGPRegressor class attributes
             setattr(self, key, value)
@@ -129,10 +129,12 @@ class GSGPRegressor(BaseEstimator, RegressorMixin): # TODO: remove algo as a giv
 
         # reconstructing the fitted model's elite on the given prediction data, obtaining the final predictions.
         result = apply_individual_fixed(self.optimizer.elite, data=torch.from_numpy(X),
-                                                                operator=slim_GSGP_parameters['operator'])
+                                                            operator=slim_GSGP_parameters['operator'],
+                                        sig=mutation_parameters['sig'])
+
 
         # returning both the final predicitions of the model (for future rmse calculation)
         # as well as the node count of the individual
-        return result , self.optimizer.elite.nodes_count
+        return result, self.optimizer.elite.nodes_count
 
     #TODO: DOCUMENT FILE

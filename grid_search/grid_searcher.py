@@ -6,9 +6,10 @@ import datasets.data_loader as ds
 from utils.utils import generate_random_uniform
 from GSGPRegressor import GSGPRegressor
 
+# TODO: memory requirements code.
 
 # setting up the datasets
-datas = ["toxicity"]
+datas = ["hail_mary"]
 
 # obtaining the data looading functions from the dataset names
 #data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
@@ -56,7 +57,7 @@ for dataset in datas:
     X, y = ds.load_merged_data(dataset, X_y=True)
 
     # creating the gsgp regressor model
-    model = GSGPRegressor(random_state=74, test_elite=False, n_iter=500, verbose=0, pop_size=100, reconstruct=True) # reconstruct must be true
+    model = GSGPRegressor(random_state=74, test_elite=False, n_iter=10, verbose=1, pop_size=100, reconstruct=True) # reconstruct must be true
                                                                                                  # in order to evaluate the individual on new data
 
     # setting up the grid search
@@ -77,4 +78,4 @@ for dataset in datas:
     # logging the cross validation results
     results.to_csv(f"log/{dataset}_grid_search.csv")
 
-    # todo: add to change the parametrization loggwr for slim results to yield --> slim grid full results.
+    # todo: add to change the parametrization logger for slim results to yield --> slim grid full results --> name :)
