@@ -68,7 +68,7 @@ def slim_alpha_geometric_crossover(operator):
     def inner_xo(p1, p2, X, X_test = None, reconstruct = True):
 
 
-        alphas = [random.random() for _ in range(min(p1.size, p2.size))]
+        alphas = [random.random() for _ in range(max(p1.size, p2.size))]
 
         if reconstruct:
             offs_collection = [Tree([std_xo_alpha_delta(operator=operator),
@@ -77,11 +77,11 @@ def slim_alpha_geometric_crossover(operator):
 
         offs_train_semantics = torch.stack(
             [std_xo_alpha_delta(operator=operator)(p1.train_semantics[i], p2.train_semantics[i],
-                                                   alphas[i]) for i in range(min(p1.size, p2.size))])
+                                                   alphas[i], testing = False) for i in range(min(p1.size, p2.size))])
         if p1.test_semantics is not None:
             offs_test_semantics = torch.stack(
                 [std_xo_alpha_delta(operator=operator)(p1.test_semantics[i], p2.test_semantics[i],
-                                                       alphas[i]) for i in range(min(p1.size, p2.size))])
+                                                       alphas[i], testing = True) for i in range(min(p1.size, p2.size))])
 
         offs_nodes_collection = [p1.nodes_collection[i] + p2.nodes_collection[i] + + 7
                                  for i in range(min(p1.size, p2.size))]
@@ -93,19 +93,20 @@ def slim_alpha_geometric_crossover(operator):
 
             which = 'first'
 
-            alphas = [random.random() for _ in range(min(p1.size, p2.size), max(p1.size, p2.size))]
 
             if reconstruct:
                 offs_collection += [Tree([std_xo_alpha_ot_delta(which, operator=operator),
                           p1.collection[i], alphas[i]]) for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]
 
             offs_train_semantics = torch.stack([*offs_train_semantics,
-                                    *[std_xo_alpha_ot_delta(which, operator=operator)(p1.train_semantics[i], alphas[i])
+                                    *[std_xo_alpha_ot_delta(which, operator=operator)(p1.train_semantics[i], alphas[i],
+                                                                                      testing = False)
                                     for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]])
 
             if p1.test_semantics is not None:
                 offs_test_semantics = torch.stack([*offs_test_semantics,
-                                      *[std_xo_alpha_ot_delta(which, operator=operator)(p1.test_semantics[i], alphas[i])
+                                      *[std_xo_alpha_ot_delta(which, operator=operator)(p1.test_semantics[i], alphas[i],
+                                                                                        testing = True)
                                        for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]])
 
             offs_nodes_collection += [p1.nodes_collection[i] + 2
@@ -118,8 +119,6 @@ def slim_alpha_geometric_crossover(operator):
 
             which = 'second'
 
-            alphas = [random.random() for _ in range(min(p1.size, p2.size), max(p1.size, p2.size))]
-
             if reconstruct:
                 offs_collection += [Tree([std_xo_alpha_ot_delta(which, operator=operator),
                                           p2.collection[i], alphas[i]]) for i in
@@ -127,13 +126,13 @@ def slim_alpha_geometric_crossover(operator):
 
             offs_train_semantics = torch.stack([*offs_train_semantics,
                                                 *[std_xo_alpha_ot_delta(which, operator=operator)(p2.train_semantics[i],
-                                                                                                  alphas[i])
+                                                                                                  alphas[i], testing = False)
                                                   for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]])
 
             if p2.test_semantics is not None:
                 offs_test_semantics = torch.stack([*offs_test_semantics,
                                                    *[std_xo_alpha_ot_delta(which, operator=operator)(
-                                                       p2.test_semantics[i], alphas[i])
+                                                       p2.test_semantics[i], alphas[i], testing = True)
                                                      for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]])
 
             offs_nodes_collection += [p2.nodes_collection[i] + 4
@@ -178,19 +177,20 @@ def slim_swap_geometric_crossover(p1, p2, X = None, X_test = None, reconstruct =
             if (mask[idx] == 0 and idx < p1.size) or (mask[idx] == 1 and idx < p2.size)
         ]
         
-    off1_train_semantics = [
+    off1_train_semantics = torch.stack([
         p1.train_semantics[idx] if mask[idx] == 0 and idx < p1.size
         else p2.train_semantics[idx]
         for idx in range(len(mask))
         if (mask[idx] == 0 and idx < p1.size) or (mask[idx] == 1 and idx < p2.size)
-    ]
+    ])
+
     if p1.test_semantics is not None:
-        off1_test_semantics = [
+        off1_test_semantics = torch.stack([
             p1.test_semantics[idx] if mask[idx] == 0 and idx < p1.size
             else p2.test_semantics[idx]
             for idx in range(len(mask))
             if (mask[idx] == 0 and idx < p1.size) or (mask[idx] == 1 and idx < p2.size)
-        ]
+        ])
     
     off1_nodes_collection = [
             p1.nodes_collection[idx] if mask[idx] == 0 and idx < p1.size
@@ -211,7 +211,7 @@ def slim_swap_geometric_crossover(p1, p2, X = None, X_test = None, reconstruct =
                       test_semantics=torch.Tensor(off1_test_semantics) if p1.test_semantics is not None else None,
                       reconstruct=reconstruct)
 
-    off1.size = max(p1.size, p2.size)
+    off1.size = len(off1.train_semantics)
 
     off1.nodes_collection = off1_nodes_collection
     off1.nodes_count = sum(off1.nodes_collection) + (off1.size - 1)
@@ -228,19 +228,20 @@ def slim_swap_geometric_crossover(p1, p2, X = None, X_test = None, reconstruct =
             if (inv_mask[idx] == 0 and idx < p1.size) or (inv_mask[idx] == 1 and idx < p2.size)
         ]
 
-    off2_train_semantics = [
+    off2_train_semantics = torch.stack([
         p1.train_semantics[idx] if inv_mask[idx] == 0 and idx < p1.size
         else p2.train_semantics[idx]
         for idx in range(len(inv_mask))
         if (inv_mask[idx] == 0 and idx < p1.size) or (inv_mask[idx] == 1 and idx < p2.size)
-    ]
+    ])
+
     if p1.test_semantics is not None:
-        off2_test_semantics = [
+        off2_test_semantics = torch.stack([
             p1.test_semantics[idx] if inv_mask[idx] == 0 and idx < p1.size
             else p2.test_semantics[idx]
             for idx in range(len(inv_mask))
             if (inv_mask[idx] == 0 and idx < p1.size) or (inv_mask[idx] == 1 and idx < p2.size)
-        ]
+        ])
 
     off2_nodes_collection = [
         p1.nodes_collection[idx] if inv_mask[idx] == 0 and idx < p1.size
@@ -261,7 +262,7 @@ def slim_swap_geometric_crossover(p1, p2, X = None, X_test = None, reconstruct =
                       test_semantics=torch.Tensor(off2_test_semantics) if p1.test_semantics is not None else None,
                       reconstruct=reconstruct)
 
-    off2.size = max(p1.size, p2.size)
+    off2.size = len(off2.train_semantics)
 
     off2.nodes_collection = off2_nodes_collection
     off2.nodes_count = sum(off2.nodes_collection) + (off2.size - 1)
@@ -278,7 +279,7 @@ def slim_alpha_deflate_geometric_crossover(operator, perc_off_blocks):
 
         mask = generate_mask(max(p1.size, p2.size), int(perc_off_blocks * max(p1.size, p2.size)))
 
-        alphas = [random.random() for _ in range(min(p1.size, p2.size)) ]
+        alphas = [random.random() for _ in range(max(p1.size, p2.size)) ]
 
         if reconstruct:
             offs_collection = [Tree([std_xo_alpha_delta(operator=operator),
@@ -287,11 +288,11 @@ def slim_alpha_deflate_geometric_crossover(operator, perc_off_blocks):
 
         offs_train_semantics = torch.stack(
             [std_xo_alpha_delta(operator=operator)(p1.train_semantics[i], p2.train_semantics[i],
-                                                   alphas[i]) for i in range(min(p1.size, p2.size))])
+                                                   alphas[i], testing = False) for i in range(min(p1.size, p2.size)) if mask[i] == 1])
         if p1.test_semantics is not None:
             offs_test_semantics = torch.stack(
                 [std_xo_alpha_delta(operator=operator)(p1.test_semantics[i], p2.test_semantics[i],
-                                                       alphas[i]) for i in range(min(p1.size, p2.size)) if mask[i] == 1])
+                                                       alphas[i], testing = True) for i in range(min(p1.size, p2.size)) if mask[i] == 1])
 
         offs_nodes_collection = [p1.nodes_collection[i] + p2.nodes_collection[i] + + 7
                                  for i in range(min(p1.size, p2.size)) if mask[i] == 1]
@@ -303,32 +304,29 @@ def slim_alpha_deflate_geometric_crossover(operator, perc_off_blocks):
 
             which = 'first'
 
-            alphas = [random.random() for _ in range(min(p1.size, p2.size), max(p1.size, p2.size)) ]
 
             if reconstruct:
                 offs_collection += [Tree([std_xo_alpha_ot_delta(which, operator=operator),
                           p1.collection[i], alphas[i]]) for i in range(min(p1.size, p2.size), max(p1.size, p2.size)) if mask[i] == 1]
 
             offs_train_semantics = torch.stack([*offs_train_semantics,
-                                    *[std_xo_alpha_ot_delta(which, operator=operator)(p1.train_semantics[i], alphas[i])
+                                    *[std_xo_alpha_ot_delta(which, operator=operator)(p1.train_semantics[i], alphas[i], testing = False)
                                     for i in range(min(p1.size, p2.size), max(p1.size, p2.size)) if mask[i] == 1]])
 
             if p1.test_semantics is not None:
                 offs_test_semantics = torch.stack([*offs_test_semantics,
-                                      *[std_xo_alpha_ot_delta(which, operator=operator)(p1.test_semantics[i], alphas[i])
+                                      *[std_xo_alpha_ot_delta(which, operator=operator)(p1.test_semantics[i], alphas[i], testing = True)
                                        for i in range(min(p1.size, p2.size), max(p1.size, p2.size)) if mask[i] == 1]])
 
             offs_nodes_collection += [p1.nodes_collection[i] + 2
-                                     for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]
+                                     for i in range(min(p1.size, p2.size), max(p1.size, p2.size)) if mask[i] == 1]
             offs_depth_collection += [ max([p1.depth_collection[i] + 1])
-                                      for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]
+                                      for i in range(min(p1.size, p2.size), max(p1.size, p2.size)) if mask[i] == 1]
 
 
         else:
 
             which = 'second'
-
-            alphas = [random.random() for _ in range(min(p1.size, p2.size), max(p1.size, p2.size))]
 
             if reconstruct:
                 offs_collection += [Tree([std_xo_alpha_ot_delta(which, operator=operator),
@@ -337,13 +335,13 @@ def slim_alpha_deflate_geometric_crossover(operator, perc_off_blocks):
 
             offs_train_semantics = torch.stack([*offs_train_semantics,
                                                 *[std_xo_alpha_ot_delta(which, operator=operator)(p2.train_semantics[i],
-                                                                                                  alphas[i])
+                                                                                                  alphas[i], testing = False)
                                                   for i in range(min(p1.size, p2.size), max(p1.size, p2.size)) if mask[i] == 1]])
 
             if p2.test_semantics is not None:
                 offs_test_semantics = torch.stack([*offs_test_semantics,
                                                    *[std_xo_alpha_ot_delta(which, operator=operator)(
-                                                       p2.test_semantics[i], alphas[i])
+                                                       p2.test_semantics[i], alphas[i], testing = True)
                                                      for i in range(min(p1.size, p2.size), max(p1.size, p2.size)) if mask[i] == 1]])
 
             offs_nodes_collection += [p2.nodes_collection[i] + 4
@@ -357,7 +355,7 @@ def slim_alpha_deflate_geometric_crossover(operator, perc_off_blocks):
                           test_semantics=torch.Tensor(offs_test_semantics) if p1.test_semantics is not None else None,
                           reconstruct=reconstruct)
 
-        offs.size = max(p1.size, p2.size)
+        offs.size = len(offs.train_semantics)
 
         offs.nodes_collection = offs_nodes_collection
         offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
@@ -391,21 +389,21 @@ def slim_swap_deflate_geometric_crossover(perc_off_blocks):
                 and mask_selection[idx] == 1
             ]
 
-        off1_train_semantics = [
+        off1_train_semantics = torch.stack([
             p1.train_semantics[idx] if mask_parents[idx] == 0 and idx < p1.size
             else p2.train_semantics[idx]
             for idx in range(len(mask_parents))
             if ((mask_parents[idx] == 0 and idx < p1.size) or (mask_parents[idx] == 1 and idx < p2.size))
             and mask_selection[idx] == 1
-        ]
+        ])
         if p1.test_semantics is not None:
-            off1_test_semantics = [
+            off1_test_semantics = torch.stack([
                 p1.test_semantics[idx] if mask_parents[idx] == 0 and idx < p1.size
                 else p2.test_semantics[idx]
                 for idx in range(len(mask_parents))
                 if ((mask_parents[idx] == 0 and idx < p1.size) or (mask_parents[idx] == 1 and idx < p2.size))
                 and mask_selection[idx] == 1
-            ]
+            ])
 
         off1_nodes_collection = [
             p1.nodes_collection[idx] if mask_parents[idx] == 0 and idx < p1.size
@@ -428,7 +426,7 @@ def slim_swap_deflate_geometric_crossover(perc_off_blocks):
                           test_semantics=torch.Tensor(off1_test_semantics) if p1.test_semantics is not None else None,
                           reconstruct=reconstruct)
 
-        off1.size = max(p1.size, p2.size)
+        off1.size = len(off1.train_semantics)
 
         off1.nodes_collection = off1_nodes_collection
         off1.nodes_count = sum(off1.nodes_collection) + (off1.size - 1)
@@ -446,21 +444,22 @@ def slim_swap_deflate_geometric_crossover(perc_off_blocks):
                 and mask_selection[idx] == 1
             ]
 
-        off2_train_semantics = [
+        off2_train_semantics = torch.stack([
             p1.train_semantics[idx] if inv_mask_parents[idx] == 0 and idx < p1.size
             else p2.train_semantics[idx]
             for idx in range(len(inv_mask_parents))
             if ((inv_mask_parents[idx] == 0 and idx < p1.size) or (inv_mask_parents[idx] == 1 and idx < p2.size))
             and mask_selection[idx] == 1
-        ]
+        ])
+
         if p1.test_semantics is not None:
-            off2_test_semantics = [
+            off2_test_semantics = torch.stack([
                 p1.test_semantics[idx] if inv_mask_parents[idx] == 0 and idx < p1.size
                 else p2.test_semantics[idx]
                 for idx in range(len(inv_mask_parents))
                 if ((inv_mask_parents[idx] == 0 and idx < p1.size) or (inv_mask_parents[idx] == 1 and idx < p2.size))
                 and mask_selection[idx] == 1
-            ]
+            ])
 
         off2_nodes_collection = [
             p1.nodes_collection[idx] if inv_mask_parents[idx] == 0 and idx < p1.size
@@ -483,7 +482,7 @@ def slim_swap_deflate_geometric_crossover(perc_off_blocks):
                           test_semantics=torch.Tensor(off2_test_semantics) if p1.test_semantics is not None else None,
                           reconstruct=reconstruct)
 
-        off2.size = max(p1.size, p2.size)
+        off2.size = len(off2.train_semantics)
 
         off2.nodes_collection = off2_nodes_collection
         off2.nodes_count = sum(off2.nodes_collection) + (off2.size - 1)

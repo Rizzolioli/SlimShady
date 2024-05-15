@@ -6,7 +6,7 @@ from algorithms.SLIM_GSGP.representations.individual import Individual
 
 def std_xo_delta(operator='sum'):
 
-    def stdxo_delta(p1, p2, tr, testing = False):
+    def stdxo_delta(p1, p2, tr, testing):
 
         if isinstance(tr, Tree):        
             if testing:
@@ -28,7 +28,7 @@ def std_xo_delta(operator='sum'):
 
 def std_xo_ot_delta(which, operator='sum'):
 
-    def stdxo_ot_delta(p, tr, testing =False):
+    def stdxo_ot_delta(p, tr, testing ):
         
         if isinstance(tr, Tree):        
             if testing:
@@ -66,7 +66,7 @@ def slim_geometric_crossover(FUNCTIONS, TERMINALS, CONSTANTS, operator, max_dept
         if X_test != None:
             random_tree.calculate_semantics(X_test, testing=True, logistic=True )
 
-        random_tree.depth += 1
+        random_tree.depth += 1 #todo
 
         if reconstruct:
             offs_collection = [Tree([std_xo_delta(operator=operator),
@@ -75,10 +75,10 @@ def slim_geometric_crossover(FUNCTIONS, TERMINALS, CONSTANTS, operator, max_dept
 
 
         offs_train_semantics = torch.stack([std_xo_delta(operator=operator)(p1.train_semantics[i], p2.train_semantics[i],
-                                random_tree.train_semantics) for i in range(min(p1.size, p2.size))])
+                                random_tree.train_semantics, testing = False) for i in range(min(p1.size, p2.size))])
         if X_test is not None:
             offs_test_semantics = torch.stack([std_xo_delta(operator=operator)(p1.test_semantics[i], p2.test_semantics[i],
-                                    random_tree.test_semantics) for i in range(min(p1.size, p2.size))])
+                                    random_tree.test_semantics, testing = True) for i in range(min(p1.size, p2.size))])
 
         offs_nodes_collection = [p1.nodes_collection[i] + p2.nodes_collection[i] + 2 * random_tree.nodes + 5
                                  for i in range(min(p1.size, p2.size))]
@@ -96,12 +96,14 @@ def slim_geometric_crossover(FUNCTIONS, TERMINALS, CONSTANTS, operator, max_dept
                           p1.collection[i], random_tree]) for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]
 
             offs_train_semantics = torch.stack([*offs_train_semantics,
-                                    *[std_xo_ot_delta(which, operator=operator)(p1.train_semantics[i], random_tree.train_semantics)
+                                    *[std_xo_ot_delta(which, operator=operator)(p1.train_semantics[i], random_tree.train_semantics,
+                                                                                testing = False)
                                     for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]])
 
             if X_test is not None:
                 offs_test_semantics = torch.stack([*offs_test_semantics,
-                                      *[std_xo_ot_delta(which, operator=operator)(p1.test_semantics[i], random_tree.test_semantics)
+                                      *[std_xo_ot_delta(which, operator=operator)(p1.test_semantics[i], random_tree.test_semantics,
+                                                                                  testing = True)
                                        for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]])
 
             offs_nodes_collection += [p1.nodes_collection[i] + random_tree.nodes + 1
@@ -118,12 +120,12 @@ def slim_geometric_crossover(FUNCTIONS, TERMINALS, CONSTANTS, operator, max_dept
                            p2.collection[i], random_tree]) for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]
 
             offs_train_semantics = torch.stack([*offs_train_semantics,
-                                    *[std_xo_ot_delta(which, operator=operator)(p2.train_semantics[i], random_tree.train_semantics)
+                                    *[std_xo_ot_delta(which, operator=operator)(p2.train_semantics[i], random_tree.train_semantics, testing = False)
                                     for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]])
 
             if X_test is not None:
                 offs_test_semantics = torch.stack([*offs_test_semantics,
-                                      *[std_xo_ot_delta(which, operator=operator)(p2.test_semantics[i], random_tree.test_semantics)
+                                      *[std_xo_ot_delta(which, operator=operator)(p2.test_semantics[i], random_tree.test_semantics, testing = True)
                                        for i in range(min(p1.size, p2.size), max(p1.size, p2.size))]])
 
 

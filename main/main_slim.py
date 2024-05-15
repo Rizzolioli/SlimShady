@@ -9,6 +9,7 @@ from utils.utils import get_terminals, train_test_split
 from algorithms.SLIM_GSGP.operators.mutators import *
 from algorithms.SLIM_GSGP.operators.standard_geometric_crossover import *
 from algorithms.SLIM_GSGP.operators.our_geometric_crossover import *
+from algorithms.SLIM_GSGP.operators.our_geometric_crossover import *
 from utils.logger import log_settings
 from utils.utils import show_individual
 
@@ -22,7 +23,7 @@ algos = ["SlimGSGP"]
 
 # data_loaders = [ "toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
 
-data_loaders = ["toxicity", "concrete"]
+data_loaders = [ "concrete"]
 
 ########################################################################################################################
 
@@ -50,7 +51,7 @@ for loader in data_loaders:
 
                 slim_GSGP_parameters["two_trees"] = ttress
 
-                for op in ["sum"]:
+                for op in ["sum", "mul"]:
 
                     slim_GSGP_parameters["operator"] = op
 
@@ -63,9 +64,9 @@ for loader in data_loaders:
                         # getting the log file name according to the used parameters:
                         algo = f'{algo_name}_{1 + slim_GSGP_parameters["two_trees"] * 1}_{slim_GSGP_parameters["operator"]}' \
                                f'_{sig}'
-                        print(sig)
-                        print(ttress)
-                        print(op)
+                        print('SIG:', sig)
+                        print('2T:', ttress)
+                        print('OPERATOR', op)
                         # running each dataset + algo configuration n_runs times
                         for seed in range(n_runs):
                             start = time.time()
@@ -123,11 +124,28 @@ for loader in data_loaders:
                                                                                           'operator'],
                                                                                       sig=sig)
 
-                            slim_GSGP_parameters["crossover"] = slim_geometric_crossover(FUNCTIONS=FUNCTIONS,
-                                                                                         TERMINALS=TERMINALS,
-                                                                                         CONSTANTS=CONSTANTS,
-                                                                                         operator=slim_GSGP_parameters[
-                                                                                             'operator'])
+                            # slim_GSGP_parameters["crossover"] = slim_geometric_crossover(FUNCTIONS=FUNCTIONS,
+                            #                                                              TERMINALS=TERMINALS,
+                            #                                                              CONSTANTS=CONSTANTS,
+                            #                                                              operator=slim_GSGP_parameters[
+                            #                                                                  'operator'])
+
+
+                            # slim_GSGP_parameters["crossover"] = slim_alpha_geometric_crossover(
+                            #                                                              operator=slim_GSGP_parameters[
+                            #                                                                  'operator'])
+
+                            slim_GSGP_parameters["crossover"] = slim_swap_geometric_crossover
+
+                            # slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
+                            #                                                              operator=slim_GSGP_parameters['operator'],
+                            # perc_off_blocks=0.2
+                            # )
+
+                            # slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(
+                            #     perc_off_blocks=0.5
+                            # )
+
 
                             # adding the dataset name and algorithm name to the run info for the logger
                             slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]

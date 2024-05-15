@@ -152,7 +152,7 @@ slim_GSGP_parameters = {"initializer": rhh,
                         "ms": None,
                         "inflate_mutator": None,
                         "deflate_mutator": deflate_mutation,
-                        "p_xo": 0.8,
+                        "p_xo": 0.5,
                         "pop_size": 50,  # 100
                         "settings_dict": settings_dict,
                         "find_elit_func": get_best_min,
@@ -181,6 +181,6 @@ all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters"
               "GP": ["gp_solve_parameters", "GP_parameters", "gp_pi_init", "settings_dict"]}
 
 slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
-                       "concrete": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
+                       "concrete": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 3)},
                        "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0,
                                                                                  1)}}  #todo: add this to settings logger, fix for the other datasets
