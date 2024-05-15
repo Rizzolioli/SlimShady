@@ -8,7 +8,6 @@ def load_merged_data(dataset, X_y=False):
 
     df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "merged_data", f"{dataset}_merged.txt"), sep = " ", header = None)
 
-
     if X_y:
         return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
     else:

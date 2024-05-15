@@ -8,7 +8,7 @@ from GSGPRegressor import GSGPRegressor
 
 
 # setting up the datasets
-datas = ["concrete"]
+datas = ["toxicity"]
 
 # obtaining the data looading functions from the dataset names
 #data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
@@ -37,11 +37,11 @@ params = [{
 
 
 params = {
-    'ms': [generate_random_uniform(0, 3)],
-    'p_inflate': [0.5],
+    'ms': [generate_random_uniform(0, 0.01)],
+    'p_inflate': [0.1],
     'max_depth': [None],
     'copy_parent': [True],
-    'operator': ['sum'],
+    'operator': ['mul'],
     'sig': [True],
     'two_trees': [False]}
 

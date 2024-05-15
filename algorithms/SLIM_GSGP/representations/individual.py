@@ -101,5 +101,5 @@ def apply_individual_fixed(tree, data, operator = "sum"):
 
     print("WORK PLEASE", show_individual(tree, operator=operator))
 
-    return torch.clamp(operator(torch.stack(semantics), dim=0), -1000000000000.0, 1000000000000.0 )
+    return torch.clamp(operator(torch.stack(semantics), dim=0), -1000000000000.0, 1000000000000.0)
 
