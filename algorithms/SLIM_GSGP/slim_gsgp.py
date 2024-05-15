@@ -11,12 +11,10 @@ from algorithms.GP.representations.tree import Tree as GP_Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual
 
 from utils.diversity import gsgp_pop_div_from_vectors
-
+from utils.convexhull import distance_from_chull, calculate_signed_errors
 
 
 class SLIM_GSGP:
-    # TODO: implement improvement rate
-    # TODO: implement TIE & convex hull
 
     def __init__(self, pi_init, initializer, selector, inflate_mutator, deflate_mutator, ms, crossover, find_elit_func,
                  p_m=1, p_xo=0, p_inflate = 0.3, p_deflate = 0.7, pop_size=100, seed=0, operator = 'sum',
@@ -131,7 +129,18 @@ class SLIM_GSGP:
                             " ".join([str(f) for f in population.fit]), log
                             ]
 
+            elif log == 5:
+                #log level for distance to convex hull
+                errors = torch.stack([calculate_signed_errors(semantics, y_train, self.operator) for semantics in population.train_semantics])
+                chull_distance = distance_from_chull(errors)
 
+                add_info = [self.elite.test_fitness, self.elite.nodes_count, chull_distance]
+
+            elif log == 6:
+                #log level for tie
+                #save size of deflate (and maybe inflate) sm
+                tie = 0
+                add_info = [tie]
             else:
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
@@ -267,7 +276,7 @@ class SLIM_GSGP:
                 offs_pop = offs_pop[:population.size]
 
             offs_pop = Population(offs_pop)
-            # offs_pop.calculate_semantics(X_train)
+            offs_pop.calculate_semantics(X_train)
 
             offs_pop.evaluate(ffunction, y=y_train, operator=self.operator)
             population = offs_pop
@@ -321,6 +330,19 @@ class SLIM_GSGP:
                                 " ".join([str(ind.nodes_count) for ind in population.population]),
                                 " ".join([str(f) for f in population.fit]), log
                                 ]
+
+                elif log == 5:
+                    # log level for distance to convex hull
+                    errors = torch.stack([calculate_signed_errors(semantics, y_train, self.operator) for semantics in population.train_semantics])
+                    chull_distance = distance_from_chull(errors)
+
+                    add_info = [self.elite.test_fitness, self.elite.nodes_count, chull_distance]
+
+                elif log == 6:
+                    # log level for tie
+                    # save size of deflate (and maybe inflate) sm
+                    tie = 0
+                    add_info = [tie]
 
                 else:
 
