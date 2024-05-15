@@ -48,7 +48,7 @@ CONSTANTS = {
 
 ########################################################################################################################
 
-n_runs = 1
+n_runs = 10
 settings_dict = {"p_test": 0.2}
 
 ########################################################################################################################
@@ -140,7 +140,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log_path": os.path.join(os.getcwd(), "log_crossover", "crossover.csv"),
                               "run_info": None,
                               "ffunction": rmse,
-                              "n_iter": 5,  # 2000
+                              "n_iter": 500,  # 2000
                               "max_depth": None,
                               "n_elites": 1,
                               "reconstruct" : False
@@ -153,7 +153,7 @@ slim_GSGP_parameters = {"initializer": rhh,
                         "inflate_mutator": None,
                         "deflate_mutator": deflate_mutation,
                         "p_xo": None,
-                        "pop_size": 10,  # 100
+                        "pop_size": 100,  # 100
                         "settings_dict": settings_dict,
                         "find_elit_func": get_best_min,
                         "p_inflate": None,
