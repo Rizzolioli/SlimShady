@@ -18,7 +18,7 @@ fig_legend = plt.figure(figsize=(12, 3))  # Adjust figsize as needed to prevent 
 ax_legend = fig_legend.add_subplot(111)
 
 def plot_all_median_node_counts(name_ds, argument):
-    csv_path = os.getcwd() + f'/../res/slim_{name_ds}.csv'
+    csv_path = os.getcwd() + f'/results_def/slim_{name_ds}.csv'
     gsgp_path, gp_path = None, None
     caption = ''
 
@@ -42,12 +42,12 @@ def plot_all_median_node_counts(name_ds, argument):
                                         "test_fitness", "elite_size", "log_level"])
 
     # Example replacements
-    data.replace({'algo': {'SlimGSGP_1_mul_False': 'SLIM-NORM*1',
-                           'SlimGSGP_1_mul_True': 'SLIM-SIG*1',
-                           'SlimGSGP_1_sum_False': 'SLIM-NORM+1',
-                           'SlimGSGP_1_sum_True': 'SLIM-SIG+1',
-                           'SlimGSGP_2_mul_False': 'SLIM*2',
-                           'SlimGSGP_2_sum_False': 'SLIM+2'
+    data.replace({'algo': {'SlimGSGP_1_mul_False': 'SLIM*ABS',
+                           'SlimGSGP_1_mul_True': 'SLIM*SIG1',
+                           'SlimGSGP_1_sum_False': 'SLIM+ABS',
+                           'SlimGSGP_1_sum_True': 'SLIM+SIG1',
+                           'SlimGSGP_2_mul_False': 'SLIM*SIG2',
+                           'SlimGSGP_2_sum_False': 'SLIM+SIG2'
                            }},
                  inplace=True)
 
@@ -77,19 +77,19 @@ def plot_all_median_node_counts(name_ds, argument):
     # Set line colors and styles
     # Define specific colors for each algorithm, using shades of base colors for similar algorithms
     color_map = {
-        'SLIM-SIG*1': "red",  # Slightly lighter
-        'SLIM-NORM*1': "green",  # Slightly darker
-        'SLIM*2': "blue",  # Base color for multiplicative versions
-        'SLIM-SIG+1': "red",  # Slightly lighter
-        'SLIM-NORM+1': "green",  # Slightly darker
-        'SLIM+2': "blue"  # Base color for additive versions
+        'SLIM*SIG1': "#ff7f0e",  # Slightly lighter
+        'SLIM*ABS': "#2ca02c",  # Slightly darker
+        'SLIM*SIG2': "#1f77b4",  # Base color for multiplicative versions
+        'SLIM+SIG1': "#ffbb78",  # Slightly lighter
+        'SLIM+ABS': "#98df8a",  # Slightly darker
+        'SLIM+SIG2': "#aec7e8"  # Base color for additive versions
     }
     style_map = {'GSGP': "solid", 'GP': "solid",
-                 'SLIM-SIG*1': "dashed", 'SLIM-NORM*1': "dashed", 'SLIM*2': "dashed",
-                 'SLIM-SIG+1': "solid", 'SLIM-NORM+1': "solid", 'SLIM+2': "solid"}
+                 'SLIM*SIG1': "dashed", 'SLIM*ABS': "dashed", 'SLIM*SIG2': "dashed",
+                 'SLIM+SIG1': "solid", 'SLIM+ABS': "solid", 'SLIM+SIG2': "solid"}
     # style_map = {
-    #              'SLIM-SIG*1': "solid", 'SLIM-NORM*1': "solid", 'SLIM*2': "solid",
-    # R             'SLIM-SIG+1': "solid", 'SLIM-NORM+1': "solid", 'SLIM+2': "solid"}
+    #              'SLIM*SIG1': "solid", 'SLIM*ABS': "solid", 'SLIM*SIG2': "solid",
+    # R             'SLIM+SIG1': "solid", 'SLIM+ABS': "solid", 'SLIM+SIG2': "solid"}
 
     # Adjust font sizes
     plt.rc('axes', titlesize=40)  # Title size
@@ -106,27 +106,40 @@ def plot_all_median_node_counts(name_ds, argument):
                  linewidth=6)
 
     # Special handling for GSGP and GP data
-    plt.plot(range(len(gsgp_values)), gsgp_values, label='GSGP', color="silver", linestyle='-', linewidth=6)
-    plt.plot(range(len(gp_values)), gp_values, label='STDGP', color="k", linestyle='-', linewidth=6)
+    plt.plot(range(len(gsgp_values)), gsgp_values, label='GSGP', color="gray", linestyle='-', linewidth=6)
+    plt.plot(range(len(gp_values)), gp_values, label='STDGP', color="k", linestyle='-', linewidth=5)
 
 
     plt.xlabel('Generation')
     plt.ylabel(caption)
     if argument == 'elite_size':
         plt.ylim(0, 2500)
+    else:
+        if name_ds == "toxicity":
+            plt.ylim(1250, 2500)
+        if name_ds == "instanbul":
+            plt.ylim(0.011, 0.020)
+        if name_ds == "energy":
+            plt.ylim(1.5, 7.5)
+        if name_ds == "ppb":
+            plt.ylim(0, 80)
+        if name_ds == "concrete":
+            plt.ylim(5.2, 20)
+        if name_ds == "resid": 
+            plt.ylim(25, 130)
 
     #if argument == "test_fitness":
     #    plt.title(name_ds.upper())
     # plt.legend(title='Algorithm', loc='upper left')
     plt.tight_layout()
-    plt.savefig(os.getcwd() + f"/../plots/{argument}_{name_ds}_png", dpi=300)
+    plt.savefig(os.getcwd() + f"/../plots/{argument}_{name_ds}.pdf", dpi=800)
     # plt.close()
 
     # After your plotting code, assume you have retrieved handles and labels
     handles, labels = plt.gca().get_legend_handles_labels()
 
     # Define your custom order as a list of labels in the order you want them to appear
-    custom_order = ['STDGP', 'GSGP', 'SLIM-NORM*1', 'SLIM-NORM+1', 'SLIM-SIG*1', 'SLIM-SIG+1',  'SLIM*2', 'SLIM+2']
+    custom_order = ['STDGP', 'GSGP', 'SLIM+SIG2', 'SLIM*SIG2', 'SLIM+ABS', 'SLIM*ABS', 'SLIM+SIG1', 'SLIM*SIG1']
 
     # Create new lists for handles and labels based on the custom order
     ordered_handles = []
@@ -146,7 +159,7 @@ def plot_all_median_node_counts(name_ds, argument):
     ax_legend.axis('off')
     fig_legend.tight_layout()
 
-    fig_legend.savefig(os.getcwd() + "/../legend.png", dpi=300)
+    fig_legend.savefig(os.getcwd() + "/../legend.pdf", dpi=400)
     plt.close(fig_legend)  # Close the figure to free resources
 
 

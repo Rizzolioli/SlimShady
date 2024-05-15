@@ -30,7 +30,6 @@ def get_last_generation_data(data, algo_name):
 
 
 def compute_pval(alg1, alg2, name_ds, argument):
-    print(name_ds)
     # Set paths and caption based on the argument
     if argument == 'elite_size':
         gsgp_path = os.getcwd() + f'/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_GSGP_random_MS_04_09_2023_{name_ds.upper()}.txt'
@@ -61,7 +60,7 @@ def compute_pval(alg1, alg2, name_ds, argument):
     gsgp_last_generation = [row[-1] for row in data_gsgp if row]
     # print(gsgp_last_generation)
 
-    csv_path = os.getcwd() + f'/../res/slim_{name_ds}.csv'
+    csv_path = os.getcwd() + f'/results_def/slim_{name_ds}.csv'
     # Load data from the CSV file
     data = pd.read_csv(csv_path, names=["algo", "experiment_id", "dataset", "seed", "generation", "training_fitness",
                                         "timing", "pop_node_count", "test_fitness", "elite_size", "log_level"])
@@ -95,11 +94,11 @@ def compute_pval(alg1, alg2, name_ds, argument):
 
 
 slim_algs = ['SLIM-NORM*1', 'SLIM-SIG*1', 'SLIM-NORM+1', 'SLIM-SIG+1', 'SLIM*2', 'SLIM+2']
-for name_ds in ["concrete"]:
-    alg2 = "SLIM+2"
-    compute_pval("gp", alg2, name_ds, "elite_size")
-    compute_pval("gsgp", alg2, name_ds, "elite_size")
-
+for name_ds in ["toxicity", "instanbul", "energy", "ppb", "concrete", "resid_build_sale_price"]:
+    print(name_ds)
+    alg2 = "SLIM-SIG+1"
+    compute_pval("gp", alg2, name_ds, "test_fitness")
+    compute_pval("gsgp", alg2, name_ds, "test_fitness")
 
 
 def compute_median_ranking(name_ds, argument):
@@ -134,7 +133,7 @@ def compute_median_ranking(name_ds, argument):
     gsgp_last_generation = [row[-1] for row in data_gsgp if row]
     # print(gsgp_last_generation)
 
-    csv_path = os.getcwd() + f'/../res/slim_{name_ds}.csv'
+    csv_path = os.getcwd() + f'/results_def/slim_{name_ds}.csv'
     # Load data from the CSV file
     data = pd.read_csv(csv_path, names=["algo", "experiment_id", "dataset", "seed", "generation", "training_fitness",
                                         "timing", "pop_node_count", "test_fitness", "elite_size", "log_level"])
@@ -150,18 +149,19 @@ def compute_median_ranking(name_ds, argument):
                  inplace=True)
 
     algos = [
-          'SLIM*2',
-          'SLIM+2',
-            'SLIM-NORM*1',
-            'SLIM-NORM+1',
-            'SLIM-SIG*1',
-            'SLIM-SIG+1',
-                ]
+        'SLIM*2',
+        'SLIM+2',
+        'SLIM-NORM*1',
+        'SLIM-NORM+1',
+        'SLIM-SIG*1',
+        'SLIM-SIG+1',
+    ]
 
     result_1 = gp_last_generation
     gsgp_last_generation
 
-    all_results = [ *[list(get_last_generation_data(data, algo)[argument]) for algo in algos], gp_last_generation, gsgp_last_generation]
+    all_results = [*[list(get_last_generation_data(data, algo)[argument]) for algo in algos], gp_last_generation,
+                   gsgp_last_generation]
 
     medians = [np.median(res) for res in all_results]
 
@@ -172,8 +172,8 @@ for metric in ["test_fitness", "elite_size"]:
     print(metric)
     rank_list = []
     for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
-       rank = compute_median_ranking(name_ds, metric)
-       rank_list.append(rank)
+        rank = compute_median_ranking(name_ds, metric)
+        rank_list.append(rank)
     rank_list = np.array(rank_list)
     median = np.median(rank_list, axis=0)
     print(f"median {median}")
