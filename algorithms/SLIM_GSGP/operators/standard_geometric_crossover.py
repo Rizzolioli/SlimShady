@@ -148,10 +148,6 @@ def slim_geometric_crossover(FUNCTIONS, TERMINALS, CONSTANTS, operator, max_dept
                           for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
 
 
-        # offs.calculate_semantics(X)
-        # if X_test is not None:
-        #     offs.calculate_semantics(X_test, testing=True)
-
         return offs
 
     return inner_xo
