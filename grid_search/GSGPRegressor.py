@@ -51,7 +51,6 @@ class GSGPRegressor(BaseEstimator, RegressorMixin):
 
         setattr(self, 'p_deflate', slim_GSGP_parameters['p_deflate'])
 
-
         return self
 
     def fit(self, X, y=None):

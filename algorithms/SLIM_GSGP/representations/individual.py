@@ -69,13 +69,10 @@ class Individual():
             operator = torch.prod
 
         if testing:
-            self.test_fitness = ffunction(y, operator(self.test_semantics, dim = 0))
+            self.test_fitness = ffunction(y, torch.clamp(operator(self.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0))
 
-        else:
-            self.fitness = ffunction(y, operator(self.train_semantics, dim = 0))
-
-    def apply_individual(self, data, operator="sum"): # TODO Davide or Liah verify. I get slightly different RMSE on the elite using this
-        return [apply_tree(tree, data) for tree in self.collection][0]
+        else: # note: clamping in case the operator results in very very big semantics
+            self.fitness = ffunction(y, torch.clamp(operator(self.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0))
 
 def apply_individual_fixed(tree, data, operator = "sum"):
 
@@ -104,5 +101,5 @@ def apply_individual_fixed(tree, data, operator = "sum"):
 
     print("WORK PLEASE", show_individual(tree, operator=operator))
 
-    return operator(torch.stack(semantics), dim=0)
+    return torch.clamp(operator(torch.stack(semantics), dim=0), -1000000000000.0, 1000000000000.0 )
 

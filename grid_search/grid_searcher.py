@@ -8,7 +8,7 @@ from GSGPRegressor import GSGPRegressor
 
 
 # setting up the datasets
-datas = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
+datas = ["concrete"]
 
 # obtaining the data looading functions from the dataset names
 #data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
@@ -18,7 +18,7 @@ datas = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "
 params = [{
     'ms': [generate_random_uniform(0, 0.01), generate_random_uniform(0, 0.1), generate_random_uniform(0, 1)
         , generate_random_uniform(0, 3), generate_random_uniform(0, 10)],
-    'p_inflate': [0.1, 0.3, 0.5, 0.7, 0.9],
+    'p_inflate': [ 0.3, 0.5, 0.7, 0.9],
     'max_depth': [None, 17, 50, 100],
     'copy_parent': [True, False],
     'operator': ['mul','sum'],
@@ -28,13 +28,22 @@ params = [{
 {
     'ms': [generate_random_uniform(0, 0.01), generate_random_uniform(0, 0.1), generate_random_uniform(0, 1)
         , generate_random_uniform(0, 3), generate_random_uniform(0, 10)],
-    'p_inflate': [0.1, 0.3, 0.5, 0.7, 0.9],
+    'p_inflate': [0.3, 0.5, 0.7, 0.9],
     'max_depth': [None, 17, 50, 100],
     'copy_parent': [True, False],
     'operator': ['mul','sum'],
     'sig': [True, False],
     'two_trees': [False]}]
 
+
+params = {
+    'ms': [generate_random_uniform(0, 3)],
+    'p_inflate': [0.5],
+    'max_depth': [None],
+    'copy_parent': [True],
+    'operator': ['sum'],
+    'sig': [True],
+    'two_trees': [False]}
 
 # setting up both the rmse and the individual size as fitness parameters
 scorers = {"rmse": make_scorer(gs_rmse, greater_is_better=False),
@@ -47,8 +56,8 @@ for dataset in datas:
     X, y = ds.load_merged_data(dataset, X_y=True)
 
     # creating the gsgp regressor model
-    model = GSGPRegressor(random_state=74, test_elite=False, n_iter=500, verbose=0, pop_size=200, reconstruct=True) # reconstruct must be true
-                                                                                            # in order to evaluate the individual on new data
+    model = GSGPRegressor(random_state=74, test_elite=False, n_iter=500, verbose=0, pop_size=100, reconstruct=True) # reconstruct must be true
+                                                                                                 # in order to evaluate the individual on new data
 
     # setting up the grid search
     search = GridSearchCV(model, params, verbose=3, scoring=scorers, refit=False, cv=5)
@@ -68,3 +77,4 @@ for dataset in datas:
     # logging the cross validation results
     results.to_csv(f"log/{dataset}_grid_search.csv")
 
+    # todo: add to change the parametrization loggwr for slim results to yield --> slim grid full results.
