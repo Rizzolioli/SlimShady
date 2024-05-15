@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search/GSGPRegressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search/GSGPRegressor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grid_search/grid_searcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search/grid_searcher.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -115,7 +113,7 @@
   "keyToString": {
     "Python.GSGPRegressor.executor": "Debug",
     "Python.dataset_merger.executor": "Run",
-    "Python.grid_searcher.executor": "Debug",
+    "Python.grid_searcher.executor": "Run",
     "Python.main_slim.executor": "Run",
     "Python.results_study.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
