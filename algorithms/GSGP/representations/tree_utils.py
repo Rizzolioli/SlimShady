@@ -63,43 +63,48 @@ def nested_depth_calculator(operator, depths):
     elif operator.__name__ == 'ot_delta_mul_False':
         depths[0] += 6
         
-    elif operator.__name__ == 'geometric_crossover':
+    elif operator.__name__ in ['geometric_crossover', 'stdxo_delta']:
         depths[:] += 2
         depths.append(depths[-1] + 1)
+
+    elif operator.__name__ == 'stdxo_ot_delta_first':
+        depths[:] += 1
+
+    elif operator.__name__ == 'stdxo_ot_delta_second':
+        depths[0] += 1
+        depths[1] += 2
+
+    elif operator.__name__ == 'stdxo_a_delta':
+        depths[:] += 2
+
+    elif operator.__name__ in ['stdxo_ot_a_delta_first', 'stdxo_ot_a_delta_second']:
+        depths[:] += 1
         
 
     return max(depths)
 
 
-
-
-# def nested_depth_calculator(operator, depths):
-#     return max(depths) + (4 if operator.__name__ == 'ot_delta_sum' else (
-#                           5 if operator.__name__ == 'ot_delta_mul' else (
-#                           2 if operator.__name__ == 'tt_delta_sum' else (
-#                           3 if operator.__name__ == 'tt_delta_mul' else (2)
-#                           ))))
-
-# def nested_nodes_calculator(operator, nodes):
-#     extra_operators_nodes = [5, nodes[-1]] if operator.__name__ == 'geometric_crossover' \
-#            else (
-#            [9] if operator.__name__ == 'ot_delta_mul' else
-#            ([6] if operator.__name__ == 'tt_delta_mul' else
-#            ([9] if operator.__name__ == 'ot_delta_sum' else
-#            ([4] if operator.__name__ == 'tt_delta_sum' else [0]
-#             ))))
-#
-#     return sum([*nodes, *extra_operators_nodes])
-
-
 def nested_nodes_calculator(operator, nodes):
-    extra_operators_nodes = [5, nodes[-1]] if operator.__name__ == 'geometric_crossover' \
-        else (
-        [7] if operator.__name__ == 'ot_delta_sum_True' else
+    extra_operators_nodes = \
+         \
+         [5, nodes[-1]] if operator.__name__ in ['geometric_crossover', 'stdxo_delta'] else \
+         \
+         ([7] if operator.__name__ in ['ot_delta_sum_True', 'stdxo_a_delta'] else
+
+         ([1] if operator.__name__ == 'stdxo_ot_delta_first' else
+
+         ([3] if operator.__name__ == 'stdxo_ot_delta_second' else
+
+         ([2] if operator.__name__ in ['stdxo_a_second', 'stdxo_ot_a_delta_first'] else
+
          ([11] if operator.__name__ == 'ot_delta_mul_False' else
+
          ([9] if operator.__name__ == ['ot_delta_sum_False', 'ot_delta_mul_True'] else
-        ([6] if operator.__name__ == 'tt_delta_mul' else
-          ([4] if operator.__name__ == 'tt_delta_sum' else [0]
-           )))))
+
+         ([6] if operator.__name__ == 'tt_delta_mul' else
+
+         ([4] if operator.__name__ in ['stdxo_ot_a_delta_second','tt_delta_sum'] else [0]
+
+           ))))))))
 
     return sum([*nodes, *extra_operators_nodes])
