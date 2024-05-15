@@ -69,6 +69,11 @@ class GSGPRegressor(BaseEstimator, RegressorMixin): # TODO: remove algo as a giv
         if len(X) < 2:
             raise ValueError("Estimator requires more than 1 sample to function") # TODO: why do we need at least 2?
 
+        # assuring that sig isn't run with two_trees = True
+        if self.sig and self.two_trees:
+            raise Exception("GSGPRegressor cannot run with sig = True and two_trees = True. Set one of these parameters (or both) to False.")
+
+
         # obtaining the number of features in the dataset
         self.n_features_in_ = len(X[0])
 
@@ -84,9 +89,9 @@ class GSGPRegressor(BaseEstimator, RegressorMixin): # TODO: remove algo as a giv
         # setting up the inflate mutator based on the previously established/obtained parameterization variables
         slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
                                                                   TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
-                                                                  two_trees=mutation_parameters['two_trees'],
-                                                                  operator=slim_GSGP_parameters['operator'],
-                                                                  sig = mutation_parameters['sig'])
+                                                                  two_trees=self.two_trees,
+                                                                  operator=self.operator,
+                                                                  sig = self.sig)
 
         # getting the log file name according to the used parameters:
         #algo_name = f'{self.algo}_{1 + slim_GSGP_parameters["inflate_mutator"].__closure__[4].cell_contents * 1}_{slim_GSGP_parameters["operator"]}.csv'
@@ -129,8 +134,7 @@ class GSGPRegressor(BaseEstimator, RegressorMixin): # TODO: remove algo as a giv
 
         # reconstructing the fitted model's elite on the given prediction data, obtaining the final predictions.
         result = apply_individual_fixed(self.optimizer.elite, data=torch.from_numpy(X),
-                                                            operator=slim_GSGP_parameters['operator'],
-                                        sig=mutation_parameters['sig'])
+                                                            operator=self.operator, sig=self.sig)
 
 
         # returning both the final predicitions of the model (for future rmse calculation)

@@ -44,7 +44,7 @@ params = {
     'copy_parent': [True],
     'operator': ['mul'],
     'sig': [True],
-    'two_trees': [False]}
+    'two_trees': [True]}
 
 # setting up both the rmse and the individual size as fitness parameters
 scorers = {"rmse": make_scorer(gs_rmse, greater_is_better=False),
