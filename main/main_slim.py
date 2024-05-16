@@ -21,7 +21,7 @@ from utils.utils import show_individual
 
 algos = ["SlimGSGP"]
 
-data_loaders = ["instanbul", "energy"]
+data_loaders = ["resid_build_sale_price", "toxicity", "concrete", "instanbul", "ppb", "energy"]
 
 ########################################################################################################################
 
@@ -42,9 +42,9 @@ for loader in data_loaders:
     for algo_name in algos:
         for (sig, ttress, op) in [(True, True, "sum"), (True, False, "mul"), (False, False, "mul")]:
             if op == "sum":
-                list_crossover = ["c", "ac", "sc", "adc-0.3", "adc-0.5", "adc-0.7", "sdc-0.3", "sdc-0.5", "sdc-0.8"]
+                list_crossover = ["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7"]
             else:
-                list_crossover = ["sc", "sdc-0.3", "sdc-0.5", "sdc-0.8"]
+                list_crossover = ["sc", "sdc-0.3", "sdc-0.7"]
             for cross in list_crossover:
                 for cross_prob in [0.2, 0.5, 0.8]:
 
@@ -124,10 +124,6 @@ for loader in data_loaders:
                             slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
                                 operator=slim_GSGP_parameters['operator'], perc_off_blocks=0.3)
 
-                        elif cross == "sda-0.5":
-                            slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
-                                operator=slim_GSGP_parameters['operator'], perc_off_blocks=0.5)
-
                         elif cross == "sda-0.7":
                             slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
                                 operator=slim_GSGP_parameters['operator'], perc_off_blocks=0.7)
@@ -135,14 +131,11 @@ for loader in data_loaders:
                         elif cross == "sdc-0.3":
                             slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(perc_off_blocks=0.3)
 
-                        elif cross == "sdc-0.5":
-                            slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(perc_off_blocks=0.5)
-
                         elif cross == "sdc-0.7":
                             slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(perc_off_blocks=0.7)
 
                         else:
-                            print("WRONG")
+                            break
 
                         # adding the dataset name and algorithm name to the run info for the logger
                         slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]
