@@ -137,7 +137,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log_crossover", "crossover.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log_crossover", "crossover_ins_ener.csv"),
                               "run_info": None,
                               "ffunction": rmse,
                               "n_iter": 500,  # 2000

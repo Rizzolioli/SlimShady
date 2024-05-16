@@ -21,7 +21,7 @@ from utils.utils import show_individual
 
 algos = ["SlimGSGP"]
 
-data_loaders = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
+data_loaders = ["instanbul", "energy"]
 
 ########################################################################################################################
 
