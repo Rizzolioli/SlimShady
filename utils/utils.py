@@ -3,7 +3,7 @@ import torch
 import math
 from copy import copy
 import numpy as np
-from sklearn.metrics import root_mean_squared_error
+
 
 from algorithms.GP.representations.tree_utils import create_full_random_tree, create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
