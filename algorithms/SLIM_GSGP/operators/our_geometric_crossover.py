@@ -83,7 +83,7 @@ def slim_alpha_geometric_crossover(operator):
                 [std_xo_alpha_delta(operator=operator)(p1.test_semantics[i], p2.test_semantics[i],
                                                        alphas[i], testing = True) for i in range(min(p1.size, p2.size))])
 
-        offs_nodes_collection = [p1.nodes_collection[i] + p2.nodes_collection[i] + + 7
+        offs_nodes_collection = [p1.nodes_collection[i] + p2.nodes_collection[i] + 7
                                  for i in range(min(p1.size, p2.size))]
         offs_depth_collection = [
             max([p1.depth_collection[i] + 2, p2.depth_collection[i] + 2])
