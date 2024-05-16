@@ -40,13 +40,17 @@ unique_run_id = uuid.uuid1()
 # for each dataset
 for loader in data_loaders:
     for algo_name in algos:
-        for (sig, ttress, op) in [(True, True, "sum"), (True, False, "mul"), (False, False, "mul")]:
+        for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
             if op == "sum":
                 list_crossover = ["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7"]
             else:
                 list_crossover = ["sc", "sdc-0.3", "sdc-0.7"]
             for cross in list_crossover:
-                for cross_prob in [0.2, 0.5, 0.8]:
+                if cross == "c":
+                    list_prob = [0.2]
+                else:
+                    list_prob = [0.2, 0.5, 0.8]
+                for cross_prob in list_prob:
 
                     slim_GSGP_parameters["two_trees"] = ttress
                     slim_GSGP_parameters["operator"] = op
