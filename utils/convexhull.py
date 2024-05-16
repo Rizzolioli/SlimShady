@@ -10,7 +10,7 @@ def calculate_signed_errors(semantics, y_true, operator):
     else:
         operator = torch.prod
 
-    return  signed_errors(y_true, operator(semantics, dim = 0))
+    return signed_errors(y_true, operator(semantics, dim = 0))
 
 
 def global_optimum_in_ch(errors):

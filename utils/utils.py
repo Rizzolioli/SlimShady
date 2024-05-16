@@ -299,5 +299,6 @@ def show_individual(tree, operator):
 def gs_rmse(y_true, y_pred):
     return root_mean_squared_error(y_true, y_pred[0])
 
+
 def gs_size (y_true, y_pred):
     return y_pred[1]

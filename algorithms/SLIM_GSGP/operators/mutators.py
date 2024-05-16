@@ -51,7 +51,7 @@ def one_tree_delta(operator='sum', sig=False):
     return ot_delta
 
 
-def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='sum', single_tree_sigmoid=False,
+def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='sum', single_tree_sigmoid=False, # TODO: see if we need to remove single_tree_sigmoid
                      sig=False):
     def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1, reconstruct = True):
 
@@ -127,6 +127,7 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
 def deflate_mutation(individual, reconstruct):
 
     mut_point = random.randint(1, individual.size - 1)
+
     offs = Individual(collection = [*individual.collection[:mut_point], *individual.collection[mut_point + 1:]]
                                     if reconstruct else None,
                       train_semantics=torch.stack(
