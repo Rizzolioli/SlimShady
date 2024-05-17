@@ -73,6 +73,27 @@ def load_airfoil(X_y=False):
     else:
         return df
 
+def load_yatch(X_y=False):
+    """ yatch
+
+    Parameters
+    ----------
+    X_y : bool (default=False)
+        Return data as two objects of type torch.Tensor, otherwise as a
+        pandas.DataFrame.
+
+    Returns
+    -------
+    pandas.DataFrame
+        An object of type pandas.DataFrame which holds the data. The
+        target is the last column.
+    """
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "yatch.txt"))
+    if X_y:
+        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    else:
+        return df
+
 
 def load_boston(X_y=False):
     """ Loads and returns the Boston Housing data set (regression)
