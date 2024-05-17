@@ -39,7 +39,7 @@ elites = {}
 # attibuting a unique id to the run
 unique_run_id = uuid.uuid1()
 
-n_runs = 30
+n_runs = 10
 settings_dict = {"p_test": 0.2}
 
 FUNCTIONS = {
@@ -58,7 +58,7 @@ CONSTANTS = {
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 1,
+                              "log": 5,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", "chull.csv"),
@@ -120,7 +120,7 @@ for loader in data_loaders:
 
         for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
 
-            for pause_deflate in [50, 100, 200, 250, 500, 750, 900]:
+            for pause_deflate in [100, 250, 500, 750, 900]:
 
                 slim_GSGP_parameters["two_trees"] = ttress
                 slim_GSGP_parameters["operator"] = op
