@@ -3,7 +3,7 @@ import random
 import torch
 import numpy as np
 
-from utils.TIE import calculate_tie_deflate
+from utils.TIE import calculate_tie_deflate_nbt
 from utils.utils import verbose_reporter
 from utils.logger import logger
 from algorithms.SLIM_GSGP.representations.population import Population
@@ -290,10 +290,10 @@ class SLIM_GSGP:
             self.elites, self.elite = self.find_elit_func(population, n_elites)
 
             if it > 3:
-                calculate_tie_deflate(elite=self.elite, ffunction=ffunction, find_elit_func=self.find_elit_func,
+                calculate_tie_deflate_nbt(elite=self.elite, ffunction=ffunction, find_elite_func=self.find_elit_func, #TODO: fix find_elite_func
                                       operator=self.operator,
                                       y_train=y_train)
-
+                print("break point")
             if test_elite:
                 self.elite.calculate_semantics(X_test, testing=True)
                 self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
