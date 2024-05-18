@@ -19,8 +19,8 @@ from utils.utils import generate_random_uniform
 LOGICAL_OPERATORS = {
     'greater_than': {'function': lambda x, y: torch.gt(x, y), 'arity': 2},
     'lesser_than': {'function': lambda x, y: torch.lt(x, y), 'arity': 2},
-    'between' : {'function': lambda x, y, z: torch.logical_and(
-        torch.gt(x, y), torch.lt(x, z)
+    'between' : {'function': lambda x, y: torch.logical_and(
+        torch.gt(x, y[0]), torch.lt(x, y[1])
     ), 'arity': 3}
 }
 
