@@ -1,7 +1,6 @@
 import random
 import torch
 import math
-from copy import copy
 import numpy as np
 from sklearn.metrics import root_mean_squared_error
 
@@ -129,6 +128,7 @@ def verbose_reporter(dataset, generation, pop_val_fitness, pop_test_fitness, tim
 
         Parameters
         ----------
+        dataset: TODO fill this
         generation : int
             Current generation number.
         pop_val_fitness : float
@@ -243,7 +243,7 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3,
         # creating a tree using grow
         tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
-        #reconstruct set to true to calculate the s
+        # reconstruct set to true to calculate the s
         tree = Tree(structure=tree,
                     train_semantics=None,
                     test_semantics=None,
@@ -299,5 +299,25 @@ def show_individual(tree, operator):
 def gs_rmse(y_true, y_pred):
     return root_mean_squared_error(y_true, y_pred[0])
 
+
 def gs_size (y_true, y_pred):
     return y_pred[1]
+
+
+def generate_percentiles(x: torch.Tensor) -> torch.Tensor:
+    """
+
+    Parameters
+    ----------
+    x: torch.Tensor
+        A dataset to generate the percentiles on, without the target variable
+
+    Returns
+    -------
+    torch.Tensor: A two-dimensional tensor where each column is a variable of the dataset and each of the 100 rows is
+        a percentile of it.
+
+    """
+    return torch.stack(
+        [torch.quantile(torch.t(x.to(torch.float)), q=percentile / 100, dim=1, interpolation="nearest") for percentile
+         in range(1, 101, 1)])

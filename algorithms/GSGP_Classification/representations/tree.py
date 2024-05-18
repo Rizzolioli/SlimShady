@@ -17,3 +17,5 @@ class Tree:
 
         # TODO: Depth calculation in utils and call it here
 
+if __name__ == '__main__':
+    pass
