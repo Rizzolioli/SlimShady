@@ -1,8 +1,10 @@
+import random
+
 from algorithms.SLIM_GSGP.representations.individual import Individual
 import torch
 import itertools
 
-def calculate_tie_inflate(elite, ffunction, y_train, operator, find_elit_func, mutator, X, ms_generator,
+def calculate_tie_inflate(elite, ffunction, y_train, operator, find_elit_func, mutator, X, ms_generator, neigh_size,
                         max_depth=8, p_c=0.1, grow_probability=1): # TODO: add the grow probab parameter to slim
 
     # obtaining the deflated neighbourhood of the individual by iterating through all of its blocks as possible
@@ -15,7 +17,7 @@ def calculate_tie_inflate(elite, ffunction, y_train, operator, find_elit_func, m
                             p_c=p_c,
                             X_test=None,
                             grow_probability = grow_probability,
-                            reconstruct = False) for _ in range(1, elite.size - 1)]
+                            reconstruct = False) for _ in range(neigh_size)]
 
     # evaluating all the neighbours
     [neighbour.evaluate(ffunction, y=y_train, testing=False, operator=operator) for neighbour in neighbourhood]
@@ -24,10 +26,10 @@ def calculate_tie_inflate(elite, ffunction, y_train, operator, find_elit_func, m
     comparator = compare_best_max if "max" in find_elit_func.__name__.lower() else compare_best_min
 
     # returning the % of neighbours that are better than the current elite (i.e., the TIE value)
-    return len([neighbour for neighbour in neighbourhood if comparator(elite, neighbour) == neighbour.fitness]) / len(
-        neighbourhood)
+    return len([neighbour for neighbour in neighbourhood if comparator(elite, neighbour) == neighbour.fitness]) / \
+           len(neighbourhood) if len(neighbourhood) > 0 else 0
 
-def calculate_tie_deflate(elite, ffunction, y_train, operator, find_elite_func):
+def calculate_tie_deflate(elite, ffunction, y_train, operator, find_elite_func, neigh_size):
     # obtaining the deflated neighbourhood of the individual by iterating through all of its blocks as possible
     # mutation points:
     neighbourhood = [Individual(collection=None,
@@ -36,6 +38,8 @@ def calculate_tie_deflate(elite, ffunction, y_train, operator, find_elite_func):
                                 test_semantics=None,
                                 reconstruct=False) for mut_point in range(1, elite.size - 1)]
 
+    neighbourhood = random.sample(neighbourhood, neigh_size)
+
     # evaluating all the neighbours
     [neighbour.evaluate(ffunction, y=y_train, testing=False, operator=operator) for neighbour in neighbourhood]
 
@@ -43,9 +47,10 @@ def calculate_tie_deflate(elite, ffunction, y_train, operator, find_elite_func):
     comparator = compare_best_max if "max" in find_elite_func.__name__.lower() else compare_best_min
 
     # returning the % of neighbours that are better than the current elite (i.e., the TIE value)
-    return len([neighbour for neighbour in neighbourhood if comparator(elite, neighbour) == neighbour.fitness]) / len(neighbourhood)
+    return len([neighbour for neighbour in neighbourhood if comparator(elite, neighbour) == neighbour.fitness]) / \
+           len(neighbourhood) if len(neighbourhood) > 0 else 0, len(neighbourhood)
 
-def calculate_tie_deflate_nbt(elite, ffunction, y_train, operator, find_elite_func):
+def calculate_tie_deflate_nbt(elite, ffunction, y_train, operator, find_elite_func, neigh_size):
 
     # obtaining a list of all the offspring block removal combo
     blocks_to_remove = get_all_block_combos(elite)
@@ -57,6 +62,8 @@ def calculate_tie_deflate_nbt(elite, ffunction, y_train, operator, find_elite_fu
     # obtaining all the training semantics of the neighborus in the possible semantic neighbourhood
     neighbourhood = [torch.stack([sub_training for idx, sub_training in enumerate(elite.train_semantics) if idx not in sublist])
                                         for sublist in blocks_to_remove]
+
+    neighbourhood = random.sample(neighbourhood, neigh_size)
 
     # creating neighbours as individuals based off of the training semantics
     neighbourhood = [Individual(collection=None,
@@ -70,8 +77,8 @@ def calculate_tie_deflate_nbt(elite, ffunction, y_train, operator, find_elite_fu
     comparator = compare_best_max if "max" in find_elite_func.__name__.lower() else compare_best_min
 
     # returning the % of neighbours that are better than the current elite (i.e., the TIE value)
-    return len([neighbour for neighbour in neighbourhood if comparator(elite, neighbour) == neighbour.fitness]) / len(
-        neighbourhood)
+    return len([neighbour for neighbour in neighbourhood if comparator(elite, neighbour) == neighbour.fitness]) /  \
+           len(neighbourhood) if len(neighbourhood) > 0 else 0, len(neighbourhood)
 
 # TODO: reformat the files so that this is in utils but no circular import issues emerge
 def compare_best_max(ind1, ind2):
