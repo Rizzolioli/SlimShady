@@ -182,7 +182,7 @@ for loader in data_loaders:
 
 
                 # adding the dataset name and algorithm name to the run info for the logger
-                slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id,  pause_deflate,  dataset]
+                slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id,  dataset]
 
                 optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
 

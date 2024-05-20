@@ -11,7 +11,7 @@ def calculate_tie_inflate(elite, ffunction, y_train, operator, find_elit_func, m
     # mutation points:
 
     neighbourhood = [mutator(individual=elite,
-                            ms_=ms_generator(),
+                            ms=ms_generator(),
                             X=X,
                             max_depth=max_depth,
                             p_c=p_c,
@@ -38,7 +38,8 @@ def calculate_tie_deflate(elite, ffunction, y_train, operator, find_elite_func, 
                                 test_semantics=None,
                                 reconstruct=False) for mut_point in range(1, elite.size - 1)]
 
-    neighbourhood = random.sample(neighbourhood, neigh_size)
+    if len(neighbourhood) > neigh_size:
+        neighbourhood = random.sample(neighbourhood, neigh_size)
 
     # evaluating all the neighbours
     [neighbour.evaluate(ffunction, y=y_train, testing=False, operator=operator) for neighbour in neighbourhood]
@@ -63,7 +64,8 @@ def calculate_tie_deflate_nbt(elite, ffunction, y_train, operator, find_elite_fu
     neighbourhood = [torch.stack([sub_training for idx, sub_training in enumerate(elite.train_semantics) if idx not in sublist])
                                         for sublist in blocks_to_remove]
 
-    neighbourhood = random.sample(neighbourhood, neigh_size)
+    if len(neighbourhood) > neigh_size:
+        neighbourhood = random.sample(neighbourhood, neigh_size)
 
     # creating neighbours as individuals based off of the training semantics
     neighbourhood = [Individual(collection=None,

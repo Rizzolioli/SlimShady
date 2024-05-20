@@ -106,7 +106,7 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
                                                (new_block.test_semantics
                                                 if new_block.test_semantics.shape != torch.Size([])
                                                 else new_block.test_semantics.repeat(len(X_test)))]))
-                                            if individual.test_semantics is not None
+                                            if X_test is not None
                                             else None,
                           reconstruct=reconstruct
                           )

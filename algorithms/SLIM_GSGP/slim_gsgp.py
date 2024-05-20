@@ -158,14 +158,14 @@ class SLIM_GSGP:
 
                 tie_d, d_sn = calculate_tie_deflate(elite=self.elite,
                                                     ffunction=ffunction,
-                                                    find_elit_func=self.find_elit_func,
+                                                    find_elite_func=self.find_elit_func,
                                                     operator=self.operator,
                                                     y_train=y_train,
                                                     neigh_size=self.pop_size)
 
                 tie_d_ext, d_sn_ext = calculate_tie_deflate_nbt(elite=self.elite,
                                                                 ffunction=ffunction,
-                                                                find_elit_func=self.find_elit_func,
+                                                                find_elite_func=self.find_elit_func,
                                                                 operator=self.operator,
                                                                 y_train=y_train,
                                                                 neigh_size=self.pop_size)
@@ -393,14 +393,14 @@ class SLIM_GSGP:
 
                     tie_d, d_sn = calculate_tie_deflate(elite=self.elite,
                                                   ffunction=ffunction,
-                                                  find_elit_func=self.find_elit_func,
+                                                  find_elite_func=self.find_elit_func,
                                                   operator=self.operator,
                                                   y_train=y_train,
                                                   neigh_size=self.pop_size)
 
                     tie_d_ext, d_sn_ext = calculate_tie_deflate_nbt(elite=self.elite,
                                                   ffunction=ffunction,
-                                                  find_elit_func=self.find_elit_func,
+                                                  find_elite_func=self.find_elit_func,
                                                   operator=self.operator,
                                                   y_train=y_train,
                                                   neigh_size=self.pop_size)
