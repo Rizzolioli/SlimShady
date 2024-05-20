@@ -77,26 +77,6 @@ def nested_depth_calculator(operator, depths):
 
 
 
-
-# def nested_depth_calculator(operator, depths):
-#     return max(depths) + (4 if operator.__name__ == 'ot_delta_sum' else (
-#                           5 if operator.__name__ == 'ot_delta_mul' else (
-#                           2 if operator.__name__ == 'tt_delta_sum' else (
-#                           3 if operator.__name__ == 'tt_delta_mul' else (2)
-#                           ))))
-
-# def nested_nodes_calculator(operator, nodes):
-#     extra_operators_nodes = [5, nodes[-1]] if operator.__name__ == 'geometric_crossover' \
-#            else (
-#            [9] if operator.__name__ == 'ot_delta_mul' else
-#            ([6] if operator.__name__ == 'tt_delta_mul' else
-#            ([9] if operator.__name__ == 'ot_delta_sum' else
-#            ([4] if operator.__name__ == 'tt_delta_sum' else [0]
-#             ))))
-#
-#     return sum([*nodes, *extra_operators_nodes])
-
-
 def nested_nodes_calculator(operator, nodes):
     extra_operators_nodes = [5, nodes[-1]] if operator.__name__ == 'geometric_crossover' \
         else (

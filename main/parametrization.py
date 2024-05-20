@@ -8,7 +8,6 @@ from algorithms.GP.operators.selection_algorithms import tournament_selection_mi
 from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
 from datasets.data_loader import *
 from algorithms.SLIM_GSGP.operators.mutators import *
-from algorithms.GP.representations.tree_utils import tree_pruning
 from utils.utils import generate_random_uniform
 
 ########################################################################################################################
