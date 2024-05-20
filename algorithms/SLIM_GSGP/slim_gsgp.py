@@ -299,11 +299,6 @@ class SLIM_GSGP:
             # obtaining the initial population elites
             self.elites, self.elite = self.find_elit_func(population, n_elites)
 
-            if it > 3:
-                calculate_tie_deflate_nbt(elite=self.elite, ffunction=ffunction, find_elite_func=self.find_elit_func, #TODO: fix find_elite_func
-                                      operator=self.operator,
-                                      y_train=y_train)
-                print("break point")
             if test_elite:
                 self.elite.calculate_semantics(X_test, testing=True)
                 self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
@@ -355,6 +350,11 @@ class SLIM_GSGP:
                     add_info = [self.elite.test_fitness, self.elite.nodes_count, chull_distance]
 
                 elif log == 6:
+                    if it > 3:
+                        calculate_tie_deflate(elite=self.elite, ffunction=ffunction,
+                                              find_elit_func=self.find_elit_func,
+                                              operator=self.operator,
+                                              y_train=y_train)
                     # log level for tie
                     # save size of deflate (and maybe inflate) sm
                     tie = 0
