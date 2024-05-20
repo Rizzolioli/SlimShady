@@ -60,12 +60,14 @@ def calculate_tie_deflate_nbt(elite, ffunction, y_train, operator, find_elite_fu
     blocks_to_remove = [block_idxs for block_idxs in blocks_to_remove if not
                                             all(b - a == 1 for a, b in zip(block_idxs, block_idxs[1:])) or len(block_idxs) == 1]
 
+    if len(blocks_to_remove) > neigh_size:
+        blocks_to_remove = random.sample(blocks_to_remove, neigh_size)
+
     # obtaining all the training semantics of the neighborus in the possible semantic neighbourhood
     neighbourhood = [torch.stack([sub_training for idx, sub_training in enumerate(elite.train_semantics) if idx not in sublist])
                                         for sublist in blocks_to_remove]
 
-    if len(neighbourhood) > neigh_size:
-        neighbourhood = random.sample(neighbourhood, neigh_size)
+
 
     # creating neighbours as individuals based off of the training semantics
     neighbourhood = [Individual(collection=None,
