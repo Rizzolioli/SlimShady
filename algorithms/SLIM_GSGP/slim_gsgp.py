@@ -162,16 +162,14 @@ class SLIM_GSGP:
                                                     operator=self.operator,
                                                     y_train=y_train,
                                                     neigh_size=self.pop_size)
-                try :
-
-                    tie_d_ext, d_sn_ext = calculate_tie_deflate_nbt(elite=self.elite,
-                                                                    ffunction=ffunction,
-                                                                    find_elite_func=self.find_elit_func,
-                                                                    operator=self.operator,
-                                                                    y_train=y_train,
-                                                                    neigh_size=self.pop_size)
-                except:
-                    tie_d_ext, d_sn_ext = 0,0
+                
+                # tie_d_ext, d_sn_ext = calculate_tie_deflate_nbt(elite=self.elite,
+                #                                                 ffunction=ffunction,
+                #                                                 find_elite_func=self.find_elit_func,
+                #                                                 operator=self.operator,
+                #                                                 y_train=y_train,
+                #                                                 neigh_size=self.pop_size)
+                tie_d_ext, d_sn_ext = 0, 0
 
                 add_info = [tie_i, tie_d, tie_d_ext, d_sn, d_sn_ext]
             else:
@@ -402,17 +400,14 @@ class SLIM_GSGP:
                                                   y_train=y_train,
                                                   neigh_size=self.pop_size)
 
-                    try:
 
-                        tie_d_ext, d_sn_ext = calculate_tie_deflate_nbt(elite=self.elite,
-                                                                        ffunction=ffunction,
-                                                                        find_elite_func=self.find_elit_func,
-                                                                        operator=self.operator,
-                                                                        y_train=y_train,
-                                                                        neigh_size=self.pop_size)
-                    except:
-                        print('more blocks nbt not working')
-                        tie_d_ext, d_sn_ext = 0, 0
+                    # tie_d_ext, d_sn_ext = calculate_tie_deflate_nbt(elite=self.elite,
+                    #                                                 ffunction=ffunction,
+                    #                                                 find_elite_func=self.find_elit_func,
+                    #                                                 operator=self.operator,
+                    #                                                 y_train=y_train,
+                    #                                                 neigh_size=self.pop_size)
+                    tie_d_ext, d_sn_ext = 0, 0
                     # log level for tie
                     # save size of deflate (and maybe inflate) sm
                     add_info = [tie_i, tie_d, tie_d_ext, d_sn, d_sn_ext]
