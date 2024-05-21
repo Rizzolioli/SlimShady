@@ -54,14 +54,14 @@ def calculate_tie_deflate(elite, ffunction, y_train, operator, find_elite_func, 
 def calculate_tie_deflate_nbt(elite, ffunction, y_train, operator, find_elite_func, neigh_size):
 
     # obtaining a list of all the offspring block removal combo
-    blocks_to_remove = get_all_block_combos(elite)
+    blocks_to_remove = get_all_block_combos(elite, neigh_size)
 
     # removing all the back tracking block id lists (e.g., [3,4,5]) from the blocks_to_remove list:
     blocks_to_remove = [block_idxs for block_idxs in blocks_to_remove if not
-                                            all(b - a == 1 for a, b in zip(block_idxs, block_idxs[1:])) or len(block_idxs) == 1]
+                        all(b - a == 1 for a, b in zip(block_idxs, block_idxs[1:])) or len(block_idxs) == 1]
 
-    if len(blocks_to_remove) > neigh_size:
-        blocks_to_remove = random.sample(blocks_to_remove, neigh_size)
+    # if len(blocks_to_remove) > neigh_size:
+    #     blocks_to_remove = random.sample(blocks_to_remove, neigh_size)
 
     # obtaining all the training semantics of the neighborus in the possible semantic neighbourhood
     neighbourhood = [torch.stack([sub_training for idx, sub_training in enumerate(elite.train_semantics) if idx not in sublist])
@@ -91,10 +91,14 @@ def compare_best_max(ind1, ind2):
 def compare_best_min(ind1, ind2):
     return ind1.fitness if ind1.fitness < ind2.fitness else ind2.fitness
 
-def get_all_block_combos(elite):
+def get_all_block_combos(elite, max_):
 
     # determining the maximum index of the block to be eliminated
     n = elite.size - 1
+    combinations = [itertools.combinations(range(1, n + 1), r) for r in range(1, n + 1)]
+
+    if len(combinations) > max_:
+        combinations = random.sample(combinations, max_)
 
     # returning all combinations of removed blocks possible
-    return [list(x) for r in range(1, n + 1) for x in itertools.combinations(range(1, n + 1), r)]
+    return [list(x) for x in combinations]
