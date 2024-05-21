@@ -4,7 +4,7 @@ import torch
 from algorithms.GP.representations.tree_utils import create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual
-from utils.utils import get_random_tree
+from utils.utils import get_random_tree, consecutive_final_indexes
 
 
 def two_trees_delta(operator='sum'):
@@ -124,28 +124,95 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
     return inflate
 
 
-def deflate_mutation(individual, reconstruct):
-
-    mut_point = random.randint(1, individual.size - 1)
-
-    offs = Individual(collection = [*individual.collection[:mut_point], *individual.collection[mut_point + 1:]]
-                                    if reconstruct else None,
-                      train_semantics=torch.stack(
-                                [*individual.train_semantics[:mut_point], *individual.train_semantics[mut_point + 1:]]
-                      ),
-                      test_semantics= torch.stack(
-                                [*individual.test_semantics[:mut_point], *individual.test_semantics[mut_point + 1:]]
-                      )
-                        if individual.test_semantics is not None
-                        else None,
-                      reconstruct=reconstruct)
+def deflate_mutation(individual, reconstruct, allow_bt = True):
     
-    offs.size = individual.size - 1
-    offs.nodes_collection = [*individual.nodes_collection[:mut_point], *individual.nodes_collection[mut_point+1:] ]
-    offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
+    limit = 1 if allow_bt else 2
+    
+    if individual.size > limit:
 
-    offs.depth_collection = [*individual.depth_collection[:mut_point], *individual.depth_collection[mut_point+1:] ]
-    offs.depth = max([depth - (i - 1) if i != 0 else depth 
-                      for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
+        mut_point = random.randint(1, individual.size - limit)
+
+        offs = Individual(collection = [*individual.collection[:mut_point], *individual.collection[mut_point + 1:]]
+                                        if reconstruct else None,
+                          train_semantics=torch.stack(
+                                    [*individual.train_semantics[:mut_point], *individual.train_semantics[mut_point + 1:]]
+                          ),
+                          test_semantics= torch.stack(
+                                    [*individual.test_semantics[:mut_point], *individual.test_semantics[mut_point + 1:]]
+                          )
+                            if individual.test_semantics is not None
+                            else None,
+                          reconstruct=reconstruct)
+
+        offs.size = individual.size - 1
+        offs.nodes_collection = [*individual.nodes_collection[:mut_point], *individual.nodes_collection[mut_point+1:] ]
+        offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
+
+        offs.depth_collection = [*individual.depth_collection[:mut_point], *individual.depth_collection[mut_point+1:] ]
+        offs.depth = max([depth - (i - 1) if i != 0 else depth
+                          for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
+
+    
+    else:
+        offs = Individual(collection=individual.collection if reconstruct else None,
+                          train_semantics=individual.train_semantics,
+                          test_semantics=individual.test_semantics,
+                          reconstruct=reconstruct
+                          )
+        offs.nodes_collection, offs.nodes_count, offs.depth_collection, offs.depth, offs.size = \
+            individual.nodes_collection, individual.nodes_count, individual.depth_collection, individual.depth, individual.size
+
+    return offs
+
+
+def more_blocks_deflate_mutation(individual, reconstruct, allow_bt=True):
+
+    #deciding whihch points to drop is the same as deciding which points to keep
+
+    limit = 1 if allow_bt else 2
+
+    if individual.size > limit:
+
+        points_to_keep = random.sample(range(1, individual.size-1), random.randint(1, individual.size-2))
+        points_to_keep = sorted(points_to_keep)
+
+        if not allow_bt:
+            #check it the selected points will lead to backtracking
+            safe_counter = 0
+            while consecutive_final_indexes(points_to_keep, individual.size) and safe_counter < 10:
+                safe_counter += 1
+                points_to_keep = random.sample(range(1, individual.size - 1), random.randint(1, individual.size - 2))
+                points_to_keep = sorted(points_to_keep)
+
+        points_to_keep.insert(0, 0)
+
+        offs = Individual(collection=[individual.collection[i] for i in points_to_keep]
+        if reconstruct else None,
+                          train_semantics=torch.stack(
+                              [individual.train_semantics[i] for i in points_to_keep]
+                          ),
+                          test_semantics=torch.stack(
+                              [individual.test_semantics[i] for i in points_to_keep]
+                          )
+                          if individual.test_semantics is not None
+                          else None,
+                          reconstruct=reconstruct)
+
+        offs.size = individual.size - 1
+        offs.nodes_collection = [individual.nodes_collection[i] for i in points_to_keep]
+        offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
+
+        offs.depth_collection = [individual.depth_collection[i] for i in points_to_keep]
+        offs.depth = max([depth - (i - 1) if i != 0 else depth
+                          for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
+
+    else:
+        offs = Individual(collection=individual.collection if reconstruct else None,
+                          train_semantics=individual.train_semantics,
+                          test_semantics=individual.test_semantics,
+                          reconstruct=reconstruct
+                          )
+        offs.nodes_collection, offs.nodes_count, offs.depth_collection, offs.depth, offs.size = \
+            individual.nodes_collection, individual.nodes_count, individual.depth_collection, individual.depth, individual.size
 
     return offs
