@@ -83,6 +83,52 @@ def calculate_tie_deflate_nbt(elite, ffunction, y_train, operator, find_elite_fu
     # returning the % of neighbours that are better than the current elite (i.e., the TIE value)
     return len([neighbour for neighbour in neighbourhood if comparator(elite, neighbour) == neighbour.fitness]) /  \
            len(neighbourhood) if len(neighbourhood) > 0 else 0, len(neighbourhood)
+def calculate_tie(elite, neigh_size, ffunction, y_train, operator, find_elit_func, mutator, mut_params): # TODO: add the grow probab parameter to slim
+
+
+    if "ms_generator" in mut_params.keys():
+
+        generator = mut_params["ms_generator"]
+        mut_params.pop("ms_generator")
+
+        neighbourhood = [mutator(individual=elite,
+                                reconstruct = False,
+                                ms = generator(),
+                                **mut_params) for _ in range(neigh_size)]
+    else:
+        neighbourhood = [mutator(individual=elite,
+                                 reconstruct=False,
+                                 **mut_params) for _ in range(neigh_size)]
+
+    neighbourhood = list(filter(lambda x: x != None, neighbourhood))
+    neighbourhood = list(filter(lambda x: torch.equal(x.train_semantics,elite.train_semantics), neighbourhood))
+
+    # Keep track of unique train attributes using a set comprehension
+    unique_semantics = {individual.train_semantics for individual in neighbourhood}
+    # Filter individuals based on the unique train attribute using a list comprehension
+    if len(unique_semantics) < neigh_size:
+        filtered_neigh = [individual for individual in neighbourhood if individual.train_semantics in unique_semantics]
+    else:
+        filtered_neigh = neighbourhood
+
+    if len(neighbourhood) > 0:
+
+        # evaluating all the neighbours
+        [neighbour.evaluate(ffunction, y=y_train, testing=False, operator=operator) for neighbour in filtered_neigh]
+
+        # determining if we are facing a minimization or a maximization problem
+        comparator = compare_best_max if "max" in find_elit_func.__name__.lower() else compare_best_min
+
+        # returning the % of neighbours that are better than the current elite (i.e., the TIE value),
+        # number of unique neighbors,
+        # neighborhood size(without None and copies of the elite)
+        return len([neighbour for neighbour in filtered_neigh if comparator(elite, neighbour) == neighbour.fitness]) / \
+               neigh_size , \
+               len(filtered_neigh), \
+               len(neighbourhood)
+    else:
+
+        return 0,0,0
 
 # TODO: reformat the files so that this is in utils but no circular import issues emerge
 def compare_best_max(ind1, ind2):

@@ -302,3 +302,16 @@ def gs_rmse(y_true, y_pred):
 
 def gs_size (y_true, y_pred):
     return y_pred[1]
+
+def consecutive_final_indexes(sampled_indexes, original_list_length):
+
+    # Check if the list is consecutive
+    for i in range(1, len(sampled_indexes)):
+        if sampled_indexes[i] != sampled_indexes[i - 1] + 1:
+            return True  # Found a non-consecutive pair
+
+    # If all elements are consecutive, check if they are at the end
+    if sampled_indexes[-1] == original_list_length - 1:
+        return False
+
+    return True
