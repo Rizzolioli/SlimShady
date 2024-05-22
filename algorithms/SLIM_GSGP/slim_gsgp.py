@@ -424,7 +424,8 @@ class SLIM_GSGP:
                                                                                            mut_params={
                                                                                                'allow_bt': False})
 
-                    add_info = [tie_inflate, diff_sn_inflate, size_sn_inflate,
+                    add_info = [self.elite.test_fitness, self.elite.nodes_count,
+                                tie_inflate, diff_sn_inflate, size_sn_inflate,
                                 tie_deflate, diff_sn_deflate, size_sn_deflate,
                                 tie_mb_deflate, diff_sn_mb_deflate, size_sn_mb_deflate]
 
