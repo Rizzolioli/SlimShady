@@ -101,30 +101,32 @@ def calculate_tie(elite, neigh_size, ffunction, y_train, operator, find_elit_fun
                                  **mut_params) for _ in range(neigh_size)]
 
     neighbourhood = list(filter(lambda x: x != None, neighbourhood))
-    neighbourhood = list(filter(lambda x: torch.equal(x.train_semantics,elite.train_semantics), neighbourhood))
+    # neighbourhood = list(filter(lambda x: torch.equal(x.train_semantics,elite.train_semantics), neighbourhood))
 
     # Keep track of unique train attributes using a set comprehension
-    unique_semantics = {individual.train_semantics for individual in neighbourhood}
+
     # Filter individuals based on the unique train attribute using a list comprehension
-    if len(unique_semantics) < neigh_size:
-        filtered_neigh = [individual for individual in neighbourhood if individual.train_semantics in unique_semantics]
-    else:
-        filtered_neigh = neighbourhood
+    # if len(unique_semantics) < neigh_size:
+    #     filtered_neigh = [individual for individual in neighbourhood if individual.train_semantics in unique_semantics]
+    # else:
+    #     filtered_neigh = neighbourhood
 
     if len(neighbourhood) > 0:
 
         # evaluating all the neighbours
-        [neighbour.evaluate(ffunction, y=y_train, testing=False, operator=operator) for neighbour in filtered_neigh]
+        [neighbour.evaluate(ffunction, y=y_train, testing=False, operator=operator) for neighbour in neighbourhood]
+
+        unique_fitness = {float(individual.fitness) for individual in neighbourhood}
 
         # determining if we are facing a minimization or a maximization problem
-        comparator = compare_best_max if "max" in find_elit_func.__name__.lower() else compare_best_min
+        # comparator = compare_best_max if "max" in find_elit_func.__name__.lower() else compare_best_min
 
         # returning the % of neighbours that are better than the current elite (i.e., the TIE value),
         # number of unique neighbors,
         # neighborhood size(without None and copies of the elite)
-        return len([neighbour for neighbour in filtered_neigh if comparator(elite, neighbour) == neighbour.fitness]) / \
+        return len([neighbour for neighbour in neighbourhood if neighbour.fitness < elite.fitness]) / \
                neigh_size , \
-               len(filtered_neigh), \
+               len(unique_fitness), \
                len(neighbourhood)
     else:
 
