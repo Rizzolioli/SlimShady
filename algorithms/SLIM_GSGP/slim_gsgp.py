@@ -141,46 +141,45 @@ class SLIM_GSGP:
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, chull_distance]
 
 
-            elif log == 6:
-                
-                inf_params =  { 'X':X_train,
-                              'ms_generator':self.ms,
-                              'max_depth':self.pi_init["init_depth"],
-                              'p_c':self.pi_init["p_c"],
-                              'grow_probability':1}
-                
-                tie_inflate, diff_sn_inflate, size_sn_inflate = calculate_tie(elite=self.elite,
-                              neigh_size=self.pop_size,
-                              ffunction=ffunction,
-                              y_train=y_train,
-                              operator=self.operator,
-                              find_elit_func=self.find_elit_func,
-                              mutator=self.inflate_mutator,
-                              mut_params = inf_params)
-                
-                
 
+            elif log == 6:
+
+                inf_params = {'X': X_train,
+                              'ms_generator': self.ms,
+                              'max_depth': self.pi_init["init_depth"],
+                              'p_c': self.pi_init["p_c"],
+                              'grow_probability': 1}
+
+                tie_inflate, diff_sn_inflate, size_sn_inflate = calculate_tie(elite=self.elite,
+                                                                              neigh_size=self.pop_size,
+                                                                              ffunction=ffunction,
+                                                                              y_train=y_train,
+                                                                              operator=self.operator,
+                                                                              find_elit_func=self.find_elit_func,
+                                                                              mutator=self.inflate_mutator,
+                                                                              mut_params=inf_params)
 
                 tie_deflate, diff_sn_deflate, size_sn_deflate = calculate_tie(elite=self.elite,
-                              neigh_size=self.pop_size,
-                              ffunction=ffunction,
-                              y_train=y_train,
-                              operator=self.operator,
-                              find_elit_func=self.find_elit_func,
-                              mutator=self.deflate_mutator,
-                              mut_params = {'allow_bt' : False})
+                                                                              neigh_size=self.pop_size,
+                                                                              ffunction=ffunction,
+                                                                              y_train=y_train,
+                                                                              operator=self.operator,
+                                                                              find_elit_func=self.find_elit_func,
+                                                                              mutator=self.deflate_mutator,
+                                                                              mut_params={'allow_bt': False})
 
                 tie_mb_deflate, diff_sn_mb_deflate, size_sn_mb_deflate = calculate_tie(elite=self.elite,
-                              neigh_size=self.pop_size,
-                              ffunction=ffunction,
-                              y_train=y_train,
-                              operator=self.operator,
-                              find_elit_func=self.find_elit_func,
-                              mutator=more_blocks_deflate_mutation,
-                              mut_params = {'allow_bt' : False})
+                                                                                       neigh_size=self.pop_size,
+                                                                                       ffunction=ffunction,
+                                                                                       y_train=y_train,
+                                                                                       operator=self.operator,
+                                                                                       find_elit_func=self.find_elit_func,
+                                                                                       mutator=more_blocks_deflate_mutation,
+                                                                                       mut_params={
+                                                                                           'allow_bt': False})
 
-
-                add_info = [tie_inflate, diff_sn_inflate, size_sn_inflate,
+                add_info = [self.elite.test_fitness, self.elite.nodes_count, self.elite.size,
+                            tie_inflate, diff_sn_inflate, size_sn_inflate,
                             tie_deflate, diff_sn_deflate, size_sn_deflate,
                             tie_mb_deflate, diff_sn_mb_deflate, size_sn_mb_deflate]
             else:
