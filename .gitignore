@@ -13,3 +13,5 @@ main/main_slim.py
 main/main_slim.py
 main/main_gp.py
 utils/results_analyser.ipynb
+*.txt
+*.zip
