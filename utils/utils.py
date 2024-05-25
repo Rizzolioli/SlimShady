@@ -1,6 +1,5 @@
 import math
 import random
-from copy import copy
 
 import numpy as np
 import torch
@@ -9,10 +8,6 @@ from algorithms.GP.representations.tree_utils import (create_full_random_tree,
 from algorithms.GSGP.representations.tree import Tree
 from datasets.data_loader import load_preloaded
 from sklearn.metrics import root_mean_squared_error
-
-"""
-Taken from GPOL
-"""
 
 
 def protected_div(x1, x2):
@@ -33,30 +28,30 @@ def protected_div(x1, x2):
     torch.Tensor
         Result of protected division between x1 and x2.
     """
-    # if  torch.is_tensor(x2):
     return torch.where(
         torch.abs(x2) > 0.001,
         torch.div(x1, x2),
         torch.tensor(1.0, dtype=x2.dtype, device=x2.device),
     )
 
-    # else:
-    #     if x2 < 0:
-    #         return 0
-    #     else:
-    #
-    #         return x1/x2
-
 
 def mean_(x1, x2):
+    """
+      Compute the mean of two tensors.
+
+      Parameters
+      ----------
+      x1 : torch.Tensor
+          The first tensor.
+      x2 : torch.Tensor
+          The second tensor.
+
+      Returns
+      -------
+      torch.Tensor
+          The mean of the two tensors.
+      """
     return torch.div(torch.add(x1, x2), 2)
-
-
-# def w_mean_(x1, x2):
-#
-#     r = random.random()
-#
-#     return torch.add(torch.mul(x1, r), torch.mul(x2, r))
 
 
 def train_test_split(
@@ -98,36 +93,38 @@ def train_test_split(
     train_indices : torch.Tensor
         Indices representing the training partition.
     test_indices : torch.Tensor
-    Indices representing the test partition.
+        Indices representing the test partition.
     """
-    # Sets the seed before generating partition's indexes
     torch.manual_seed(seed)
-    # Generates random indices
     if shuffle:
         indices = torch.randperm(X.shape[0])
     else:
         indices = torch.arange(0, X.shape[0], 1)
-    # Splits indices
     split = int(math.floor(p_test * X.shape[0]))
     train_indices, test_indices = indices[split:], indices[:split]
 
     if indices_only:
         return train_indices, test_indices
     else:
-        # Generates train/test partitions
         X_train, X_test = X[train_indices], X[test_indices]
         y_train, y_test = y[train_indices], y[test_indices]
         return X_train, X_test, y_train, y_test
 
 
-"""
-
-Not taken from GPOL
-
-"""
-
-
 def tensor_dimensioned_sum(dim):
+    """
+    Generate a sum function over a specified dimension.
+
+    Parameters
+    ----------
+    dim : int
+        The dimension to sum over.
+
+    Returns
+    -------
+    function
+    A function that sums tensors over the specified dimension.
+    """
     def tensor_sum(input):
         return torch.sum(input, dim)
 
@@ -182,13 +179,14 @@ def verbose_reporter(
 
     if generation == 0:
         print(
-            "                                                         Verbose Reporter                                              "
+            "Verbose Reporter"
         )
         print(
             "-----------------------------------------------------------------------------------------------------------------------------------------"
         )
         print(
-            "|         Dataset         |  Generation  |     Train Fitness     |       Test Fitness       |        Timing          |      Nodes       |"
+            "|         Dataset         |  Generation  |     Train Fitness     |       Test Fitness       |        "
+            "Timing          |      Nodes       |"
         )
         print(
             "-----------------------------------------------------------------------------------------------------------------------------------------"
@@ -244,6 +242,21 @@ def verbose_reporter(
 
 
 def get_terminals(data_loader, seed=0):
+    """
+    Get terminal nodes for a dataset.
+
+    Parameters
+    ----------
+    data_loader : function or str
+        The data loading function or dataset name.
+    seed : int, default=0
+        The seed for random numbers generators.
+
+    Returns
+    -------
+    dict
+        Dictionary of terminal nodes.
+    """
     if isinstance(data_loader, str):
         TERMINALS = {
             f"x{i}": i
@@ -258,46 +271,58 @@ def get_terminals(data_loader, seed=0):
 
 
 def get_best_min(population, n_elites):
-    # if more than one elite is to be saved
+    """
+    Get the best individuals from the population with the minimum fitness.
+
+    Parameters
+    ----------
+    population : Population
+        The population of individuals.
+    n_elites : int
+        Number of elites to return.
+
+    Returns
+    -------
+    list
+        List of elite individuals.
+    Individual
+        Best individual from the elites.
+    """
     if n_elites > 1:
-        # getting the indexes of the lower n_elites fitnesses in the population
         idx = np.argpartition(population.fit, n_elites)
-
-        # getting the best n_elites individuals
         elites = [population.population[i] for i in idx[:n_elites]]
-
-        # returning the elites and the best elite from among them
         return elites, elites[np.argmin([elite.fitness for elite in elites])]
 
-    # if only the best individual is to be obtained
     else:
-
         elite = population.population[np.argmin(population.fit)]
-
-        # returning the elite as the list of elites and the elite as the best
-        # in population
         return [elite], elite
 
 
 def get_best_max(population, n_elites):
-    # if more than one elite is to be saved
+    """
+    Get the best individuals from the population with the maximum fitness.
+
+    Parameters
+    ----------
+    population : Population
+        The population of individuals.
+    n_elites : int
+        Number of elites to return.
+
+    Returns
+    -------
+    list
+        List of elite individuals.
+    Individual
+        Best individual from the elites.
+    """
     if n_elites > 1:
-        # getting the indexes of the higher n_elites fitnesses in the
-        # population
         idx = np.argpartition(population.fit, -n_elites)
-
-        # getting the best n_elites individuals
         elites = [population.population[i] for i in idx[:-n_elites]]
-
-        # returning the elites and the best elite from among them
         return elites, elites[np.argmax([elite.fitness for elite in elites])]
 
-    # if only the best individual is to be obtained
     else:
         elite = population.population[np.argmax(population.fit)]
-
-        # returning the elite as the list of elites and the elite as the best
-        # in population
         return [elite], elite
 
 
@@ -311,37 +336,45 @@ def get_random_tree(
     grow_probability=1,
     logistic=True,
 ):
-    # choose between grow and full
+    """
+    Get a random tree using either grow or full method.
+
+    Parameters
+    ----------
+    max_depth : int
+        Maximum depth of the tree.
+    FUNCTIONS : dict
+        Dictionary of functions.
+    TERMINALS : dict
+        Dictionary of terminals.
+    CONSTANTS : dict
+        Dictionary of constants.
+    inputs : torch.Tensor
+        Input tensor for calculating semantics.
+    p_c : float, default=0.3
+        Probability of choosing a constant.
+    grow_probability : float, default=1
+        Probability of using the grow method.
+    logistic : bool, default=True
+            Whether to use logistic semantics.
+
+    Returns
+    -------
+    Tree
+        The generated random tree.
+    """
     if random.random() < grow_probability:
-
-        # creating a tree using grow
-        tree = create_grow_random_tree(
-            max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
-
-        # reconstruct set to true to calculate the s
-        tree = Tree(
-            structure=tree,
-            train_semantics=None,
-            test_semantics=None,
-            reconstruct=True)
-
-        # calculating the tree semantics
-        tree.calculate_semantics(inputs, testing=False, logistic=logistic)
-
+        tree_structure = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
     else:
-        # creating a full tree
-        tree = create_full_random_tree(
-            max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+        tree_structure = create_full_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
-        tree = Tree(
-            structure=tree,
-            train_semantics=None,
-            test_semantics=None,
-            reconstruct=True)
-
-        # calculating the tree semantics
-        tree.calculate_semantics(inputs, testing=False, logistic=logistic)
-
+    tree = Tree(
+        structure=tree_structure,
+        train_semantics=None,
+        test_semantics=None,
+        reconstruct=True
+    )
+    tree.calculate_semantics(inputs, testing=False, logistic=logistic)
     return tree
 
 
@@ -349,17 +382,21 @@ def generate_random_uniform(lower, upper):
     """
     Generate a random number within a specified range using numpy random.uniform.
 
-    Parameters:
-    lower (float): The lower bound of the range for generating the random number.
-    upper (float): The upper bound of the range for generating the random number.
+    Parameters
+    ----------
+    lower : float
+        The lower bound of the range for generating the random number.
+    upper : float
+        The upper bound of the range for generating the random number.
 
-    Returns:
-    function: A function that when called, generates a random number within the specified range.
+    Returns
+    -------
+    function
+        A function that when called, generates a random number within the specified range.
     """
 
     def generate_num():
         return random.uniform(lower, upper)
-        # return 1.5
 
     generate_num.lower = lower
     generate_num.upper = upper
@@ -367,6 +404,21 @@ def generate_random_uniform(lower, upper):
 
 
 def show_individual(tree, operator):
+    """
+    Display an individual's structure with a specified operator.
+
+    Parameters
+    ----------
+    tree : Tree
+        The tree representing the individual.
+    operator : str
+        The operator to display ('sum' or 'prod').
+
+    Returns
+    -------
+    str
+        The string representation of the individual's structure.
+    """
     op = "+" if operator == "sum" else "*"
 
     return f" {op} ".join(
@@ -386,8 +438,38 @@ def show_individual(tree, operator):
 
 
 def gs_rmse(y_true, y_pred):
+    """
+    Calculate the root mean squared error.
+
+    Parameters
+    ----------
+    y_true : array-like
+        True values.
+    y_pred : array-like
+        Predicted values.
+
+    Returns
+    -------
+    float
+        The root mean squared error.
+    """
     return root_mean_squared_error(y_true, y_pred[0])
 
 
 def gs_size(y_true, y_pred):
+    """
+    Get the size of the predicted values.
+
+    Parameters
+    ----------
+    y_true : array-like
+        True values.
+    y_pred : array-like
+        Predicted values.
+
+    Returns
+    -------
+    int
+        The size of the predicted values.
+    """
     return y_pred[1]

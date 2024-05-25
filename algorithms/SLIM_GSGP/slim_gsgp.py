@@ -1,3 +1,6 @@
+"""
+SLIM_GSGP Class for Evolutionary Computation using PyTorch.
+"""
 import random
 import time
 
@@ -10,7 +13,7 @@ from algorithms.SLIM_GSGP.representations.population import Population
 from utils.convexhull import calculate_signed_errors, distance_from_chull
 from utils.diversity import gsgp_pop_div_from_vectors
 from utils.logger import logger
-from utils.utils import train_test_split, verbose_reporter
+from utils.utils import verbose_reporter
 
 
 class SLIM_GSGP:
@@ -36,10 +39,32 @@ class SLIM_GSGP:
         two_trees=True,
         settings_dict=None,
     ):
+        """
+        Initialize the SLIM_GSGP algorithm with given parameters.
 
-        # other initial parameters, tipo dataset
+        Args:
+            pi_init: Dictionary with all the parameters needed for evaluation.
+            initializer: Function to initialize the population.
+            selector: Function to select individuals from the population.
+            inflate_mutator: Function for inflate mutation.
+            deflate_mutator: Function for deflate mutation.
+            ms: Mutation step function.
+            crossover: Crossover function.
+            find_elit_func: Function to find elite individuals.
+            p_m: Probability of mutation.
+            p_xo: Probability of crossover.
+            p_inflate: Probability of inflate mutation.
+            p_deflate: Probability of deflate mutation.
+            pop_size: Population size.
+            seed: Random seed.
+            operator: Operator to apply to the semantics ("sum" or "prod").
+            copy_parent: Boolean indicating if parent should be copied when mutation is not possible.
+            two_trees: Boolean indicating if two trees are used.
+            settings_dict: Additional settings dictionary.
+        """
+
         self.pi_init = (
-            pi_init  # dictionary with all the parameters needed for evaluation
+            pi_init
         )
         self.selector = selector
         self.p_m = p_m
@@ -55,7 +80,6 @@ class SLIM_GSGP:
         self.seed = seed
         self.operator = operator
         self.copy_parent = copy_parent
-
         self.settings_dict = settings_dict
         self.find_elit_func = find_elit_func
 
@@ -86,23 +110,34 @@ class SLIM_GSGP:
         n_elites=1,
         reconstruct=True,
     ):
+        """
+        Solve the optimization problem using SLIM_GSGP.
 
-        # TO REMOVE:
+        Args:
+            X_train: Training input data.
+            X_test: Testing input data.
+            y_train: Training output data.
+            y_test: Testing output data.
+            curr_dataset: Current dataset identifier.
+            run_info: Information about the current run.
+            n_iter: Number of iterations.
+            elitism: Boolean indicating if elitism is used.
+            log: Logging level.
+            verbose: Verbosity level.
+            test_elite: Boolean indicating if elite should be tested.
+            log_path: Path for logging.
+            ffunction: Fitness function.
+            max_depth: Maximum depth for trees.
+            n_elites: Number of elite individuals.
+            reconstruct: Boolean indicating if reconstruction is needed.
+        """
 
-        # setting the seeds
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
         random.seed(self.seed)
 
         start = time.time()
 
-        #######################################################################
-
-        # INITIALIZATION #
-
-        #######################################################################
-
-        # initializing the population
         population = Population(
             [
                 Individual(
@@ -127,19 +162,15 @@ class SLIM_GSGP:
 
         end = time.time()
 
-        # obtaining the initial population elites
         self.elites, self.elite = self.find_elit_func(population, n_elites)
 
-        # testing the elite on validation/testing, if applicable
         if test_elite:
             population.calculate_semantics(X_test, testing=True)
             self.elite.evaluate(
                 ffunction, y=y_test, testing=True, operator=self.operator
             )
 
-        # logging the population initialization
         if log != 0:
-
             if log == 2:
                 gen_diversity = (
                     gsgp_pop_div_from_vectors(
@@ -168,10 +199,7 @@ class SLIM_GSGP:
                     log,
                 ]
 
-            # log level 3 saves the number of nodes and fitness of all the
-            # individuals in the population
             elif log == 3:
-
                 add_info = [
                     self.elite.test_fitness,
                     self.elite.nodes_count,
@@ -181,7 +209,6 @@ class SLIM_GSGP:
                 ]
 
             elif log == 4:
-
                 gen_diversity = (
                     gsgp_pop_div_from_vectors(
                         torch.stack(
@@ -212,7 +239,6 @@ class SLIM_GSGP:
                 ]
 
             elif log == 5:
-                # log level for distance to convex hull
                 errors = torch.stack(
                     [
                         calculate_signed_errors(semantics, y_train, self.operator)
@@ -228,8 +254,6 @@ class SLIM_GSGP:
                 ]
 
             elif log == 6:
-                # log level for tie
-                # save size of deflate (and maybe inflate) sm
                 tie = 0
                 add_info = [tie]
             else:
@@ -250,7 +274,6 @@ class SLIM_GSGP:
                 seed=self.seed,
             )
 
-        # displaying the results of the population initialization on console
         if verbose != 0:
             verbose_reporter(
                 curr_dataset.split("load_")[-1],
@@ -261,48 +284,22 @@ class SLIM_GSGP:
                 self.elite.nodes_count,
             )
 
-        #######################################################################
-
-        # GP EVOLUTION #
-
-        #######################################################################
-
         for it in range(1, n_iter + 1, 1):
-
             offs_pop, start = [], time.time()
-
             if elitism:
-
                 offs_pop.extend(self.elites)
-
             while len(offs_pop) < self.pop_size:
-
-                # choosing between crossover and mutation
                 if random.random() < self.p_xo:
-
-                    # if crossover selecting two parents
                     p1, p2 = self.selector(
                         population), self.selector(population)
-
-                    # making sure the parents aren't the same
                     while p1 == p2:
                         p1, p2 = self.selector(
                             population), self.selector(population)
-
                     pass  # implement crossover
-
                 else:
-
-                    # choose between deflating or inflating the individual
                     if random.random() < self.p_deflate:
-
                         p1 = self.selector(population, deflate=False)
-
-                        # if the chosen individual is only of size one, it
-                        # cannot be deflated:
                         if p1.size == 1:
-                            # if we choose to copy the parent when an operator
-                            # cannot be applied
                             if self.copy_parent:
                                 off1 = Individual(
                                     collection=p1.collection if reconstruct else None,
@@ -323,11 +320,8 @@ class SLIM_GSGP:
                                     p1.depth,
                                     p1.size,
                                 )
-                            # otherwise, we choose the other operator
                             else:
-                                # obtaining the random mutation step
                                 ms_ = self.ms()
-
                                 off1 = self.inflate_mutator(
                                     p1,
                                     ms_,
@@ -343,20 +337,9 @@ class SLIM_GSGP:
                                 p1, reconstruct=reconstruct)
 
                     else:
-                        # if inflate mutation, pick a random individual with no
-                        # restrictions
-
                         p1 = self.selector(population, deflate=False)
-
-                        # obtaining the random mutation step
                         ms_ = self.ms()
-
-                        # if we cannot inflate the individual due to a
-                        # max_depth constraint
                         if max_depth is not None and p1.depth == max_depth:
-
-                            # seeing is we copy the parent or use the other
-                            # operator
                             if self.copy_parent:
                                 off1 = Individual(
                                     collection=p1.collection if reconstruct else None,
@@ -393,7 +376,6 @@ class SLIM_GSGP:
                                 reconstruct=reconstruct,
                             )
 
-                        # checking if after inflation the offspring isnt valid:
                         if max_depth is not None and off1.depth > max_depth:
                             if self.copy_parent:
                                 off1 = Individual(
@@ -435,7 +417,6 @@ class SLIM_GSGP:
 
             end = time.time()
 
-            # obtaining the initial population elites
             self.elites, self.elite = self.find_elit_func(population, n_elites)
 
             if test_elite:
@@ -444,7 +425,6 @@ class SLIM_GSGP:
                     ffunction, y=y_test, testing=True, operator=self.operator
                 )
 
-            # logging the population initialization
             if log != 0:
 
                 if log == 2:
@@ -475,10 +455,7 @@ class SLIM_GSGP:
                         log,
                     ]
 
-                # log level 3 saves the number of nodes and fitness of all the
-                # individuals in the population
                 elif log == 3:
-
                     add_info = [
                         self.elite.test_fitness,
                         self.elite.nodes_count,
@@ -490,7 +467,6 @@ class SLIM_GSGP:
                     ]
 
                 elif log == 4:
-
                     gen_diversity = (
                         gsgp_pop_div_from_vectors(
                             torch.stack(
@@ -523,7 +499,6 @@ class SLIM_GSGP:
                     ]
 
                 elif log == 5:
-                    # log level for distance to convex hull
                     errors = torch.stack(
                         [
                             calculate_signed_errors(semantics, y_train, self.operator)
@@ -539,19 +514,15 @@ class SLIM_GSGP:
                     ]
 
                 elif log == 6:
-                    # log level for tie
-                    # save size of deflate (and maybe inflate) sm
                     tie = 0
                     add_info = [tie]
 
                 else:
-
                     add_info = [
                         self.elite.test_fitness,
                         self.elite.nodes_count,
                         log]
 
-                # logging the desired results
                 logger(
                     log_path,
                     it,

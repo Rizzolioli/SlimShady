@@ -1,6 +1,8 @@
-from algorithms.GP.representations.tree_utils import (bound_value, flatten,
-                                                      tree_depth)
+"""
+Tree class implementation for representing tree structures in genetic programming.
+"""
 
+from algorithms.GP.representations.tree_utils import bound_value, flatten, tree_depth
 
 class Tree:
     """
@@ -11,25 +13,37 @@ class Tree:
     repr_ : object
         Representation of the tree structure.
 
-    functions : dict
+    FUNCTIONS : dict
         Dictionary of allowed functions in the tree.
 
-    terminals : dict
+    TERMINALS : dict
         Dictionary of terminal symbols allowed in the tree.
 
-    constants : dict
+    CONSTANTS : dict
         Dictionary of constant values allowed in the tree.
 
     depth : int
         Depth of the tree structure.
 
+    fitness : float
+        Fitness value of the tree.
+
+    test_fitness : float
+        Test fitness value of the tree.
+
+    node_count : int
+        Number of nodes in the tree.
+
     Methods
     -------
-    __init__(repr_, FUNCTIONS, TERMINALS, CONSTANTS)
+    __init__(repr_)
         Initializes a Tree object.
 
     apply_tree(inputs)
-        Evaluates the tree on input vectors x and y.
+        Evaluates the tree on input vectors.
+
+    evaluate(ffunction, X, y, testing=False)
+        Evaluates the tree given a fitness function and data.
 
     print_tree_representation(indent="")
         Prints the tree representation with indentation.
@@ -47,15 +61,6 @@ class Tree:
         ----------
         repr_ : object
             Representation of the tree structure.
-
-        functions : dict
-            Dictionary of allowed functions in the tree.
-
-        terminals : dict
-            Dictionary of terminal symbols allowed in the tree.
-
-        constants : dict
-            Dictionary of constant values allowed in the tree.
         """
         self.FUNCTIONS = Tree.FUNCTIONS
         self.TERMINALS = Tree.TERMINALS
@@ -67,85 +72,60 @@ class Tree:
         self.test_fitness = None
         self.node_count = len(list(flatten(self.repr_)))
 
-    # Function to evaluate a tree on input vectors x and y.
     def apply_tree(self, inputs):
         """
-        Evaluates the tree on input vectors x and y.
+        Evaluates the tree on input vectors.
 
         Parameters
         ----------
         inputs : tuple
-            Input vectors x and y.
+            Input vectors.
 
         Returns
         -------
         float
             Output of the evaluated tree.
         """
-
         if isinstance(self.repr_, tuple):  # If it's a function node
             function_name = self.repr_[0]
             if Tree.FUNCTIONS[function_name]["arity"] == 2:
                 left_subtree, right_subtree = self.repr_[1], self.repr_[2]
-                left_subtree = Tree(left_subtree)
-                right_subtree = Tree(right_subtree)
-                left_result = left_subtree.apply_tree(inputs)
-                right_result = right_subtree.apply_tree(inputs)
-                output = Tree.FUNCTIONS[function_name]["function"](
-                    left_result, right_result
-                )
+                left_result = Tree(left_subtree).apply_tree(inputs)
+                right_result = Tree(right_subtree).apply_tree(inputs)
+                output = Tree.FUNCTIONS[function_name]["function"](left_result, right_result)
             else:
                 left_subtree = self.repr_[1]
-                left_subtree = Tree(left_subtree)
-                # right_subtree = Tree(right_subtree, Tree.FUNCTIONS, Tree.TERMINALS, self.CONSTANTS)
-                left_result = left_subtree.apply_tree(inputs)
-                # right_result = right_subtree.apply_tree(inputs)
+                left_result = Tree(left_subtree).apply_tree(inputs)
                 output = Tree.FUNCTIONS[function_name]["function"](left_result)
 
-            return bound_value(output, -1000000000000.0, 10000000000000.0)
-
+            return bound_value(output, -1e12, 1e12)
         else:  # If it's a terminal node
-            # if self.repr_ == '_':
-            #     output = '_'
-            if self.repr_ in list(self.TERMINALS.keys()):
-                output = inputs[:, self.TERMINALS[self.repr_]]
-
-                return output
-
-            elif self.repr_ in list(self.CONSTANTS.keys()):
-
-                output = self.CONSTANTS[self.repr_](1)
-
-                return output
+            if self.repr_ in self.TERMINALS:
+                return inputs[:, self.TERMINALS[self.repr_]]
+            elif self.repr_ in self.CONSTANTS:
+                return self.CONSTANTS
 
     def evaluate(self, ffunction, X, y, testing=False):
         """
-        evaluates the tree given a certain fitness function, input data(x) and target data (y).
-
-        The result of this evaluation (given the output of ffunction) will be stored as a parameter of self.
-        The testing and validation optional parameters specify which partition of the data will the fitness be
-        attributed to. If both are False the data is considered training data.
+        Evaluates the tree given a fitness function, input data (X), and target data (y).
 
         Parameters
         ----------
-        ffunction: function
-            fitness function to evaluate the individual
-        X: torch tensor
-            the input data (which can be training or testing)
-        y: torch tensor
-            the expected output (target) values
-        testing: bool
-            Flag symbolizing if the data is testing data.
+        ffunction : function
+            Fitness function to evaluate the individual.
+        X : torch.Tensor
+            The input data (which can be training or testing).
+        y : torch.Tensor
+            The expected output (target) values.
+        testing : bool, optional
+            Flag indicating if the data is testing data. Default is False.
 
         Returns
         -------
         None
-            attributes a fitness value to the tree
+            Attributes a fitness value to the tree.
         """
-        # obtaining the output of the tree from input data
         preds = self.apply_tree(X)
-
-        # attributing the tree fitness
         if testing:
             self.test_fitness = ffunction(y, preds)
         else:
@@ -158,23 +138,18 @@ class Tree:
         Parameters
         ----------
         indent : str, optional
-            Indentation for tree structure representation.
+            Indentation for tree structure representation. Default is an empty string.
         """
-
         if isinstance(self.repr_, tuple):  # If it's a function node
             function_name = self.repr_[0]
-
             print(indent + f"{function_name}(")
             if Tree.FUNCTIONS[function_name]["arity"] == 2:
                 left_subtree, right_subtree = self.repr_[1], self.repr_[2]
-                left_subtree = Tree(left_subtree)
-                right_subtree = Tree(right_subtree)
-                left_subtree.print_tree_representation(indent + "  ")
-                right_subtree.print_tree_representation(indent + "  ")
+                Tree(left_subtree).print_tree_representation(indent + "  ")
+                Tree(right_subtree).print_tree_representation(indent + "  ")
             else:
                 left_subtree = self.repr_[1]
-                left_subtree = Tree(left_subtree)
-                left_subtree.print_tree_representation(indent + "  ")
+                Tree(left_subtree).print_tree_representation(indent + "  ")
             print(indent + ")")
         else:  # If it's a terminal node
             print(indent + f"{self.repr_}")

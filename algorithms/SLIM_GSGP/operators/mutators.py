@@ -1,15 +1,25 @@
+"""
+Mutation Functions for Genetic Programming using PyTorch.
+"""
 import random
 
 import torch
-from algorithms.GP.representations.tree_utils import create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual
 from utils.utils import get_random_tree
 
 
 def two_trees_delta(operator="sum"):
-    def tt_delta(tr1, tr2, ms, testing):
+    """
+    Generate a function for two-tree delta mutation.
 
+    Args:
+        operator: The operator to be used in the mutation ("sum" or other).
+
+    Returns:
+        Function: A mutation function for two trees.
+    """
+    def tt_delta(tr1, tr2, ms, testing):
         if testing:
             return (
                 torch.mul(
@@ -45,87 +55,44 @@ def two_trees_delta(operator="sum"):
 
 
 def one_tree_delta(operator="sum", sig=False):
-    def ot_delta(tr1, ms, testing):
+    """
+    Generate a function for one-tree delta mutation.
 
+    Args:
+        operator: The operator to be used in the mutation ("sum" or other).
+        sig: Boolean indicating if sigmoid should be applied.
+
+    Returns:
+        Function: A mutation function for one tree.
+    """
+    def ot_delta(tr1, ms, testing):
         if sig:
             if testing:
                 return (
-                    torch.mul(
-                        ms,
-                        torch.sub(
-                            torch.mul(
-                                2,
-                                tr1.test_semantics),
-                            1)) if operator == "sum" else torch.add(
-                        1,
-                        torch.mul(
-                            ms,
-                            torch.sub(
-                                torch.mul(
-                                    2,
-                                    tr1.test_semantics),
-                                1))))
+                    torch.mul(ms, torch.sub(torch.mul(2, tr1.test_semantics), 1))
+                    if operator == "sum"
+                    else torch.add(1, torch.mul(ms, torch.sub(torch.mul(2, tr1.test_semantics), 1)))
+                )
             else:
-
                 return (
-                    torch.mul(
-                        ms,
-                        torch.sub(
-                            torch.mul(
-                                2,
-                                tr1.train_semantics),
-                            1)) if operator == "sum" else torch.add(
-                        1,
-                        torch.mul(
-                            ms,
-                            torch.sub(
-                                torch.mul(
-                                    2,
-                                    tr1.train_semantics),
-                                1)),
-                    ))
+                    torch.mul(ms, torch.sub(torch.mul(2, tr1.train_semantics), 1))
+                    if operator == "sum"
+                    else torch.add(1, torch.mul(ms, torch.sub(torch.mul(2, tr1.train_semantics), 1)))
+                )
         else:
-
             if testing:
                 return (
-                    torch.mul(
-                        ms, torch.sub(
-                            1, torch.div(
-                                2, torch.add(
-                                    1, torch.abs(
-                                        tr1.test_semantics)))), ) if operator == "sum" else torch.add(
-                        1, torch.mul(
-                            ms, torch.sub(
-                                1, torch.div(
-                                    2, torch.add(
-                                        1, torch.abs(
-                                            tr1.test_semantics))), ), ), ))
+                    torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.test_semantics)))))
+                    if operator == "sum"
+                    else torch.add(1, torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.test_semantics))))))
+                )
             else:
                 return (
-                    torch.mul(
-                        ms,
-                        torch.sub(
-                            1,
-                            torch.div(2, torch.add(1, torch.abs(tr1.train_semantics))),
-                        ),
-                    )
+                    torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.train_semantics)))))
                     if operator == "sum"
-                    else torch.add(
-                        1,
-                        torch.mul(
-                            ms,
-                            torch.sub(
-                                1,
-                                torch.div(
-                                    2, torch.add(1, torch.abs(tr1.train_semantics))
-                                ),
-                            ),
-                        ),
-                    )
+                    else torch.add(1, torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.train_semantics))))))
                 )
-
     ot_delta.__name__ += "_" + operator + "_" + str(sig)
-
     return ot_delta
 
 
@@ -138,6 +105,21 @@ def inflate_mutation(
     single_tree_sigmoid=False,
     sig=False,
 ):
+    """
+    Generate an inflate mutation function.
+
+    Args:
+        FUNCTIONS: List of functions used in the mutation.
+        TERMINALS: List of terminals used in the mutation.
+        CONSTANTS: List of constants used in the mutation.
+        two_trees: Boolean indicating if two trees should be used.
+        operator: The operator to be used in the mutation.
+        single_tree_sigmoid: Boolean indicating if sigmoid should be applied to single tree.
+        sig: Boolean indicating if sigmoid should be applied.
+
+    Returns:
+        Function: An inflate mutation function.
+    """
     def inflate(
         individual,
         ms,
@@ -149,9 +131,6 @@ def inflate_mutation(
         reconstruct=True,
     ):
 
-        # getting a random tree
-
-        # getting another random tree if two trees are to be used
         if two_trees:
             # getting two random trees
             random_tree1 = get_random_tree(
@@ -175,7 +154,6 @@ def inflate_mutation(
                 grow_probability=grow_probability,
                 logistic=True,
             )
-
             random_trees = [random_tree1, random_tree2]
 
             # getting the testing semantics of the random trees
@@ -186,10 +164,6 @@ def inflate_mutation(
                 ]
 
         else:
-            # getting one random tree
-
-            # checking if we choose to apply sigmoid to a single tree:
-
             random_tree1 = get_random_tree(
                 max_depth,
                 FUNCTIONS,
@@ -211,7 +185,6 @@ def inflate_mutation(
                     for rt in random_trees
                 ]
 
-        # creating the mutation resulting block to be added to the individual
         variator = (
             two_trees_delta(operator=operator)
             if two_trees
@@ -228,7 +201,6 @@ def inflate_mutation(
             reconstruct=True,
         )
 
-        # adding the mutation block to the individual
         offs = Individual(
             collection=[*individual.collection, new_block] if reconstruct else None,
             train_semantics=torch.stack(
@@ -278,7 +250,16 @@ def inflate_mutation(
 
 
 def deflate_mutation(individual, reconstruct):
+    """
+    Perform deflate mutation on an individual.
 
+    Args:
+        individual: The individual to be mutated.
+        reconstruct: Boolean indicating if the individual should be reconstructed.
+
+    Returns:
+        Individual: The mutated individual.
+    """
     mut_point = random.randint(1, individual.size - 1)
     offs = Individual(
         collection=(

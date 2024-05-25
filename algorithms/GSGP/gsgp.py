@@ -1,3 +1,6 @@
+"""
+Genetic Programming (GP) and Geometric Semantic Genetic Programming (GSGP) modules.
+"""
 import random
 import time
 
@@ -7,14 +10,16 @@ from algorithms.GP.representations.tree import Tree as GP_Tree
 from algorithms.GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.GSGP.representations.tree_utils import (
-    apply_tree, nested_depth_calculator, nested_nodes_calculator)
+    nested_depth_calculator, nested_nodes_calculator)
 from utils.diversity import gsgp_pop_div_from_vectors
 from utils.logger import logger
 from utils.utils import get_random_tree, verbose_reporter
 
 
 class GSGP:
-
+    """
+    Geometric Semantic Genetic Programming class.
+    """
     def __init__(
         self,
         pi_init,
@@ -30,10 +35,26 @@ class GSGP:
         seed=0,
         settings_dict=None,
     ):
+        """
+        Initialize the GSGP algorithm.
 
-        # other initial parameters, tipo dataset
+        Args:
+            pi_init (dict): Dictionary with all the parameters needed for evaluation.
+            initializer (function): Function to initialize the population.
+            selector (function): Function to select individuals for crossover/mutation.
+            mutator (function): Function to mutate individuals.
+            ms (function): Function to determine mutation step.
+            crossover (function): Function to perform crossover between individuals.
+            find_elit_func (function): Function to find elite individuals.
+            p_m (float): Probability of mutation.
+            p_xo (float): Probability of crossover.
+            pop_size (int): Size of the population.
+            seed (int): Seed for random number generation.
+            settings_dict (dict): Additional settings dictionary.
+        """
+
         self.pi_init = (
-            pi_init  # dictionary with all the parameters needed for evaluation
+            pi_init
         )
         self.selector = selector
         self.p_m = p_m
@@ -44,7 +65,6 @@ class GSGP:
         self.initializer = initializer
         self.pop_size = pop_size
         self.seed = seed
-
         self.settings_dict = settings_dict
         self.find_elit_func = find_elit_func
 
@@ -73,21 +93,32 @@ class GSGP:
         reconstruct=False,
         n_elites=1,
     ):
+        """
+        Execute the GSGP algorithm.
 
-        # setting the seeds
+        Args:
+            x_train (torch.Tensor): Training data features.
+            x_test (torch.Tensor): Test data features.
+            y_train (torch.Tensor): Training data labels.
+            y_test (torch.Tensor): Test data labels.
+            curr_dataset (str): Current dataset name.
+            n_iter (int): Number of iterations.
+            elitism (bool): Whether to use elitism.
+            log (int): Logging level.
+            verbose (int): Verbosity level.
+            test_elite (bool): Whether to test elite individuals.
+            log_path (str): Path to save logs.
+            run_info (list): Information about the current run.
+            ffunction (function): Fitness function.
+            reconstruct (bool): Whether to reconstruct trees.
+            n_elites (int): Number of elites.
+        """
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
         random.seed(self.seed)
 
         start = time.time()
 
-        #######################################################################
-
-        # INITIALIZATION #
-
-        #######################################################################
-
-        # initializing the population
         population = Population(
             [
                 Tree(
@@ -98,29 +129,19 @@ class GSGP:
                 )
                 for tree in self.initializer(**self.pi_init)
             ]
-        )  # reconstruct set as true to calculate the initial pop semantics
+        )
 
-        # getting the individuals' semantics
         population.calculate_semantics(X_train)
-
         if test_elite:
             population.calculate_semantics(X_test, testing=True)
-
-        # getting individuals' fitness
         population.evaluate(ffunction, y=y_train)
 
         end = time.time()
-
-        # obtaining the initial population elites
         self.elites, self.elite = self.find_elit_func(population, n_elites)
-
-        # testing the elite on validation/testing, if applicable
         if test_elite:
             self.elite.evaluate(ffunction, y=y_test, testing=True)
 
-        # logging the results for the population initialization
         if log != 0:
-
             if log == 2:
                 add_info = [
                     self.elite.test_fitness,
@@ -141,8 +162,6 @@ class GSGP:
                     log,
                 ]
 
-            # log level 3 saves the number of nodes and fitness of all the
-            # individuals in the population
             elif log == 3:
 
                 add_info = [
@@ -191,7 +210,6 @@ class GSGP:
                 seed=self.seed,
             )
 
-        # displaying the results for the population initialization on console
         if verbose != 0:
             verbose_reporter(
                 curr_dataset.split("load_")[-1],
@@ -202,25 +220,14 @@ class GSGP:
                 self.elite.nodes,
             )
 
-        #######################################################################
-
-        # GP EVOLUTION #
-
-        #######################################################################
-
         for it in range(1, n_iter + 1, 1):
-
             offs_pop, start = [], time.time()
-
             if elitism:
                 offs_pop.append(self.elite)
 
             while len(offs_pop) < self.pop_size:
 
-                # choosing between crossover and mutation
                 if random.random() < self.p_xo:
-
-                    # if crossover, select two parents
                     p1, p2 = self.selector(
                         population), self.selector(population)
 
@@ -228,7 +235,6 @@ class GSGP:
                         p1, p2 = self.selector(
                             population), self.selector(population)
 
-                    # getting a random tree
                     r_tree = get_random_tree(
                         max_depth=self.pi_init["init_depth"],
                         FUNCTIONS=self.pi_init["FUNCTIONS"],
@@ -239,12 +245,10 @@ class GSGP:
                         p_c=self.pi_init["p_c"],
                     )
 
-                    # calculating its semantics on testing, if applicable
                     if test_elite:
                         r_tree.calculate_semantics(
                             X_test, testing=True, logistic=True)
 
-                    # the two parents generate one offspring
                     offs1 = Tree(
                         structure=(
                             [self.crossover, p1, p2, r_tree] if reconstruct else None
@@ -265,17 +269,12 @@ class GSGP:
                             self.crossover, [p1.depth, p2.depth, r_tree.depth]
                         )
 
-                    # adding the offspring to the population
                     offs_pop.append(offs1)
 
                 else:
-                    # if mutation choose one parent
                     p1 = self.selector(population)
-
-                    # determining the mutation step
                     ms_ = self.ms()
 
-                    # checking if one or two trees are required for mutation
                     if self.mutator.__name__ in [
                         "standard_geometric_mutation",
                         "product_two_trees_geometric_mutation",
@@ -301,8 +300,6 @@ class GSGP:
 
                         mutation_trees = [r_tree1, r_tree2]
 
-                        # calculating random trees' semantics on testing, if
-                        # applicable
                         if test_elite:
                             [
                                 rt.calculate_semantics(
@@ -312,8 +309,6 @@ class GSGP:
                             ]
 
                     else:
-                        # if only one tree is used, no logistic function is
-                        # needed
                         r_tree1 = get_random_tree(
                             max_depth=self.pi_init["init_depth"],
                             FUNCTIONS=self.pi_init["FUNCTIONS"],
@@ -326,14 +321,11 @@ class GSGP:
 
                         mutation_trees = [r_tree1]
 
-                        # calculating random trees' semantics on testing, if
-                        # applicable
                         if test_elite:
                             r_tree1.calculate_semantics(
                                 X_test, testing=True, logistic=False
                             )
 
-                    # mutating the individual
                     offs1 = Tree(
                         structure=(
                             [self.mutator, p1, *mutation_trees, ms_]
@@ -351,7 +343,6 @@ class GSGP:
                         reconstruct=reconstruct,
                     )
 
-                    # adding the individual to the population
                     offs_pop.append(offs1)
                     if not reconstruct:
                         offs1.nodes = nested_nodes_calculator(
@@ -367,24 +358,16 @@ class GSGP:
                 offs_pop = offs_pop[: population.size]
 
             offs_pop = Population(offs_pop)
-            # offs_pop.calculate_semantics(X_train)
-            #
-            # if test_elite:
-            #     offs_pop.calculate_semantics(X_test, testing=True)
-
             offs_pop.evaluate(ffunction, y=y_train)
-
             population = offs_pop
 
             end = time.time()
 
-            # getting the population elite
             self.elites, self.elite = self.find_elit_func(population, n_elites)
 
             if test_elite:
                 self.elite.evaluate(ffunction, y=y_test, testing=True)
 
-            # logging the results for the current generation
             if log != 0:
 
                 if log == 2:
@@ -407,8 +390,6 @@ class GSGP:
                         log,
                     ]
 
-                # log level 3 saves the number of nodes and fitness of all the
-                # individuals in the population
                 elif log == 3:
 
                     add_info = [
@@ -459,7 +440,6 @@ class GSGP:
                     seed=self.seed,
                 )
 
-            # displaying the results for the current generation on console
             if verbose != 0:
                 verbose_reporter(
                     run_info[-1],

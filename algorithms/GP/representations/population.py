@@ -1,30 +1,41 @@
-class Population:
+"""
+Population class implementation for evaluating genetic programming individuals.
+"""
 
+
+class Population:
     def __init__(self, pop):
+        """
+        Initializes the Population object.
+
+        Parameters
+        ----------
+        pop : list
+            List of individual objects that make up the population.
+        """
         self.population = pop
         self.size = len(pop)
-        self.nodes_count = sum([ind.node_count for ind in pop])
+        self.nodes_count = sum(ind.node_count for ind in pop)
 
     def evaluate(self, ffunction, X, y):
         """
-        evaluates the population given a certain fitness function, input data(x) and target data (y)
+        Evaluates the population given a certain fitness function, input data (X), and target data (y).
+
         Parameters
         ----------
-        ffunction: function
-            fitness function to evaluate the individual
-        X: torch tensor
-            the input data (which can be training or testing)
-        y: torch tensor
-            the expected output (target) values
+        ffunction : function
+            Fitness function to evaluate the individual.
+        X : torch.Tensor
+            The input data (which can be training or testing).
+        y : torch.Tensor
+            The expected output (target) values.
 
         Returns
         -------
         None
-            attributes a fitness tensor to the population
+            Attributes a fitness tensor to the population.
         """
-
-        # evaluating all the individuals in the population on training
-        [individual.evaluate(ffunction, X, y)
-         for individual in self.population]
+        for individual in self.population:
+            individual.evaluate(ffunction, X, y)
 
         self.fit = [individual.fitness for individual in self.population]

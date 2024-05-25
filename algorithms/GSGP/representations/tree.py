@@ -1,3 +1,6 @@
+"""
+Tree Class for Genetic Programming using PyTorch.
+"""
 import torch
 from algorithms.GP.representations.tree_utils import flatten, tree_depth
 from algorithms.GSGP.representations.tree_utils import (
@@ -9,20 +12,22 @@ class Tree:
     TERMINALS = None
     CONSTANTS = None
 
-    def __init__(
-            self,
-            structure,
-            train_semantics,
-            test_semantics,
-            reconstruct):
+    def __init__(self, structure, train_semantics, test_semantics, reconstruct):
+        """
+        Initialize the Tree with its structure and semantics.
+
+        Args:
+            structure: The tree structure, either as a tuple or a list of pointers.
+            train_semantics: The training semantics associated with the tree.
+            test_semantics: The testing semantics associated with the tree.
+            reconstruct: Boolean indicating if the tree should be reconstructed.
+        """
         self.FUNCTIONS = Tree.FUNCTIONS
         self.TERMINALS = Tree.TERMINALS
         self.CONSTANTS = Tree.CONSTANTS
 
         if structure is not None and reconstruct:
-            self.structure = (
-                structure  # either repr_ from gp(tuple) or list of pointers
-            )
+            self.structure = structure  # either repr_ from gp(tuple) or list of pointers
 
         self.train_semantics = train_semantics
         self.test_semantics = test_semantics
@@ -35,7 +40,6 @@ class Tree:
                 self.structure[0],
                 [tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)],
             )
-            # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
             self.nodes = nested_nodes_calculator(
                 self.structure[0],
                 [tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)],
@@ -45,10 +49,18 @@ class Tree:
         self.test_fitness = None
 
     def calculate_semantics(self, inputs, testing=False, logistic=False):
+        """
+        Calculate the semantics for the tree.
 
+        Args:
+            inputs: Input data for calculating semantics.
+            testing: Boolean indicating if the calculation is for testing semantics.
+            logistic: Boolean indicating if a logistic function should be applied.
+
+        Returns:
+            None
+        """
         if testing and self.test_semantics is None:
-            # checking if the individual is part of the initial population
-            # (table) or is a random tree (table)
             if isinstance(self.structure, tuple):
                 self.test_semantics = (
                     torch.sigmoid(apply_tree(self, inputs))
@@ -56,8 +68,6 @@ class Tree:
                     else apply_tree(self, inputs)
                 )
             else:
-                # self.structure[0] is the operator (mutation or xo) while the
-                # remaining of the structure dare pointers to the trees
                 self.test_semantics = self.structure[0](
                     *self.structure[1:], testing=True
                 )
@@ -75,28 +85,16 @@ class Tree:
 
     def evaluate(self, ffunction, y, testing=False):
         """
-        evaluates the tree given a certain fitness function (ffunction) x) and target data (y).
+        Evaluate the tree using a fitness function.
 
-        This evaluation is performed by applying ffunction to the semantics of self and the expected output y. The
-        optional parameter testing is used to control whether the training y or test y is being used as well as which
-        semantics should be used. The result is stored as an attribute of self.
+        Args:
+            ffunction: Fitness function to evaluate the individual.
+            y: Expected output (target) values as a torch tensor.
+            testing: Boolean indicating if the evaluation is for testing semantics.
 
-        Parameters
-        ----------
-        ffunction: function
-            fitness function to evaluate the individual
-        y: torch tensor
-            the expected output (target) values
-        testing: bool
-            Flag symbolizing if the y is from testing
-
-        Returns
-        -------
-        None
-            attributes a fitness value to the tree
+        Returns:
+            None
         """
-
-        # attributing the tree fitness
         if testing:
             self.test_fitness = ffunction(y, self.test_semantics)
         else:

@@ -1,23 +1,32 @@
-import numpy as np
+"""
+Individual Class and Utility Functions for Genetic Programming using PyTorch.
+"""
 import torch
+
 from algorithms.GSGP.representations.tree_utils import apply_tree
 from utils.utils import show_individual
 
 
 class Individual:
+    """
+    Initialize an Individual with a collection of trees and semantics.
 
+    Args:
+        collection: List of trees representing the individual.
+        train_semantics: Training semantics associated with the individual.
+        test_semantics: Testing semantics associated with the individual.
+        reconstruct: Boolean indicating if the individual should be reconstructed.
+    """
     def __init__(
             self,
             collection,
             train_semantics,
             test_semantics,
             reconstruct):
-        # defining the list (block) of pointers
         if collection is not None and reconstruct:
             self.collection = collection
-            # keeping the structure of the trees in the block
             self.structure = [tree.structure for tree in collection]
-            self.size = len(collection)  # size == number of blocks
+            self.size = len(collection)
 
             self.nodes_collection = [tree.nodes for tree in collection]
             self.nodes_count = sum(self.nodes_collection) + (self.size - 1)
@@ -29,13 +38,22 @@ class Individual:
                 ]
             ) + (self.size - 1)
 
-        # starting the individual with empty semantics and fitnesses
         self.train_semantics = train_semantics
         self.test_semantics = test_semantics
         self.fitness = None
         self.test_fitness = None
 
     def calculate_semantics(self, inputs, testing=False):
+        """
+        Calculate the semantics for the individual.
+
+        Args:
+            inputs: Input data for calculating semantics.
+            testing: Boolean indicating if the calculation is for testing semantics.
+
+        Returns:
+            None
+        """
 
         if testing and self.test_semantics is None:
             [tree.calculate_semantics(inputs, testing)
@@ -66,27 +84,37 @@ class Individual:
             )
 
     def __len__(self):
+        """
+        Return the size of the individual.
+
+        Returns:
+            int: Size of the individual.
+        """
         return self.size
 
     def __getitem__(self, item):
+        """Get a tree from the individual by index.
+
+        Args:
+            item: Index of the tree to retrieve.
+
+        Returns:
+            Tree: The tree at the specified index.
+        """
         return self.collection[item]
 
     def evaluate(self, ffunction, y, testing=False, operator="sum"):
         """
-        evaluates the population given a certain fitness function, input data(x) and target data (y)
-        Parameters
-        ----------
-        ffunction: function
-            fitness function to evaluate the individual
-        X: torch tensor
-            the input data (which can be training or testing)
-        y: torch tensor
-            the expected output (target) values
+        Evaluate the individual using a fitness function.
 
-        Returns
-        -------
-        None
-            attributes a fitness tensor to the population
+        Args:
+            ffunction: Fitness function to evaluate the individual.
+            y: Expected output (target) values as a torch tensor.
+            testing: Boolean indicating if the evaluation is for testing semantics.
+            operator: Operator to apply to the semantics ("sum" or "prod").
+
+        Returns:
+            None
         """
         if operator == "sum":
             operator = torch.sum
@@ -103,7 +131,7 @@ class Individual:
                 ),
             )
 
-        else:  # note: clamping in case the operator results in very big semantics
+        else:
             self.fitness = ffunction(
                 y,
                 torch.clamp(
@@ -119,27 +147,18 @@ def apply_individual_fixed(tree, data, operator="sum", sig=False):
     semantics = []
 
     for t in tree.collection:
-        # checking if the individual is part of the initial population (table)
-        # or is a random tree (table)
-
         if isinstance(t.structure, tuple):
             semantics.append(apply_tree(t, data))
-        # if the tree structure is a list, checking if we are using one or two
-        # trees with our operator
         else:
 
             if len(t.structure) == 3:  # one tree
                 if sig:
-                    # saving the old training semantics in case its needed
                     t.structure[1].previous_training = t.train_semantics
-                    # obtaining the new train_semantics for the new unseen data
                     t.structure[1].train_semantics = torch.sigmoid(
                         apply_tree(t.structure[1], data)
                     )
                 else:
-                    # saving the old training semantics in case its needed
                     t.structure[1].previous_training = t.train_semantics
-                    # obtaining the new train_semantics for the new unseen data
                     t.structure[1].train_semantics = apply_tree(
                         t.structure[1], data)
 
@@ -157,8 +176,6 @@ def apply_individual_fixed(tree, data, operator="sum", sig=False):
             semantics.append(t.structure[0](*t.structure[1:], testing=False))
 
     operator = torch.sum if operator == "sum" else torch.prod
-
-    print("WORK PLEASE", show_individual(tree, operator=operator))
 
     return torch.clamp(operator(torch.stack(semantics),
                                 dim=0), -1000000000000.0, 1000000000000.0)
