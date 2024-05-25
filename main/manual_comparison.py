@@ -15,9 +15,9 @@ import numpy as np
 
 datas = ["ppb"]
 
-X_train, y_train = load_preloaded(datas[0], seed= 1, training=True, X_y=True)
+X_train, y_train = load_preloaded(datas[0], seed=1, training=True, X_y=True)
 
-X_test, y_test = load_preloaded(datas[0], seed= 1, training=False, X_y=True)
+X_test, y_test = load_preloaded(datas[0], seed=1, training=False, X_y=True)
 
 # data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
 # X, y = load_preloaded[0](datas[0], seed = 1, X_y = True)
@@ -25,7 +25,7 @@ X_test, y_test = load_preloaded(datas[0], seed= 1, training=False, X_y=True)
 # X_train, y_train = load_dummy_train()
 # X_test, y_test = load_dummy_test()
 # TERMINALS = get_terminals( load_dummy_train)
-TERMINALS = get_terminals('ppb', seed = 1)
+TERMINALS = get_terminals("ppb", seed=1)
 
 
 # Tree.FUNCTIONS = FUNCTIONS
@@ -134,15 +134,10 @@ grown_pop = grow(2000, 6, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0)
 depths = [tree_depth(FUNCTIONS)(tree) for tree in grown_pop]
 sizes = [len(list(flatten(tree))) for tree in grown_pop]
 
-print('MEAN NODES :', np.mean(sizes))
-print('MEDIAN NODES :', np.median(sizes))
-print('STD NODES :', np.std(sizes))
-print('\n')
-print('MEAN DEPTH :', np.mean(depths))
-print('MEDIAN DEPTH :', np.median(depths))
-print('STD DEPTH :', np.std(depths))
-
-
-
-
-
+print("MEAN NODES :", np.mean(sizes))
+print("MEDIAN NODES :", np.median(sizes))
+print("STD NODES :", np.std(sizes))
+print("\n")
+print("MEAN DEPTH :", np.mean(depths))
+print("MEDIAN DEPTH :", np.median(depths))
+print("STD DEPTH :", np.std(depths))

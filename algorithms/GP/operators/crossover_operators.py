@@ -1,8 +1,8 @@
 from algorithms.GP.representations.tree_utils import random_subtree, substitute_subtree
 
+
 # Function to perform crossover between two trees.
 def crossover_trees(FUNCTIONS):
-
     """
     Performs crossover between two trees.
 
@@ -23,12 +23,20 @@ def crossover_trees(FUNCTIONS):
 
         if isinstance(tree1, tuple) and isinstance(tree2, tuple):
             # Randomly select crossover points in both trees
-            crossover_point_tree1 = random_subtree_picker(tree1, num_of_nodes=tree1_n_nodes)
-            crossover_point_tree2 = random_subtree_picker(tree2, num_of_nodes=tree2_n_nodes)
+            crossover_point_tree1 = random_subtree_picker(
+                tree1, num_of_nodes=tree1_n_nodes
+            )
+            crossover_point_tree2 = random_subtree_picker(
+                tree2, num_of_nodes=tree2_n_nodes
+            )
 
             # Swap subtrees at the crossover points
-            new_tree1 = subtree_substitution(tree1, crossover_point_tree1, crossover_point_tree2)
-            new_tree2 = subtree_substitution(tree2, crossover_point_tree2, crossover_point_tree1)
+            new_tree1 = subtree_substitution(
+                tree1, crossover_point_tree1, crossover_point_tree2
+            )
+            new_tree2 = subtree_substitution(
+                tree2, crossover_point_tree2, crossover_point_tree1
+            )
 
             return new_tree1, new_tree2
         else:

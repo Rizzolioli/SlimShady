@@ -5,7 +5,10 @@ from copy import copy
 import numpy as np
 from sklearn.metrics import root_mean_squared_error
 
-from algorithms.GP.representations.tree_utils import create_full_random_tree, create_grow_random_tree
+from algorithms.GP.representations.tree_utils import (
+    create_full_random_tree,
+    create_grow_random_tree,
+)
 from algorithms.GSGP.representations.tree import Tree
 from datasets.data_loader import load_preloaded
 
@@ -15,7 +18,7 @@ Taken from GPOL
 
 
 def protected_div(x1, x2):
-    """ Implements the division protected against zero denominator
+    """Implements the division protected against zero denominator
 
     Performs division between x1 and x2. If x2 is (or has) zero(s), the
     function returns the numerator's value(s).
@@ -33,7 +36,11 @@ def protected_div(x1, x2):
         Result of protected division between x1 and x2.
     """
     # if  torch.is_tensor(x2):
-    return torch.where(torch.abs(x2) > 0.001, torch.div(x1, x2), torch.tensor(1.0, dtype=x2.dtype, device=x2.device))
+    return torch.where(
+        torch.abs(x2) > 0.001,
+        torch.div(x1, x2),
+        torch.tensor(1.0, dtype=x2.dtype, device=x2.device),
+    )
 
     # else:
     #     if x2 < 0:
@@ -55,7 +62,7 @@ def mean_(x1, x2):
 
 
 def train_test_split(X, y, p_test=0.3, shuffle=True, indices_only=False, seed=0):
-    """ Splits X and y tensors into train and test subsets
+    """Splits X and y tensors into train and test subsets
 
     This method replicates the behaviour of Sklearn's 'train_test_split'.
 
@@ -123,35 +130,45 @@ def tensor_dimensioned_sum(dim):
     return tensor_sum
 
 
-def verbose_reporter(dataset, generation, pop_val_fitness, pop_test_fitness, timing, nodes):
+def verbose_reporter(
+    dataset, generation, pop_val_fitness, pop_test_fitness, timing, nodes
+):
     """
-        Prints a formatted report of generation, fitness values, timing, and node count.
+    Prints a formatted report of generation, fitness values, timing, and node count.
 
-        Parameters
-        ----------
-        generation : int
-            Current generation number.
-        pop_val_fitness : float
-            Population's validation fitness value.
-        pop_test_fitness : float
-            Population's test fitness value.
-        timing : float
-            Time taken for the process.
-        nodes : int
-            Count of nodes in the population.
+    Parameters
+    ----------
+    generation : int
+        Current generation number.
+    pop_val_fitness : float
+        Population's validation fitness value.
+    pop_test_fitness : float
+        Population's test fitness value.
+    timing : float
+        Time taken for the process.
+    nodes : int
+        Count of nodes in the population.
 
-        Returns
-        -------
-        None
-            Outputs a formatted report to the console.
+    Returns
+    -------
+    None
+        Outputs a formatted report to the console.
     """
     digits_dataset = len(str(dataset))
     digits_generation = len(str(generation))
     digits_val_fit = len(str(float(pop_val_fitness)))
     if pop_test_fitness is not None:
         digits_test_fit = len(str(float(pop_test_fitness)))
-        test_text_init = "|" + " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
-        test_text = " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
+        test_text_init = (
+            "|"
+            + " " * 3
+            + str(float(pop_test_fitness))
+            + " " * (23 - digits_test_fit)
+            + "|"
+        )
+        test_text = (
+            " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
+        )
     else:
         digits_test_fit = 4
         test_text_init = "|" + " " * 3 + "None" + " " * (23 - digits_test_fit) + "|"
@@ -161,33 +178,75 @@ def verbose_reporter(dataset, generation, pop_val_fitness, pop_test_fitness, tim
 
     if generation == 0:
         print(
-            "                                                         Verbose Reporter                                              ")
+            "                                                         Verbose Reporter                                              "
+        )
         print(
-            "-----------------------------------------------------------------------------------------------------------------------------------------")
+            "-----------------------------------------------------------------------------------------------------------------------------------------"
+        )
         print(
-            "|         Dataset         |  Generation  |     Train Fitness     |       Test Fitness       |        Timing          |      Nodes       |")
+            "|         Dataset         |  Generation  |     Train Fitness     |       Test Fitness       |        Timing          |      Nodes       |"
+        )
         print(
-            "-----------------------------------------------------------------------------------------------------------------------------------------")
-        print("|" + " " * 5 + str(dataset) + " " * (20 - digits_dataset) + "|" +
-              " " * 7 + str(generation) + " " * (7 - digits_generation) + "|"
-              + " " * 3 + str(float(pop_val_fitness))
-              + " " * (20 - digits_val_fit) +
-              test_text_init +
-              " " * 3 + str(timing) + " " * (21 - digits_timing) + "|" +
-              " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
+            "-----------------------------------------------------------------------------------------------------------------------------------------"
+        )
+        print(
+            "|"
+            + " " * 5
+            + str(dataset)
+            + " " * (20 - digits_dataset)
+            + "|"
+            + " " * 7
+            + str(generation)
+            + " " * (7 - digits_generation)
+            + "|"
+            + " " * 3
+            + str(float(pop_val_fitness))
+            + " " * (20 - digits_val_fit)
+            + test_text_init
+            + " " * 3
+            + str(timing)
+            + " " * (21 - digits_timing)
+            + "|"
+            + " " * 6
+            + str(nodes)
+            + " " * (12 - digits_nodes)
+            + "|"
+        )
     else:
-        print("|" + " " * 5 + str(dataset) + " " * (20 - digits_dataset) + "|" +
-              " " * 7 + str(generation) + " " * (7 - digits_generation) + "|"
-              + " " * 3 + str(float(pop_val_fitness))
-              + " " * (20 - digits_val_fit) + "|"
-              + test_text +
-              " " * 3 + str(timing) + " " * (21 - digits_timing) + "|" +
-              " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
+        print(
+            "|"
+            + " " * 5
+            + str(dataset)
+            + " " * (20 - digits_dataset)
+            + "|"
+            + " " * 7
+            + str(generation)
+            + " " * (7 - digits_generation)
+            + "|"
+            + " " * 3
+            + str(float(pop_val_fitness))
+            + " " * (20 - digits_val_fit)
+            + "|"
+            + test_text
+            + " " * 3
+            + str(timing)
+            + " " * (21 - digits_timing)
+            + "|"
+            + " " * 6
+            + str(nodes)
+            + " " * (12 - digits_nodes)
+            + "|"
+        )
 
 
 def get_terminals(data_loader, seed=0):
     if isinstance(data_loader, str):
-        TERMINALS = {f"x{i}": i for i in range(len(load_preloaded(data_loader, seed, training=True, X_y=True)[0][0]))}
+        TERMINALS = {
+            f"x{i}": i
+            for i in range(
+                len(load_preloaded(data_loader, seed, training=True, X_y=True)[0][0])
+            )
+        }
     else:
         TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
 
@@ -235,19 +294,26 @@ def get_best_max(population, n_elites):
         return [elite], elite
 
 
-def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3, grow_probability=1,
-                    logistic=True):
+def get_random_tree(
+    max_depth,
+    FUNCTIONS,
+    TERMINALS,
+    CONSTANTS,
+    inputs,
+    p_c=0.3,
+    grow_probability=1,
+    logistic=True,
+):
     # choose between grow and full
     if random.random() < grow_probability:
 
         # creating a tree using grow
         tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
-        #reconstruct set to true to calculate the s
-        tree = Tree(structure=tree,
-                    train_semantics=None,
-                    test_semantics=None,
-                    reconstruct=True)
+        # reconstruct set to true to calculate the s
+        tree = Tree(
+            structure=tree, train_semantics=None, test_semantics=None, reconstruct=True
+        )
 
         # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
@@ -256,10 +322,9 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3,
         # creating a full tree
         tree = create_full_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
-        tree = Tree(structure=tree,
-                    train_semantics=None,
-                    test_semantics=None,
-                    reconstruct=True)
+        tree = Tree(
+            structure=tree, train_semantics=None, test_semantics=None, reconstruct=True
+        )
 
         # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
@@ -282,6 +347,7 @@ def generate_random_uniform(lower, upper):
     def generate_num():
         return random.uniform(lower, upper)
         # return 1.5
+
     generate_num.lower = lower
     generate_num.upper = upper
     return generate_num
@@ -290,14 +356,25 @@ def generate_random_uniform(lower, upper):
 def show_individual(tree, operator):
     op = "+" if operator == "sum" else "*"
 
-    return f" {op} ".join([str(t.structure) if isinstance(t.structure,
-                                                          tuple) else f'f({t.structure[1].structure})' if len(
-        t.structure) == 3
-    else f'f({t.structure[1].structure} - {t.structure[2].structure})' for t in tree.collection])
+    return f" {op} ".join(
+        [
+            (
+                str(t.structure)
+                if isinstance(t.structure, tuple)
+                else (
+                    f"f({t.structure[1].structure})"
+                    if len(t.structure) == 3
+                    else f"f({t.structure[1].structure} - {t.structure[2].structure})"
+                )
+            )
+            for t in tree.collection
+        ]
+    )
 
 
 def gs_rmse(y_true, y_pred):
     return root_mean_squared_error(y_true, y_pred[0])
 
-def gs_size (y_true, y_pred):
+
+def gs_size(y_true, y_pred):
     return y_pred[1]

@@ -1,8 +1,8 @@
 import numpy as np
 import random
 
-def tournament_selection_min_slim(pool_size):
 
+def tournament_selection_min_slim(pool_size):
     """
     Performs tournament selection to select an individual with the lowest fitness from a population.
 
@@ -66,7 +66,6 @@ def tournament_selection_max_slim(pool_size):
         else:
 
             pool = random.sample(pop.population, k=pool_size)
-
 
         return pool[np.argmax([ind.fitness for ind in pool])]
 

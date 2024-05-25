@@ -3,14 +3,15 @@ import numpy as np
 import torch
 from evaluators.fitness_functions import signed_errors
 
+
 def calculate_signed_errors(semantics, y_true, operator):
 
-    if operator == 'sum':
+    if operator == "sum":
         operator = torch.sum
     else:
         operator = torch.prod
 
-    return  signed_errors(y_true, operator(semantics, dim = 0))
+    return signed_errors(y_true, operator(semantics, dim=0))
 
 
 def global_optimum_in_ch(errors):
@@ -30,13 +31,16 @@ def global_optimum_in_ch(errors):
     prob.parameters()[0].value = A
     prob.parameters()[1].value = b
     try:
-        prob.solve(solver='MOSEK')
+        prob.solve(solver="MOSEK")
         # print(f'Sum equal to 1 {np.isclose(sum(prob.variables()[0].value),1)}')
         # print(f'All positive: {all(prob.variables()[0].value >= 0)}')
-        return prob.status == 'optimal' and np.isclose(sum(prob.variables()[0].value), 1) and all(
-            prob.variables()[0].value >= 0)
+        return (
+            prob.status == "optimal"
+            and np.isclose(sum(prob.variables()[0].value), 1)
+            and all(prob.variables()[0].value >= 0)
+        )
     except:
-        print('Optimization not completed')
+        print("Optimization not completed")
         return False
 
 
@@ -60,7 +64,7 @@ def distance_from_chull(errors):
     prob.parameters()[0].value = A
 
     try:
-        prob.solve(solver=cp.CLARABEL, ignore_dpp = True)
+        prob.solve(solver=cp.CLARABEL, ignore_dpp=True)
 
         return sum(prob.variables()[0].value) + sum(prob.variables()[1].value)
 

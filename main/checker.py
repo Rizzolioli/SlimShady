@@ -15,30 +15,68 @@ from datasets.data_loader import *
 datas = ["ppb"]
 
 # obtaining the data loading functions using the dataset name
-data_loaders = [getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func]
-X, y = data_loaders[0](X_y = True)
+data_loaders = [
+    getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func
+]
+X, y = data_loaders[0](X_y=True)
 
 TERMINALS = get_terminals(data_loaders[0])
 
-tree1 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS) #for base trees need to calculate the semantics
-tree2 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS)
+tree1 = Tree(
+    create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS),
+    FUNCTIONS,
+    TERMINALS,
+    CONSTANTS,
+)  # for base trees need to calculate the semantics
+tree2 = Tree(
+    create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS),
+    FUNCTIONS,
+    TERMINALS,
+    CONSTANTS,
+)
 
 tree1.calculate_semantics(X)
 tree2.calculate_semantics(X)
 
-random_tree1 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS)
-random_tree2 = Tree(create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS), FUNCTIONS, TERMINALS, CONSTANTS)
+random_tree1 = Tree(
+    create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS),
+    FUNCTIONS,
+    TERMINALS,
+    CONSTANTS,
+)
+random_tree2 = Tree(
+    create_full_random_tree(3, FUNCTIONS, TERMINALS, CONSTANTS),
+    FUNCTIONS,
+    TERMINALS,
+    CONSTANTS,
+)
 
 random_tree1.calculate_semantics(X)
 random_tree2.calculate_semantics(X)
 
 print(random_tree1.structure)
 
-tree3 = Tree([geometric_crossover, tree1, tree2, random_tree1], tree1.FUNCTIONS, tree1.TERMINALS, tree1.CONSTANTS)
+tree3 = Tree(
+    [geometric_crossover, tree1, tree2, random_tree1],
+    tree1.FUNCTIONS,
+    tree1.TERMINALS,
+    tree1.CONSTANTS,
+)
 
-ms = torch.arange(0.25, 5.25, 0.25, device='cpu')
+ms = torch.arange(0.25, 5.25, 0.25, device="cpu")
 
-tree4 = Tree([geometric_mutation, tree1, tree2, random_tree1, ms[random.randint(0, len(ms) - 1)]], tree1.FUNCTIONS, tree1.TERMINALS, tree1.CONSTANTS)
+tree4 = Tree(
+    [
+        geometric_mutation,
+        tree1,
+        tree2,
+        random_tree1,
+        ms[random.randint(0, len(ms) - 1)],
+    ],
+    tree1.FUNCTIONS,
+    tree1.TERMINALS,
+    tree1.CONSTANTS,
+)
 
 ind1 = Individual([tree1, tree2, tree3, random_tree2])
 
@@ -62,11 +100,9 @@ res, elite = get_best_max(pop, 2)
 ran = random.choice(pop)
 
 print("pop", pop.population)
-print("ran",ran)
-#ind3 = two_trees_inflate_mutation(ind1, 0.1, X)
+print("ran", ran)
+# ind3 = two_trees_inflate_mutation(ind1, 0.1, X)
 
-#ind4 = deflate_mutation(ind1)
+# ind4 = deflate_mutation(ind1)
 
-#print(ind1)
-
-
+# print(ind1)

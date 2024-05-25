@@ -1,4 +1,3 @@
-
 class Population:
 
     def __init__(self, pop):
@@ -7,23 +6,22 @@ class Population:
         self.nodes_count = sum([ind.node_count for ind in pop])
 
     def evaluate(self, ffunction, X, y):
-
         """
-                evaluates the population given a certain fitness function, input data(x) and target data (y)
-                Parameters
-                ----------
-                ffunction: function
-                    fitness function to evaluate the individual
-                X: torch tensor
-                    the input data (which can be training or testing)
-                y: torch tensor
-                    the expected output (target) values
+        evaluates the population given a certain fitness function, input data(x) and target data (y)
+        Parameters
+        ----------
+        ffunction: function
+            fitness function to evaluate the individual
+        X: torch tensor
+            the input data (which can be training or testing)
+        y: torch tensor
+            the expected output (target) values
 
-                Returns
-                -------
-                None
-                    attributes a fitness tensor to the population
-                """
+        Returns
+        -------
+        None
+            attributes a fitness tensor to the population
+        """
 
         # evaluating all the individuals in the population on training
         [individual.evaluate(ffunction, X, y) for individual in self.population]
