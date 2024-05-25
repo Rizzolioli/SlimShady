@@ -1,15 +1,17 @@
-from utils.utils import protected_div, mean_, get_best_min, get_best_max
-from evaluators.fitness_functions import rmse
-from algorithms.GP.operators.initializers import rhh
 from algorithms.GP.operators.crossover_operators import crossover_trees
+from algorithms.GP.operators.initializers import rhh
+from algorithms.GP.operators.selection_algorithms import \
+    tournament_selection_min
+from algorithms.GP.representations.tree_utils import tree_pruning
 from algorithms.GSGP.operators.crossover_operators import geometric_crossover
 from algorithms.GSGP.operators.mutators import *
-from algorithms.GP.operators.selection_algorithms import tournament_selection_min
-from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
-from datasets.data_loader import *
 from algorithms.SLIM_GSGP.operators.mutators import *
-from algorithms.GP.representations.tree_utils import tree_pruning
-from utils.utils import generate_random_uniform
+from algorithms.SLIM_GSGP.operators.selection_algorithms import \
+    tournament_selection_min_slim
+from datasets.data_loader import *
+from evaluators.fitness_functions import rmse
+from utils.utils import (generate_random_uniform, get_best_max, get_best_min,
+                         mean_, protected_div)
 
 ########################################################################################################################
 

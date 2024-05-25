@@ -1,9 +1,10 @@
-import pandas as pd
-import numpy as np
 import os
 from copy import copy
-import seaborn as sb
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sb
 
 columns = [
     "algo",

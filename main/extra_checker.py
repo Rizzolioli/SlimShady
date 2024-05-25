@@ -2,13 +2,12 @@ import random
 import time
 import uuid
 
-from parametrization import *
-from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
 import datasets.data_loader as ds
-from utils.utils import get_terminals, train_test_split
 from algorithms.SLIM_GSGP.operators.mutators import *
+from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
+from parametrization import *
 from utils.logger import log_settings
-from utils.utils import show_individual
+from utils.utils import get_terminals, show_individual, train_test_split
 
 dataset = "energy"
 

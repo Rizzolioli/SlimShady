@@ -1,13 +1,13 @@
-from parametrization import *
+import time
+import uuid
+
+import datasets.data_loader as ds
 from algorithms.GP.gp import GP
 from algorithms.GP.operators.mutators import mutate_tree_subtree
-import datasets.data_loader as ds
+from algorithms.GP.representations.tree_utils import tree_depth, tree_pruning
+from parametrization import *
+from utils.logger import log_settings, logger
 from utils.utils import get_terminals, train_test_split
-from utils.logger import logger, log_settings
-from algorithms.GP.representations.tree_utils import tree_pruning, tree_depth
-import uuid
-import time
-
 
 ########################################################################################################################
 

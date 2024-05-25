@@ -1,9 +1,10 @@
 import uuid
-from parametrization import *
-from algorithms.GSGP.gsgp import GSGP
+
 import datasets.data_loader as ds
-from utils.utils import get_terminals, train_test_split
+from algorithms.GSGP.gsgp import GSGP
+from parametrization import *
 from utils.logger import log_settings
+from utils.utils import get_terminals, train_test_split
 
 ########################################################################################################################
 

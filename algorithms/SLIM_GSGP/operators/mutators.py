@@ -1,6 +1,6 @@
 import random
-import torch
 
+import torch
 from algorithms.GP.representations.tree_utils import create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual

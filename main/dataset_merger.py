@@ -1,10 +1,10 @@
-import datasets.data_loader as ds
-from datasets.data_loader import load_preloaded
-import torch
-import numpy as np
 import os
-import pandas as pd
 
+import datasets.data_loader as ds
+import numpy as np
+import pandas as pd
+import torch
+from datasets.data_loader import load_preloaded
 
 # setting up the datasets
 datas = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]

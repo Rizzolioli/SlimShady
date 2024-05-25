@@ -1,5 +1,5 @@
-import torch
 import numpy as np
+import torch
 from algorithms.GSGP.representations.tree_utils import apply_tree
 from utils.utils import show_individual
 

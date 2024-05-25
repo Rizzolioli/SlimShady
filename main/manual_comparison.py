@@ -1,17 +1,17 @@
-from algorithms.SLIM_GSGP.representations.individual import Individual
+import datasets.data_loader as ds
+import numpy as np
+import torch
+from algorithms.GP.operators.initializers import grow
+from algorithms.GP.representations.tree import Tree as GP_Tree
+from algorithms.GP.representations.tree_utils import flatten, tree_depth
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.SLIM_GSGP.operators.mutators import one_tree_delta
-import datasets.data_loader as ds
-from datasets.data_loader import load_dummy_test, load_dummy_train, load_preloaded
-from utils.utils import get_terminals, train_test_split
-from parametrization import FUNCTIONS, CONSTANTS
-from algorithms.GP.representations.tree import Tree as GP_Tree
-import torch
+from algorithms.SLIM_GSGP.representations.individual import Individual
+from datasets.data_loader import (load_dummy_test, load_dummy_train,
+                                  load_preloaded)
 from evaluators.fitness_functions import rmse
-from utils.utils import show_individual
-from algorithms.GP.operators.initializers import grow
-from algorithms.GP.representations.tree_utils import tree_depth, flatten
-import numpy as np
+from parametrization import CONSTANTS, FUNCTIONS
+from utils.utils import get_terminals, show_individual, train_test_split
 
 datas = ["ppb"]
 

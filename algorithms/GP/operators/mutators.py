@@ -1,10 +1,9 @@
-import numpy as np
 import random
-from algorithms.GP.representations.tree_utils import (
-    create_grow_random_tree,
-    substitute_subtree,
-    random_subtree,
-)
+
+import numpy as np
+from algorithms.GP.representations.tree_utils import (create_grow_random_tree,
+                                                      random_subtree,
+                                                      substitute_subtree)
 
 
 # Function to perform mutation on a tree.

@@ -1,5 +1,5 @@
-from scipy.stats import entropy
 import torch
+from scipy.stats import entropy
 
 
 def niche_entropy(repr_, n_niches=10):

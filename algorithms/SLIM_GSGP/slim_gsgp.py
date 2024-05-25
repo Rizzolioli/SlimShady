@@ -1,17 +1,16 @@
-import time
 import random
-import torch
+import time
+
 import numpy as np
-
-from utils.utils import verbose_reporter, train_test_split
-from utils.logger import logger
-from algorithms.SLIM_GSGP.representations.population import Population
-from algorithms.GSGP.representations.tree import Tree
+import torch
 from algorithms.GP.representations.tree import Tree as GP_Tree
+from algorithms.GSGP.representations.tree import Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual
-
+from algorithms.SLIM_GSGP.representations.population import Population
+from utils.convexhull import calculate_signed_errors, distance_from_chull
 from utils.diversity import gsgp_pop_div_from_vectors
-from utils.convexhull import distance_from_chull, calculate_signed_errors
+from utils.logger import logger
+from utils.utils import train_test_split, verbose_reporter
 
 
 class SLIM_GSGP:

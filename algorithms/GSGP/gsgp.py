@@ -1,21 +1,16 @@
-import time
 import random
-import torch
-import numpy as np
+import time
 
-from utils.utils import verbose_reporter, get_random_tree
+import numpy as np
+import torch
+from algorithms.GP.representations.tree import Tree as GP_Tree
 from algorithms.GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
-from algorithms.GP.representations.tree import Tree as GP_Tree
-from utils.logger import logger
-
-from utils.diversity import gsgp_pop_div_from_vectors
-
 from algorithms.GSGP.representations.tree_utils import (
-    apply_tree,
-    nested_depth_calculator,
-    nested_nodes_calculator,
-)
+    apply_tree, nested_depth_calculator, nested_nodes_calculator)
+from utils.diversity import gsgp_pop_div_from_vectors
+from utils.logger import logger
+from utils.utils import get_random_tree, verbose_reporter
 
 
 class GSGP:

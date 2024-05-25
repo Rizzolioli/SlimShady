@@ -1,8 +1,6 @@
-from algorithms.GP.representations.tree_utils import (
-    create_full_random_tree,
-    create_grow_random_tree,
-)
 from algorithms.GP.representations.tree import Tree
+from algorithms.GP.representations.tree_utils import (create_full_random_tree,
+                                                      create_grow_random_tree)
 
 
 def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, p_terminal=0.5):

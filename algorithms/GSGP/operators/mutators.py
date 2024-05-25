@@ -1,5 +1,6 @@
-import torch
 import random
+
+import torch
 
 
 def standard_geometric_mutation(tree, random_tree_1, random_tree_2, ms, testing):

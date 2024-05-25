@@ -1,10 +1,7 @@
-from algorithms.GSGP.representations.tree_utils import (
-    apply_tree,
-    nested_depth_calculator,
-    nested_nodes_calculator,
-)
-from algorithms.GP.representations.tree_utils import flatten, tree_depth
 import torch
+from algorithms.GP.representations.tree_utils import flatten, tree_depth
+from algorithms.GSGP.representations.tree_utils import (
+    apply_tree, nested_depth_calculator, nested_nodes_calculator)
 
 
 class Tree:

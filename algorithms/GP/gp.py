@@ -1,15 +1,14 @@
-import time
 import random
-import torch
-import numpy as np
+import time
 
-from utils.utils import verbose_reporter
+import numpy as np
+import torch
 from algorithms.GP.representations.population import Population
 from algorithms.GP.representations.tree import Tree
 from algorithms.GP.representations.tree_utils import tree_depth
 from utils.diversity import niche_entropy
 from utils.logger import logger
-
+from utils.utils import verbose_reporter
 
 # TODO handling of TERMINALS FUNCTIONS etc in all scripts diogo "is handling it"
 

@@ -1,5 +1,5 @@
-from algorithms.GP.representations.tree_utils import bound_value
-from algorithms.GP.representations.tree_utils import flatten, tree_depth
+from algorithms.GP.representations.tree_utils import (bound_value, flatten,
+                                                      tree_depth)
 
 
 class Tree:

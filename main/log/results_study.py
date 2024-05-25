@@ -1,12 +1,8 @@
-from utils.visualizations import (
-    show_results,
-    get_experiment_results,
-    get_column_names,
-    verify_integrity,
-)
 import os
-import pandas as pd
 
+import pandas as pd
+from utils.visualizations import (get_column_names, get_experiment_results,
+                                  show_results, verify_integrity)
 
 columns = [
     "algo",

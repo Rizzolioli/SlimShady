@@ -1,16 +1,16 @@
 import random
 
-from parametrization import FUNCTIONS, CONSTANTS
-from utils.utils import get_terminals, get_best_min, get_best_max
-from algorithms.GP.representations.tree_utils import create_full_random_tree
 import datasets.data_loader as ds
-from algorithms.GSGP.representations.tree import Tree
-from algorithms.SLIM_GSGP.representations.individual import Individual
+from algorithms.GP.representations.tree_utils import create_full_random_tree
 from algorithms.GSGP.operators.crossover_operators import *
 from algorithms.GSGP.operators.mutators import *
-from evaluators.fitness_functions import rmse
+from algorithms.GSGP.representations.tree import Tree
+from algorithms.SLIM_GSGP.representations.individual import Individual
 from algorithms.SLIM_GSGP.representations.population import Population
 from datasets.data_loader import *
+from evaluators.fitness_functions import rmse
+from parametrization import CONSTANTS, FUNCTIONS
+from utils.utils import get_best_max, get_best_min, get_terminals
 
 datas = ["ppb"]
 

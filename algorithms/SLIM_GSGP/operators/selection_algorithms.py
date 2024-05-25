@@ -1,5 +1,6 @@
-import numpy as np
 import random
+
+import numpy as np
 
 
 def tournament_selection_min_slim(pool_size):
