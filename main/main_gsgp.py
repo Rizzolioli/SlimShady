@@ -2,6 +2,7 @@
 This script runs the StandardGSGP algorithm on various datasets and configurations,
 logging the results for further analysis.
 """
+
 import uuid
 
 from algorithms.GSGP.gsgp import GSGP
@@ -10,8 +11,12 @@ from utils.logger import log_settings
 from utils.utils import get_terminals
 
 DATA_LOADERS = [
-    "toxicity", "concrete", "instanbul", "ppb",
-    "resid_build_sale_price", "energy"
+    "toxicity",
+    "concrete",
+    "instanbul",
+    "ppb",
+    "resid_build_sale_price",
+    "energy",
 ]
 ALGOS = ["StandardGSGP"]
 N_RUNS = 10
@@ -39,8 +44,12 @@ def main():
                     curr_dataset = f"load_{dataset}"
                     TERMINALS = get_terminals(loader, seed + 1)
 
-                    X_train, y_train = load_preloaded(loader, seed=seed + 1, training=True, X_y=True)
-                    X_test, y_test = load_preloaded(loader, seed=seed + 1, training=False, X_y=True)
+                    X_train, y_train = load_preloaded(
+                        loader, seed=seed + 1, training=True, X_y=True
+                    )
+                    X_test, y_test = load_preloaded(
+                        loader, seed=seed + 1, training=False, X_y=True
+                    )
 
                 gsgp_pi_init["TERMINALS"] = TERMINALS
                 optimizer = GSGP(pi_init=gsgp_pi_init, **GSGP_parameters, seed=seed)
@@ -51,7 +60,7 @@ def main():
                     y_train=y_train,
                     y_test=y_test,
                     curr_dataset=curr_dataset,
-                    **gsgp_solve_parameters
+                    **gsgp_solve_parameters,
                 )
 
     log_settings(

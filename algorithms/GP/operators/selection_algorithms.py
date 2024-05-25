@@ -1,6 +1,7 @@
 """
 Selection operator implementation.
 """
+
 import random
 
 import numpy as np
@@ -24,6 +25,7 @@ def tournament_selection_max(pool_size):
     def ts(pop):
         pool = random.sample(pop.population, k=pool_size)
         return pool[np.argmax([ind.fitness for ind in pool])]
+
     return ts
 
 
@@ -45,4 +47,5 @@ def tournament_selection_min(pool_size):
     def ts(pop):
         pool = random.sample(pop.population, k=pool_size)
         return pool[np.argmin([ind.fitness for ind in pool])]
+
     return ts

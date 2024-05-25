@@ -1,6 +1,7 @@
 """
 Tree Class for Genetic Programming using PyTorch.
 """
+
 import torch
 from algorithms.GP.representations.tree_utils import flatten, tree_depth
 from algorithms.GSGP.representations.tree_utils import (
@@ -27,7 +28,9 @@ class Tree:
         self.CONSTANTS = Tree.CONSTANTS
 
         if structure is not None and reconstruct:
-            self.structure = structure  # either repr_ from gp(tuple) or list of pointers
+            self.structure = (
+                structure  # either repr_ from gp(tuple) or list of pointers
+            )
 
         self.train_semantics = train_semantics
         self.test_semantics = test_semantics

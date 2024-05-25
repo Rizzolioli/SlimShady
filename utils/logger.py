@@ -50,7 +50,7 @@ def logger(
     nodes: int,
     additional_infos: list = None,
     run_info: list = None,
-    seed: int = 0
+    seed: int = 0,
 ) -> None:
     """
     Logs information into a CSV file.

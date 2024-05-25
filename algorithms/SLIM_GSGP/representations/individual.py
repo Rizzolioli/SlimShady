@@ -1,8 +1,8 @@
 """
 Individual Class and Utility Functions for Genetic Programming using PyTorch.
 """
-import torch
 
+import torch
 from algorithms.GSGP.representations.tree_utils import apply_tree
 from utils.utils import show_individual
 
@@ -17,12 +17,8 @@ class Individual:
         test_semantics: Testing semantics associated with the individual.
         reconstruct: Boolean indicating if the individual should be reconstructed.
     """
-    def __init__(
-            self,
-            collection,
-            train_semantics,
-            test_semantics,
-            reconstruct):
+
+    def __init__(self, collection, train_semantics, test_semantics, reconstruct):
         if collection is not None and reconstruct:
             self.collection = collection
             self.structure = [tree.structure for tree in collection]
@@ -56,8 +52,7 @@ class Individual:
         """
 
         if testing and self.test_semantics is None:
-            [tree.calculate_semantics(inputs, testing)
-             for tree in self.collection]
+            [tree.calculate_semantics(inputs, testing) for tree in self.collection]
             self.test_semantics = torch.stack(
                 [
                     (
@@ -70,8 +65,7 @@ class Individual:
             )
 
         elif self.train_semantics is None:
-            [tree.calculate_semantics(inputs, testing)
-             for tree in self.collection]
+            [tree.calculate_semantics(inputs, testing) for tree in self.collection]
             self.train_semantics = torch.stack(
                 [
                     (
@@ -159,8 +153,7 @@ def apply_individual_fixed(tree, data, operator="sum", sig=False):
                     )
                 else:
                     t.structure[1].previous_training = t.train_semantics
-                    t.structure[1].train_semantics = apply_tree(
-                        t.structure[1], data)
+                    t.structure[1].train_semantics = apply_tree(t.structure[1], data)
 
             elif len(t.structure) == 4:  # two tree
                 t.structure[1].previous_training = t.train_semantics
@@ -177,5 +170,6 @@ def apply_individual_fixed(tree, data, operator="sum", sig=False):
 
     operator = torch.sum if operator == "sum" else torch.prod
 
-    return torch.clamp(operator(torch.stack(semantics),
-                                dim=0), -1000000000000.0, 1000000000000.0)
+    return torch.clamp(
+        operator(torch.stack(semantics), dim=0), -1000000000000.0, 1000000000000.0
+    )

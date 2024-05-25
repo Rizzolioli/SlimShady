@@ -108,7 +108,9 @@ class GP:
         start = time.time()
 
         # Initialize the population
-        population = Population([Tree(tree) for tree in self.initializer(**self.pi_init)])
+        population = Population(
+            [Tree(tree) for tree in self.initializer(**self.pi_init)]
+        )
         population.evaluate(ffunction, X=X_train, y=y_train)
 
         end = time.time()
@@ -118,7 +120,9 @@ class GP:
             self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
         if log != 0:
-            self.log_initial_population(population, end - start, log, log_path, run_info)
+            self.log_initial_population(
+                population, end - start, log, log_path, run_info
+            )
 
         if verbose != 0:
             verbose_reporter(
@@ -132,7 +136,13 @@ class GP:
 
         for it in range(1, n_iter + 1):
             offs_pop, start = self.evolve_population(
-                population, ffunction, max_depth, depth_calculator, elitism, X_train, y_train
+                population,
+                ffunction,
+                max_depth,
+                depth_calculator,
+                elitism,
+                X_train,
+                y_train,
             )
             population = offs_pop
             end = time.time()
@@ -143,7 +153,9 @@ class GP:
                 self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
             if log != 0:
-                self.log_generation(it, population, end - start, log, log_path, run_info)
+                self.log_generation(
+                    it, population, end - start, log, log_path, run_info
+                )
 
             if verbose != 0:
                 verbose_reporter(
@@ -156,7 +168,14 @@ class GP:
                 )
 
     def evolve_population(
-        self, population, ffunction, max_depth, depth_calculator, elitism, X_train, y_train
+        self,
+        population,
+        ffunction,
+        max_depth,
+        depth_calculator,
+        elitism,
+        X_train,
+        y_train,
     ):
         """
         Evolve the population for one generation.
@@ -187,13 +206,22 @@ class GP:
                     p1, p2 = self.selector(population), self.selector(population)
 
                 offs1, offs2 = self.crossover(
-                    p1.repr_, p2.repr_, tree1_n_nodes=p1.node_count, tree2_n_nodes=p2.node_count
+                    p1.repr_,
+                    p2.repr_,
+                    tree1_n_nodes=p1.node_count,
+                    tree2_n_nodes=p2.node_count,
                 )
 
                 if max_depth is not None:
-                    while depth_calculator(offs1) > max_depth or depth_calculator(offs2) > max_depth:
+                    while (
+                        depth_calculator(offs1) > max_depth
+                        or depth_calculator(offs2) > max_depth
+                    ):
                         offs1, offs2 = self.crossover(
-                            p1.repr_, p2.repr_, tree1_n_nodes=p1.node_count, tree2_n_nodes=p2.node_count
+                            p1.repr_,
+                            p2.repr_,
+                            tree1_n_nodes=p1.node_count,
+                            tree2_n_nodes=p2.node_count,
                         )
 
                 offspring = [offs1, offs2]
@@ -270,7 +298,9 @@ class GP:
             seed=self.seed,
         )
 
-    def log_generation(self, generation, population, elapsed_time, log, log_path, run_info):
+    def log_generation(
+        self, generation, population, elapsed_time, log, log_path, run_info
+    ):
         """
         Log the results for the current generation.
 

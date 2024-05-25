@@ -2,7 +2,9 @@
 Tree class implementation for representing tree structures in genetic programming.
 """
 
-from algorithms.GP.representations.tree_utils import bound_value, flatten, tree_depth
+from algorithms.GP.representations.tree_utils import (bound_value, flatten,
+                                                      tree_depth)
+
 
 class Tree:
     """
@@ -92,7 +94,9 @@ class Tree:
                 left_subtree, right_subtree = self.repr_[1], self.repr_[2]
                 left_result = Tree(left_subtree).apply_tree(inputs)
                 right_result = Tree(right_subtree).apply_tree(inputs)
-                output = Tree.FUNCTIONS[function_name]["function"](left_result, right_result)
+                output = Tree.FUNCTIONS[function_name]["function"](
+                    left_result, right_result
+                )
             else:
                 left_subtree = self.repr_[1]
                 left_result = Tree(left_subtree).apply_tree(inputs)

@@ -51,9 +51,9 @@ def global_optimum_in_ch(errors):
     try:
         prob.solve(solver="MOSEK")
         return (
-                prob.status == "optimal"
-                and np.isclose(np.sum(prob.variables()[0].value), 1)
-                and np.all(prob.variables()[0].value >= 0)
+            prob.status == "optimal"
+            and np.isclose(np.sum(prob.variables()[0].value), 1)
+            and np.all(prob.variables()[0].value >= 0)
         )
     except cp.error.SolverError:
         print("Optimization not completed")
@@ -81,13 +81,7 @@ def distance_from_chull(errors):
     A_par = cp.Parameter(A.shape)
 
     objective = cp.Minimize(cp.sum(e + e_))
-    constraints = [
-        0 <= a,
-        cp.sum(a) == 1,
-        0 <= e,
-        0 <= e_,
-        A_par @ a + e - e_ == 0
-    ]
+    constraints = [0 <= a, cp.sum(a) == 1, 0 <= e, 0 <= e_, A_par @ a + e - e_ == 0]
     prob = cp.Problem(objective, constraints)
 
     A_par.value = A

@@ -16,7 +16,9 @@ def rmse(y_true: torch.Tensor, y_pred: torch.Tensor) -> torch.Tensor:
     Returns:
         torch.Tensor: RMSE value.
     """
-    return torch.sqrt(torch.mean(torch.square(torch.sub(y_true, y_pred)), dim=len(y_pred.shape) - 1))
+    return torch.sqrt(
+        torch.mean(torch.square(torch.sub(y_true, y_pred)), dim=len(y_pred.shape) - 1)
+    )
 
 
 def mse(y_true: torch.Tensor, y_pred: torch.Tensor) -> torch.Tensor:
@@ -30,7 +32,9 @@ def mse(y_true: torch.Tensor, y_pred: torch.Tensor) -> torch.Tensor:
     Returns:
         torch.Tensor: MSE value.
     """
-    return torch.mean(torch.square(torch.sub(y_true, y_pred)), dim=len(y_pred.shape) - 1)
+    return torch.mean(
+        torch.square(torch.sub(y_true, y_pred)), dim=len(y_pred.shape) - 1
+    )
 
 
 def mae(y_true: torch.Tensor, y_pred: torch.Tensor) -> torch.Tensor:

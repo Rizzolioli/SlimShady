@@ -1,14 +1,18 @@
 from algorithms.GP.operators.crossover_operators import crossover_trees
 from algorithms.GP.operators.initializers import rhh
-from algorithms.GP.operators.selection_algorithms import tournament_selection_min
+from algorithms.GP.operators.selection_algorithms import \
+    tournament_selection_min
 from algorithms.GP.representations.tree_utils import tree_pruning
 from algorithms.GSGP.operators.crossover_operators import geometric_crossover
 from algorithms.GSGP.operators.mutators import standard_geometric_mutation
-from algorithms.SLIM_GSGP.operators.mutators import deflate_mutation, inflate_mutation
-from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
+from algorithms.SLIM_GSGP.operators.mutators import (deflate_mutation,
+                                                     inflate_mutation)
+from algorithms.SLIM_GSGP.operators.selection_algorithms import \
+    tournament_selection_min_slim
 from datasets.data_loader import *
 from evaluators.fitness_functions import rmse
-from utils.utils import generate_random_uniform, get_best_max, get_best_min, mean_, protected_div
+from utils.utils import (generate_random_uniform, get_best_max, get_best_min,
+                         mean_, protected_div)
 
 # Define functions and constants
 FUNCTIONS = {

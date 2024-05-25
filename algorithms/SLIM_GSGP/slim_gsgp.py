@@ -1,6 +1,7 @@
 """
 SLIM_GSGP Class for Evolutionary Computation using PyTorch.
 """
+
 import random
 import time
 
@@ -63,9 +64,7 @@ class SLIM_GSGP:
             settings_dict: Additional settings dictionary.
         """
 
-        self.pi_init = (
-            pi_init
-        )
+        self.pi_init = pi_init
         self.selector = selector
         self.p_m = p_m
         self.p_inflate = p_inflate
@@ -258,10 +257,7 @@ class SLIM_GSGP:
                 add_info = [tie]
             else:
 
-                add_info = [
-                    self.elite.test_fitness,
-                    self.elite.nodes_count,
-                    log]
+                add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
 
             logger(
                 log_path,
@@ -290,11 +286,9 @@ class SLIM_GSGP:
                 offs_pop.extend(self.elites)
             while len(offs_pop) < self.pop_size:
                 if random.random() < self.p_xo:
-                    p1, p2 = self.selector(
-                        population), self.selector(population)
+                    p1, p2 = self.selector(population), self.selector(population)
                     while p1 == p2:
-                        p1, p2 = self.selector(
-                            population), self.selector(population)
+                        p1, p2 = self.selector(population), self.selector(population)
                     pass  # implement crossover
                 else:
                     if random.random() < self.p_deflate:
@@ -333,8 +327,7 @@ class SLIM_GSGP:
                                 )
 
                         else:
-                            off1 = self.deflate_mutator(
-                                p1, reconstruct=reconstruct)
+                            off1 = self.deflate_mutator(p1, reconstruct=reconstruct)
 
                     else:
                         p1 = self.selector(population, deflate=False)
@@ -361,8 +354,7 @@ class SLIM_GSGP:
                                     p1.size,
                                 )
                             else:
-                                off1 = self.deflate_mutator(
-                                    p1, reconstruct=reconstruct)
+                                off1 = self.deflate_mutator(p1, reconstruct=reconstruct)
 
                         else:
 
@@ -398,8 +390,7 @@ class SLIM_GSGP:
                                     p1.size,
                                 )
                             else:
-                                off1 = self.deflate_mutator(
-                                    p1, reconstruct=reconstruct)
+                                off1 = self.deflate_mutator(p1, reconstruct=reconstruct)
 
                     offs_pop.append(off1)
 
@@ -518,10 +509,7 @@ class SLIM_GSGP:
                     add_info = [tie]
 
                 else:
-                    add_info = [
-                        self.elite.test_fitness,
-                        self.elite.nodes_count,
-                        log]
+                    add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
 
                 logger(
                     log_path,

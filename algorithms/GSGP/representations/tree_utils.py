@@ -1,6 +1,7 @@
 """
 Utility functions for Tree Evaluation and Mutation in Genetic Programming.
 """
+
 from algorithms.GP.representations.tree import Tree
 from algorithms.GP.representations.tree_utils import bound_value
 
@@ -24,7 +25,9 @@ def apply_tree(tree, inputs):
             right_subtree = Tree(right_subtree)
             left_result = left_subtree.apply_tree(inputs)
             right_result = right_subtree.apply_tree(inputs)
-            output = tree.FUNCTIONS[function_name]["function"](left_result, right_result)
+            output = tree.FUNCTIONS[function_name]["function"](
+                left_result, right_result
+            )
         else:
             left_subtree = tree.structure[1]
             left_subtree = Tree(left_subtree)

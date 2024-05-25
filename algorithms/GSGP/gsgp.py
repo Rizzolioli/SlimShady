@@ -1,6 +1,7 @@
 """
 Genetic Programming (GP) and Geometric Semantic Genetic Programming (GSGP) modules.
 """
+
 import random
 import time
 
@@ -20,6 +21,7 @@ class GSGP:
     """
     Geometric Semantic Genetic Programming class.
     """
+
     def __init__(
         self,
         pi_init,
@@ -53,9 +55,7 @@ class GSGP:
             settings_dict (dict): Additional settings dictionary.
         """
 
-        self.pi_init = (
-            pi_init
-        )
+        self.pi_init = pi_init
         self.selector = selector
         self.p_m = p_m
         self.crossover = crossover
@@ -228,12 +228,10 @@ class GSGP:
             while len(offs_pop) < self.pop_size:
 
                 if random.random() < self.p_xo:
-                    p1, p2 = self.selector(
-                        population), self.selector(population)
+                    p1, p2 = self.selector(population), self.selector(population)
 
                     while p1 == p2:
-                        p1, p2 = self.selector(
-                            population), self.selector(population)
+                        p1, p2 = self.selector(population), self.selector(population)
 
                     r_tree = get_random_tree(
                         max_depth=self.pi_init["init_depth"],
@@ -246,8 +244,7 @@ class GSGP:
                     )
 
                     if test_elite:
-                        r_tree.calculate_semantics(
-                            X_test, testing=True, logistic=True)
+                        r_tree.calculate_semantics(X_test, testing=True, logistic=True)
 
                     offs1 = Tree(
                         structure=(

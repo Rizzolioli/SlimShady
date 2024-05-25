@@ -1,6 +1,7 @@
 """
 Mutator operator implementation.
 """
+
 import random
 
 import numpy as np
@@ -41,14 +42,11 @@ def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
                 return np.random.choice(list(CONSTANTS.keys()))
 
         if FUNCTIONS[tree[0]]["arity"] == 2:
-            node_to_mutate = np.random.randint(
-                0, 3
-            )
+            node_to_mutate = np.random.randint(0, 3)
         elif FUNCTIONS[tree[0]]["arity"] == 1:
             node_to_mutate = np.random.randint(0, 2)  #
 
-        inside_m = mutate_tree_node(
-            max_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
+        inside_m = mutate_tree_node(max_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
 
         if node_to_mutate == 0:
             new_function = np.random.choice(list(FUNCTIONS.keys()))

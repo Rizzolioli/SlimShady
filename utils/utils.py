@@ -37,30 +37,24 @@ def protected_div(x1, x2):
 
 def mean_(x1, x2):
     """
-      Compute the mean of two tensors.
+    Compute the mean of two tensors.
 
-      Parameters
-      ----------
-      x1 : torch.Tensor
-          The first tensor.
-      x2 : torch.Tensor
-          The second tensor.
+    Parameters
+    ----------
+    x1 : torch.Tensor
+        The first tensor.
+    x2 : torch.Tensor
+        The second tensor.
 
-      Returns
-      -------
-      torch.Tensor
-          The mean of the two tensors.
-      """
+    Returns
+    -------
+    torch.Tensor
+        The mean of the two tensors.
+    """
     return torch.div(torch.add(x1, x2), 2)
 
 
-def train_test_split(
-        X,
-        y,
-        p_test=0.3,
-        shuffle=True,
-        indices_only=False,
-        seed=0):
+def train_test_split(X, y, p_test=0.3, shuffle=True, indices_only=False, seed=0):
     """Splits X and y tensors into train and test subsets
 
     This method replicates the behaviour of Sklearn's 'train_test_split'.
@@ -125,6 +119,7 @@ def tensor_dimensioned_sum(dim):
     function
     A function that sums tensors over the specified dimension.
     """
+
     def tensor_sum(input):
         return torch.sum(input, dim)
 
@@ -167,20 +162,18 @@ def verbose_reporter(
             + " " * (23 - digits_test_fit)
             + "|"
         )
-        test_text = (" " * 3 + str(float(pop_test_fitness)) +
-                     " " * (23 - digits_test_fit) + "|")
+        test_text = (
+            " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
+        )
     else:
         digits_test_fit = 4
-        test_text_init = "|" + " " * 3 + "None" + \
-            " " * (23 - digits_test_fit) + "|"
+        test_text_init = "|" + " " * 3 + "None" + " " * (23 - digits_test_fit) + "|"
         test_text = " " * 3 + "None" + " " * (23 - digits_test_fit) + "|"
     digits_timing = len(str(timing))
     digits_nodes = len(str(nodes))
 
     if generation == 0:
-        print(
-            "Verbose Reporter"
-        )
+        print("Verbose Reporter")
         print(
             "-----------------------------------------------------------------------------------------------------------------------------------------"
         )
@@ -364,15 +357,19 @@ def get_random_tree(
         The generated random tree.
     """
     if random.random() < grow_probability:
-        tree_structure = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+        tree_structure = create_grow_random_tree(
+            max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c
+        )
     else:
-        tree_structure = create_full_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+        tree_structure = create_full_random_tree(
+            max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c
+        )
 
     tree = Tree(
         structure=tree_structure,
         train_semantics=None,
         test_semantics=None,
-        reconstruct=True
+        reconstruct=True,
     )
     tree.calculate_semantics(inputs, testing=False, logistic=logistic)
     return tree
