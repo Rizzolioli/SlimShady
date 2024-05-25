@@ -7,11 +7,103 @@
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/data/TEST_1_myToySumDataset.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_search/GSGPRegressor.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_search/grid_searcher.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_search/log/place_holder" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/diogo_gp_logger.csv.bak" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/diogo_logger.csv.bak" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/elite_looks.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/legend.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/legend.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots 2.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/elite_size_concrete.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/elite_size_energy.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/elite_size_instanbul.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/elite_size_ppb.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/elite_size_resid_build_sale_price.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/elite_size_toxicity.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/test_fitness_concrete.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/test_fitness_energy.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/test_fitness_instanbul.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/test_fitness_ppb.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/test_fitness_resid_build_sale_price.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/test_fitness_toxicity.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/training_fitness_concrete.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/training_fitness_energy.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/training_fitness_instanbul.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/training_fitness_ppb.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/training_fitness_resid_build_sale_price.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/plots/training_fitness_toxicity.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_GSGP_random_MS_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_GSGP_random_MS_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_GSGP_random_MS_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_GSGP_random_MS_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_GSGP_random_MS_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_GSGP_random_MS_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_STDGP_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_STDGP_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_STDGP_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_STDGP_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_STDGP_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/SIZE/RESULT_Size_Of_Best_Run_By_Run_Config_STDGP_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_GSGP_random_MS_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_GSGP_random_MS_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_GSGP_random_MS_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_GSGP_random_MS_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_GSGP_random_MS_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_GSGP_random_MS_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_STDGP_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_STDGP_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_STDGP_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_STDGP_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_STDGP_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/RUN_BY_RUN/TEST_RMSE/RESULT_Fitness_On_Test_Run_By_Run_Config_STDGP_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/ds_modification.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/fixed_data.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/p-values.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/paper_plots.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/res-13may.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_GSGP_random_MS_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_GSGP_random_MS_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_GSGP_random_MS_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_GSGP_random_MS_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_GSGP_random_MS_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_GSGP_random_MS_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_STDGP_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_STDGP_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_STDGP_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_STDGP_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_STDGP_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TEST/RESULT_Median_Best_Fitness_On_Test_Config_STDGP_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_GSGP_random_MS_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_GSGP_random_MS_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_GSGP_random_MS_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_GSGP_random_MS_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_GSGP_random_MS_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_GSGP_random_MS_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_STDGP_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_STDGP_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_STDGP_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_STDGP_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_STDGP_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/FITNESS_ON_TRAINING/RESULT_Median_Best_Fitness_On_Training_Config_STDGP_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_GSGP_random_MS_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_GSGP_random_MS_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_GSGP_random_MS_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_GSGP_random_MS_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_GSGP_random_MS_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_GSGP_random_MS_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_STDGP_04_09_2023_CONCRETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_STDGP_04_09_2023_ENERGY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_STDGP_04_09_2023_INSTANBUL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_STDGP_04_09_2023_PPB.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_STDGP_04_09_2023_RESID_BUILD_SALE_PRICE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/res/results/SIZE/RESULT_Median_Size_Of_Best_Config_STDGP_04_09_2023_TOXICITY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Visualizations.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/notes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/results_analyser.ipynb" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,6 +123,24 @@
     </findStrings>
   </component>
   <component name="Git.Settings">
+    <excluded-from-favorite>
+      <branch-storage>
+        <map>
+          <entry type="LOCAL">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="main" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </excluded-from-favorite>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitSEFilterConfiguration">
@@ -110,15 +220,15 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.main_slim.executor&quot;: &quot;Run&quot;,
-    &quot;Python.results_study.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/utente/OneDrive - NOVAIMS/TA/CM4O 2024/Minitests/code&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.main_slim.executor": "Run",
+    "Python.results_study.executor": "Run",
+    "git-widget-placeholder": "library",
+    "last_opened_file_path": "C:/Users/utente/OneDrive - NOVAIMS/TA/CM4O 2024/Minitests/code",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
