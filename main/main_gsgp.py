@@ -6,11 +6,11 @@ from parametrization import *
 from utils.logger import log_settings
 from utils.utils import get_terminals, train_test_split
 
-########################################################################################################################
+##########################################################################
 
 # DATASETS & ALGORITHMS
 
-########################################################################################################################
+##########################################################################
 
 # creating a list with the datasets that are to be benchmarked
 
@@ -28,12 +28,12 @@ data_loaders = ["instanbul"]
 
 algos = ["StandardGSGP"]
 
-########################################################################################################################
+##########################################################################
 
 # RUNNING THE ALGORITHM & DEFINING
 #    DATA-DEPENDANT PARAMETERS
 
-########################################################################################################################
+##########################################################################
 # attibuting a unique id to the run
 unique_run_id = uuid.uuid1()
 
@@ -47,7 +47,8 @@ for loader in data_loaders:
 
     # for each dataset, run all the planned algorithms
     for algo_name in algos:
-        # adding the dataset name and algorithm name to the run info for the logger
+        # adding the dataset name and algorithm name to the run info for the
+        # logger
         gsgp_solve_parameters["run_info"] = [algo_name, unique_run_id, dataset]
 
         algo_name = f"{algo_name}"
@@ -72,7 +73,10 @@ for loader in data_loaders:
                 )
 
             gsgp_pi_init["TERMINALS"] = TERMINALS
-            optimizer = GSGP(pi_init=gsgp_pi_init, **GSGP_parameters, seed=seed)
+            optimizer = GSGP(
+                pi_init=gsgp_pi_init,
+                **GSGP_parameters,
+                seed=seed)
 
             optimizer.solve(
                 X_train=X_train,

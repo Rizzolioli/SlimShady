@@ -13,11 +13,11 @@ from evaluators.fitness_functions import rmse
 from utils.utils import (generate_random_uniform, get_best_max, get_best_min,
                          mean_, protected_div)
 
-########################################################################################################################
+##########################################################################
 
 # TREE PARAMETERS
 
-########################################################################################################################
+##########################################################################
 # TODO: add grid-search code to main - DIOGO
 
 FUNCTIONS = {
@@ -33,7 +33,7 @@ FUNCTIONS = {
     'tan': {'function': lambda x: torch.tan(x), 'arity': 1},
     'sin': {'function': lambda x: torch.sin(x), 'arity': 1},
     'cos': {'function': lambda x: torch.cos(x), 'arity': 1},
-    
+
 """
 
 CONSTANTS = {
@@ -44,57 +44,61 @@ CONSTANTS = {
     'constant__1': lambda x: torch.tensor(-1).float()
 }
 
-########################################################################################################################
+##########################################################################
 
 # RUN PARAMETERS & settings
 
-########################################################################################################################
+##########################################################################
 
 n_runs = 30
 settings_dict = {"p_test": 0.2}
 
-########################################################################################################################
+##########################################################################
 
 # GP PARAMETERS
 
-########################################################################################################################
+##########################################################################
 
-gp_solve_parameters = {"elitism": True,
-                       "log": 1,
-                       "verbose": 1,
-                       "test_elite": True,
-                       "log_path": os.path.join(os.getcwd(), "log", "liah_gp_toxicity_2_seeds.csv"),
-                       "run_info": None,
-                       "max_depth": 17,
-                       "max_": False,
-                       "ffunction": rmse,
-                       "n_iter": 2000,
-                       "n_elites": 1,
-                       "tree_pruner": None
-                       }
+gp_solve_parameters = {
+    "elitism": True,
+    "log": 1,
+    "verbose": 1,
+    "test_elite": True,
+    "log_path": os.path.join(
+        os.getcwd(),
+        "log",
+        "liah_gp_toxicity_2_seeds.csv"),
+    "run_info": None,
+    "max_depth": 17,
+    "max_": False,
+    "ffunction": rmse,
+    "n_iter": 2000,
+    "n_elites": 1,
+    "tree_pruner": None}
 
-GP_parameters = {"initializer": rhh,
-                 "selector": tournament_selection_min(2),
-                 "crossover": crossover_trees(FUNCTIONS),
-                 "p_xo": 0.8,
-                 "pop_size": 100,
-                 "settings_dict": settings_dict,
-                 "find_elit_func": get_best_max if gp_solve_parameters["max_"] else get_best_min
-                 }
+GP_parameters = {
+    "initializer": rhh,
+    "selector": tournament_selection_min(2),
+    "crossover": crossover_trees(FUNCTIONS),
+    "p_xo": 0.8,
+    "pop_size": 100,
+    "settings_dict": settings_dict,
+    "find_elit_func": get_best_max if gp_solve_parameters["max_"] else get_best_min}
 GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
 
 gp_pi_init = {'init_pop_size': GP_parameters["pop_size"],
-              # assuming that the initial population size is the same as the GP pop size
+              # assuming that the initial population size is the same as the GP
+              # pop size
               'init_depth': 6,
               'FUNCTIONS': FUNCTIONS,
               'CONSTANTS': CONSTANTS,
               "p_c": 0}
 
-########################################################################################################################
+##########################################################################
 
 # GSGP PARAMETERS
 
-########################################################################################################################
+##########################################################################
 
 
 gsgp_solve_parameters = {"elitism": True,
@@ -128,11 +132,11 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
                 'CONSTANTS': CONSTANTS,
                 "p_c": 0}
 
-########################################################################################################################
+##########################################################################
 
 # SLIM GSGP PARAMETERS
 
-########################################################################################################################
+##########################################################################
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
@@ -145,7 +149,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "n_iter": 2000,  # 2000
                               "max_depth": None,
                               "n_elites": 1,
-                              "reconstruct" : False
+                              "reconstruct": False
                               }
 
 slim_GSGP_parameters = {"initializer": rhh,
@@ -163,9 +167,9 @@ slim_GSGP_parameters = {"initializer": rhh,
                         "operator": None
                         }
 
-mutation_parameters ={
-"sig": None,
-"two_trees": None
+mutation_parameters = {
+    "sig": None,
+    "two_trees": None
 }
 
 inflate_mutator = inflate_mutation
@@ -178,11 +182,28 @@ slim_gsgp_pi_init = {'init_pop_size': slim_GSGP_parameters["pop_size"],
                      'CONSTANTS': CONSTANTS,
                      "p_c": 0}
 
-all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters", "slim_gsgp_pi_init", "settings_dict"],
-              "GSGP": ["gsgp_solve_parameters", "GSGP_parameters", "gsgp_pi_init", "settings_dict"],
-              "GP": ["gp_solve_parameters", "GP_parameters", "gp_pi_init", "settings_dict"]}
+all_params = {
+    "SLIM_GSGP": [
+        "slim_gsgp_solve_parameters",
+        "slim_GSGP_parameters",
+        "slim_gsgp_pi_init",
+        "settings_dict"],
+    "GSGP": [
+        "gsgp_solve_parameters",
+        "GSGP_parameters",
+        "gsgp_pi_init",
+        "settings_dict"],
+    "GP": [
+        "gp_solve_parameters",
+        "GP_parameters",
+        "gp_pi_init",
+        "settings_dict"]}
 
-slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
-                       "concrete": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
-                       "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0,
-                                                                                 1)}}  #todo: add this to settings logger, fix for the other datasets
+slim_dataset_params = {
+    "toxicity": {
+        "p_inflate": 0.1, "ms": generate_random_uniform(
+            0, 0.1)}, "concrete": {
+                "p_inflate": 0.5, "ms": generate_random_uniform(
+                    0, 0.3)}, "other": {
+                        "p_inflate": 0.3, "ms": generate_random_uniform(
+                            0, 1)}}  # todo: add this to settings logger, fix for the other datasets

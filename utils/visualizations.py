@@ -38,9 +38,8 @@ def get_column_names(log_level=1, base_cols=columns):
             ]
         )
     elif log_level == 3:
-        base_cols.extend(
-            ["test_fitness", "pop_nodes", "pop_fitnesses", "nodes_count", "log_level"]
-        )
+        base_cols.extend(["test_fitness", "pop_nodes",
+                          "pop_fitnesses", "nodes_count", "log_level"])
     else:
         base_cols.extend(
             [
@@ -65,9 +64,14 @@ def get_experiment_results(
     log_level=1,
 ):
     # getting the path to the logger file
-    logger = os.path.join(os.getcwd().split("utils")[0], "main", "log", logger_name)
+    logger = os.path.join(
+        os.getcwd().split("utils")[0],
+        "main",
+        "log",
+        logger_name)
 
-    # seeing what the maximum number of columns in the logger is, as to avoid different logger level errors:
+    # seeing what the maximum number of columns in the logger is, as to avoid
+    # different logger level errors:
     with open(
         os.path.join(os.getcwd().split("utils")[0], "main", "log", logger_name), "r"
     ) as temp_f:
@@ -77,28 +81,34 @@ def get_experiment_results(
         use_cols = max([len(line.split(",")) for line in lines])
 
     # loading logger data into a pandas dataframe
-    results = pd.read_csv(logger, header=None, index_col=None, names=range(use_cols))
+    results = pd.read_csv(
+        logger,
+        header=None,
+        index_col=None,
+        names=range(use_cols))
 
-    # getting the experiment id of the last row in the logger data, if -1 is given as the experiment id
+    # getting the experiment id of the last row in the logger data, if -1 is
+    # given as the experiment id
     if experiment_id == -1:
 
         # getting the experiment id of the last experiment
         experiment_id = results[experiment_id_index].iloc[-1]
 
         # filtering the results to only contain the required experiment_id
-        results = results[results[experiment_id_index] == experiment_id].dropna(axis=1)
+        results = results[results[experiment_id_index]
+                          == experiment_id].dropna(axis=1)
 
     # if a specific expriment id was given
     elif isinstance(experiment_id, str):
-        results = results[results[experiment_id_index] == experiment_id].dropna(axis=1)
+        results = results[results[experiment_id_index]
+                          == experiment_id].dropna(axis=1)
 
     # if a list of experiment_ids was given
     elif isinstance(experiment_id, list):
 
         # filtering the results to only contain the required experiment_ids
-        results = results[results[experiment_id_index].isin(experiment_id)].dropna(
-            axis=1
-        )
+        results = results[results[experiment_id_index].isin(
+            experiment_id)].dropna(axis=1)
 
     # if experiment_id is none, return the entire logger dataset
     else:
@@ -131,8 +141,9 @@ def show_results(
 ):
     # getting the results dataframe
     df = get_experiment_results(
-        experiment_id=experiment_id, logger_name=logger_name, log_level=log_level
-    )
+        experiment_id=experiment_id,
+        logger_name=logger_name,
+        log_level=log_level)
 
     if y_var == "training_fitness":
 
@@ -247,7 +258,8 @@ def show_results(
             plotting = df[df["dataset"] == dataset]
 
             # performing a groupby on the variables of interest
-            plotting = pd.DataFrame(plotting.groupby([x_var, "algo"])[y_var].median())
+            plotting = pd.DataFrame(plotting.groupby(
+                [x_var, "algo"])[y_var].median())
             num_algos = len(set([val[-1] for val in plotting.index]))
             sb.lineplot(
                 data=plotting,
@@ -298,7 +310,8 @@ def show_results(
             plotting = df[df["dataset"] == dataset]
 
             # performing a groupby on the variables of interest
-            plotting = pd.DataFrame(plotting.groupby([x_var, "algo"])[y_var].median())
+            plotting = pd.DataFrame(plotting.groupby(
+                [x_var, "algo"])[y_var].median())
             num_algos = len(set([val[-1] for val in plotting.index]))
             sb.lineplot(
                 data=plotting,

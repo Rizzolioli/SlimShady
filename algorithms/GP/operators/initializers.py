@@ -3,7 +3,14 @@ from algorithms.GP.representations.tree_utils import (create_full_random_tree,
                                                       create_grow_random_tree)
 
 
-def grow(size, depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3, p_terminal=0.5):
+def grow(
+        size,
+        depth,
+        FUNCTIONS,
+        TERMINALS,
+        CONSTANTS,
+        p_c=0.3,
+        p_terminal=0.5):
     """
     Generates a list of individuals with random trees for a GM4OS population using the Grow method.
 
@@ -148,7 +155,11 @@ def rhh(init_pop_size, init_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c=0.3):
 
     while len(population) < init_pop_size:
         population.append(
-            create_grow_random_tree(init_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
-        )
+            create_grow_random_tree(
+                init_depth,
+                FUNCTIONS,
+                TERMINALS,
+                CONSTANTS,
+                p_c))
 
     return population

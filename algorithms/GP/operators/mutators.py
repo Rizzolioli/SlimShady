@@ -37,7 +37,8 @@ def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
     def m_tn(tree):
 
         if max_depth <= 1 or not isinstance(tree, tuple):
-            # If the tree is at its maximum depth or is a terminal node, return a random terminal node
+            # If the tree is at its maximum depth or is a terminal node, return
+            # a random terminal node
             if random.random() > p_c:
 
                 return np.random.choice(list(TERMINALS.keys()))
@@ -54,7 +55,8 @@ def mutate_tree_node(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
         elif FUNCTIONS[tree[0]]["arity"] == 1:
             node_to_mutate = np.random.randint(0, 2)  #
 
-        inside_m = mutate_tree_node(max_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
+        inside_m = mutate_tree_node(
+            max_depth - 1, TERMINALS, CONSTANTS, FUNCTIONS, p_c)
 
         if node_to_mutate == 0:
             # Mutate the function node
@@ -128,7 +130,8 @@ def mutate_tree_subtree(max_depth, TERMINALS, CONSTANTS, FUNCTIONS, p_c):
 
             return new_tree1
         else:
-            # If either tree is a terminal node, return them as they are (no crossover)
+            # If either tree is a terminal node, return them as they are (no
+            # crossover)
             return tree1
 
     return inner_mut

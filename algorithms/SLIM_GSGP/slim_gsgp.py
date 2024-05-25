@@ -96,11 +96,11 @@ class SLIM_GSGP:
 
         start = time.time()
 
-        ################################################################################################################
+        #######################################################################
 
         # INITIALIZATION #
 
-        ################################################################################################################
+        #######################################################################
 
         # initializing the population
         population = Population(
@@ -168,7 +168,8 @@ class SLIM_GSGP:
                     log,
                 ]
 
-            # log level 3 saves the number of nodes and fitness of all the individuals in the population
+            # log level 3 saves the number of nodes and fitness of all the
+            # individuals in the population
             elif log == 3:
 
                 add_info = [
@@ -233,7 +234,10 @@ class SLIM_GSGP:
                 add_info = [tie]
             else:
 
-                add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
+                add_info = [
+                    self.elite.test_fitness,
+                    self.elite.nodes_count,
+                    log]
 
             logger(
                 log_path,
@@ -257,11 +261,11 @@ class SLIM_GSGP:
                 self.elite.nodes_count,
             )
 
-        ################################################################################################################
+        #######################################################################
 
         # GP EVOLUTION #
 
-        ################################################################################################################
+        #######################################################################
 
         for it in range(1, n_iter + 1, 1):
 
@@ -277,11 +281,13 @@ class SLIM_GSGP:
                 if random.random() < self.p_xo:
 
                     # if crossover selecting two parents
-                    p1, p2 = self.selector(population), self.selector(population)
+                    p1, p2 = self.selector(
+                        population), self.selector(population)
 
                     # making sure the parents aren't the same
                     while p1 == p2:
-                        p1, p2 = self.selector(population), self.selector(population)
+                        p1, p2 = self.selector(
+                            population), self.selector(population)
 
                     pass  # implement crossover
 
@@ -292,9 +298,11 @@ class SLIM_GSGP:
 
                         p1 = self.selector(population, deflate=False)
 
-                        # if the chosen individual is only of size one, it cannot be deflated:
+                        # if the chosen individual is only of size one, it
+                        # cannot be deflated:
                         if p1.size == 1:
-                            # if we choose to copy the parent when an operator cannot be applied
+                            # if we choose to copy the parent when an operator
+                            # cannot be applied
                             if self.copy_parent:
                                 off1 = Individual(
                                     collection=p1.collection if reconstruct else None,
@@ -331,20 +339,24 @@ class SLIM_GSGP:
                                 )
 
                         else:
-                            off1 = self.deflate_mutator(p1, reconstruct=reconstruct)
+                            off1 = self.deflate_mutator(
+                                p1, reconstruct=reconstruct)
 
                     else:
-                        # if inflate mutation, pick a random individual with no restrictions
+                        # if inflate mutation, pick a random individual with no
+                        # restrictions
 
                         p1 = self.selector(population, deflate=False)
 
                         # obtaining the random mutation step
                         ms_ = self.ms()
 
-                        # if we cannot inflate the individual due to a max_depth constraint
+                        # if we cannot inflate the individual due to a
+                        # max_depth constraint
                         if max_depth is not None and p1.depth == max_depth:
 
-                            # seeing is we copy the parent or use the other operator
+                            # seeing is we copy the parent or use the other
+                            # operator
                             if self.copy_parent:
                                 off1 = Individual(
                                     collection=p1.collection if reconstruct else None,
@@ -366,7 +378,8 @@ class SLIM_GSGP:
                                     p1.size,
                                 )
                             else:
-                                off1 = self.deflate_mutator(p1, reconstruct=reconstruct)
+                                off1 = self.deflate_mutator(
+                                    p1, reconstruct=reconstruct)
 
                         else:
 
@@ -403,7 +416,8 @@ class SLIM_GSGP:
                                     p1.size,
                                 )
                             else:
-                                off1 = self.deflate_mutator(p1, reconstruct=reconstruct)
+                                off1 = self.deflate_mutator(
+                                    p1, reconstruct=reconstruct)
 
                     offs_pop.append(off1)
 
@@ -461,7 +475,8 @@ class SLIM_GSGP:
                         log,
                     ]
 
-                # log level 3 saves the number of nodes and fitness of all the individuals in the population
+                # log level 3 saves the number of nodes and fitness of all the
+                # individuals in the population
                 elif log == 3:
 
                     add_info = [
@@ -531,7 +546,10 @@ class SLIM_GSGP:
 
                 else:
 
-                    add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
+                    add_info = [
+                        self.elite.test_fitness,
+                        self.elite.nodes_count,
+                        log]
 
                 # logging the desired results
                 logger(

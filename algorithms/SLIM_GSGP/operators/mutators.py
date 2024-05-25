@@ -12,22 +12,32 @@ def two_trees_delta(operator="sum"):
 
         if testing:
             return (
-                torch.mul(ms, torch.sub(tr1.test_semantics, tr2.test_semantics))
-                if operator == "sum"
-                else torch.add(
-                    1, torch.mul(ms, torch.sub(tr1.test_semantics, tr2.test_semantics))
-                )
-            )
+                torch.mul(
+                    ms,
+                    torch.sub(
+                        tr1.test_semantics,
+                        tr2.test_semantics)) if operator == "sum" else torch.add(
+                    1,
+                    torch.mul(
+                        ms,
+                        torch.sub(
+                            tr1.test_semantics,
+                            tr2.test_semantics))))
 
         else:
             return (
-                torch.mul(ms, torch.sub(tr1.train_semantics, tr2.train_semantics))
-                if operator == "sum"
-                else torch.add(
+                torch.mul(
+                    ms,
+                    torch.sub(
+                        tr1.train_semantics,
+                        tr2.train_semantics)) if operator == "sum" else torch.add(
                     1,
-                    torch.mul(ms, torch.sub(tr1.train_semantics, tr2.train_semantics)),
-                )
-            )
+                    torch.mul(
+                        ms,
+                        torch.sub(
+                            tr1.train_semantics,
+                            tr2.train_semantics)),
+                ))
 
     tt_delta.__name__ += "_" + operator
 
@@ -40,46 +50,56 @@ def one_tree_delta(operator="sum", sig=False):
         if sig:
             if testing:
                 return (
-                    torch.mul(ms, torch.sub(torch.mul(2, tr1.test_semantics), 1))
-                    if operator == "sum"
-                    else torch.add(
-                        1, torch.mul(ms, torch.sub(torch.mul(2, tr1.test_semantics), 1))
-                    )
-                )
+                    torch.mul(
+                        ms,
+                        torch.sub(
+                            torch.mul(
+                                2,
+                                tr1.test_semantics),
+                            1)) if operator == "sum" else torch.add(
+                        1,
+                        torch.mul(
+                            ms,
+                            torch.sub(
+                                torch.mul(
+                                    2,
+                                    tr1.test_semantics),
+                                1))))
             else:
 
                 return (
-                    torch.mul(ms, torch.sub(torch.mul(2, tr1.train_semantics), 1))
-                    if operator == "sum"
-                    else torch.add(
+                    torch.mul(
+                        ms,
+                        torch.sub(
+                            torch.mul(
+                                2,
+                                tr1.train_semantics),
+                            1)) if operator == "sum" else torch.add(
                         1,
-                        torch.mul(ms, torch.sub(torch.mul(2, tr1.train_semantics), 1)),
-                    )
-                )
+                        torch.mul(
+                            ms,
+                            torch.sub(
+                                torch.mul(
+                                    2,
+                                    tr1.train_semantics),
+                                1)),
+                    ))
         else:
 
             if testing:
                 return (
                     torch.mul(
-                        ms,
-                        torch.sub(
-                            1, torch.div(2, torch.add(1, torch.abs(tr1.test_semantics)))
-                        ),
-                    )
-                    if operator == "sum"
-                    else torch.add(
-                        1,
-                        torch.mul(
-                            ms,
-                            torch.sub(
-                                1,
-                                torch.div(
-                                    2, torch.add(1, torch.abs(tr1.test_semantics))
-                                ),
-                            ),
-                        ),
-                    )
-                )
+                        ms, torch.sub(
+                            1, torch.div(
+                                2, torch.add(
+                                    1, torch.abs(
+                                        tr1.test_semantics)))), ) if operator == "sum" else torch.add(
+                        1, torch.mul(
+                            ms, torch.sub(
+                                1, torch.div(
+                                    2, torch.add(
+                                        1, torch.abs(
+                                            tr1.test_semantics))), ), ), ))
             else:
                 return (
                     torch.mul(
@@ -264,7 +284,7 @@ def deflate_mutation(individual, reconstruct):
         collection=(
             [
                 *individual.collection[:mut_point],
-                *individual.collection[mut_point + 1 :],
+                *individual.collection[mut_point + 1:],
             ]
             if reconstruct
             else None
@@ -272,14 +292,14 @@ def deflate_mutation(individual, reconstruct):
         train_semantics=torch.stack(
             [
                 *individual.train_semantics[:mut_point],
-                *individual.train_semantics[mut_point + 1 :],
+                *individual.train_semantics[mut_point + 1:],
             ]
         ),
         test_semantics=(
             torch.stack(
                 [
                     *individual.test_semantics[:mut_point],
-                    *individual.test_semantics[mut_point + 1 :],
+                    *individual.test_semantics[mut_point + 1:],
                 ]
             )
             if individual.test_semantics is not None
@@ -291,13 +311,13 @@ def deflate_mutation(individual, reconstruct):
     offs.size = individual.size - 1
     offs.nodes_collection = [
         *individual.nodes_collection[:mut_point],
-        *individual.nodes_collection[mut_point + 1 :],
+        *individual.nodes_collection[mut_point + 1:],
     ]
     offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
 
     offs.depth_collection = [
         *individual.depth_collection[:mut_point],
-        *individual.depth_collection[mut_point + 1 :],
+        *individual.depth_collection[mut_point + 1:],
     ]
     offs.depth = max(
         [

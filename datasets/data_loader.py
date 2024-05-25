@@ -67,7 +67,8 @@ def load_preloaded(dataset_name, seed, training=True, X_y=False):
         else f"TEST_{seed}_{dataset_name.upper()}.txt"
     )
 
-    # dropping the last column as it only contains NaNs due to spacing as separator
+    # dropping the last column as it only contains NaNs due to spacing as
+    # separator
     df = pd.read_csv(
         os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "pre_loaded_data", filename
@@ -119,8 +120,11 @@ def load_airfoil(X_y=False):
         target is the last column.
     """
     df = pd.read_csv(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "airfoil.txt")
-    )
+        os.path.join(
+            os.path.dirname(
+                os.path.realpath(__file__)),
+            "data",
+            "airfoil.txt"))
     if X_y:
         return (
             torch.from_numpy(df.values[:, :-1]).float(),
@@ -159,8 +163,11 @@ def load_boston(X_y=False):
         target is the last column.
     """
     df = pd.read_csv(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "boston.txt")
-    )
+        os.path.join(
+            os.path.dirname(
+                os.path.realpath(__file__)),
+            "data",
+            "boston.txt"))
     if X_y:
         return (
             torch.from_numpy(df.values[:, :-1]).float(),
@@ -199,9 +206,10 @@ def load_breast_cancer(X_y=False):
     """
     df = pd.read_csv(
         os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "data", "breast_cancer.txt"
-        )
-    )
+            os.path.dirname(
+                os.path.realpath(__file__)),
+            "data",
+            "breast_cancer.txt"))
     if X_y:
         return (
             torch.from_numpy(df.values[:, :-1]).float(),
@@ -239,9 +247,10 @@ def load_concrete_slump(X_y=False):
     """
     df = pd.read_csv(
         os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "data", "concrete_slump.txt"
-        )
-    )
+            os.path.dirname(
+                os.path.realpath(__file__)),
+            "data",
+            "concrete_slump.txt"))
     if X_y:
         return (
             torch.from_numpy(df.values[:, :-1]).float(),
@@ -279,9 +288,10 @@ def load_concrete_strength(X_y=False):
     """
     df = pd.read_csv(
         os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "data", "concrete_strength.txt"
-        )
-    )
+            os.path.dirname(
+                os.path.realpath(__file__)),
+            "data",
+            "concrete_strength.txt"))
     if X_y:
         return (
             torch.from_numpy(df.values[:, :-1]).float(),
@@ -440,9 +450,10 @@ def load_forest_fires(X_y=False):
     """
     df = pd.read_csv(
         os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "data", "forest_fires.txt"
-        )
-    )
+            os.path.dirname(
+                os.path.realpath(__file__)),
+            "data",
+            "forest_fires.txt"))
     if X_y:
         return (
             torch.from_numpy(df.values[:, :-1]).float(),
@@ -525,8 +536,11 @@ def load_ld50(X_y=False):
         target is the last column.
     """
     df = pd.read_csv(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "ld50.txt")
-    )
+        os.path.join(
+            os.path.dirname(
+                os.path.realpath(__file__)),
+            "data",
+            "ld50.txt"))
     if X_y:
         return (
             torch.from_numpy(df.values[:, :-1]).float(),
@@ -564,8 +578,11 @@ def load_ppb(X_y=False):
         target is the last column.
     """
     df = pd.read_csv(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "ppb.txt")
-    )
+        os.path.join(
+            os.path.dirname(
+                os.path.realpath(__file__)),
+            "data",
+            "ppb.txt"))
     if X_y:
         return (
             torch.from_numpy(df.values[:, :-1]).float(),
@@ -606,9 +623,10 @@ def load_bioav(X_y=False):
     """
     df = pd.read_csv(
         os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "data", "bioavailability.txt"
-        )
-    )
+            os.path.dirname(
+                os.path.realpath(__file__)),
+            "data",
+            "bioavailability.txt"))
     if X_y:
         return (
             torch.from_numpy(df.values[:, :-1]).float(),

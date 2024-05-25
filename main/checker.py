@@ -15,9 +15,8 @@ from utils.utils import get_best_max, get_best_min, get_terminals
 datas = ["ppb"]
 
 # obtaining the data loading functions using the dataset name
-data_loaders = [
-    getattr(ds, func) for func in dir(ds) for dts in datas if "load_" + dts in func
-]
+data_loaders = [getattr(ds, func) for func in dir(ds)
+                for dts in datas if "load_" + dts in func]
 X, y = data_loaders[0](X_y=True)
 
 TERMINALS = get_terminals(data_loaders[0])

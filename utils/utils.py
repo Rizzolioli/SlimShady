@@ -59,7 +59,13 @@ def mean_(x1, x2):
 #     return torch.add(torch.mul(x1, r), torch.mul(x2, r))
 
 
-def train_test_split(X, y, p_test=0.3, shuffle=True, indices_only=False, seed=0):
+def train_test_split(
+        X,
+        y,
+        p_test=0.3,
+        shuffle=True,
+        indices_only=False,
+        seed=0):
     """Splits X and y tensors into train and test subsets
 
     This method replicates the behaviour of Sklearn's 'train_test_split'.
@@ -164,12 +170,12 @@ def verbose_reporter(
             + " " * (23 - digits_test_fit)
             + "|"
         )
-        test_text = (
-            " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
-        )
+        test_text = (" " * 3 + str(float(pop_test_fitness)) +
+                     " " * (23 - digits_test_fit) + "|")
     else:
         digits_test_fit = 4
-        test_text_init = "|" + " " * 3 + "None" + " " * (23 - digits_test_fit) + "|"
+        test_text_init = "|" + " " * 3 + "None" + \
+            " " * (23 - digits_test_fit) + "|"
         test_text = " " * 3 + "None" + " " * (23 - digits_test_fit) + "|"
     digits_timing = len(str(timing))
     digits_nodes = len(str(nodes))
@@ -268,14 +274,16 @@ def get_best_min(population, n_elites):
 
         elite = population.population[np.argmin(population.fit)]
 
-        # returning the elite as the list of elites and the elite as the best in population
+        # returning the elite as the list of elites and the elite as the best
+        # in population
         return [elite], elite
 
 
 def get_best_max(population, n_elites):
     # if more than one elite is to be saved
     if n_elites > 1:
-        # getting the indexes of the higher n_elites fitnesses in the population
+        # getting the indexes of the higher n_elites fitnesses in the
+        # population
         idx = np.argpartition(population.fit, -n_elites)
 
         # getting the best n_elites individuals
@@ -288,7 +296,8 @@ def get_best_max(population, n_elites):
     else:
         elite = population.population[np.argmax(population.fit)]
 
-        # returning the elite as the list of elites and the elite as the best in population
+        # returning the elite as the list of elites and the elite as the best
+        # in population
         return [elite], elite
 
 
@@ -306,23 +315,29 @@ def get_random_tree(
     if random.random() < grow_probability:
 
         # creating a tree using grow
-        tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+        tree = create_grow_random_tree(
+            max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
         # reconstruct set to true to calculate the s
         tree = Tree(
-            structure=tree, train_semantics=None, test_semantics=None, reconstruct=True
-        )
+            structure=tree,
+            train_semantics=None,
+            test_semantics=None,
+            reconstruct=True)
 
         # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)
 
     else:
         # creating a full tree
-        tree = create_full_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+        tree = create_full_random_tree(
+            max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
 
         tree = Tree(
-            structure=tree, train_semantics=None, test_semantics=None, reconstruct=True
-        )
+            structure=tree,
+            train_semantics=None,
+            test_semantics=None,
+            reconstruct=True)
 
         # calculating the tree semantics
         tree.calculate_semantics(inputs, testing=False, logistic=logistic)

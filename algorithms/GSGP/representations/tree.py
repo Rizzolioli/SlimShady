@@ -9,7 +9,12 @@ class Tree:
     TERMINALS = None
     CONSTANTS = None
 
-    def __init__(self, structure, train_semantics, test_semantics, reconstruct):
+    def __init__(
+            self,
+            structure,
+            train_semantics,
+            test_semantics,
+            reconstruct):
         self.FUNCTIONS = Tree.FUNCTIONS
         self.TERMINALS = Tree.TERMINALS
         self.CONSTANTS = Tree.CONSTANTS
@@ -42,7 +47,8 @@ class Tree:
     def calculate_semantics(self, inputs, testing=False, logistic=False):
 
         if testing and self.test_semantics is None:
-            # checking if the individual is part of the initial population (table) or is a random tree (table)
+            # checking if the individual is part of the initial population
+            # (table) or is a random tree (table)
             if isinstance(self.structure, tuple):
                 self.test_semantics = (
                     torch.sigmoid(apply_tree(self, inputs))
@@ -50,7 +56,8 @@ class Tree:
                     else apply_tree(self, inputs)
                 )
             else:
-                # self.structure[0] is the operator (mutation or xo) while the remaining of the structure dare pointers to the trees
+                # self.structure[0] is the operator (mutation or xo) while the
+                # remaining of the structure dare pointers to the trees
                 self.test_semantics = self.structure[0](
                     *self.structure[1:], testing=True
                 )

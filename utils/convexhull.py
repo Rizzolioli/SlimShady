@@ -15,7 +15,8 @@ def calculate_signed_errors(semantics, y_true, operator):
 
 
 def global_optimum_in_ch(errors):
-    # function that returns wheter or not the global optimum (0,0) is inside the convexhull of the errors
+    # function that returns wheter or not the global optimum (0,0) is inside
+    # the convexhull of the errors
 
     A = errors.T.numpy()
     b = np.zeros(A.shape[0])
@@ -39,13 +40,14 @@ def global_optimum_in_ch(errors):
             and np.isclose(sum(prob.variables()[0].value), 1)
             and all(prob.variables()[0].value >= 0)
         )
-    except:
+    except BaseException:
         print("Optimization not completed")
         return False
 
 
 def distance_from_chull(errors):
-    # function that returns the distance of the convexhull from the global optimum (0,0)
+    # function that returns the distance of the convexhull from the global
+    # optimum (0,0)
 
     A = errors.T.numpy()
 
@@ -58,7 +60,14 @@ def distance_from_chull(errors):
     A_par = cp.Parameter(A.shape)
 
     objective = cp.Minimize(cp.sum(e + e_))
-    constraints = [0 <= a, sum(a) == 1, 0 <= e, 0 <= e_, A_par @ a + e - e_ == 0]
+    constraints = [
+        0 <= a,
+        sum(a) == 1,
+        0 <= e,
+        0 <= e_,
+        A_par @ a +
+        e -
+        e_ == 0]
     prob = cp.Problem(objective, constraints)
 
     prob.parameters()[0].value = A
@@ -68,6 +77,6 @@ def distance_from_chull(errors):
 
         return sum(prob.variables()[0].value) + sum(prob.variables()[1].value)
 
-    except:
+    except BaseException:
 
         return np.inf

@@ -81,11 +81,11 @@ class GSGP:
 
         start = time.time()
 
-        ################################################################################################################
+        #######################################################################
 
         # INITIALIZATION #
 
-        ################################################################################################################
+        #######################################################################
 
         # initializing the population
         population = Population(
@@ -141,7 +141,8 @@ class GSGP:
                     log,
                 ]
 
-            # log level 3 saves the number of nodes and fitness of all the individuals in the population
+            # log level 3 saves the number of nodes and fitness of all the
+            # individuals in the population
             elif log == 3:
 
                 add_info = [
@@ -201,11 +202,11 @@ class GSGP:
                 self.elite.nodes,
             )
 
-        ################################################################################################################
+        #######################################################################
 
         # GP EVOLUTION #
 
-        ################################################################################################################
+        #######################################################################
 
         for it in range(1, n_iter + 1, 1):
 
@@ -220,10 +221,12 @@ class GSGP:
                 if random.random() < self.p_xo:
 
                     # if crossover, select two parents
-                    p1, p2 = self.selector(population), self.selector(population)
+                    p1, p2 = self.selector(
+                        population), self.selector(population)
 
                     while p1 == p2:
-                        p1, p2 = self.selector(population), self.selector(population)
+                        p1, p2 = self.selector(
+                            population), self.selector(population)
 
                     # getting a random tree
                     r_tree = get_random_tree(
@@ -238,7 +241,8 @@ class GSGP:
 
                     # calculating its semantics on testing, if applicable
                     if test_elite:
-                        r_tree.calculate_semantics(X_test, testing=True, logistic=True)
+                        r_tree.calculate_semantics(
+                            X_test, testing=True, logistic=True)
 
                     # the two parents generate one offspring
                     offs1 = Tree(
@@ -297,7 +301,8 @@ class GSGP:
 
                         mutation_trees = [r_tree1, r_tree2]
 
-                        # calculating random trees' semantics on testing, if applicable
+                        # calculating random trees' semantics on testing, if
+                        # applicable
                         if test_elite:
                             [
                                 rt.calculate_semantics(
@@ -307,7 +312,8 @@ class GSGP:
                             ]
 
                     else:
-                        # if only one tree is used, no logistic function is needed
+                        # if only one tree is used, no logistic function is
+                        # needed
                         r_tree1 = get_random_tree(
                             max_depth=self.pi_init["init_depth"],
                             FUNCTIONS=self.pi_init["FUNCTIONS"],
@@ -320,7 +326,8 @@ class GSGP:
 
                         mutation_trees = [r_tree1]
 
-                        # calculating random trees' semantics on testing, if applicable
+                        # calculating random trees' semantics on testing, if
+                        # applicable
                         if test_elite:
                             r_tree1.calculate_semantics(
                                 X_test, testing=True, logistic=False
@@ -400,7 +407,8 @@ class GSGP:
                         log,
                     ]
 
-                # log level 3 saves the number of nodes and fitness of all the individuals in the population
+                # log level 3 saves the number of nodes and fitness of all the
+                # individuals in the population
                 elif log == 3:
 
                     add_info = [

@@ -6,7 +6,12 @@ from utils.utils import show_individual
 
 class Individual:
 
-    def __init__(self, collection, train_semantics, test_semantics, reconstruct):
+    def __init__(
+            self,
+            collection,
+            train_semantics,
+            test_semantics,
+            reconstruct):
         # defining the list (block) of pointers
         if collection is not None and reconstruct:
             self.collection = collection
@@ -33,7 +38,8 @@ class Individual:
     def calculate_semantics(self, inputs, testing=False):
 
         if testing and self.test_semantics is None:
-            [tree.calculate_semantics(inputs, testing) for tree in self.collection]
+            [tree.calculate_semantics(inputs, testing)
+             for tree in self.collection]
             self.test_semantics = torch.stack(
                 [
                     (
@@ -46,7 +52,8 @@ class Individual:
             )
 
         elif self.train_semantics is None:
-            [tree.calculate_semantics(inputs, testing) for tree in self.collection]
+            [tree.calculate_semantics(inputs, testing)
+             for tree in self.collection]
             self.train_semantics = torch.stack(
                 [
                     (
@@ -112,11 +119,13 @@ def apply_individual_fixed(tree, data, operator="sum", sig=False):
     semantics = []
 
     for t in tree.collection:
-        # checking if the individual is part of the initial population (table) or is a random tree (table)
+        # checking if the individual is part of the initial population (table)
+        # or is a random tree (table)
 
         if isinstance(t.structure, tuple):
             semantics.append(apply_tree(t, data))
-        # if the tree structure is a list, checking if we are using one or two trees with our operator
+        # if the tree structure is a list, checking if we are using one or two
+        # trees with our operator
         else:
 
             if len(t.structure) == 3:  # one tree
@@ -131,7 +140,8 @@ def apply_individual_fixed(tree, data, operator="sum", sig=False):
                     # saving the old training semantics in case its needed
                     t.structure[1].previous_training = t.train_semantics
                     # obtaining the new train_semantics for the new unseen data
-                    t.structure[1].train_semantics = apply_tree(t.structure[1], data)
+                    t.structure[1].train_semantics = apply_tree(
+                        t.structure[1], data)
 
             elif len(t.structure) == 4:  # two tree
                 t.structure[1].previous_training = t.train_semantics
@@ -150,6 +160,5 @@ def apply_individual_fixed(tree, data, operator="sum", sig=False):
 
     print("WORK PLEASE", show_individual(tree, operator=operator))
 
-    return torch.clamp(
-        operator(torch.stack(semantics), dim=0), -1000000000000.0, 1000000000000.0
-    )
+    return torch.clamp(operator(torch.stack(semantics),
+                                dim=0), -1000000000000.0, 1000000000000.0)

@@ -41,7 +41,8 @@ def crossover_trees(FUNCTIONS):
 
             return new_tree1, new_tree2
         else:
-            # If either tree is a terminal node, return them as they are (no crossover)
+            # If either tree is a terminal node, return them as they are (no
+            # crossover)
             return tree1, tree2
 
     return inner_xo

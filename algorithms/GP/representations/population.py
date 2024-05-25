@@ -24,6 +24,7 @@ class Population:
         """
 
         # evaluating all the individuals in the population on training
-        [individual.evaluate(ffunction, X, y) for individual in self.population]
+        [individual.evaluate(ffunction, X, y)
+         for individual in self.population]
 
         self.fit = [individual.fitness for individual in self.population]

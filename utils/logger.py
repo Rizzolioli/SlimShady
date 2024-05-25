@@ -62,17 +62,18 @@ def logger(
 
     with open(path, "a", newline="") as file:
         writer = csv.writer(file)
-        if run_info != None:
+        if run_info is not None:
             infos = copy(run_info)
-            infos.extend([seed, generation, float(pop_val_fitness), timing, nodes])
+            infos.extend([seed, generation, float(
+                pop_val_fitness), timing, nodes])
 
         else:
             infos = [seed, generation, float(pop_val_fitness), timing, nodes]
 
-        if additional_infos != None:
+        if additional_infos is not None:
             try:
                 additional_infos[0] = float(additional_infos[0])
-            except:
+            except BaseException:
                 additional_infos[0] = "None"
             infos.extend(additional_infos)
 

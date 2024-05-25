@@ -10,7 +10,8 @@ from utils.diversity import niche_entropy
 from utils.logger import logger
 from utils.utils import verbose_reporter
 
-# TODO handling of TERMINALS FUNCTIONS etc in all scripts diogo "is handling it"
+# TODO handling of TERMINALS FUNCTIONS etc in all scripts diogo "is
+# handling it"
 
 
 class GP:
@@ -80,11 +81,11 @@ class GP:
         # starting the timer
         start = time.time()
 
-        ################################################################################################################
+        #######################################################################
 
         # INITIALIZATION #
 
-        ################################################################################################################
+        #######################################################################
 
         # initializing the population
         population = Population(
@@ -115,7 +116,8 @@ class GP:
                     log,
                 ]
 
-            # log level 3 saves the number of nodes and fitness of all the individuals in the population
+            # log level 3 saves the number of nodes and fitness of all the
+            # individuals in the population
             elif log == 3:
 
                 add_info = [
@@ -140,7 +142,10 @@ class GP:
 
             else:
 
-                add_info = [self.elite.test_fitness, self.elite.node_count, log]
+                add_info = [
+                    self.elite.test_fitness,
+                    self.elite.node_count,
+                    log]
 
             logger(
                 log_path,
@@ -164,11 +169,11 @@ class GP:
                 self.elite.node_count,
             )
 
-        ################################################################################################################
+        #######################################################################
 
         # GP EVOLUTION #
 
-        ################################################################################################################
+        #######################################################################
 
         for it in range(1, n_iter + 1, 1):
 
@@ -184,10 +189,12 @@ class GP:
                 if random.random() < self.p_xo:
 
                     # if crossover, choose two parents
-                    p1, p2 = self.selector(population), self.selector(population)
+                    p1, p2 = self.selector(
+                        population), self.selector(population)
 
                     while p1 == p2:
-                        p1, p2 = self.selector(population), self.selector(population)
+                        p1, p2 = self.selector(
+                            population), self.selector(population)
 
                     # getting the offspring
                     offs1, offs2 = self.crossover(
@@ -220,7 +227,8 @@ class GP:
 
                     if max_depth is not None:
                         while depth_calculator(offs1) > max_depth:
-                            offs1 = self.mutator(p1.repr_, num_of_nodes=p1.node_count)
+                            offs1 = self.mutator(
+                                p1.repr_, num_of_nodes=p1.node_count)
 
                     # saving the offspring in an offspring list
                     offspring = [offs1]
@@ -228,7 +236,8 @@ class GP:
                 # adding the offspring to the offspring population
                 offs_pop.extend([Tree(child) for child in offspring])
 
-            # keeping only the amount of offspring that is equal to the population size
+            # keeping only the amount of offspring that is equal to the
+            # population size
             if len(offs_pop) > population.size:
 
                 offs_pop = offs_pop[: population.size]
@@ -245,7 +254,8 @@ class GP:
 
             # testing the elite if test_elite is True
             if test_elite:
-                self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
+                self.elite.evaluate(
+                    ffunction, X=X_test, y=y_test, testing=True)
 
             # logging the results for the current generation
             if log != 0:
@@ -266,7 +276,8 @@ class GP:
                             log,
                         ]
 
-                    # log level 3 saves the number of nodes and fitness of all the individuals in the population
+                    # log level 3 saves the number of nodes and fitness of all
+                    # the individuals in the population
                     elif log == 3:
 
                         add_info = [
@@ -299,7 +310,8 @@ class GP:
 
                     else:
 
-                        add_info = [self.elite.test_fitness, self.elite.node_count, log]
+                        add_info = [
+                            self.elite.test_fitness, self.elite.node_count, log]
 
                 logger(
                     log_path,
