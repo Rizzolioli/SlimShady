@@ -7,33 +7,47 @@ import uuid
 
 from algorithms.GP.gp import GP
 from algorithms.GP.operators.mutators import mutate_tree_subtree
-from algorithms.GP.representations.tree_utils import tree_depth
-from parametrization import *
+from algorithms.GP.representations.tree_utils import tree_depth, tree_pruning
+from config.gp_config import *
 from utils.logger import log_settings
 from utils.utils import get_terminals
 
-DATA_LOADERS = [
-    "toxicity", "concrete", "instanbul", "ppb",
-    "resid_build_sale_price", "energy"
-]
-ALGOS = ["StandardGP"]
-N_RUNS = 10
 
-
-def main():
+def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 100, p_xo: float = 0.8):
     """
-    Main function to execute the StandardGP algorithm on specified datasets with various configurations.
+    Main function to execute the StandardGP algorithm on specified datasets
 
-    This function iterates over different datasets and algorithm configurations,
-    sets the necessary parameters, performs training and testing, and logs the results.
+    Parameters
+    ----------
+    datasets : list
+        A list of dataset loaders. Each loader can be a string representing the dataset name or another appropriate type.
+    n_runs : int, optional
+        The number of runs to execute for each dataset and algorithm combination (default is 30).
+    pop_size : int, optional
+        The population size for the genetic programming algorithm (default is 100).
+    n_iter : int, optional
+        The number of iterations for the genetic programming algorithm (default is 100).
+    p_xo : float, optional
+        The probability of crossover in the genetic programming algorithm. Must be a number between 0 and 1 (default is 0.8).
+
+    Returns
+    -------
+    None
+        This function does not return any values. It performs the execution of the StandardGP algorithm and logs the results.
     """
+    assert isinstance(datasets, list), "Input must be a list"
+    assert isinstance(n_runs, int), "Input must be a int"
+    assert isinstance(pop_size, int), "Input must be a int"
+    assert isinstance(n_iter, int), "Input must be a int"
+    assert 0 <= p_xo <= 1, "p_xo must be a number between 0 and 1"
+
     unique_run_id = uuid.uuid1()
 
-    for loader in DATA_LOADERS:
-        for algo in ALGOS:
+    for loader in datasets:
+        for algo in ["StandardGP"]:
             gp_solve_parameters['run_info'] = [algo, unique_run_id, loader]
 
-            for seed in range(N_RUNS):
+            for seed in range(n_runs):
                 start = time.time()
 
                 if isinstance(loader, str):
@@ -45,9 +59,16 @@ def main():
                     X_test, y_test = load_preloaded(loader, seed=seed + 1, training=False, X_y=True)
 
                 gp_pi_init["TERMINALS"] = TERMINALS
+                gp_pi_init["init_pop_size"] = pop_size
+
+                GP_parameters["p_xo"] = p_xo
+                GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
+                GP_parameters["pop_size"] = pop_size
                 GP_parameters["mutator"] = mutate_tree_subtree(
                     gp_pi_init['init_depth'], TERMINALS, CONSTANTS, FUNCTIONS, p_c=gp_pi_init['p_c']
                 )
+
+                gp_solve_parameters["n_iter"] = n_iter
                 gp_solve_parameters["tree_pruner"] = tree_pruning(
                     TERMINALS=TERMINALS, CONSTANTS=CONSTANTS, FUNCTIONS=FUNCTIONS, p_c=gp_pi_init["p_c"]
                 )
@@ -66,11 +87,19 @@ def main():
                 print(time.time() - start)
 
     log_settings(
-        path=os.path.join(os.getcwd(), "log", "settings.csv"),
-        settings_dict=[globals()[d] for d in all_params["GP"]],
+        path=os.path.join(os.getcwd(), "log", "gp_settings.csv"),
+        settings_dict=[gp_solve_parameters,
+                       GP_parameters,
+                       gp_pi_init,
+                       settings_dict],
         unique_run_id=unique_run_id,
     )
 
 
 if __name__ == "__main__":
-    main()
+    datasets = [
+        "toxicity"
+    ]
+    n_runs = 1
+
+    main(datasets=datasets, n_runs=n_runs, pop_size=1)
