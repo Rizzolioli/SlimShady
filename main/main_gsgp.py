@@ -12,6 +12,7 @@ from utils.logger import log_settings
 from utils.utils import get_terminals
 
 
+# todo non viene salvato il file di gsgp (non veniva salvato nemmeno prima del refactoring)
 def gsgp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 100, p_xo: float = 0.8):
     """
     Main function to execute the Standard GSGP algorithm on specified datasets
