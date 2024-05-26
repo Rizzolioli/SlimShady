@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="add __init__.py file.">
+    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="debug.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/main_gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_gp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,6 +137,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+<<<<<<< Updated upstream
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.gp.executor": "Run",
@@ -150,6 +150,20 @@
     "git-widget-placeholder": "library",
     "last_opened_file_path": "C:/Users/utente/OneDrive - NOVAIMS/TA/CM4O 2024/Minitests/code",
     "settings.editor.selected.configurable": "preferences.lookFeel"
+=======
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.gp.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_gp.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_gsgp.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim.executor&quot;: &quot;Run&quot;,
+    &quot;Python.results_study.executor&quot;: &quot;Run&quot;,
+    &quot;Python.slim_config.executor&quot;: &quot;Run&quot;,
+    &quot;Python.utils.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;b9f69181&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/utente/OneDrive - NOVAIMS/TA/CM4O 2024/Minitests/code&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
+>>>>>>> Stashed changes
   }
 }]]></component>
   <component name="RecentsManager">
@@ -442,7 +456,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716740764966</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="debug.">
+      <option name="closed" value="true" />
+      <created>1716742637627</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1716742637627</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -496,7 +518,8 @@
     <MESSAGE value="slim function improvement." />
     <MESSAGE value="general improvement." />
     <MESSAGE value="add __init__.py file." />
-    <option name="LAST_COMMIT_MESSAGE" value="add __init__.py file." />
+    <MESSAGE value="debug." />
+    <option name="LAST_COMMIT_MESSAGE" value="debug." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
