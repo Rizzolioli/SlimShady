@@ -5,12 +5,12 @@ logging the results for further analysis.
 import time
 import uuid
 
-from algorithms.GP.gp import GP
-from algorithms.GP.operators.mutators import mutate_tree_subtree
-from algorithms.GP.representations.tree_utils import tree_depth, tree_pruning
-from config.gp_config import *
-from utils.logger import log_settings
-from utils.utils import get_terminals
+from main.algorithms.GP.gp import GP
+from main.algorithms.GP.operators.mutators import mutate_tree_subtree
+from main.algorithms.GP.representations.tree_utils import tree_depth, tree_pruning
+from main.config.gp_config import *
+from main.utils.logger import log_settings
+from main.utils.utils import get_terminals
 
 
 def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8):

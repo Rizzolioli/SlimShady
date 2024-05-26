@@ -1,7 +1,7 @@
 import cvxpy as cp
 import numpy as np
 import torch
-from evaluators.fitness_functions import signed_errors
+from main.evaluators.fitness_functions import signed_errors
 
 
 def calculate_signed_errors(semantics, y_true, operator):

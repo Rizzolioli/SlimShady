@@ -5,10 +5,10 @@ logging the results for further analysis.
 import time
 import uuid
 
-from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
-from config.slim_config import *
-from utils.logger import log_settings
-from utils.utils import get_terminals, train_test_split
+from main.algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
+from main.config.slim_config import *
+from main.utils.logger import log_settings
+from main.utils.utils import get_terminals, train_test_split
 
 ELITES = {}
 UNIQUE_RUN_ID = uuid.uuid1()
@@ -147,4 +147,4 @@ if __name__ == "__main__":
     ]
     n_runs = 1
 
-    slim(datasets=datasets, n_runs=n_runs, pop_size=100)
+    slim(datasets=datasets, n_runs=n_runs, pop_size=100, n_iter=500)

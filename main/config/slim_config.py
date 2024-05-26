@@ -1,13 +1,12 @@
-from algorithms.GP.operators.initializers import rhh
-from algorithms.GSGP.operators.crossover_operators import geometric_crossover
-from algorithms.SLIM_GSGP.operators.mutators import (deflate_mutation,
-                                                     inflate_mutation)
-from algorithms.SLIM_GSGP.operators.selection_algorithms import \
+from main.algorithms.GP.operators.initializers import rhh
+from main.algorithms.GSGP.operators.crossover_operators import geometric_crossover
+from main.algorithms.SLIM_GSGP.operators.mutators import (deflate_mutation, inflate_mutation)
+from main.algorithms.SLIM_GSGP.operators.selection_algorithms import \
     tournament_selection_min_slim
 from datasets.data_loader import *
-from evaluators.fitness_functions import rmse
-from utils.utils import (generate_random_uniform, get_best_max, get_best_min,
-                         mean_, protected_div)
+from main.evaluators.fitness_functions import rmse
+from main.utils.utils import (generate_random_uniform, get_best_min,
+                              protected_div)
 
 # Define functions and constants
 # todo use a notation coherent (gp or GP). use only one dictionary for the parameters of each algorithm

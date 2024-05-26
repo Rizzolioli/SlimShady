@@ -3,8 +3,8 @@ Tree Class for Genetic Programming using PyTorch.
 """
 
 import torch
-from algorithms.GP.representations.tree_utils import flatten, tree_depth
-from algorithms.GSGP.representations.tree_utils import (
+from main.algorithms.GP.representations.tree_utils import flatten, tree_depth
+from main.algorithms.GSGP.representations.tree_utils import (
     apply_tree, nested_depth_calculator, nested_nodes_calculator)
 
 

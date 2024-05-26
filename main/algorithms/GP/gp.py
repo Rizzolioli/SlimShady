@@ -3,11 +3,11 @@ import time
 
 import numpy as np
 import torch
-from algorithms.GP.representations.population import Population
-from algorithms.GP.representations.tree import Tree
-from utils.diversity import niche_entropy
-from utils.logger import logger
-from utils.utils import verbose_reporter
+from main.algorithms.GP.representations.population import Population
+from main.algorithms.GP.representations.tree import Tree
+from main.utils.diversity import niche_entropy
+from main.utils.logger import logger
+from main.utils.utils import verbose_reporter
 
 
 class GP:

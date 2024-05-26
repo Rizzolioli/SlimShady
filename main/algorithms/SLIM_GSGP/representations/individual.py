@@ -3,8 +3,7 @@ Individual Class and Utility Functions for Genetic Programming using PyTorch.
 """
 
 import torch
-from algorithms.GSGP.representations.tree_utils import apply_tree
-from utils.utils import show_individual
+from main.algorithms.GSGP.representations.tree_utils import apply_tree
 
 
 class Individual:

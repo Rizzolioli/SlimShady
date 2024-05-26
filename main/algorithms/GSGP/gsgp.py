@@ -7,14 +7,14 @@ import time
 
 import numpy as np
 import torch
-from algorithms.GP.representations.tree import Tree as GP_Tree
-from algorithms.GSGP.representations.population import Population
-from algorithms.GSGP.representations.tree import Tree
-from algorithms.GSGP.representations.tree_utils import (
+from main.algorithms.GP.representations.tree import Tree as GP_Tree
+from main.algorithms.GSGP.representations.population import Population
+from main.algorithms.GSGP.representations.tree import Tree
+from main.algorithms.GSGP.representations.tree_utils import (
     nested_depth_calculator, nested_nodes_calculator)
-from utils.diversity import gsgp_pop_div_from_vectors
-from utils.logger import logger
-from utils.utils import get_random_tree, verbose_reporter
+from main.utils.diversity import gsgp_pop_div_from_vectors
+from main.utils.logger import logger
+from main.utils.utils import get_random_tree, verbose_reporter
 
 
 class GSGP:

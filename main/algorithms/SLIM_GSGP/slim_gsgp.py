@@ -7,14 +7,14 @@ import time
 
 import numpy as np
 import torch
-from algorithms.GP.representations.tree import Tree as GP_Tree
-from algorithms.GSGP.representations.tree import Tree
-from algorithms.SLIM_GSGP.representations.individual import Individual
-from algorithms.SLIM_GSGP.representations.population import Population
-from utils.convexhull import calculate_signed_errors, distance_from_chull
-from utils.diversity import gsgp_pop_div_from_vectors
-from utils.logger import logger
-from utils.utils import verbose_reporter
+from main.algorithms.GP.representations.tree import Tree as GP_Tree
+from main.algorithms.GSGP.representations.tree import Tree
+from main.algorithms.SLIM_GSGP.representations.individual import Individual
+from main.algorithms.SLIM_GSGP.representations.population import Population
+from main.utils.convexhull import calculate_signed_errors, distance_from_chull
+from main.utils.diversity import gsgp_pop_div_from_vectors
+from main.utils.logger import logger
+from main.utils.utils import verbose_reporter
 
 
 class SLIM_GSGP:

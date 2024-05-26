@@ -2,8 +2,8 @@
 Tree class implementation for representing tree structures in genetic programming.
 """
 
-from algorithms.GP.representations.tree_utils import (bound_value, flatten,
-                                                      tree_depth)
+from main.algorithms.GP.representations.tree_utils import (bound_value, flatten,
+                                                           tree_depth)
 
 
 class Tree:

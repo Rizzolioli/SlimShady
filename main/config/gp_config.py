@@ -1,12 +1,15 @@
-from algorithms.GP.operators.initializers import rhh
-from algorithms.GP.operators.selection_algorithms import \
+from main.algorithms.GP.operators.crossover_operators import crossover_trees
+from main.algorithms.GP.operators.initializers import rhh
+from main.algorithms.GP.operators.selection_algorithms import \
     tournament_selection_min
-from algorithms.GSGP.operators.crossover_operators import geometric_crossover
-from algorithms.GSGP.operators.mutators import standard_geometric_mutation
+
 from datasets.data_loader import *
-from evaluators.fitness_functions import rmse
-from utils.utils import (generate_random_uniform, get_best_max, get_best_min,
-                         mean_, protected_div)
+from main.evaluators.fitness_functions import rmse
+from main.utils.utils import (get_best_max, get_best_min,
+                              protected_div)
+
+# Define functions and constants
+# todo use a notation coherent (gp or GP). use only one dictionary for the parameters of each algorithm
 
 FUNCTIONS = {
     'add': {'function': torch.add, 'arity': 2},
@@ -26,34 +29,33 @@ CONSTANTS = {
 # Set parameters
 settings_dict = {"p_test": 0.2}
 
-# GSGP solve parameters
-gsgp_solve_parameters = {
+# GP solve parameters
+gp_solve_parameters = {
     "elitism": True,
-    "log": 0,
+    "log": 1,
     "verbose": 1,
     "test_elite": True,
-    "log_path": os.path.join(os.getcwd(), "log", "gsgp.csv"),
+    "log_path": os.path.join(os.getcwd(), "log", "gp.csv"),
     "run_info": None,
+    "max_depth": 17,
+    "max_": False,
     "ffunction": rmse,
-    "reconstruct": False,
     "n_elites": 1,
+    "tree_pruner": None
 }
 
-# GSGP parameters
-GSGP_parameters = {
+# GP parameters
+GP_parameters = {
     "initializer": rhh,
     "selector": tournament_selection_min(2),
-    "crossover": geometric_crossover,
-    "ms": generate_random_uniform(0, 1),
-    "mutator": standard_geometric_mutation,
+    "crossover": crossover_trees(FUNCTIONS),
     "settings_dict": settings_dict,
-    "find_elit_func": get_best_min
+    "find_elit_func": get_best_max if gp_solve_parameters["max_"] else get_best_min
 }
 
-gsgp_pi_init = {
-    'init_depth': 8,
+gp_pi_init = {
+    'init_depth': 6,
     'FUNCTIONS': FUNCTIONS,
     'CONSTANTS': CONSTANTS,
     "p_c": 0
 }
-

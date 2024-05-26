@@ -2,8 +2,8 @@
 Utility functions for Tree Evaluation and Mutation in Genetic Programming.
 """
 
-from algorithms.GP.representations.tree import Tree
-from algorithms.GP.representations.tree_utils import bound_value
+from main.algorithms.GP.representations.tree import Tree
+from main.algorithms.GP.representations.tree_utils import bound_value
 
 
 def apply_tree(tree, inputs):

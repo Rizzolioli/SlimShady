@@ -5,10 +5,10 @@ logging the results for further analysis.
 
 import uuid
 
-from algorithms.GSGP.gsgp import GSGP
-from config.gsgp_config import *
-from utils.logger import log_settings
-from utils.utils import get_terminals
+from main.algorithms.GSGP.gsgp import GSGP
+from main.config.gsgp_config import *
+from main.utils.logger import log_settings
+from main.utils.utils import get_terminals
 
 
 # todo non viene salvato il file di gsgp (non veniva salvato nemmeno prima del refactoring)
