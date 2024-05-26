@@ -102,4 +102,4 @@ if __name__ == "__main__":
     ]
     n_runs = 1
 
-    main(datasets=datasets, n_runs=n_runs, pop_size=1)
+    gp(datasets=datasets, n_runs=n_runs, pop_size=1)
