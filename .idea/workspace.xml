@@ -138,20 +138,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.gp.executor": "Run",
-    "Python.main_gp.executor": "Run",
-    "Python.main_gsgp.executor": "Run",
-    "Python.main_slim.executor": "Run",
-    "Python.results_study.executor": "Run",
-    "Python.slim_config.executor": "Run",
-    "Python.utils.executor": "Run",
-    "git-widget-placeholder": "library",
-    "last_opened_file_path": "C:/Users/utente/OneDrive - NOVAIMS/TA/CM4O 2024/Minitests/code",
-    "settings.editor.selected.configurable": "preferences.lookFeel"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.gp.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_gp.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_gsgp.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim.executor&quot;: &quot;Run&quot;,
+    &quot;Python.results_study.executor&quot;: &quot;Run&quot;,
+    &quot;Python.slim_config.executor&quot;: &quot;Run&quot;,
+    &quot;Python.utils.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;library&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/utente/OneDrive - NOVAIMS/TA/CM4O 2024/Minitests/code&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
@@ -167,7 +167,7 @@
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.GSGPRegressor">
     <configuration name="GSGPRegressor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="ENV_FILES" value="" />
