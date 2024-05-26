@@ -119,12 +119,6 @@ all_params = {
         slim_gsgp_pi_init,
         settings_dict
     ],
-    "GSGP": [
-        gsgp_solve_parameters,
-        GSGP_parameters,
-        gsgp_pi_init,
-        settings_dict
-    ]
 }
 
 # Dataset parameters for SLIM GSGP

@@ -4,32 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="add __init__.py files.">
+    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="gp function improvement.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GP/gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/gp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GP/operators/crossover_operators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/crossover_operators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GP/operators/initializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/initializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/mutators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GP/operators/selection_algorithms.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/operators/selection_algorithms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GP/representations/tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/tree.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GP/representations/tree_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GP/representations/tree_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/gsgp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/operators/crossover_operators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/operators/crossover_operators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/operators/mutators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/representations/tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/representations/tree.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/GSGP/representations/tree_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/GSGP/representations/tree_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/selection_algorithms.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/selection_algorithms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/data_loader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/evaluators/fitness_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/evaluators/fitness_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/log/results_study.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main/main_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_gsgp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/convexhull.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/convexhull.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/diversity.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/diversity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/logger.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -183,6 +162,7 @@
       <recent name="$PROJECT_DIR$/Datasets/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\algorithms\SLIM_GSGP\representations" />
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
@@ -382,7 +362,47 @@
       <option name="project" value="LOCAL" />
       <updated>1716654013142</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="application black and isort library.">
+      <option name="closed" value="true" />
+      <created>1716654414623</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1716654414623</updated>
+    </task>
+    <task id="LOCAL-00008" summary="create setup.py file.">
+      <option name="closed" value="true" />
+      <created>1716655086484</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1716655086484</updated>
+    </task>
+    <task id="LOCAL-00009" summary="create LICENSE file.">
+      <option name="closed" value="true" />
+      <created>1716655321477</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1716655321477</updated>
+    </task>
+    <task id="LOCAL-00010" summary="gp function improvement.">
+      <option name="closed" value="true" />
+      <created>1716732202890</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1716732202890</updated>
+    </task>
+    <task id="LOCAL-00011" summary="gp function improvement.">
+      <option name="closed" value="true" />
+      <created>1716732231704</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1716732231704</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -428,7 +448,11 @@
     <MESSAGE value="autopep8 reformatting." />
     <MESSAGE value="reformatting." />
     <MESSAGE value="add __init__.py files." />
-    <option name="LAST_COMMIT_MESSAGE" value="add __init__.py files." />
+    <MESSAGE value="application black and isort library." />
+    <MESSAGE value="create setup.py file." />
+    <MESSAGE value="create LICENSE file." />
+    <MESSAGE value="gp function improvement." />
+    <option name="LAST_COMMIT_MESSAGE" value="gp function improvement." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

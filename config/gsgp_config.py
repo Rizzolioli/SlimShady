@@ -1,0 +1,59 @@
+from algorithms.GP.operators.initializers import rhh
+from algorithms.GP.operators.selection_algorithms import \
+    tournament_selection_min
+from algorithms.GSGP.operators.crossover_operators import geometric_crossover
+from algorithms.GSGP.operators.mutators import standard_geometric_mutation
+from datasets.data_loader import *
+from evaluators.fitness_functions import rmse
+from utils.utils import (generate_random_uniform, get_best_max, get_best_min,
+                         mean_, protected_div)
+
+FUNCTIONS = {
+    'add': {'function': torch.add, 'arity': 2},
+    'subtract': {'function': torch.sub, 'arity': 2},
+    'multiply': {'function': torch.mul, 'arity': 2},
+    'divide': {'function': protected_div, 'arity': 2}
+}
+
+CONSTANTS = {
+    'constant_2': lambda _: torch.tensor(2.0),
+    'constant_3': lambda _: torch.tensor(3.0),
+    'constant_4': lambda _: torch.tensor(4.0),
+    'constant_5': lambda _: torch.tensor(5.0),
+    'constant__1': lambda _: torch.tensor(-1.0)
+}
+
+# Set parameters
+settings_dict = {"p_test": 0.2}
+
+# GSGP solve parameters
+gsgp_solve_parameters = {
+    "elitism": True,
+    "log": 0,
+    "verbose": 1,
+    "test_elite": True,
+    "log_path": os.path.join(os.getcwd(), "log", "gsgp.csv"),
+    "run_info": None,
+    "ffunction": rmse,
+    "reconstruct": False,
+    "n_elites": 1,
+}
+
+# GSGP parameters
+GSGP_parameters = {
+    "initializer": rhh,
+    "selector": tournament_selection_min(2),
+    "crossover": geometric_crossover,
+    "ms": generate_random_uniform(0, 1),
+    "mutator": standard_geometric_mutation,
+    "settings_dict": settings_dict,
+    "find_elit_func": get_best_min
+}
+
+gsgp_pi_init = {
+    'init_depth': 8,
+    'FUNCTIONS': FUNCTIONS,
+    'CONSTANTS': CONSTANTS,
+    "p_c": 0
+}
+

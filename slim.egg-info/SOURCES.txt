@@ -1,0 +1,14 @@
+LICENSE
+README.md
+setup.py
+algorithms/__init__.py
+slim.egg-info/PKG-INFO
+slim.egg-info/SOURCES.txt
+slim.egg-info/dependency_links.txt
+slim.egg-info/requires.txt
+slim.egg-info/top_level.txt
+utils/__init__.py
+utils/convexhull.py
+utils/diversity.py
+utils/logger.py
+utils/utils.py
