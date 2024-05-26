@@ -13,7 +13,7 @@ from utils.logger import log_settings
 from utils.utils import get_terminals
 
 
-def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 100, p_xo: float = 0.8):
+def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8):
     """
     Main function to execute the StandardGP algorithm on specified datasets
 

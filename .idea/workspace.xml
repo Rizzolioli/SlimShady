@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="gp function improvement.">
+    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="add __init__.py file.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/log/results_study.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/main_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_gsgp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/parametrization.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/parametrization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main_gp.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_gp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,12 +46,12 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "gpietrop"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;gpietrop&quot;
   }
-}]]></component>
+}</component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
       <filtered-out-file-type name="LOCAL_BRANCH" />
@@ -62,12 +60,12 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Rizzolioli/SlimShady.git",
-    "accountId": "9e46f800-de0b-415e-b94d-dc63cd6d3eb5"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Rizzolioli/SlimShady.git&quot;,
+    &quot;accountId&quot;: &quot;9e46f800-de0b-415e-b94d-dc63cd6d3eb5&quot;
   }
-}]]></component>
+}</component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -81,9 +79,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="91" />
     <option name="y" value="25" />
@@ -147,6 +145,7 @@
     "Python.main_gsgp.executor": "Run",
     "Python.main_slim.executor": "Run",
     "Python.results_study.executor": "Run",
+    "Python.slim_config.executor": "Run",
     "Python.utils.executor": "Run",
     "git-widget-placeholder": "library",
     "last_opened_file_path": "C:/Users/utente/OneDrive - NOVAIMS/TA/CM4O 2024/Minitests/code",
@@ -162,6 +161,7 @@
       <recent name="$PROJECT_DIR$/Datasets/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/slim_library" />
       <recent name="$PROJECT_DIR$" />
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\algorithms\SLIM_GSGP\representations" />
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
@@ -402,7 +402,47 @@
       <option name="project" value="LOCAL" />
       <updated>1716732231704</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="gsgp function improvement.">
+      <option name="closed" value="true" />
+      <created>1716734504056</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1716734504056</updated>
+    </task>
+    <task id="LOCAL-00013" summary="gsgp function improvement.">
+      <option name="closed" value="true" />
+      <created>1716734521974</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1716734521974</updated>
+    </task>
+    <task id="LOCAL-00014" summary="slim function improvement.">
+      <option name="closed" value="true" />
+      <created>1716736155951</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1716736155951</updated>
+    </task>
+    <task id="LOCAL-00015" summary="general improvement.">
+      <option name="closed" value="true" />
+      <created>1716736268097</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1716736268097</updated>
+    </task>
+    <task id="LOCAL-00016" summary="add __init__.py file.">
+      <option name="closed" value="true" />
+      <created>1716740764966</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1716740764966</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -452,7 +492,11 @@
     <MESSAGE value="create setup.py file." />
     <MESSAGE value="create LICENSE file." />
     <MESSAGE value="gp function improvement." />
-    <option name="LAST_COMMIT_MESSAGE" value="gp function improvement." />
+    <MESSAGE value="gsgp function improvement." />
+    <MESSAGE value="slim function improvement." />
+    <MESSAGE value="general improvement." />
+    <MESSAGE value="add __init__.py file." />
+    <option name="LAST_COMMIT_MESSAGE" value="add __init__.py file." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
