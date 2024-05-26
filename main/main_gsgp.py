@@ -6,8 +6,7 @@ logging the results for further analysis.
 import uuid
 
 from algorithms.GSGP.gsgp import GSGP
-# from config.gsgp_config import *
-from parametrization import *
+from config.gsgp_config import *
 from utils.logger import log_settings
 from utils.utils import get_terminals
 
