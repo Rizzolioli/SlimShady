@@ -147,4 +147,4 @@ if __name__ == "__main__":
     ]
     n_runs = 1
 
-    slim(datasets=datasets, n_runs=n_runs, pop_size=1)
+    slim(datasets=datasets, n_runs=n_runs, pop_size=100)
