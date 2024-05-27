@@ -3,9 +3,9 @@ import random
 
 import numpy as np
 import torch
-from slim.algorithms import (create_full_random_tree,
-                             create_grow_random_tree)
-from slim.algorithms import Tree
+from slim.algorithms.GP.representations.tree_utils import (create_full_random_tree,
+                                                           create_grow_random_tree)
+from slim.algorithms.GSGP.representations.tree import Tree
 from datasets.data_loader import load_preloaded
 from sklearn.metrics import root_mean_squared_error
 

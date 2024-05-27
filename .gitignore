@@ -8,8 +8,8 @@
 *.idea/
 *.pyc
 *.csv
-main/parametrization.py
-main/main_slim.py
-main/main_slim.py
-main/main_gp.py
-main/utils/results_analyser.ipynb
+slim/parametrization.py
+slim/main_slim.py
+slim/main_slim.py
+slim/main_gp.py
+slim/utils/results_analyser.ipynb
