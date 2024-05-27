@@ -470,3 +470,34 @@ def gs_size(y_true, y_pred):
         The size of the predicted values.
     """
     return y_pred[1]
+
+
+def validate_inputs(datasets, n_runs, pop_size, n_iter, p_xo, elitism, n_elites, max_depth, init_depth, log_path):
+    """
+    Validates the inputs based on the specified conditions.
+
+    Parameters:
+    datasets (list): List of datasets.
+    n_runs (int): Number of runs.
+    pop_size (int): Population size.
+    n_iter (int): Number of iterations.
+    p_xo (float): Crossover probability, must be between 0 and 1.
+    elitism (bool): Whether to use elitism.
+    n_elites (int): Number of elites.
+    max_depth (int): Maximum depth.
+    init_depth (int): Initial depth.
+    log_path (str): Path for logging.
+
+    Raises:
+    AssertionError: If any of the conditions are not met.
+    """
+    assert isinstance(datasets, list), "Input must be a list"
+    assert isinstance(n_runs, int), "Input must be a int"
+    assert isinstance(pop_size, int), "Input must be a int"
+    assert isinstance(n_iter, int), "Input must be a int"
+    assert 0 <= p_xo <= 1, "p_xo must be a number between 0 and 1"
+    assert isinstance(elitism, bool), "Input must be a bool"
+    assert isinstance(n_elites, int), "Input must be a int"
+    assert isinstance(max_depth, int), "Input must be a int"
+    assert isinstance(init_depth, int), "Input must be a int"
+    assert isinstance(log_path, str), "Input must be a str"

@@ -10,7 +10,7 @@ from slim.algorithms.GP.operators.mutators import mutate_tree_subtree
 from slim.algorithms.GP.representations.tree_utils import tree_depth, tree_pruning
 from slim.config.gp_config import *
 from slim.utils.logger import log_settings
-from slim.utils.utils import get_terminals
+from slim.utils.utils import get_terminals, validate_inputs
 
 
 def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8,
@@ -47,11 +47,11 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
     None
         This function does not return any values. It performs the execution of the StandardGP algorithm and logs the results.
     """
-    assert isinstance(datasets, list), "Input must be a list"
-    assert isinstance(n_runs, int), "Input must be a int"
-    assert isinstance(pop_size, int), "Input must be a int"
-    assert isinstance(n_iter, int), "Input must be a int"
-    assert 0 <= p_xo <= 1, "p_xo must be a number between 0 and 1"
+
+    validate_inputs(datasets, n_runs, pop_size, n_iter, p_xo, elitism, n_elites, max_depth, init_depth, log_path)
+
+    if not elitism:
+        n_elites = 0
 
     if not os.path.exists(os.path.join(os.getcwd(), "log")):
         os.mkdir(os.path.join(os.getcwd(), "log"))
@@ -105,7 +105,7 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
                 )
 
                 print(time.time() - start)
-
+    # todo: why this is not a dictionary? it give strange orange lines in pycharm
     log_settings(
         path=os.path.join(os.getcwd(), "log", "gp_settings.csv"),
         settings_dict=[gp_solve_parameters,
