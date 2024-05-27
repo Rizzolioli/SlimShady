@@ -31,16 +31,12 @@ settings_dict = {"p_test": 0.2}
 
 # GP solve parameters
 gp_solve_parameters = {
-    "elitism": True,
     "log": 1,
     "verbose": 1,
     "test_elite": True,
-    "log_path": os.path.join(os.getcwd(), "log", "gp.csv"),
     "run_info": None,
-    "max_depth": 17,
     "max_": False,
     "ffunction": rmse,
-    "n_elites": 1,
     "tree_pruner": None
 }
 
@@ -54,7 +50,6 @@ GP_parameters = {
 }
 
 gp_pi_init = {
-    'init_depth': 6,
     'FUNCTIONS': FUNCTIONS,
     'CONSTANTS': CONSTANTS,
     "p_c": 0

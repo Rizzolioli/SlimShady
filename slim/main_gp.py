@@ -13,7 +13,9 @@ from slim.utils.logger import log_settings
 from slim.utils.utils import get_terminals
 
 
-def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8):
+def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8,
+       elitism: bool = True, n_elites: int = 1, max_depth: int = 17, init_depth: int = 6,
+       log_path: str = os.path.join(os.getcwd(), "log", "gp.csv")):
     """
     Main function to execute the StandardGP algorithm on specified datasets
 
@@ -29,6 +31,16 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
         The number of iterations for the genetic programming algorithm (default is 100).
     p_xo : float, optional
         The probability of crossover in the genetic programming algorithm. Must be a number between 0 and 1 (default is 0.8).
+    elitism : bool, optional
+        Indicate the presence or absence of elitism.
+    n_elites : int, optional
+        The number of elites.
+    max_depth : int, optional
+        The maximum depth for the GP trees.
+    init_depth : int, optional
+        The depth value for the initial GP trees population.
+    log_path : str, optional
+        The path where is created the log directory where results are saved.
 
     Returns
     -------
@@ -63,6 +75,7 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
 
                 gp_pi_init["TERMINALS"] = TERMINALS
                 gp_pi_init["init_pop_size"] = pop_size
+                gp_pi_init["init_depth"] = init_depth
 
                 GP_parameters["p_xo"] = p_xo
                 GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
@@ -71,6 +84,10 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
                     gp_pi_init['init_depth'], TERMINALS, CONSTANTS, FUNCTIONS, p_c=gp_pi_init['p_c']
                 )
 
+                gp_solve_parameters["log_path"] = log_path
+                gp_solve_parameters["elitism"] = elitism
+                gp_solve_parameters["n_elites"] = n_elites
+                gp_solve_parameters["max_depth"] = max_depth
                 gp_solve_parameters["n_iter"] = n_iter
                 gp_solve_parameters["tree_pruner"] = tree_pruning(
                     TERMINALS=TERMINALS, CONSTANTS=CONSTANTS, FUNCTIONS=FUNCTIONS, p_c=gp_pi_init["p_c"]
@@ -99,5 +116,5 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
     )
 
 
-# if __name__ == "__main__":
-#     gp(datasets=["toxicity"], n_runs=1, pop_size=100)
+if __name__ == "__main__":
+    gp(datasets=["toxicity"], n_runs=1, pop_size=100)
