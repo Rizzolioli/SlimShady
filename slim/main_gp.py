@@ -13,6 +13,7 @@ from slim.utils.logger import log_settings
 from slim.utils.utils import get_terminals, validate_inputs
 
 
+# todo: would not be better to first log the settings and then perform the algorithm?
 def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8,
        elitism: bool = True, n_elites: int = 1, max_depth: int = 17, init_depth: int = 6,
        log_path: str = os.path.join(os.getcwd(), "log", "gp.csv")):
@@ -48,13 +49,17 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
         This function does not return any values. It performs the execution of the StandardGP algorithm and logs the results.
     """
 
-    validate_inputs(datasets, n_runs, pop_size, n_iter, p_xo, elitism, n_elites, max_depth, init_depth, log_path)
+    validate_inputs(datasets=datasets, n_runs=n_runs, pop_size=pop_size, n_iter=n_iter, elitism=elitism,
+                    n_elites=n_elites, init_depth=init_depth, log_path=log_path)
+    assert 0 <= p_xo <= 1, "p_xo must be a number between 0 and 1"
+    assert isinstance(max_depth, int), "Input must be a int"
 
     if not elitism:
         n_elites = 0
 
-    if not os.path.exists(os.path.join(os.getcwd(), "log")):
-        os.mkdir(os.path.join(os.getcwd(), "log"))
+    # todo: here should be created in authomatic way the folder path defined by users
+    # if not os.path.exists(log_path):
+    #     os.mkdir(log_path)
 
     unique_run_id = uuid.uuid1()
 
@@ -63,7 +68,6 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
             gp_solve_parameters['run_info'] = [algo, unique_run_id, loader]
 
             for seed in range(n_runs):
-                start = time.time()
 
                 if isinstance(loader, str):
                     dataset = loader
@@ -104,10 +108,9 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
                     **gp_solve_parameters
                 )
 
-                print(time.time() - start)
     # todo: why this is not a dictionary? it give strange orange lines in pycharm
     log_settings(
-        path=os.path.join(os.getcwd(), "log", "gp_settings.csv"),
+        path=log_path[:-4] + "_settings.csv",
         settings_dict=[gp_solve_parameters,
                        GP_parameters,
                        gp_pi_init,
@@ -117,4 +120,4 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
 
 
 if __name__ == "__main__":
-    gp(datasets=["toxicity"], n_runs=1, pop_size=100)
+    gp(datasets=["toxicity"], n_runs=1, pop_size=100, n_iter=10)

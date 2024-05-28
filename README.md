@@ -16,8 +16,8 @@ To use the GP algorithm, you can use the following example:
 from slim.main_gp import gp
 
 datasets = ["toxicity"]
-n_runs = 1
-pop_size = 10
+n_runs = 30
+pop_size = 100
 n_iter = 100
 
 gp(datasets=datasets, n_runs=n_runs, pop_size=pop_size, n_iter=n_iter)
@@ -46,4 +46,19 @@ The arguments for the **gp** function are:
   ``` os.path.join(os.getcwd(), "log", "gp.csv")```
 
 ### Running GSGP 
-To use the GP algorithm, you can use the following example:
+To use the GSGP algorithm, you can use the following example:
+
+```python
+from slim.main_gsgp import gsgp
+
+datasets = ["toxicity"]
+n_runs = 30
+pop_size = 100
+n_iter = 100
+
+gsgp(datasets=datasets, n_runs=n_runs, pop_size=pop_size, n_iter=n_iter)
+```
+
+Where the arguments for the **gsgp** function are the same as the ones for the **gp** function, except for the absence of the parameter
+`max_depth` and for the default value of the parameter `log_path` which is 
+``` os.path.join(os.getcwd(), "log", "gsgp.csv")```
