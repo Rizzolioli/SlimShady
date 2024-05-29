@@ -15,16 +15,26 @@ To use the GP algorithm, you can use the following example:
 ```python
 from slim.main_gp import gp
 
-datasets = ["toxicity"]
+data = 'instanbul'
+
+X_train, y_train = load_preloaded(data, seed= 1, training=True, X_y=True)
+X_test, y_test = load_preloaded(data, seed= 1, training=False, X_y=True)
 n_runs = 30
 pop_size = 100
 n_iter = 100
 
-gp(datasets=datasets, n_runs=n_runs, pop_size=pop_size, n_iter=n_iter)
+gp(X_train = X_train, y_train = y_train, X_test = X_test, y_test = y_test,
+         dataset_name=data, n_runs=n_runs, pop_size=pop_size, n_iter=n_iter)
 ```
 The arguments for the **gp** function are: 
-* `datasets`: A list of strings specifying the datasets to be used. The user can specify one or more datasets
-  * The dataset which can be tested are: _resid_build_sale_price, concrete, toxicity, istanbul, energy, ppb_
+* `X_train`: A torch Tensor with the training input data.
+* `y_train`: A torch Tensor with the training output data.
+* `X_test`: A torch Tensor with the testing input data.
+  * default: None
+* `y_test`: A torch Tensor with the testing output data.
+   * default: None
+dataset_name : str, optional
+    Dataset name, for logging purposes
 * `n_runs`: An integer specifying the number of runs for the algorithm. 
   * default: 30
 * `pop_size`: An integer specifying the population size.
@@ -51,12 +61,16 @@ To use the GSGP algorithm, you can use the following example:
 ```python
 from slim.main_gsgp import gsgp
 
-datasets = ["toxicity"]
+data = 'instanbul'
+
+X_train, y_train = load_preloaded(data, seed= 1, training=True, X_y=True)
+X_test, y_test = load_preloaded(data, seed= 1, training=False, X_y=True)
 n_runs = 30
 pop_size = 100
 n_iter = 100
 
-gsgp(datasets=datasets, n_runs=n_runs, pop_size=pop_size, n_iter=n_iter)
+gsgp(X_train = X_train, y_train = y_train, X_test = X_test, y_test = y_test,
+         dataset_name=data, n_runs=n_runs, pop_size=pop_size, n_iter=n_iter)
 ```
 
 Where the arguments for the **gsgp** function are the same as the ones for the **gp** function, except for the absence of the parameter
