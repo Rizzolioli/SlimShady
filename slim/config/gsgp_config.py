@@ -28,15 +28,12 @@ settings_dict = {"p_test": 0.2}
 
 # GSGP solve parameters
 gsgp_solve_parameters = {
-    "elitism": True,
     "log": 0,
     "verbose": 1,
     "test_elite": True,
-    "log_path": os.path.join(os.getcwd(), "log", "gsgp.csv"),
     "run_info": None,
     "ffunction": rmse,
     "reconstruct": False,
-    "n_elites": 1,
 }
 
 # GSGP parameters
@@ -51,7 +48,6 @@ GSGP_parameters = {
 }
 
 gsgp_pi_init = {
-    'init_depth': 8,
     'FUNCTIONS': FUNCTIONS,
     'CONSTANTS': CONSTANTS,
     "p_c": 0

@@ -127,7 +127,7 @@ def tensor_dimensioned_sum(dim):
 
 
 def verbose_reporter(
-    dataset, generation, pop_val_fitness, pop_test_fitness, timing, nodes
+        dataset, generation, pop_val_fitness, pop_test_fitness, timing, nodes
 ):
     """
     Prints a formatted report of generation, fitness values, timing, and node count.
@@ -156,14 +156,14 @@ def verbose_reporter(
     if pop_test_fitness is not None:
         digits_test_fit = len(str(float(pop_test_fitness)))
         test_text_init = (
-            "|"
-            + " " * 3
-            + str(float(pop_test_fitness))
-            + " " * (23 - digits_test_fit)
-            + "|"
+                "|"
+                + " " * 3
+                + str(float(pop_test_fitness))
+                + " " * (23 - digits_test_fit)
+                + "|"
         )
         test_text = (
-            " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
+                " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
         )
     else:
         digits_test_fit = 4
@@ -320,14 +320,14 @@ def get_best_max(population, n_elites):
 
 
 def get_random_tree(
-    max_depth,
-    FUNCTIONS,
-    TERMINALS,
-    CONSTANTS,
-    inputs,
-    p_c=0.3,
-    grow_probability=1,
-    logistic=True,
+        max_depth,
+        FUNCTIONS,
+        TERMINALS,
+        CONSTANTS,
+        inputs,
+        p_c=0.3,
+        grow_probability=1,
+        logistic=True,
 ):
     """
     Get a random tree using either grow or full method.
@@ -472,7 +472,7 @@ def gs_size(y_true, y_pred):
     return y_pred[1]
 
 
-def validate_inputs(datasets, n_runs, pop_size, n_iter, p_xo, elitism, n_elites, max_depth, init_depth, log_path):
+def validate_inputs(datasets, n_runs, pop_size, n_iter, elitism, n_elites, init_depth, log_path):
     """
     Validates the inputs based on the specified conditions.
 
@@ -495,9 +495,37 @@ def validate_inputs(datasets, n_runs, pop_size, n_iter, p_xo, elitism, n_elites,
     assert isinstance(n_runs, int), "Input must be a int"
     assert isinstance(pop_size, int), "Input must be a int"
     assert isinstance(n_iter, int), "Input must be a int"
-    assert 0 <= p_xo <= 1, "p_xo must be a number between 0 and 1"
     assert isinstance(elitism, bool), "Input must be a bool"
     assert isinstance(n_elites, int), "Input must be a int"
-    assert isinstance(max_depth, int), "Input must be a int"
     assert isinstance(init_depth, int), "Input must be a int"
     assert isinstance(log_path, str), "Input must be a str"
+
+
+def check_slim_version(slim_version):
+    """
+    Validate the slim version given as input bu the users and assign the correct values to the parameters op, sig and trees
+    Parameters
+    ----------
+    slim_version : str
+        Name of the slim version.
+
+    Returns
+    -------
+    op, sig, trees
+        Parameters reflecting the kind of operation considered, the use of the sigmoid and the use of multiple trees.
+    """
+    if slim_version == "SLIM+SIG2":
+        op, sig, trees = "sum", True, True
+    elif slim_version == "SLIM*SIG2":
+        op, sig, trees = "mul", True, True
+    elif slim_version == "SLIM+ABS":
+        op, sig, trees = "sum", False, False
+    elif slim_version == "SLIM*ABS":
+        op, sig, trees = "mul", False, False
+    elif slim_version == "SLIM+SIG1":
+        op, sig, trees = "sum", True, False
+    elif slim_version == "SLIM*SIG1":
+        op, sig, trees = "mul", True, False
+    else:
+        return False, False, False
+    return op, sig, trees

@@ -31,15 +31,12 @@ settings_dict = {"p_test": 0.2}
 
 # SLIM GSGP solve parameters
 slim_gsgp_solve_parameters = {
-    "elitism": True,
     "log": 1,
     "verbose": 1,
     "test_elite": True,
-    "log_path": os.path.join(os.getcwd(), "log", "slim_gsgp.csv"),
     "run_info": None,
     "ffunction": rmse,
     "max_depth": None,
-    "n_elites": 1,
     "reconstruct": False
 }
 
@@ -61,7 +58,6 @@ slim_GSGP_parameters = {
 slim_GSGP_parameters["p_m"] = 1 - slim_GSGP_parameters["p_xo"]
 
 slim_gsgp_pi_init = {
-    'init_depth': 6,
     'FUNCTIONS': FUNCTIONS,
     'CONSTANTS': CONSTANTS,
     "p_c": 0
