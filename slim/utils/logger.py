@@ -1,10 +1,12 @@
 import csv
+import os.path
 from copy import copy
+from uuid import UUID
 
 import pandas as pd
 
 
-def log_settings(path: str, settings_dict: dict, unique_run_id: str) -> None:
+def log_settings(path: str, settings_dict: list, unique_run_id: UUID) -> None:
     """
     Log the settings to a CSV file.
 
@@ -68,6 +70,8 @@ def logger(
     Returns:
         None
     """
+    if not os.path.isdir(os.path.dirname(path)):
+        os.mkdir(os.path.dirname(path))
     with open(path, "a", newline="") as file:
         writer = csv.writer(file)
         infos = copy(run_info) if run_info is not None else []
@@ -76,7 +80,7 @@ def logger(
         if additional_infos is not None:
             try:
                 additional_infos[0] = float(additional_infos[0])
-            except ValueError:
+            except:
                 additional_infos[0] = "None"
             infos.extend(additional_infos)
 

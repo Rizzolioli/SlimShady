@@ -9,7 +9,7 @@ from slim.utils.utils import (get_best_max, get_best_min,
                               protected_div)
 
 # Define functions and constants
-# todo use a notation coherent (gp or GP). use only one dictionary for the parameters of each algorithm
+# todo use only one dictionary for the parameters of each algorithm
 
 FUNCTIONS = {
     'add': {'function': torch.add, 'arity': 2},
@@ -41,7 +41,7 @@ gp_solve_parameters = {
 }
 
 # GP parameters
-GP_parameters = {
+gp_parameters = {
     "initializer": rhh,
     "selector": tournament_selection_min(2),
     "crossover": crossover_trees(FUNCTIONS),

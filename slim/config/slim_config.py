@@ -9,7 +9,7 @@ from slim.utils.utils import (generate_random_uniform, get_best_min,
                               protected_div)
 
 # Define functions and constants
-# todo use a notation coherent (gp or GP). use only one dictionary for the parameters of each algorithm
+# todo use only one dictionary for the parameters of each algorithm
 
 FUNCTIONS = {
     'add': {'function': torch.add, 'arity': 2},
@@ -33,7 +33,6 @@ settings_dict = {"p_test": 0.2}
 slim_gsgp_solve_parameters = {
     "log": 1,
     "verbose": 1,
-    "test_elite": True,
     "run_info": None,
     "ffunction": rmse,
     "max_depth": None,
@@ -41,7 +40,7 @@ slim_gsgp_solve_parameters = {
 }
 
 # SLIM GSGP parameters
-slim_GSGP_parameters = {
+slim_gsgp_parameters = {
     "initializer": rhh,
     "selector": tournament_selection_min_slim(2),
     "crossover": geometric_crossover,
@@ -55,7 +54,7 @@ slim_GSGP_parameters = {
     "copy_parent": None,
     "operator": None
 }
-slim_GSGP_parameters["p_m"] = 1 - slim_GSGP_parameters["p_xo"]
+slim_gsgp_parameters["p_m"] = 1 - slim_gsgp_parameters["p_xo"]
 
 slim_gsgp_pi_init = {
     'FUNCTIONS': FUNCTIONS,
@@ -63,18 +62,3 @@ slim_gsgp_pi_init = {
     "p_c": 0
 }
 
-# Dataset parameters for SLIM GSGP
-slim_dataset_params = {
-    "toxicity": {
-        "p_inflate": 0.1,
-        "ms": generate_random_uniform(0, 0.1)
-    },
-    "concrete": {
-        "p_inflate": 0.5,
-        "ms": generate_random_uniform(0, 0.3)
-    },
-    "other": {
-        "p_inflate": 0.3,
-        "ms": generate_random_uniform(0, 1)
-    }
-}

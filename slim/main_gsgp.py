@@ -13,16 +13,24 @@ from slim.utils.utils import get_terminals, validate_inputs
 # todo: would not be better to first log the settings and then perform the algorithm?
 # todo sometime does not save the gsgp.csv results and sometimes the configuration file, who did the logger can check
 #  this?
-def gsgp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 100, p_xo: float = 0.0,
-         elitism: bool = True, n_elites: int = 1, init_depth: int = 8,
-         log_path: str = os.path.join(os.getcwd(), "log", "gsgp.csv")):
+def gsgp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None, y_test: torch.Tensor = None,
+         dataset_name : str = None, n_runs: int = 30, pop_size: int = 100, n_iter: int = 100, p_xo: float = 0.0, elitism: bool = True,
+         n_elites: int = 1, init_depth: int = 8, log_path: str = os.path.join(os.getcwd(), "log", "gsgp.csv")):
     """
     Main function to execute the Standard GSGP algorithm on specified datasets
 
     Parameters
     ----------
-    datasets : list
-        A list of dataset loaders. Each loader can be a string representing the dataset name or another appropriate type.
+    X_train: (torch.Tensor)
+        Training input data.
+    y_train: (torch.Tensor)
+        Training output data.
+    X_test: (torch.Tensor), optional
+        Testing input data.
+    y_test: (torch.Tensor), optional
+        Testing output data.
+    dataset_name : str, optional
+        Dataset name, for logging purposes
     n_runs : int, optional
         The number of runs to execute for each dataset and algorithm combination (default is 30).
     pop_size : int, optional
@@ -48,8 +56,9 @@ def gsgp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 10
         This function does not return any values. It performs the execution of the StandardGP algorithm and logs the results.
     """
 
-    validate_inputs(datasets=datasets, n_runs=n_runs, pop_size=pop_size, n_iter=n_iter, elitism=elitism,
-                    n_elites=n_elites, init_depth=init_depth, log_path=log_path)
+    validate_inputs(X_train = X_train, y_train = y_train, X_test = X_test, y_test = y_test, n_runs=n_runs,
+                    pop_size=pop_size, n_iter=n_iter, elitism=elitism, n_elites=n_elites, init_depth=init_depth,
+                    log_path=log_path)
     assert 0 <= p_xo <= 1, "p_xo must be a number between 0 and 1"
 
     if not elitism:
@@ -61,53 +70,47 @@ def gsgp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 10
 
     unique_run_id = uuid.uuid1()
 
-    for loader in datasets:
-        dataset = loader
 
-        for algo_name in ["StandardGSGP"]:
-            gsgp_solve_parameters["run_info"] = [algo_name, unique_run_id, dataset]
+    algo_name = "StandardGSGP"
+    gsgp_solve_parameters["run_info"] = [algo_name, unique_run_id, dataset_name]
 
-            for seed in range(n_runs):
-                if isinstance(loader, str):
-                    dataset = loader
-                    curr_dataset = f"load_{dataset}"
-                    TERMINALS = get_terminals(loader, seed + 1)
+    for seed in range(n_runs):
 
-                    X_train, y_train = load_preloaded(
-                        loader, seed=seed + 1, training=True, X_y=True
-                    )
-                    X_test, y_test = load_preloaded(
-                        loader, seed=seed + 1, training=False, X_y=True
-                    )
+        TERMINALS = get_terminals(X_train)
 
-                gsgp_pi_init["TERMINALS"] = TERMINALS
-                gsgp_pi_init["init_pop_size"] = pop_size
-                gsgp_pi_init["init_depth"] = init_depth
 
-                GSGP_parameters["p_xo"] = p_xo
-                GSGP_parameters["p_m"] = 1 - GSGP_parameters["p_xo"]
-                GSGP_parameters["pop_size"] = pop_size
+        gsgp_pi_init["TERMINALS"] = TERMINALS
+        gsgp_pi_init["init_pop_size"] = pop_size
+        gsgp_pi_init["init_depth"] = init_depth
 
-                gsgp_solve_parameters["n_iter"] = n_iter
-                gsgp_solve_parameters["log_path"] = log_path
-                gsgp_solve_parameters["elitism"] = elitism
-                gsgp_solve_parameters["n_elites"] = n_elites
+        gsgp_parameters["p_xo"] = p_xo
+        gsgp_parameters["p_m"] = 1 - gsgp_parameters["p_xo"]
+        gsgp_parameters["pop_size"] = pop_size
 
-                optimizer = GSGP(pi_init=gsgp_pi_init, **GSGP_parameters, seed=seed)
+        gsgp_solve_parameters["n_iter"] = n_iter
+        gsgp_solve_parameters["log_path"] = log_path
+        gsgp_solve_parameters["elitism"] = elitism
+        gsgp_solve_parameters["n_elites"] = n_elites
+        if X_test is not None and y_test is not None:
+            gsgp_solve_parameters["test_elite"] = True
+        else:
+            gsgp_solve_parameters["test_elite"] = False
 
-                optimizer.solve(
-                    X_train=X_train,
-                    X_test=X_test,
-                    y_train=y_train,
-                    y_test=y_test,
-                    curr_dataset=curr_dataset,
-                    **gsgp_solve_parameters,
-                )
+        optimizer = GSGP(pi_init=gsgp_pi_init, **gsgp_parameters, seed=seed)
+
+        optimizer.solve(
+            X_train=X_train,
+            X_test=X_test,
+            y_train=y_train,
+            y_test=y_test,
+            curr_dataset=dataset_name,
+            **gsgp_solve_parameters,
+        )
 
     log_settings(
         path=log_path[:-4] + "_settings.csv",
         settings_dict=[gsgp_solve_parameters,
-                       GSGP_parameters,
+                       gsgp_parameters,
                        gsgp_pi_init,
                        settings_dict],
         unique_run_id=unique_run_id,
@@ -115,9 +118,13 @@ def gsgp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 10
 
 
 if __name__ == "__main__":
-    datasets = [
-        "toxicity"
-    ]
+    data = 'instanbul'
+
+    X_train, y_train = load_preloaded(data, seed= 1, training=True, X_y=True)
+    X_test, y_test = load_preloaded(data, seed= 1, training=False, X_y=True)
     n_runs = 1
 
-    gsgp(datasets=datasets, n_runs=n_runs, pop_size=100, n_iter=10)
+    gsgp(X_train = X_train, y_train = y_train,
+         X_test = X_test, y_test = y_test,
+         dataset_name=data,
+         n_runs=n_runs, pop_size=100, n_iter=10)

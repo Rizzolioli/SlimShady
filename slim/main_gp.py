@@ -14,7 +14,8 @@ from slim.utils.utils import get_terminals, validate_inputs
 
 
 # todo: would not be better to first log the settings and then perform the algorithm?
-def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8,
+def gp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None, y_test: torch.Tensor = None,
+       dataset_name : str = None, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8,
        elitism: bool = True, n_elites: int = 1, max_depth: int = 17, init_depth: int = 6,
        log_path: str = os.path.join(os.getcwd(), "log", "gp.csv")):
     """
@@ -22,8 +23,16 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
 
     Parameters
     ----------
-    datasets : list
-        A list of dataset loaders. Each loader can be a string representing the dataset name or another appropriate type.
+    X_train: (torch.Tensor)
+        Training input data.
+    y_train: (torch.Tensor)
+        Training output data.
+    X_test: (torch.Tensor), optional
+        Testing input data.
+    y_test: (torch.Tensor), optional
+        Testing output data.
+    dataset_name : str, optional
+        Dataset name, for logging purposes
     n_runs : int, optional
         The number of runs to execute for each dataset and algorithm combination (default is 30).
     pop_size : int, optional
@@ -49,8 +58,9 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
         This function does not return any values. It performs the execution of the StandardGP algorithm and logs the results.
     """
 
-    validate_inputs(datasets=datasets, n_runs=n_runs, pop_size=pop_size, n_iter=n_iter, elitism=elitism,
-                    n_elites=n_elites, init_depth=init_depth, log_path=log_path)
+    validate_inputs(X_train = X_train, y_train = y_train, X_test = X_test, y_test = y_test, n_runs=n_runs,
+                    pop_size=pop_size, n_iter=n_iter, elitism=elitism, n_elites=n_elites, init_depth=init_depth,
+                    log_path=log_path)
     assert 0 <= p_xo <= 1, "p_xo must be a number between 0 and 1"
     assert isinstance(max_depth, int), "Input must be a int"
 
@@ -63,61 +73,67 @@ def gp(datasets: list, n_runs: int = 30, pop_size: int = 100, n_iter: int = 1000
 
     unique_run_id = uuid.uuid1()
 
-    for loader in datasets:
-        for algo in ["StandardGP"]:
-            gp_solve_parameters['run_info'] = [algo, unique_run_id, loader]
+    algo  = "StandardGP"
+    gp_solve_parameters['run_info'] = [algo, unique_run_id, dataset_name]
 
-            for seed in range(n_runs):
+    for seed in range(n_runs):
 
-                if isinstance(loader, str):
-                    dataset = loader
-                    curr_dataset = f"load_{dataset}"
-                    TERMINALS = get_terminals(loader, seed + 1)
+        TERMINALS = get_terminals(X_train)
 
-                    X_train, y_train = load_preloaded(loader, seed=seed + 1, training=True, X_y=True)
-                    X_test, y_test = load_preloaded(loader, seed=seed + 1, training=False, X_y=True)
 
-                gp_pi_init["TERMINALS"] = TERMINALS
-                gp_pi_init["init_pop_size"] = pop_size
-                gp_pi_init["init_depth"] = init_depth
+        gp_pi_init["TERMINALS"] = TERMINALS
+        gp_pi_init["init_pop_size"] = pop_size
+        gp_pi_init["init_depth"] = init_depth
 
-                GP_parameters["p_xo"] = p_xo
-                GP_parameters["p_m"] = 1 - GP_parameters["p_xo"]
-                GP_parameters["pop_size"] = pop_size
-                GP_parameters["mutator"] = mutate_tree_subtree(
-                    gp_pi_init['init_depth'], TERMINALS, CONSTANTS, FUNCTIONS, p_c=gp_pi_init['p_c']
-                )
+        gp_parameters["p_xo"] = p_xo
+        gp_parameters["p_m"] = 1 - gp_parameters["p_xo"]
+        gp_parameters["pop_size"] = pop_size
+        gp_parameters["mutator"] = mutate_tree_subtree(
+            gp_pi_init['init_depth'], TERMINALS, CONSTANTS, FUNCTIONS, p_c=gp_pi_init['p_c']
+        )
 
-                gp_solve_parameters["log_path"] = log_path
-                gp_solve_parameters["elitism"] = elitism
-                gp_solve_parameters["n_elites"] = n_elites
-                gp_solve_parameters["max_depth"] = max_depth
-                gp_solve_parameters["n_iter"] = n_iter
-                gp_solve_parameters["tree_pruner"] = tree_pruning(
-                    TERMINALS=TERMINALS, CONSTANTS=CONSTANTS, FUNCTIONS=FUNCTIONS, p_c=gp_pi_init["p_c"]
-                )
-                gp_solve_parameters['depth_calculator'] = tree_depth(FUNCTIONS=FUNCTIONS)
+        gp_solve_parameters["log_path"] = log_path
+        gp_solve_parameters["elitism"] = elitism
+        gp_solve_parameters["n_elites"] = n_elites
+        gp_solve_parameters["max_depth"] = max_depth
+        gp_solve_parameters["n_iter"] = n_iter
+        gp_solve_parameters["tree_pruner"] = tree_pruning(
+            TERMINALS=TERMINALS, CONSTANTS=CONSTANTS, FUNCTIONS=FUNCTIONS, p_c=gp_pi_init["p_c"]
+        )
+        gp_solve_parameters['depth_calculator'] = tree_depth(FUNCTIONS=FUNCTIONS)
+        if X_test is not None and y_test is not None:
+            gp_solve_parameters["test_elite"] = True
+        else:
+            gp_solve_parameters["test_elite"] = False
 
-                optimizer = GP(pi_init=gp_pi_init, **GP_parameters, seed=seed)
-                optimizer.solve(
-                    X_train=X_train,
-                    X_test=X_test,
-                    y_train=y_train,
-                    y_test=y_test,
-                    curr_dataset=curr_dataset,
-                    **gp_solve_parameters
-                )
+        optimizer = GP(pi_init=gp_pi_init, **gp_parameters, seed=seed)
+        optimizer.solve(
+            X_train=X_train,
+            X_test=X_test,
+            y_train=y_train,
+            y_test=y_test,
+            curr_dataset = dataset_name,
+            **gp_solve_parameters
+        )
 
-    # todo: why this is not a dictionary? it give strange orange lines in pycharm
     log_settings(
         path=log_path[:-4] + "_settings.csv",
         settings_dict=[gp_solve_parameters,
-                       GP_parameters,
+                       gp_parameters,
                        gp_pi_init,
                        settings_dict],
         unique_run_id=unique_run_id,
-    )
+)
 
 
 if __name__ == "__main__":
-    gp(datasets=["toxicity"], n_runs=1, pop_size=100, n_iter=10)
+    data = 'instanbul'
+
+    X_train, y_train = load_preloaded(data, seed= 1, training=True, X_y=True)
+    X_test, y_test = load_preloaded(data, seed= 1, training=False, X_y=True)
+    n_runs = 1
+
+    gp(X_train = X_train, y_train = y_train,
+         X_test = X_test, y_test = y_test,
+         dataset_name=data,
+         n_runs=1, pop_size=100, n_iter=10)

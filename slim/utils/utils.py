@@ -234,33 +234,22 @@ def verbose_reporter(
         )
 
 
-def get_terminals(data_loader, seed=0):
+def get_terminals(X):
     """
     Get terminal nodes for a dataset.
 
     Parameters
     ----------
-    data_loader : function or str
-        The data loading function or dataset name.
-    seed : int, default=0
-        The seed for random numbers generators.
+    data_loader : (torch.Tensor)
+        An array to get the set of TERMINALS from, it will correspond to the columns.
 
     Returns
     -------
     dict
         Dictionary of terminal nodes.
     """
-    if isinstance(data_loader, str):
-        TERMINALS = {
-            f"x{i}": i
-            for i in range(
-                len(load_preloaded(data_loader, seed, training=True, X_y=True)[0][0])
-            )
-        }
-    else:
-        TERMINALS = {f"x{i}": i for i in range(len(data_loader(True)[0][0]))}
 
-    return TERMINALS
+    return  {f"x{i}": i for i in range(len(X[0]))}
 
 
 def get_best_min(population, n_elites):
@@ -472,7 +461,7 @@ def gs_size(y_true, y_pred):
     return y_pred[1]
 
 
-def validate_inputs(datasets, n_runs, pop_size, n_iter, elitism, n_elites, init_depth, log_path):
+def validate_inputs(X_train, y_train, X_test, y_test,n_runs, pop_size, n_iter, elitism, n_elites, init_depth, log_path):
     """
     Validates the inputs based on the specified conditions.
 
@@ -491,7 +480,12 @@ def validate_inputs(datasets, n_runs, pop_size, n_iter, elitism, n_elites, init_
     Raises:
     AssertionError: If any of the conditions are not met.
     """
-    assert isinstance(datasets, list), "Input must be a list"
+    assert isinstance(X_train, torch.Tensor), "X_train must be a torch.Tensor"
+    assert isinstance(y_train, torch.Tensor), "y_train must be a torch.Tensor"
+    if X_test is not None:
+        assert isinstance(X_test, torch.Tensor), "X_test must be a torch.Tensor"
+    if y_test is not None:
+        assert isinstance(y_test, torch.Tensor), "y_test must be a torch.Tensor"
     assert isinstance(n_runs, int), "Input must be a int"
     assert isinstance(pop_size, int), "Input must be a int"
     assert isinstance(n_iter, int), "Input must be a int"
@@ -515,17 +509,16 @@ def check_slim_version(slim_version):
         Parameters reflecting the kind of operation considered, the use of the sigmoid and the use of multiple trees.
     """
     if slim_version == "SLIM+SIG2":
-        op, sig, trees = "sum", True, True
+        return "sum", True, True
     elif slim_version == "SLIM*SIG2":
-        op, sig, trees = "mul", True, True
+        return "mul", True, True
     elif slim_version == "SLIM+ABS":
-        op, sig, trees = "sum", False, False
+        return "sum", False, False
     elif slim_version == "SLIM*ABS":
-        op, sig, trees = "mul", False, False
+        return "mul", False, False
     elif slim_version == "SLIM+SIG1":
-        op, sig, trees = "sum", True, False
+        return "sum", True, False
     elif slim_version == "SLIM*SIG1":
-        op, sig, trees = "mul", True, False
+        return "mul", True, False
     else:
-        return False, False, False
-    return op, sig, trees
+        raise Exception('Invalid SLIM configuration')

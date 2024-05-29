@@ -113,6 +113,9 @@ class GSGP:
             reconstruct (bool): Whether to reconstruct trees.
             n_elites (int): Number of elites.
         """
+        if test_elite and (X_test is None or y_test is None):
+            raise Exception('If test_elite is True you need to provide a test dataset')
+
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
         random.seed(self.seed)
@@ -212,7 +215,7 @@ class GSGP:
 
         if verbose != 0:
             verbose_reporter(
-                curr_dataset.split("load_")[-1],
+                curr_dataset,
                 0,
                 self.elite.fitness,
                 self.elite.test_fitness,

@@ -37,7 +37,7 @@ gsgp_solve_parameters = {
 }
 
 # GSGP parameters
-GSGP_parameters = {
+gsgp_parameters = {
     "initializer": rhh,
     "selector": tournament_selection_min(2),
     "crossover": geometric_crossover,

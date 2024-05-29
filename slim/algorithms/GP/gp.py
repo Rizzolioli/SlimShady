@@ -101,6 +101,9 @@ class GP:
             tree_pruner (function): Function to prune trees.
             depth_calculator (function): Function to calculate tree depth.
         """
+        if test_elite and (X_test is None or y_test is None):
+            raise Exception('If test_elite is True you need to provide a test dataset')
+
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
         random.seed(self.seed)
