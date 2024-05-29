@@ -11,7 +11,6 @@ from slim.algorithms.GP.representations.tree import Tree as GP_Tree
 from slim.algorithms.GSGP.representations.tree import Tree
 from slim.algorithms.SLIM_GSGP.representations.individual import Individual
 from slim.algorithms.SLIM_GSGP.representations.population import Population
-from slim.utils.convexhull import calculate_signed_errors, distance_from_chull
 from slim.utils.diversity import gsgp_pop_div_from_vectors
 from slim.utils.logger import logger
 from slim.utils.utils import verbose_reporter
@@ -240,24 +239,6 @@ class SLIM_GSGP:
                     log,
                 ]
 
-            elif log == 5:
-                errors = torch.stack(
-                    [
-                        calculate_signed_errors(semantics, y_train, self.operator)
-                        for semantics in population.train_semantics
-                    ]
-                )
-                chull_distance = distance_from_chull(errors)
-
-                add_info = [
-                    self.elite.test_fitness,
-                    self.elite.nodes_count,
-                    chull_distance,
-                ]
-
-            elif log == 6:
-                tie = 0
-                add_info = [tie]
             else:
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
@@ -491,25 +472,6 @@ class SLIM_GSGP:
                         " ".join([str(f) for f in population.fit]),
                         log,
                     ]
-
-                elif log == 5:
-                    errors = torch.stack(
-                        [
-                            calculate_signed_errors(semantics, y_train, self.operator)
-                            for semantics in population.train_semantics
-                        ]
-                    )
-                    chull_distance = distance_from_chull(errors)
-
-                    add_info = [
-                        self.elite.test_fitness,
-                        self.elite.nodes_count,
-                        chull_distance,
-                    ]
-
-                elif log == 6:
-                    tie = 0
-                    add_info = [tie]
 
                 else:
                     add_info = [self.elite.test_fitness, self.elite.nodes_count, log]

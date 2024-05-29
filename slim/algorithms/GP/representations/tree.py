@@ -109,7 +109,7 @@ class Tree:
             elif self.repr_ in self.CONSTANTS:
                 return self.CONSTANTS
 
-    def evaluate(self, ffunction, X, y, testing=False):
+    def evaluate(self, ffunction, X, y, testing=False, new_data = False):
         """
         Evaluates the tree given a fitness function, input data (X), and target data (y).
 
@@ -130,10 +130,17 @@ class Tree:
             Attributes a fitness value to the tree.
         """
         preds = self.apply_tree(X)
-        if testing:
-            self.test_fitness = ffunction(y, preds)
+        if new_data:
+            return float(ffunction(y, preds))
         else:
-            self.fitness = ffunction(y, preds)
+            if testing:
+                self.test_fitness = ffunction(y, preds)
+            else:
+                self.fitness = ffunction(y, preds)
+
+    def predict(self, X):
+        #todo document
+        return self.apply_tree(X)
 
     def print_tree_representation(self, indent=""):
         """

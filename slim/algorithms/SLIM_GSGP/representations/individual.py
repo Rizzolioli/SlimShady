@@ -4,6 +4,7 @@ Individual Class and Utility Functions for Genetic Programming using PyTorch.
 
 import torch
 from slim.algorithms.GSGP.representations.tree_utils import apply_tree
+from slim.utils.utils import  check_slim_version
 
 
 class Individual:
@@ -135,40 +136,42 @@ class Individual:
             )
 
 
-def apply_individual_fixed(tree, data, operator="sum", sig=False):
+    def predict(self, data, slim_version):
+        #todo document
+        operator, sig, trees = check_slim_version(slim_version=slim_version)
 
-    semantics = []
+        semantics = []
 
-    for t in tree.collection:
-        if isinstance(t.structure, tuple):
-            semantics.append(apply_tree(t, data))
-        else:
+        for t in self.collection:
+            if isinstance(t.structure, tuple):
+                semantics.append(apply_tree(t, data))
+            else:
 
-            if len(t.structure) == 3:  # one tree
-                if sig:
+                if len(t.structure) == 3:  # one tree
+                    if sig:
+                        t.structure[1].previous_training = t.train_semantics
+                        t.structure[1].train_semantics = torch.sigmoid(
+                            apply_tree(t.structure[1], data)
+                        )
+                    else:
+                        t.structure[1].previous_training = t.train_semantics
+                        t.structure[1].train_semantics = apply_tree(t.structure[1], data)
+
+                elif len(t.structure) == 4:  # two tree
                     t.structure[1].previous_training = t.train_semantics
                     t.structure[1].train_semantics = torch.sigmoid(
                         apply_tree(t.structure[1], data)
                     )
-                else:
-                    t.structure[1].previous_training = t.train_semantics
-                    t.structure[1].train_semantics = apply_tree(t.structure[1], data)
 
-            elif len(t.structure) == 4:  # two tree
-                t.structure[1].previous_training = t.train_semantics
-                t.structure[1].train_semantics = torch.sigmoid(
-                    apply_tree(t.structure[1], data)
-                )
+                    t.structure[2].previous_training = t.train_semantics
+                    t.structure[2].train_semantics = torch.sigmoid(
+                        apply_tree(t.structure[2], data)
+                    )
 
-                t.structure[2].previous_training = t.train_semantics
-                t.structure[2].train_semantics = torch.sigmoid(
-                    apply_tree(t.structure[2], data)
-                )
+                semantics.append(t.structure[0](*t.structure[1:], testing=False))
 
-            semantics.append(t.structure[0](*t.structure[1:], testing=False))
+        operator = torch.sum if operator == "sum" else torch.prod
 
-    operator = torch.sum if operator == "sum" else torch.prod
-
-    return torch.clamp(
-        operator(torch.stack(semantics), dim=0), -1000000000000.0, 1000000000000.0
-    )
+        return torch.clamp(
+            operator(torch.stack(semantics), dim=0), -1000000000000.0, 1000000000000.0
+        )

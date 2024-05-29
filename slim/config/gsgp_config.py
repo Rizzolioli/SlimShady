@@ -28,12 +28,12 @@ settings_dict = {"p_test": 0.2}
 
 # GSGP solve parameters
 gsgp_solve_parameters = {
-    "log": 0,
+    "log": 1,
     "verbose": 1,
     "test_elite": True,
     "run_info": None,
     "ffunction": rmse,
-    "reconstruct": False,
+    "reconstruct": True,
 }
 
 # GSGP parameters

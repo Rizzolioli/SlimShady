@@ -6,7 +6,6 @@ import torch
 from slim.algorithms.GP.representations.tree_utils import (create_full_random_tree,
                                                            create_grow_random_tree)
 from slim.algorithms.GSGP.representations.tree import Tree
-from datasets.data_loader import load_preloaded
 from sklearn.metrics import root_mean_squared_error
 
 
@@ -461,7 +460,7 @@ def gs_size(y_true, y_pred):
     return y_pred[1]
 
 
-def validate_inputs(X_train, y_train, X_test, y_test,n_runs, pop_size, n_iter, elitism, n_elites, init_depth, log_path):
+def validate_inputs(X_train, y_train, X_test, y_test, pop_size, n_iter, elitism, n_elites, init_depth, log_path):
     """
     Validates the inputs based on the specified conditions.
 
@@ -486,7 +485,6 @@ def validate_inputs(X_train, y_train, X_test, y_test,n_runs, pop_size, n_iter, e
         assert isinstance(X_test, torch.Tensor), "X_test must be a torch.Tensor"
     if y_test is not None:
         assert isinstance(y_test, torch.Tensor), "y_test must be a torch.Tensor"
-    assert isinstance(n_runs, int), "Input must be a int"
     assert isinstance(pop_size, int), "Input must be a int"
     assert isinstance(n_iter, int), "Input must be a int"
     assert isinstance(elitism, bool), "Input must be a bool"

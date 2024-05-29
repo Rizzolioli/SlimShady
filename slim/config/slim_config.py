@@ -36,7 +36,7 @@ slim_gsgp_solve_parameters = {
     "run_info": None,
     "ffunction": rmse,
     "max_depth": None,
-    "reconstruct": False
+    "reconstruct": True
 }
 
 # SLIM GSGP parameters

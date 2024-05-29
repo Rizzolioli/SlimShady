@@ -6,6 +6,7 @@ import torch
 from slim.algorithms.GP.representations.tree_utils import flatten, tree_depth
 from slim.algorithms.GSGP.representations.tree_utils import (
     apply_tree, nested_depth_calculator, nested_nodes_calculator)
+from slim.algorithms.GP.representations.tree import Tree as GP_Tree
 
 
 class Tree:
@@ -86,7 +87,7 @@ class Tree:
                     *self.structure[1:], testing=False
                 )
 
-    def evaluate(self, ffunction, y, testing=False):
+    def evaluate(self, ffunction, y, testing=False, X = None):
         """
         Evaluate the tree using a fitness function.
 
@@ -98,7 +99,23 @@ class Tree:
         Returns:
             None
         """
-        if testing:
-            self.test_fitness = ffunction(y, self.test_semantics)
+        if X is not None:
+            semantics = apply_tree(self, X) if isinstance(self.structure, tuple) \
+                else self.structure[0](*self.structure[1:], testing=False)
+            ffunction(y, semantics)
         else:
-            self.fitness = ffunction(y, self.train_semantics)
+            if testing:
+                self.test_fitness = ffunction(y, self.test_semantics)
+            else:
+                self.fitness = ffunction(y, self.train_semantics)
+
+    def predict(self, data):
+        #todo document
+        if isinstance(self.structure, tuple):
+            return apply_tree(self, data)
+        else:
+            ms = [ms for ms in self.structure[1:] if isinstance(ms, float)]
+            base_trees = list(filter(lambda x: isinstance(x, Tree), self.structure))
+            return self.structure[0](*[tree.predict(data) for tree in base_trees], *ms, testing = False, new_data = True)
+
+
