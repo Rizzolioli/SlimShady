@@ -2,6 +2,96 @@ import os
 
 import pandas as pd
 import torch
+
+
+
+def load_merged_data(dataset, X_y=False):
+
+    df = pd.read_csv(
+        os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "merged_data",
+            f"{dataset}_merged.txt",
+        ),
+        sep=" ",
+        header=None,
+    )
+
+    if X_y:
+        return (
+            torch.from_numpy(df.values[:, :-1]).float(),
+            torch.from_numpy(df.values[:, -1]).float(),
+        )
+    else:
+        return df
+
+
+def load_dummy_test(boo=True):
+    df = pd.read_csv(
+        os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "data",
+            "TEST_1_myToySumDataset.txt",
+        ),
+        sep=" ",
+        header=None,
+    )
+
+    return (
+        torch.from_numpy(df.values[:, :-2]).float(),
+        torch.from_numpy(df.values[:, -2]).float(),
+    )
+
+
+def load_dummy_train(boo=True):
+    df = pd.read_csv(
+        os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "data",
+            "TRAINING_1_myToySumDataset.txt",
+        ),
+        sep=" ",
+        header=None,
+    )
+
+    return (
+        torch.from_numpy(df.values[:, :-2]).float(),
+        torch.from_numpy(df.values[:, -2]).float(),
+    )
+
+
+def load_preloaded(dataset_name, seed = 1, training=True, X_y=False):
+
+    filename = (
+        f"TRAINING_{seed}_{dataset_name.upper()}.txt"
+        if training
+        else f"TEST_{seed}_{dataset_name.upper()}.txt"
+    )
+
+    # dropping the last column as it only contains NaNs due to spacing as
+    # separator
+    df = pd.read_csv(
+        os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "pre_loaded_data", filename
+        ),
+        sep=" ",
+        header=None,
+    ).iloc[:, :-1]
+
+    if X_y:
+        return (
+            torch.from_numpy(df.values[:, :-1]).float(),
+            torch.from_numpy(df.values[:, -1]).float(),
+        )
+    else:
+        return df
+
+
+"""
+
+Taken from GPOL.
+
+"""
 def load_airfoil(X_y=False):
     """Loads and returns the Airfoil Self-Noise data set (regression)
 
