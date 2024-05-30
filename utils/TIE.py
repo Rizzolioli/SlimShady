@@ -124,7 +124,7 @@ def calculate_tie(elite, neigh_size, ffunction, y_train, operator, find_elit_fun
         # returning the % of neighbours that are better than the current elite (i.e., the TIE value),
         # number of unique neighbors,
         # neighborhood size(without None and copies of the elite)
-        return len([neighbour for neighbour in neighbourhood if neighbour.fitness < elite.fitness]) / \
+        return len([fit for fit in unique_fitness if fit < elite.fitness]) / \
                neigh_size , \
                len(unique_fitness), \
                len(neighbourhood)
