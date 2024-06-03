@@ -18,9 +18,9 @@ UNIQUE_RUN_ID = uuid.uuid1()
 # todo: would not be better to first log the settings and then perform the algorithm?
 # todo: update how the name is saved and make it coherent with the paper
 def slim(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None, y_test: torch.Tensor = None,
-         dataset_name : str = None, slim_version: str = "SLIM+SIG2", pop_size: int = 100,
+         dataset_name: str = None, slim_version: str = "SLIM+SIG2", pop_size: int = 100,
          n_iter: int = 100, elitism: bool = True, n_elites: int = 1, init_depth: int = 6,
-         ms: Callable = generate_random_uniform(0,1), p_inflate: float = 0.5,
+         ms: Callable = generate_random_uniform(0, 1), p_inflate: float = 0.5,
          log_path: str = os.path.join(os.getcwd(), "log", "slim.csv"), seed: int = 1):
     """
     Main function to execute the SLIM GSGP algorithm on specified datasets
@@ -39,8 +39,6 @@ def slim(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = No
         Dataset name, for logging purposes
     slim_version : list
         The version of SLIM-GSGP that needs to be run
-    n_runs : int, optional
-        The number of runs to execute for each dataset and algorithm combination (default is 30).
     pop_size : int, optional
         The population size for the genetic programming algorithm (default is 100).
     n_iter : int, optional
@@ -54,7 +52,7 @@ def slim(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = No
     ms : Callable, optional
         A function that will generate the mutation step
     p_inflate : float, optional
-        Probability to apply inflate mutation
+        Probability to apply the inflate mutation
     log_path : str, optional
         The path where is created the log directory where results are saved.
     seed : int, optional
@@ -67,16 +65,14 @@ def slim(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = No
     """
     op, sig, trees = check_slim_version(slim_version=slim_version)
 
-    validate_inputs(X_train = X_train, y_train = y_train, X_test = X_test, y_test = y_test,
+    validate_inputs(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test,
                     pop_size=pop_size, n_iter=n_iter, elitism=elitism, n_elites=n_elites, init_depth=init_depth,
                     log_path=log_path)
 
     slim_gsgp_parameters["two_trees"] = trees
     slim_gsgp_parameters["operator"] = op
 
-
     TERMINALS = get_terminals(X_train)
-
 
     slim_gsgp_parameters["ms"] = ms
     slim_gsgp_parameters['p_inflate'] = p_inflate
@@ -145,11 +141,9 @@ if __name__ == "__main__":
 
     algorithm = "SLIM+SIG2"
 
-    final_tree = slim(X_train = X_train, y_train = y_train, X_test = X_val, y_test = y_val,
-         dataset_name='ppb', slim_version=algorithm, pop_size=100, n_iter=2)
+    final_tree = slim(X_train=X_train, y_train=y_train, X_test=X_val, y_test=y_val,
+                      dataset_name='ppb', slim_version=algorithm, pop_size=100, n_iter=2)
 
-    print(show_individual(final_tree, operator = 'sum'))
-    predictions = final_tree.predict(data = X_test, slim_version  = algorithm)
+    print(show_individual(final_tree, operator='sum'))
+    predictions = final_tree.predict(data=X_test, slim_version=algorithm)
     print(float(rmse(y_true=y_test, y_pred=predictions)))
-
-

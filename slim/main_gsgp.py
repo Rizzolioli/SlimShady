@@ -12,7 +12,7 @@ from slim.utils.utils import get_terminals, validate_inputs
 
 # todo: would not be better to first log the settings and then perform the algorithm?
 def gsgp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None, y_test: torch.Tensor = None,
-         dataset_name : str = None, pop_size: int = 100, n_iter: int = 100, p_xo: float = 0.0, elitism: bool = True,
+         dataset_name: str = None, pop_size: int = 100, n_iter: int = 100, p_xo: float = 0.0, elitism: bool = True,
          n_elites: int = 1, init_depth: int = 8, log_path: str = os.path.join(os.getcwd(), "log", "gsgp.csv"),
          seed: int = 1):
     """
@@ -40,8 +40,6 @@ def gsgp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = No
         Indicate the presence or absence of elitism.
     n_elites : int, optional
         The number of elites.
-    max_depth : int, optional
-        The maximum depth for the GP trees.
     init_depth : int, optional
         The depth value for the initial GP trees population.
     log_path : str, optional
@@ -56,7 +54,7 @@ def gsgp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = No
         Returns the best individual at the last generation.
     """
 
-    validate_inputs(X_train = X_train, y_train = y_train, X_test = X_test, y_test = y_test,
+    validate_inputs(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test,
                     pop_size=pop_size, n_iter=n_iter, elitism=elitism, n_elites=n_elites, init_depth=init_depth,
                     log_path=log_path)
     assert 0 <= p_xo <= 1, "p_xo must be a number between 0 and 1"
@@ -66,12 +64,10 @@ def gsgp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = No
 
     unique_run_id = uuid.uuid1()
 
-
     algo_name = "StandardGSGP"
     gsgp_solve_parameters["run_info"] = [algo_name, unique_run_id, dataset_name]
 
     TERMINALS = get_terminals(X_train)
-
 
     gsgp_pi_init["TERMINALS"] = TERMINALS
     gsgp_pi_init["init_pop_size"] = pop_size
@@ -121,10 +117,9 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X, y, p_test=0.4)
     X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, p_test=0.5)
 
-    final_tree = gsgp(X_train = X_train, y_train = y_train,
-         X_test = X_val, y_test = y_val,
-         dataset_name='ppb',pop_size=100, n_iter=10)
-
+    final_tree = gsgp(X_train=X_train, y_train=y_train,
+                      X_test=X_val, y_test=y_val,
+                      dataset_name='ppb', pop_size=100, n_iter=10)
 
     predictions = final_tree.predict(X_test)
     print(float(rmse(y_true=y_test, y_pred=predictions)))

@@ -15,7 +15,7 @@ from slim.utils.utils import get_terminals, validate_inputs
 
 # todo: would not be better to first log the settings and then perform the algorithm?
 def gp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None, y_test: torch.Tensor = None,
-       dataset_name : str = None, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8,
+       dataset_name: str = None, pop_size: int = 100, n_iter: int = 1000, p_xo: float = 0.8,
        elitism: bool = True, n_elites: int = 1, max_depth: int = 17, init_depth: int = 6,
        log_path: str = os.path.join(os.getcwd(), "log", "gp.csv"), seed: int = 42):
     """
@@ -58,7 +58,7 @@ def gp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None
         Returns the best individual at the last generation.
     """
 
-    validate_inputs(X_train = X_train, y_train = y_train, X_test = X_test, y_test = y_test,
+    validate_inputs(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test,
                     pop_size=pop_size, n_iter=n_iter, elitism=elitism, n_elites=n_elites, init_depth=init_depth,
                     log_path=log_path)
     assert 0 <= p_xo <= 1, "p_xo must be a number between 0 and 1"
@@ -66,7 +66,6 @@ def gp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None
 
     if not elitism:
         n_elites = 0
-
 
     unique_run_id = uuid.uuid1()
 
@@ -105,7 +104,7 @@ def gp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None
         X_test=X_test,
         y_train=y_train,
         y_test=y_test,
-        curr_dataset = dataset_name,
+        curr_dataset=dataset_name,
         **gp_solve_parameters
     )
 
@@ -130,12 +129,10 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X, y, p_test=0.4)
     X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, p_test=0.5)
 
-    final_tree = gp(X_train = X_train, y_train = y_train,
-         X_test = X_val, y_test = y_val,
-         dataset_name='ppb', pop_size=100, n_iter=10)
+    final_tree = gp(X_train=X_train, y_train=y_train,
+                    X_test=X_val, y_test=y_val,
+                    dataset_name='ppb', pop_size=100, n_iter=10)
 
     final_tree.print_tree_representation()
     predictions = final_tree.predict(X_test)
     print(float(rmse(y_true=y_test, y_pred=predictions)))
-
-
