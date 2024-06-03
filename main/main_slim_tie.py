@@ -105,6 +105,7 @@ all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters"
               "GP": ["gp_solve_parameters", "GP_parameters", "gp_pi_init", "settings_dict"]}
 
 slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
+                        "ld50": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
                        "concrete_strength": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
                        "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}}
 
