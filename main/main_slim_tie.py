@@ -143,15 +143,21 @@ for only_inflate in [True, False]:
                 print(ttress)
                 print(op)
                 # running each dataset + algo configuration n_runs times
-                for seed in range(n_runs):
+
+                # getting the name of the dataset:
+                curr_dataset = loader.__name__
+                
+                if curr_dataset == 'ld50':
+                    ranger = range(30)
+                else:
+                    ranger = range(10, 30)
+
+                for seed in ranger:
                     start = time.time()
 
 
                     # Loads the data via the dataset loader
                     X, y = loader(X_y=True)
-
-                    # getting the name of the dataset:
-                    curr_dataset = loader.__name__
 
                     # getting the name of the dataset
                     dataset = loader.__name__.split("load_")[-1]
