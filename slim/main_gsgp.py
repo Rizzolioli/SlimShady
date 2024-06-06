@@ -8,12 +8,14 @@ from slim.algorithms.GSGP.gsgp import GSGP
 from slim.config.gsgp_config import *
 from slim.utils.logger import log_settings
 from slim.utils.utils import get_terminals, validate_inputs
+from typing import Callable
 
 
 # todo: would not be better to first log the settings and then perform the algorithm?
 def gsgp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None, y_test: torch.Tensor = None,
          dataset_name: str = None, pop_size: int = 100, n_iter: int = 100, p_xo: float = 0.0, elitism: bool = True,
-         n_elites: int = 1, init_depth: int = 8, log_path: str = os.path.join(os.getcwd(), "log", "gsgp.csv"),
+         n_elites: int = 1, init_depth: int = 8, ms: Callable = generate_random_uniform(0, 1),
+         log_path: str = os.path.join(os.getcwd(), "log", "gsgp.csv"),
          seed: int = 1):
     """
     Main function to execute the Standard GSGP algorithm on specified datasets
@@ -42,6 +44,8 @@ def gsgp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = No
         The number of elites.
     init_depth : int, optional
         The depth value for the initial GP trees population.
+    ms : Callable, optional
+        A function that will generate the mutation step
     log_path : str, optional
         The path where is created the log directory where results are saved.
     seed : int, optional
@@ -76,6 +80,7 @@ def gsgp(X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = No
     gsgp_parameters["p_xo"] = p_xo
     gsgp_parameters["p_m"] = 1 - gsgp_parameters["p_xo"]
     gsgp_parameters["pop_size"] = pop_size
+    gsgp_parameters["ms"] = ms
 
     gsgp_solve_parameters["n_iter"] = n_iter
     gsgp_solve_parameters["log_path"] = log_path

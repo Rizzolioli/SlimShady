@@ -41,7 +41,6 @@ gsgp_parameters = {
     "initializer": rhh,
     "selector": tournament_selection_min(2),
     "crossover": geometric_crossover,
-    "ms": generate_random_uniform(0, 1),
     "mutator": standard_geometric_mutation,
     "settings_dict": settings_dict,
     "find_elit_func": get_best_min
