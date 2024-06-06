@@ -55,6 +55,7 @@ from slim.main_gsgp import gsgp  # import the slim library
 from datasets.data_loader import load_ppb  # import the loader for the dataset PPB
 from slim.evaluators.fitness_functions import rmse  # import the rmse fitness metric
 from slim.utils.utils import train_test_split  # import the train-test split function
+from slim.utils.utils import generate_random_uniform  # import the mutation step function
 
 # Load the PPB dataset
 X, y = load_ppb(X_y=True)
@@ -68,10 +69,8 @@ X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, p_test=0.5)
 # Apply the Standard GSGP algorithm
 final_tree = gsgp(X_train=X_train, y_train=y_train,
                   X_test=X_val, y_test=y_val,
-                  dataset_name='ppb', pop_size=100, n_iter=100)
-
-# Show the best individual structure at the last generation
-final_tree.print_tree_representation()
+                  dataset_name='ppb', pop_size=100, n_iter=100,
+                  ms = generate_random_uniform(0,1))
 
 # Get the prediction of the best individual on the test set
 predictions = final_tree.predict(X_test)
@@ -79,10 +78,6 @@ predictions = final_tree.predict(X_test)
 # Compute and print the RMSE on the test set
 print(float(rmse(y_true=y_test, y_pred=predictions)))
 ```
-
-Where the arguments for the **gsgp** function are the same as the ones for the **gp** function, except for the absence of the parameter
-`max_depth` and for the default value of the parameter `log_path` which is 
-``` os.path.join(os.getcwd(), "log", "gsgp.csv")```
 
 ### Running SLIM 
 To use the SLIM GSGP algorithm, you can use the following example:
@@ -150,6 +145,7 @@ print(float(rmse(y_true=y_test, y_pred=predictions)))
 
 ### Specific for *gsgp*
 * `p_xo` : A float specifying the crossover probability *(default: 0.0)*.
+* * `ms`: A callable function to generate the mutation step *(default: generate_random_uniform(0, 1))*.
 
 ### Specific for *slim*
 * `slim_version`: A string specifying the version of SLIM-GSGP to run *(default: "SLIM+SIG2")*.
