@@ -110,7 +110,38 @@ class Tree:
                 self.fitness = ffunction(y, self.train_semantics)
 
     def predict(self, data):
-        #todo document
+        """
+            Predict the output for the given input data using the model's structure.
+
+            Parameters
+            ----------
+            data : array-like or DataFrame
+                The input data to predict. It should be in the form of an array-like structure
+                (e.g., list, numpy array) or a pandas DataFrame, where each row represents a
+                different observation and each column represents a feature.
+
+            Returns
+            -------
+            array-like
+                The predicted output for the input data. The exact form and type of the output
+                depend on whether the model's structure is a tuple or a list, as well as the
+                specific implementation details of the `apply_tree` function and the prediction
+                methods of the tree objects within the structure.
+
+            Notes
+            -----
+            The prediction process depends on the structure of the model:
+
+            - If `self.structure` is a tuple, the `apply_tree` function is used for prediction.
+            - If `self.structure` is a list, the first element is assumed to be a function that
+              combines the predictions of multiple base trees (contained in the list) along with
+              additional parameters (floats) extracted from the list. The base trees are instances
+              of the `Tree` class, and their individual predictions are passed to the combining
+              function along with any extracted parameters.
+
+            The combining function is called with the predictions of the base trees and the
+            extracted parameters, along with `testing` set to False and `new_data` set to True.
+            """
         if isinstance(self.structure, tuple):
             return apply_tree(self, data)
         else:

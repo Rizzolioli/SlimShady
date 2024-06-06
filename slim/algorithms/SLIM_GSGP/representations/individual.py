@@ -137,7 +137,48 @@ class Individual:
 
 
     def predict(self, data, slim_version):
-        #todo document
+        """
+            Predict the output for the given input data using the model's collection of trees and specified slim version.
+
+            Parameters
+            ----------
+            data : array-like or DataFrame
+                The input data to predict. It should be in the form of an array-like structure
+                (e.g., list, numpy array) or a pandas DataFrame, where each row represents a
+                different observation and each column represents a feature.
+
+            slim_version : bool
+                A flag to indicate whether to use a slim version of the model for prediction.
+                The exact meaning of slim version is determined by the `check_slim_version` function.
+
+            Returns
+            -------
+            Tensor
+                The predicted output for the input data. The output is a tensor whose values
+                are clamped between -1e12 and 1e12.
+
+            Notes
+            -----
+            The prediction process involves several steps:
+
+            1. The `check_slim_version` function is called with the `slim_version` flag to determine
+               the appropriate operator (`sum` or `prod`), whether to apply a sigmoid function (`sig`),
+               and the specific trees to use for prediction.
+
+            2. For each tree in the `self.collection`:
+               - If the tree structure is a tuple, predictions are made using the `apply_tree` function.
+               - If the tree structure is a list:
+                 - For single-tree structures (length 3), predictions are made directly or with a sigmoid
+                   function applied, and training semantics are updated.
+                 - For two-tree structures (length 4), predictions for both trees are made with a sigmoid
+                   function applied, and training semantics are updated for both trees.
+
+            3. The semantics (predicted outputs) of all trees are combined using the specified operator
+               (`sum` or `prod`), and the final output is clamped to be within the range of -1e12 to 1e12.
+
+            This function relies on PyTorch for tensor operations, including `torch.sigmoid`,
+            `torch.sum`, `torch.prod`, `torch.stack`, and `torch.clamp`.
+            """
         operator, sig, trees = check_slim_version(slim_version=slim_version)
 
         semantics = []

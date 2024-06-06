@@ -139,7 +139,30 @@ class Tree:
                 self.fitness = ffunction(y, preds)
 
     def predict(self, X):
-        #todo document
+        """
+            Predict the output for the given input data.
+
+            Parameters
+            ----------
+            X : array-like or DataFrame
+                The input data to predict. It should be in the form of an array-like structure
+                (e.g., list, numpy array) or a pandas DataFrame, where each row represents a
+                different observation and each column represents a feature.
+
+            Returns
+            -------
+            array-like
+                The predicted output for the input data. The exact form and type of the output
+                depend on the implementation of the `apply_tree` method, but typically it would
+                be an array or list of predicted values corresponding to each observation in X.
+
+            Notes
+            -----
+            This function delegates the actual prediction task to the `apply_tree` method,
+            which is assumed to be another method in the same class. The `apply_tree` method
+            should be defined to handle the specifics of how predictions are made based on
+            the tree structure used in this model.
+            """
         return self.apply_tree(X)
 
     def print_tree_representation(self, indent=""):
