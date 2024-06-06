@@ -88,27 +88,26 @@ class Tree:
         float
             Output of the evaluated tree.
         """
-        return _execute_treee(self.repr_, X)
-        # if isinstance(self.repr_, tuple):  # If it's a function node
-        #     function_name = self.repr_[0]
-        #     if Tree.FUNCTIONS[function_name]["arity"] == 2:
-        #         left_subtree, right_subtree = self.repr_[1], self.repr_[2]
-        #         left_result = Tree(left_subtree).apply_tree(inputs)
-        #         right_result = Tree(right_subtree).apply_tree(inputs)
-        #         output = Tree.FUNCTIONS[function_name]["function"](
-        #             left_result, right_result
-        #         )
-        #     else:
-        #         left_subtree = self.repr_[1]
-        #         left_result = Tree(left_subtree).apply_tree(inputs)
-        #         output = Tree.FUNCTIONS[function_name]["function"](left_result)
+        if isinstance(self.repr_, tuple):  # If it's a function node
+            function_name = self.repr_[0]
+            if Tree.FUNCTIONS[function_name]["arity"] == 2:
+                left_subtree, right_subtree = self.repr_[1], self.repr_[2]
+                left_result = Tree(left_subtree).apply_tree(inputs)
+                right_result = Tree(right_subtree).apply_tree(inputs)
+                output = Tree.FUNCTIONS[function_name]["function"](
+                    left_result, right_result
+                )
+            else:
+                left_subtree = self.repr_[1]
+                left_result = Tree(left_subtree).apply_tree(inputs)
+                output = Tree.FUNCTIONS[function_name]["function"](left_result)
 
-        #     return bound_value(output, -1e12, 1e12)
-        # else:  # If it's a terminal node
-        #     if self.repr_ in self.TERMINALS:
-        #         return inputs[:, self.TERMINALS[self.repr_]]
-        #     elif self.repr_ in self.CONSTANTS:
-        #         return self.CONSTANTS
+            return bound_value(output, -1e12, 1e12)
+        else:  # If it's a terminal node
+            if self.repr_ in self.TERMINALS:
+                return inputs[:, self.TERMINALS[self.repr_]]
+            elif self.repr_ in self.CONSTANTS:
+                return self.CONSTANTS
 
     def evaluate(self, ffunction, X, y, testing=False, new_data = False):
         """

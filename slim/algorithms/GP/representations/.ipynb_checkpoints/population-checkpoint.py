@@ -52,9 +52,6 @@ class Population:
         # print(self.fit)
         et_loop = time.time() - start_time
         # print('\nLoop execution_time:\t\t\t\t{}'.format(et_loop))
-
-
-        
         # -------------------------------
         
         # todo
@@ -65,10 +62,8 @@ class Population:
         # Evaluates individuals semantics
         y_pred = Parallel(n_jobs=n_jobs)(
             delayed(_execute_tree)(
-                
                 individual.repr_, X, 
                 individual.FUNCTIONS, individual.TERMINALS, individual.CONSTANTS
-                
             ) for individual in self.population
         )
         # print('y pred {} (len {})'.format(y_pred[:5], len(y_pred)))
@@ -76,7 +71,6 @@ class Population:
 
         # Evaluate fitnesses
         self.fit = [ffunction(y, y_pred_ind) for y_pred_ind in y_pred]
-        
         # fits = Parallel(n_jobs=n_jobs)(
         #     delayed(_evaluate_pop)(
         #         ffunction, y, y_pred_ind

@@ -15,3 +15,4 @@ slim/main_gp.py
 slim/utils/results_analyser.ipynb
 *.txt
 *.zip
+.DS_Store
