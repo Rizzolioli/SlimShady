@@ -39,9 +39,9 @@ def create_random_matrix(n, m, ranges):
     return matrix
 
 
-def create_dataset(rows, columns, scale_inputs, scale_output, function):
+def create_dataset(rows, columns, scale_inputs, scale_output, function, seed):
 
-    #TODO fix seed
+    np.random.seed(seed)
 
     functions = {'rastrigin' : rastrigin,
                  'sphere' : sphere,
@@ -58,15 +58,5 @@ def create_dataset(rows, columns, scale_inputs, scale_output, function):
     y = scaler.fit_transform(functions[function](X).reshape(-1, 1))
 
     return X, y.flatten()
-
-
-
-
-
-
-
-
-data = create_random_matrix(100, 10, [[0,1] for _ in range(10)])
-np.concatenate((data, rastrigin(data).reshape(-1,1)), axis = 1).shape
 
 
