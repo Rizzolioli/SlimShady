@@ -1,12 +1,11 @@
 from slim.algorithms.GP.operators.initializers import rhh
 from slim.algorithms.GSGP.operators.crossover_operators import geometric_crossover
-from slim.algorithms.SLIM_GSGP.operators.mutators import (deflate_mutation, inflate_mutation)
+from slim.algorithms.SLIM_GSGP.operators.mutators import (deflate_mutation)
 from slim.algorithms.SLIM_GSGP.operators.selection_algorithms import \
     tournament_selection_min_slim
 from datasets.data_loader import *
 from slim.evaluators.fitness_functions import rmse
-from slim.utils.utils import (generate_random_uniform, get_best_min,
-                              protected_div)
+from slim.utils.utils import (get_best_min, protected_div)
 
 # Define functions and constants
 # todo use only one dictionary for the parameters of each algorithm
