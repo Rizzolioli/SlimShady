@@ -7,7 +7,6 @@ import random
 import numpy as np
 import torch
 
-# from slim.config.gp_config import FUNCTIONS, TERMINALS, CONSTANTS
 
 def bound_value(vector, min_val, max_val):
     """
@@ -323,9 +322,33 @@ def tree_depth(FUNCTIONS):
 
 
 def _execute_tree(repr_, X, FUNCTIONS, TERMINALS, CONSTANTS):
-    #
-    # todo: documentation
-    #
+    """
+    Evaluates a tree genotype on input vectors.
+
+    TODO
+    ----
+    Check how to have FUNCTIONS, TERMINALS, CONSTANTS imported here instead of
+    being passed as argument at each _execute_tree(...) call.
+
+    Parameters
+    ----------
+    repr_ : object
+        Representation of the tree structure.
+        
+    FUNCTIONS : dict
+        Dictionary of allowed functions in the tree.
+
+    TERMINALS : dict
+        Dictionary of terminal symbols allowed in the tree.
+
+    CONSTANTS : dict
+        Dictionary of constant values allowed in the tree.
+
+    Returns
+    -------
+    float
+        Output of the evaluated tree.
+    """
     if isinstance(repr_, tuple):  # If it's a function node
         function_name = repr_[0]
         if FUNCTIONS[function_name]["arity"] == 2:
@@ -347,25 +370,4 @@ def _execute_tree(repr_, X, FUNCTIONS, TERMINALS, CONSTANTS):
             return X[:, TERMINALS[repr_]]
         elif repr_ in CONSTANTS:
             return CONSTANTS
-
-
-
-
-def _evaluate_pop(ffunction, y_target, y_pred):
-    #
-    # todo: documentation
-    # todo: move to population utils
-    #
-    return ffunction(y_target, y_pred)
-
-
-def _evaluate_pop_2(ffunction, y_target, repr_, X, FUNCTIONS, TERMINALS, CONSTANTS):
-    #
-    # todo: documentation
-    # todo: move to population utils
-    #
-    return ffunction(y_target, _execute_tree(repr_, X, FUNCTIONS, TERMINALS, CONSTANTS))
-    
-    
-            
 

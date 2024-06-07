@@ -520,3 +520,4 @@ def check_slim_version(slim_version):
         return "mul", True, False
     else:
         raise Exception('Invalid SLIM configuration')
+
