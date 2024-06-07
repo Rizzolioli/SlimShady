@@ -1,4 +1,3 @@
-import random
 import time
 import uuid
 
@@ -21,7 +20,8 @@ from utils.utils import show_individual
 
 algos = ["SlimGSGP"]
 
-data_loaders = ["resid_build_sale_price", "toxicity", "concrete", "instanbul", "ppb", "energy"]
+data_loaders = [load_airfoil, load_boston, load_breast_cancer, load_concrete_slump, load_diabetes,
+                load_efficiency_heating, load_efficiency_cooling, load_forest_fires, load_parkinson_updrs]
 
 ########################################################################################################################
 
