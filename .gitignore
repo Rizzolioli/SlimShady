@@ -17,3 +17,4 @@ slim/utils/results_analyser.ipynb
 *.zip
 .DS_Store
 [Dr]aft*
+.ipynb*
