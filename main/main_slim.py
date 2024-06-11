@@ -42,12 +42,16 @@ for loader in data_loaders:
     for algo_name in algos:
         for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
             if op == "sum":
-                list_crossover = ["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7"]
+                # list_crossover = ["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7"]
+                list_crossover = [None]
             else:
                 list_crossover = ["sc", "sdc-0.3", "sdc-0.7"]
+                list_crossover = [None]
             for cross in list_crossover:
                 if cross == "c":
                     list_prob = [0.2]
+                elif cross is None:
+                    list_prob = [0]
                 else:
                     list_prob = [0.2, 0.5, 0.8]
                 for cross_prob in list_prob:
@@ -137,9 +141,6 @@ for loader in data_loaders:
 
                         elif cross == "sdc-0.7":
                             slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(perc_off_blocks=0.7)
-
-                        else:
-                            break
 
                         # adding the dataset name and algorithm name to the run info for the logger
                         slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]
