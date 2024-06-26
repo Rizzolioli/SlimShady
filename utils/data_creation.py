@@ -50,7 +50,7 @@ def create_dataset(rows, columns, scale_inputs, scale_output, function, seed):
     if function not in functions.keys():
         raise ValueError('Invalid function')
 
-    X = create_random_matrix(rows, columns, [scale_inputs for _ in range(10)])
+    X = create_random_matrix(rows, columns, [scale_inputs for _ in range(columns)])
     if function == 'rosenbrock':
         X = X.T
 
