@@ -50,14 +50,15 @@ def create_dataset(rows, columns, scale_inputs, scale_output, function, seed):
     if function not in functions.keys():
         raise ValueError('Invalid function')
 
-    X = create_random_matrix(rows, columns, [scale_inputs for _ in range(columns)])
-    scaler = MinMaxScaler(scale_output)
+    X = create_random_matrix(rows, columns, [(0,10) for _ in range(columns)])
+    scaler_input = MinMaxScaler(scale_inputs)
+    scaler_output = MinMaxScaler(scale_output)
 
     if function == 'rosenbrock':
-        y = scaler.fit_transform(functions[function](X.T).reshape(-1, 1))
+        y = scaler_output.fit_transform(functions[function](X.T).reshape(-1, 1))
     else:
-        y = scaler.fit_transform(functions[function](X).reshape(-1, 1))
+        y = scaler_output.fit_transform(functions[function](X).reshape(-1, 1))
 
-    return X, y.flatten()
+    return scaler_input.fit_transform(X), y.flatten()
 
 
