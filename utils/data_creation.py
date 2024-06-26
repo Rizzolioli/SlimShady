@@ -51,11 +51,12 @@ def create_dataset(rows, columns, scale_inputs, scale_output, function, seed):
         raise ValueError('Invalid function')
 
     X = create_random_matrix(rows, columns, [scale_inputs for _ in range(columns)])
-    if function == 'rosenbrock':
-        X = X.T
-
     scaler = MinMaxScaler(scale_output)
-    y = scaler.fit_transform(functions[function](X).reshape(-1, 1))
+
+    if function == 'rosenbrock':
+        y = scaler.fit_transform(functions[function](X.T).reshape(-1, 1))
+    else:
+        y = scaler.fit_transform(functions[function](X).reshape(-1, 1))
 
     return X, y.flatten()
 
