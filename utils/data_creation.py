@@ -118,7 +118,7 @@ def create_dataset(rows, columns, scale_inputs, scale_output, function, seed):
     if function not in functions.keys():
         raise ValueError('Invalid function')
 
-    if function == 'rastrigin':
+    if function == 'rastrigin' or function == 'alpine2':
         X = create_random_matrix(rows, columns, [(0, 10) for _ in range(columns)])
     else:
         X = create_random_matrix(rows, columns, [(-10,10) for _ in range(columns)])

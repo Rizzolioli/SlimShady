@@ -8,8 +8,9 @@ import time
 
 
 
-for data_function in ['rastrigin', 'sphere', 'rosenbrock', 'ackley',
-                 'alpine1',
+for data_function in [
+    # 'rastrigin', 'sphere', 'rosenbrock', 'ackley',
+    #              'alpine1',
                  'alpine2' ,
                  'michalewicz' ]:
 
