@@ -186,6 +186,8 @@ class SLIM_GSGP:
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
 
+            add_info.append(False)
+
             logger(log_path, 0, self.elite.fitness, end - start, float(population.nodes_count),
                    additional_infos=add_info, run_info=run_info, seed=self.seed)
 
@@ -212,9 +214,15 @@ class SLIM_GSGP:
 
             offs_pop, start = [], time.time()
 
+            elite_child_index = 0
+            elite_child_indexes = []
             if elitism:
 
                 offs_pop.extend(self.elites)
+                elite_child_indexes.append(elite_child_index)
+                elite_child_index += 1
+
+
 
             while len(offs_pop) < self.pop_size:
 
@@ -238,6 +246,11 @@ class SLIM_GSGP:
                     if random.random() < self.p_deflate:
 
                         p1 = self.selector(population, deflate=False)
+
+                        if p1 == self.elite:
+                            elite_child_indexes.append(elite_child_index)
+
+                        elite_child_index += 1
 
                         # if the chosen individual is only of size one, it cannot be deflated:
                         if p1.size == 1:
@@ -313,9 +326,6 @@ class SLIM_GSGP:
                             else:
                                 off1 = self.deflate_mutator(p1, reconstruct = reconstruct)
 
-
-
-
                     offs_pop.append(off1)
 
 
@@ -336,6 +346,11 @@ class SLIM_GSGP:
 
             # obtaining the initial population elites
             self.elites, self.elite = self.find_elit_func(population, n_elites)
+
+            if np.argmin(self.population.fit) in elite_child_indexes:
+                new_elite_child_old_elite = True
+            else:
+                new_elite_child_old_elite = False
 
             if test_elite:
                 self.elite.calculate_semantics(X_test, testing=True)
@@ -431,6 +446,8 @@ class SLIM_GSGP:
                 else:
 
                     add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
+
+                add_info.append(new_elite_child_old_elite)
 
                 # logging the desired results
                 logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
