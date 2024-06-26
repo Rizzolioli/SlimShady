@@ -8,7 +8,10 @@ import time
 
 
 
-for data_function in ['rastrigin', 'sphere', 'rosenbrock']:
+for data_function in ['rastrigin', 'sphere', 'rosenbrock', 'ackley',
+                 'alpine1',
+                 'alpine2' ,
+                 'michalewicz' ]:
 
     for (input_scale, output_scale) in [((0,1), (0,1)),
                                         ((0,1), (0,10)), ((0,1), (0,100)), ((0,1), (0,1000)),
@@ -47,6 +50,8 @@ for data_function in ['rastrigin', 'sphere', 'rosenbrock']:
 
         plt.title(f'{data_function}  INP:{input_scale}  OUT:{output_scale}')
 
+
+        plt.savefig(f'fitness_landscapes/{data_function}_INP{input_scale[1]}_OUT{output_scale[1]}.png')
         plt.show(block = False)
-        time.sleep(3)
+        # time.sleep(3)
         plt.close()
