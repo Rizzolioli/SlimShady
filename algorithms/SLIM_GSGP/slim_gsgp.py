@@ -55,7 +55,6 @@ class SLIM_GSGP:
               pause_deflate = None #only for CHULL study
               ):
 
-        # TO REMOVE:
 
         # setting the seeds
         torch.manual_seed(self.seed)
@@ -139,6 +138,7 @@ class SLIM_GSGP:
                 chull_distance = distance_from_chull(errors)
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, chull_distance]
+                add_info.append(False)
 
 
 
@@ -182,11 +182,12 @@ class SLIM_GSGP:
                             tie_inflate, diff_sn_inflate, size_sn_inflate,
                             tie_deflate, diff_sn_deflate, size_sn_deflate,
                             tie_mb_deflate, diff_sn_mb_deflate, size_sn_mb_deflate]
+
             else:
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
 
-            add_info.append(False)
+
 
             logger(log_path, 0, self.elite.fitness, end - start, float(population.nodes_count),
                    additional_infos=add_info, run_info=run_info, seed=self.seed)
@@ -214,13 +215,15 @@ class SLIM_GSGP:
 
             offs_pop, start = [], time.time()
 
-            elite_child_index = 0
-            elite_child_indexes = []
+            if log == 5:
+                elite_child_index = 0
+                elite_child_indexes = []
             if elitism:
 
                 offs_pop.extend(self.elites)
-                elite_child_indexes.append(elite_child_index)
-                elite_child_index += 1
+                if log == 5:
+                    elite_child_indexes.append(elite_child_index)
+                    elite_child_index += 1
 
 
 
@@ -247,10 +250,11 @@ class SLIM_GSGP:
 
                         p1 = self.selector(population, deflate=False)
 
-                        if p1 == self.elite:
-                            elite_child_indexes.append(elite_child_index)
+                        if log == 5:
+                            if p1 == self.elite:
+                                elite_child_indexes.append(elite_child_index)
 
-                        elite_child_index += 1
+                            elite_child_index += 1
 
                         # if the chosen individual is only of size one, it cannot be deflated:
                         if p1.size == 1:
@@ -347,10 +351,11 @@ class SLIM_GSGP:
             # obtaining the initial population elites
             self.elites, self.elite = self.find_elit_func(population, n_elites)
 
-            if np.argmin(self.population.fit) in elite_child_indexes:
-                new_elite_child_old_elite = True
-            else:
-                new_elite_child_old_elite = False
+            if log == 5:
+                if np.argmin(self.population.fit) in elite_child_indexes:
+                    new_elite_child_old_elite = True
+                else:
+                    new_elite_child_old_elite = False
 
             if test_elite:
                 self.elite.calculate_semantics(X_test, testing=True)
@@ -401,6 +406,7 @@ class SLIM_GSGP:
                     chull_distance = distance_from_chull(errors)
 
                     add_info = [self.elite.test_fitness, self.elite.nodes_count, chull_distance]
+                    add_info.append(new_elite_child_old_elite)
 
                 elif log == 6:
 
@@ -447,7 +453,6 @@ class SLIM_GSGP:
 
                     add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
 
-                add_info.append(new_elite_child_old_elite)
 
                 # logging the desired results
                 logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
