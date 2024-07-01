@@ -123,7 +123,7 @@ class SSHC():
             if self.log != 0:
                 add_info = [self.individual.test_fitness, self.individual.nodes_count, self.log]
 
-                logger(self.log_path, 0, self.individual.fitness, end - start, neighboors.nodes_count,
+                logger(self.log_path, i, self.individual.fitness, end - start, neighboors.nodes_count,
                        additional_infos=add_info, run_info=self.run_info, seed=self.seed)
 
             if early_stopping is not None and counter >= early_stopping:

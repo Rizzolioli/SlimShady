@@ -58,10 +58,10 @@ CONSTANTS = {
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 0,
+                              "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", "chull_sshc.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", "sshc.csv"),
                               "run_info": None,
                               "ffunction": rmse,
                               "max_depth": None,
@@ -219,7 +219,7 @@ for loader in data_loaders:
 
                     local_search.solve(neighborhood_size=slim_GSGP_parameters['pop_size'],
                                        generations=total_generations - pause_deflate,
-                                       start_gen=pause_deflate,
+                                       start_gen=pause_deflate+1,
                                        early_stopping=None)
 
                     print(time.time() - start)
