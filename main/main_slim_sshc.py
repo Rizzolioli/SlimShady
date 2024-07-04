@@ -9,7 +9,7 @@ from algorithms.SLIM_GSGP.operators.mutators import *
 from utils.utils import generate_random_uniform
 from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
 import os
-from utils.utils import  get_best_min
+from utils.utils import get_best_min
 from evaluators.fitness_functions import rmse
 from algorithms.GP.operators.initializers import rhh
 from datasets.data_loader import *
@@ -50,11 +50,6 @@ FUNCTIONS = {
 }
 
 CONSTANTS = {
-    'constant_2': lambda x: torch.tensor(2).float(),
-    'constant_3': lambda x: torch.tensor(3).float(),
-    'constant_4': lambda x: torch.tensor(4).float(),
-    'constant_5': lambda x: torch.tensor(5).float(),
-    'constant__1': lambda x: torch.tensor(-1).float()
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,

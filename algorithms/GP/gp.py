@@ -108,7 +108,7 @@ class GP:
         if verbose != 0:
           # displaying the results on console
           verbose_reporter(curr_dataset.split("load_")[-1], 0, self.elite.fitness, self.elite.test_fitness,
-                           end-start, self.elite.node_count)
+                           end-start, self.elite.node_count, first_call=True)
 
         ################################################################################################################
 

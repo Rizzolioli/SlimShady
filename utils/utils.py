@@ -123,66 +123,69 @@ def tensor_dimensioned_sum(dim):
     return tensor_sum
 
 
-def verbose_reporter(dataset, generation, pop_val_fitness, pop_test_fitness, timing, nodes):
+def verbose_reporter(first_col, second_col, third_col, fourth_col, fifth_col, sixth_col,
+                     first_col_name = 'Dataset', second_col_name = 'Generation', third_col_name = 'Train Fitness',
+                     fourth_col_name = 'Test Fitness', fifth_col_name = 'Timing', sixth_col_name = 'Nodes',
+                     first_call = False):
     """
-        Prints a formatted report of generation, fitness values, timing, and node count.
+        Prints a formatted report of second_col, fitness values, fifth_col, and node count.
 
         Parameters
         ----------
-        generation : int
-            Current generation number.
-        pop_val_fitness : float
+        second_col : int
+            Current second_col number.
+        third_col : float
             Population's validation fitness value.
-        pop_test_fitness : float
+        fourth_col : float
             Population's test fitness value.
-        timing : float
+        fifth_col : float
             Time taken for the process.
-        nodes : int
-            Count of nodes in the population.
+        sixth_col : int
+            Count of sixth_col in the population.
 
         Returns
         -------
         None
             Outputs a formatted report to the console.
     """
-    digits_dataset = len(str(dataset))
-    digits_generation = len(str(generation))
-    digits_val_fit = len(str(float(pop_val_fitness)))
-    if pop_test_fitness is not None:
-        digits_test_fit = len(str(float(pop_test_fitness)))
-        test_text_init = "|" + " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
-        test_text = " " * 3 + str(float(pop_test_fitness)) + " " * (23 - digits_test_fit) + "|"
+    digits_first_col = len(str(first_col))
+    digits_second_col = len(str(second_col))
+    digits_val_fit = len(str(float(third_col))) if not isinstance(third_col, str) else len(third_col)
+    if fourth_col is not None:
+        digits_test_fit = len(str(float(fourth_col)))
+        test_text_init = "|" + " " * 3 + str(float(fourth_col)) + " " * (23 - digits_test_fit) + "|"
+        test_text = " " * 3 + str(float(fourth_col)) + " " * (23 - digits_test_fit) + "|"
     else:
         digits_test_fit = 4
         test_text_init = "|" + " " * 3 + "None" + " " * (23 - digits_test_fit) + "|"
         test_text = " " * 3 + "None" + " " * (23 - digits_test_fit) + "|"
-    digits_timing = len(str(timing))
-    digits_nodes = len(str(nodes))
+    digits_fifth_col = len(str(fifth_col))
+    digits_sixth_col = len(str(sixth_col))
 
-    if generation == 0:
+    if first_call:
         print(
             "                                                         Verbose Reporter                                              ")
         print(
             "-----------------------------------------------------------------------------------------------------------------------------------------")
         print(
-            "|         Dataset         |  Generation  |     Train Fitness     |       Test Fitness       |        Timing          |      Nodes       |")
+            f"|         {first_col_name}         |  {second_col_name}  |     {third_col_name}     |       {fourth_col_name}       |        {fifth_col_name}          |      {sixth_col_name}       |")
         print(
             "-----------------------------------------------------------------------------------------------------------------------------------------")
-        print("|" + " " * 5 + str(dataset) + " " * (20 - digits_dataset) + "|" +
-              " " * 7 + str(generation) + " " * (7 - digits_generation) + "|"
-              + " " * 3 + str(float(pop_val_fitness))
+        print("|" + " " * 5 + str(first_col) + " " * (20 - digits_first_col) + "|" +
+              " " * 7 + str(second_col) + " " * (7 - digits_second_col) + "|"
+              + " " * 3 + (str(float(third_col)) if not isinstance(third_col, str) else third_col)
               + " " * (20 - digits_val_fit) +
               test_text_init +
-              " " * 3 + str(timing) + " " * (21 - digits_timing) + "|" +
-              " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
+              " " * 3 + str(fifth_col) + " " * (21 - digits_fifth_col) + "|" +
+              " " * 6 + str(sixth_col) + " " * (12 - digits_sixth_col) + "|")
     else:
-        print("|" + " " * 5 + str(dataset) + " " * (20 - digits_dataset) + "|" +
-              " " * 7 + str(generation) + " " * (7 - digits_generation) + "|"
-              + " " * 3 + str(float(pop_val_fitness))
+        print("|" + " " * 5 + str(first_col) + " " * (20 - digits_first_col) + "|" +
+              " " * 7 + str(second_col) + " " * (7 - digits_second_col) + "|"
+              + " " * 3 + (str(float(third_col)) if not isinstance(third_col, str) else third_col)
               + " " * (20 - digits_val_fit) + "|"
               + test_text +
-              " " * 3 + str(timing) + " " * (21 - digits_timing) + "|" +
-              " " * 6 + str(nodes) + " " * (12 - digits_nodes) + "|")
+              " " * 3 + str(fifth_col) + " " * (21 - digits_fifth_col) + "|" +
+              " " * 6 + str(sixth_col) + " " * (12 - digits_sixth_col) + "|")
 
 
 def get_terminals(data_loader, seed=0):

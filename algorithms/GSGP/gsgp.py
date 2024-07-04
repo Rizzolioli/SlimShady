@@ -126,7 +126,7 @@ class GSGP:
         # displaying the results for the population initialization on console
         if verbose != 0:
             verbose_reporter(curr_dataset.split("load_")[-1], 0, self.elite.fitness, self.elite.test_fitness,
-                             end - start, self.elite.nodes)
+                             end - start, self.elite.nodes, first_call=True)
 
         ################################################################################################################
 

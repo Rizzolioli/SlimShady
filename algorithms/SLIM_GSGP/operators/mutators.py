@@ -124,13 +124,13 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
     return inflate
 
 
-def deflate_mutation(individual, reconstruct, allow_bt = True):
+def deflate_mutation(individual, reconstruct, allow_bt = True, mut_point = None):
     
     limit = 1 if allow_bt else 2
     
     if individual.size > limit:
 
-        mut_point = random.randint(1, individual.size - limit)
+        mut_point = random.randint(1, individual.size - limit) if mut_point is None else mut_point
 
         offs = Individual(collection = [*individual.collection[:mut_point], *individual.collection[mut_point + 1:]]
                                         if reconstruct else None,

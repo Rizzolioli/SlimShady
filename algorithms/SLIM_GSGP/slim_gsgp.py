@@ -195,7 +195,7 @@ class SLIM_GSGP:
         # displaying the results of the population initialization on console
         if verbose != 0:
             verbose_reporter(curr_dataset.split("load_")[-1], 0,  self.elite.fitness, self.elite.test_fitness, end-start,
-                             self.elite.nodes_count)
+                             self.elite.nodes_count, first_call=True)
 
         ################################################################################################################
 

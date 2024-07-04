@@ -21,7 +21,7 @@ class Individual():
         # starting the individual with empty semantics and fitnesses
         self.train_semantics = train_semantics
         self.test_semantics = test_semantics
-        self.fitness =  None
+        self.fitness = None
         self.test_fitness = None
 
     def calculate_semantics(self, inputs, testing=False):
@@ -108,8 +108,6 @@ def apply_individual_fixed(tree, data, operator = "sum", sig = False):
             semantics.append(t.structure[0](*t.structure[1:], testing=False))
 
     operator = torch.sum if operator == "sum" else torch.prod
-
-    print("WORK PLEASE", show_individual(tree, operator=operator))
 
     return torch.clamp(operator(torch.stack(semantics), dim=0), -1000000000000.0, 1000000000000.0)
 
