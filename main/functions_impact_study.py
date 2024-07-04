@@ -102,7 +102,8 @@ def create_random_slim_ind(blocks,
                              first_call= _ == 0)
 
         if log > 0:
-            log_row = [dataset_name, algorithm_name, 'inflate', inflated_individual.size, -1,
+            log_row = [dataset_name, algorithm_name, seed, 'inflate', inflated_individual.size,
+                       inflated_individual.nodes_count, inflated_individual.depth, -1,
                        train_csim, test_csim, train_cdist, test_cdist, train_var, test_var]
     
             with open(log_path, 'a', newline='') as file:
@@ -144,7 +145,8 @@ def create_random_slim_ind(blocks,
                                      sixth_col_name='Variation')
 
                 if log > 0:
-                    log_row = [dataset_name, algorithm_name, 'deflate', deflated_individual.size, j,
+                    log_row = [dataset_name, algorithm_name, seed, 'deflate', deflated_individual.size,
+                               deflated_individual.nodes_count, deflated_individual.depth, j,
                                train_csim, test_csim, train_cdist, test_cdist, train_var, test_var]
 
                     with open(log_path, 'a', newline='') as file:
