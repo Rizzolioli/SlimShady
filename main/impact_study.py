@@ -16,6 +16,11 @@ CONSTANTS = {}
 data_loaders = [load_yatch, load_airfoil, load_concrete_slump, load_concrete_strength, load_ppb,
                 load_bioav, load_ld50]
 
+slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
+                        "ld50": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
+                       "concrete_strength": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
+                       "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}}
+
 for seed in range(10):
     for loader in data_loaders:
 
@@ -29,7 +34,7 @@ for seed in range(10):
         # Performs train/test split
         X_train, X_test, y_train, y_test = train_test_split(X=X, y=y,
                                                             p_test=0.2,
-                                                            seed=42)
+                                                            seed=seed)
 
         create_random_slim_ind( blocks = 1000,
                                    X_train = X_train,
@@ -41,5 +46,6 @@ for seed in range(10):
                                    y_train = None,
                                    y_test = None,
                                    algorithm = (True, 'sum', False),
-                                   mutation_step = generate_random_uniform(0,1), initial_depth = 6, seed = seed,
+                                   mutation_step = slim_dataset_params[dataset]["ms"] if dataset in slim_dataset_params.keys() else  slim_dataset_params["other"]["ms"],
+                                   initial_depth = 6, seed = seed,
                                    log = 1, log_path = 'log/deep_mutation_impact.csv', verbose = 1)
