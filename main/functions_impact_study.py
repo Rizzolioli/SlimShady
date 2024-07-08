@@ -37,9 +37,9 @@ def create_random_slim_ind(blocks,
     GPTree.TERMINALS = TERMINALS
     GPTree.CONSTANTS = CONSTANTS
 
-    if algorithm == (True, False, "mul"):
+    if algorithm == (False,  "mul", True):
         algorithm_name = 'SLIM*1SIG'
-    elif algorithm == (False, False, "mul"):
+    elif algorithm == (False,  "mul", False):
         algorithm_name = 'SLIM*1NORM'
     else:
         algorithm_name = 'SLIM+2SIG'
