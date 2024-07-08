@@ -76,7 +76,7 @@ def create_random_slim_ind(blocks,
                             X_test=X_test,
                             reconstruct = False)
 
-        if algorithm[-1] == 'sum':
+        if algorithm[-2] == 'sum':
             inflated_individual.full_train_semantics = torch.sum(inflated_individual.train_semantics, dim=0)
             inflated_individual.full_test_semantics = torch.sum(inflated_individual.test_semantics, dim=0)
         else:
@@ -117,7 +117,7 @@ def create_random_slim_ind(blocks,
 
                 deflated_individual = deflate_mutation(inflated_individual, reconstruct=False, mut_point=j)
 
-                if algorithm[-1] == 'sum':
+                if algorithm[-2] == 'sum':
                     deflated_individual.full_train_semantics = torch.sum(deflated_individual.train_semantics, dim=0)
                     deflated_individual.full_test_semantics = torch.sum(deflated_individual.test_semantics, dim=0)
                 else:
