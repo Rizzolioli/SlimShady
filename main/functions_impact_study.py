@@ -18,6 +18,7 @@ def create_random_slim_ind(blocks,
                            X_train,
                            X_test,
                            FUNCTIONS, TERMINALS, CONSTANTS,
+                           deflate_on,
                            dataset_name = None,
                            y_train = None,
                            y_test = None,
@@ -62,7 +63,6 @@ def create_random_slim_ind(blocks,
 
     individual.full_train_semantics = torch.reshape(individual.train_semantics, (individual.train_semantics.shape[1],))
     individual.full_test_semantics = torch.reshape(individual.test_semantics, (individual.test_semantics.shape[1],))
-
 
     for _ in range(blocks-1):
 
@@ -110,7 +110,7 @@ def create_random_slim_ind(blocks,
                 writer = csv.writer(file)
                 writer.writerow(log_row)
 
-        if inflated_individual.size > 1:
+        if inflated_individual.size > (deflate_on-1):
             for j in range(1, inflated_individual.size-1):
 
                 start = time.time()
