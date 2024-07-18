@@ -82,11 +82,12 @@ class SLIM_GSGP:
 
 
         population.calculate_semantics(X_train)
-        population.evaluate(ffunction,  y=y_train, operator=self.operator)
 
         if gp_imputing_missing_values:
             [setattr(ind, 'train_semantics', torch.nan_to_num(ind.train_semantics, nan = 0 if self.operator == 'sum' else 1))
              for ind in population]
+
+        population.evaluate(ffunction,  y=y_train, operator=self.operator)
 
         end = time.time()
 
