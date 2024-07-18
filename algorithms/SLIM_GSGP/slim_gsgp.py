@@ -52,7 +52,8 @@ class SLIM_GSGP:
 
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset, run_info ,n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, ffunction=None, max_depth=17, n_elites=1, reconstruct = True,
-              pause_deflate = None #only for CHULL study
+              pause_deflate = None, #only for CHULL study
+              gp_imputing_missing_values = False #only for missing values study
               ):
 
 
@@ -83,6 +84,10 @@ class SLIM_GSGP:
         population.calculate_semantics(X_train)
         population.evaluate(ffunction,  y=y_train, operator=self.operator)
 
+        if gp_imputing_missing_values:
+            [setattr(ind, 'train_semantics', torch.nan_to_num(ind.train_semantics, nan = 0 if self.operator == 'sum' else 1))
+             for ind in population]
+
         end = time.time()
 
         # obtaining the initial population elites
@@ -91,7 +96,14 @@ class SLIM_GSGP:
         # testing the elite on validation/testing, if applicable
         if test_elite:
             population.calculate_semantics(X_test, testing=True)
+
+            if gp_imputing_missing_values:
+                [setattr(ind, 'test_semantics',
+                     torch.nan_to_num(ind.test_semantics, nan=0 if self.operator == 'sum' else 1))
+             for ind in population]
+
             self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
+
 
         # logging the population initialization
         if log != 0:
@@ -341,6 +353,11 @@ class SLIM_GSGP:
             offs_pop = Population(offs_pop)
             offs_pop.calculate_semantics(X_train)
 
+            if gp_imputing_missing_values:
+                [setattr(ind, 'train_semantics',
+                     torch.nan_to_num(ind.train_semantics, nan=0 if self.operator == 'sum' else 1))
+                for ind in offs_pop]
+
             offs_pop.evaluate(ffunction, y=y_train, operator=self.operator)
             population = offs_pop
 
@@ -359,6 +376,12 @@ class SLIM_GSGP:
 
             if test_elite:
                 self.elite.calculate_semantics(X_test, testing=True)
+
+                if gp_imputing_missing_values:
+                    [setattr(ind, 'test_semantics',
+                             torch.nan_to_num(ind.test_semantics, nan=0 if self.operator == 'sum' else 1))
+                     for ind in population]
+
                 self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
 
             # logging the population initialization
