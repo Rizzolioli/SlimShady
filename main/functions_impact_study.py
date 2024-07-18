@@ -110,7 +110,7 @@ def create_random_slim_ind(blocks,
                 writer = csv.writer(file)
                 writer.writerow(log_row)
 
-        if inflated_individual.size > (deflate_on-1):
+        if any(inflated_individual.size == def_ for def_ in deflate_on):
             for j in range(1, inflated_individual.size-1):
 
                 start = time.time()
