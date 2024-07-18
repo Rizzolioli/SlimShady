@@ -318,3 +318,31 @@ def consecutive_final_indexes(sampled_indexes, original_list_length):
         return False
 
     return True
+
+def replace_with_nan(tensor, percentage):
+    """
+    Replace a given percentage of values in a tensor with NaN.
+
+    Args:
+    tensor (torch.Tensor): The input tensor.
+    percentage (float): The percentage of values to replace with NaN (0 to 100).
+
+    Returns:
+    torch.Tensor: The tensor with the specified percentage of values replaced by NaN.
+    """
+    # Ensure the percentage is between 0 and 100
+    if not (0 <= percentage <= 1):
+        raise ValueError("Percentage must be between 0 and 100")
+
+    # Calculate the number of elements to replace
+    total_elements = tensor.numel()
+    num_elements_to_replace = int(total_elements * percentage )
+
+    # Generate random indices to replace
+    indices = np.random.choice(total_elements, num_elements_to_replace, replace=False)
+
+    # Flatten the tensor, replace the values, then reshape it back
+    flat_tensor = tensor.flatten()
+    flat_tensor[indices] = float('nan')
+
+    return flat_tensor.view(tensor.shape)
