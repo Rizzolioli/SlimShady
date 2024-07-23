@@ -321,3 +321,23 @@ def generate_percentiles(x: torch.Tensor) -> torch.Tensor:
     return torch.stack(
         [torch.quantile(torch.t(x.to(torch.float)), q=percentile / 100, dim=1, interpolation="nearest") for percentile
          in range(1, 101, 1)])
+
+
+def get_columns(x: torch.Tensor) -> dict:
+    """
+
+    Parameters
+    ----------
+    x: torch.Tensor
+        A dataset to generate the column dictionary on, without the target variable
+
+    Returns
+    -------
+    dict: A dictionary of the columns in the data, with the keys corresponding to the index. Names are generated in an
+        "x0, x2, ..., xn" manner.
+
+    """
+    return {f"x{i}":i for i in range(torch.numel(x[0]))}
+
+def get_labels(x: torch.Tensor) -> torch.Tensor:
+    return torch.unique(x)
