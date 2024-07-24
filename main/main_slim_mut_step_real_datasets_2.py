@@ -133,7 +133,7 @@ for loader in data_loaders:
     X, y = loader(X_y=True)
     # X, y = torch.from_numpy(X).float(), torch.from_numpy(y).float()
 
-    for mut_step in mut_step_ranges[curr_dataset][-1]:
+    for mut_step in [mut_step_ranges[curr_dataset][-1]]:
 
         # for input_range in [(0, 1)]:
 
