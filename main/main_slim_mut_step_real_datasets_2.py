@@ -128,6 +128,7 @@ unique_run_id = uuid.uuid1()
 
 for loader in data_loaders:
 
+    curr_dataset = loader.__name__.split("load_")[-1]
 
     X, y = loader(X_y=True)
     # X, y = torch.from_numpy(X).float(), torch.from_numpy(y).float()
@@ -136,7 +137,7 @@ for loader in data_loaders:
 
         # for input_range in [(0, 1)]:
 
-        curr_dataset = loader.__name__.split("load_")[-1]
+
 
         for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
 
