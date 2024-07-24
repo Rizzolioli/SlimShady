@@ -83,8 +83,12 @@ class SLIM_GSGP:
 
         population.calculate_semantics(X_train)
 
+        # if gp_imputing_missing_values:
+        #     [setattr(ind, 'train_semantics', torch.nan_to_num(ind.train_semantics, nan = 0 if self.operator == 'sum' else 1))
+        #      for ind in population]
+
         if gp_imputing_missing_values:
-            [setattr(ind, 'train_semantics', torch.nan_to_num(ind.train_semantics, nan = 0 if self.operator == 'sum' else 1))
+            [setattr(ind, 'train_semantics', torch.nan_to_num(ind.train_semantics, nan = torch.median(y_train)))
              for ind in population]
 
         population.evaluate(ffunction,  y=y_train, operator=self.operator)
@@ -98,9 +102,14 @@ class SLIM_GSGP:
         if test_elite:
             population.calculate_semantics(X_test, testing=True)
 
+            # if gp_imputing_missing_values:
+            #     [setattr(ind, 'test_semantics',
+            #          torch.nan_to_num(ind.test_semantics, nan=0 if self.operator == 'sum' else 1))
+            #  for ind in population]
+
             if gp_imputing_missing_values:
                 [setattr(ind, 'test_semantics',
-                     torch.nan_to_num(ind.test_semantics, nan=0 if self.operator == 'sum' else 1))
+                     torch.nan_to_num(ind.test_semantics, nan=torch.median(y_train)))
              for ind in population]
 
             self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
@@ -354,9 +363,14 @@ class SLIM_GSGP:
             offs_pop = Population(offs_pop)
             offs_pop.calculate_semantics(X_train)
 
+            # if gp_imputing_missing_values:
+            #     [setattr(ind, 'train_semantics',
+            #          torch.nan_to_num(ind.train_semantics, nan=0 if self.operator == 'sum' else 1))
+            #     for ind in offs_pop]
+
             if gp_imputing_missing_values:
                 [setattr(ind, 'train_semantics',
-                     torch.nan_to_num(ind.train_semantics, nan=0 if self.operator == 'sum' else 1))
+                     torch.nan_to_num(ind.train_semantics, nan=torch.median(y_train)))
                 for ind in offs_pop]
 
             offs_pop.evaluate(ffunction, y=y_train, operator=self.operator)
@@ -378,9 +392,14 @@ class SLIM_GSGP:
             if test_elite:
                 self.elite.calculate_semantics(X_test, testing=True)
 
+                # if gp_imputing_missing_values:
+                #     [setattr(ind, 'test_semantics',
+                #              torch.nan_to_num(ind.test_semantics, nan=0 if self.operator == 'sum' else 1))
+                #      for ind in population]
+
                 if gp_imputing_missing_values:
                     [setattr(ind, 'test_semantics',
-                             torch.nan_to_num(ind.test_semantics, nan=0 if self.operator == 'sum' else 1))
+                             torch.nan_to_num(ind.test_semantics, nan=torch.median(y_train)))
                      for ind in population]
 
                 self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
