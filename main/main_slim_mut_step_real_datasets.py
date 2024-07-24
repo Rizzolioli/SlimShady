@@ -2,6 +2,8 @@ import random
 import time
 import uuid
 
+import torch
+
 from parametrization import *
 from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
 import datasets.data_loader as ds
@@ -60,7 +62,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", "mut_step_real.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", "mut_step_real_scaled.csv"),
                               "run_info": None,
                               "ffunction": rmse,
                               "n_iter": 1000,
@@ -128,13 +130,11 @@ unique_run_id = uuid.uuid1()
 
 for loader in data_loaders:
 
-    curr_dataset = loader.__name__.split("load_")[-1]
+
     X, y = loader(X_y=True)
     # X, y = torch.from_numpy(X).float(), torch.from_numpy(y).float()
 
     for mut_step in mut_step_ranges[curr_dataset]:
-
-        curr_dataset = loader.__name__.split("load_")[-1]
 
         for input_range in mut_step_ranges[curr_dataset]:
 
@@ -162,7 +162,7 @@ for loader in data_loaders:
                 print(ttress)
                 print(op)
                 # running each dataset + algo configuration n_runs times
-                for seed in range(10, 30):
+                for seed in range(10):
                     start = time.time()
 
 
