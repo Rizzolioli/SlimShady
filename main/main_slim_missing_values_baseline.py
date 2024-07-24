@@ -91,10 +91,11 @@ slim_GSGP_parameters = {"initializer": rhh,
                         "operator": None
                         }
 
-imputers = {'MeanImputer' : SimpleImputer(strategy='mean'),
+imputers = {
+    'MeanImputer' : SimpleImputer(strategy='mean'),
             'KNNImputer' : KNNImputer(n_neighbors=5, weights="uniform"),
-            'DecisionTreeImputer' : IterativeImputer(estimator=RandomForestRegressor),
-            'BayesianRidgeImputer' : IterativeImputer(),
+    #         'DecisionTreeImputer' : IterativeImputer(estimator=RandomForestRegressor()),
+    #         'BayesianRidgeImputer' : IterativeImputer(),
             }
 
 mutation_parameters ={

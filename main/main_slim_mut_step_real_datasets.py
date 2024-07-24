@@ -128,11 +128,13 @@ unique_run_id = uuid.uuid1()
 
 for loader in data_loaders:
 
-
+    curr_dataset = loader.__name__.split("load_")[-1]
     X, y = loader(X_y=True)
     # X, y = torch.from_numpy(X).float(), torch.from_numpy(y).float()
 
     for mut_step in mut_step_ranges[curr_dataset]:
+
+        curr_dataset = loader.__name__.split("load_")[-1]
 
         for input_range in mut_step_ranges[curr_dataset]:
 
@@ -172,8 +174,8 @@ for loader in data_loaders:
                                                                         seed=seed)
 
                     scaler = MinMaxScaler(feature_range=input_range)
-                    X_train = scaler.fit_transform(X_train)
-                    X_test = scaler.transform(X_test)
+                    X_train = torch.from_numpy(scaler.fit_transform(X_train))
+                    X_test = torch.from_numpy(scaler.transform(X_test))
 
 
                     slim_GSGP_parameters["ms"] = generate_random_uniform(*mut_step)
