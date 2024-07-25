@@ -62,7 +62,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", "mut_step_real_scaled.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", "mut_step_real_scaled_n.csv"),
                               "run_info": None,
                               "ffunction": rmse,
                               "n_iter": 1000,
@@ -139,7 +139,7 @@ for loader in data_loaders:
 
         curr_dataset = loader.__name__.split("load_")[-1]
 
-        for input_range in mut_step_ranges[curr_dataset]:
+        for input_range in [(0, 1)]:
 
             curr_dataset = loader.__name__.split("load_")[-1] + '_' + str(input_range)
 
