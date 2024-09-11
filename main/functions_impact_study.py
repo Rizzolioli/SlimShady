@@ -16,9 +16,9 @@ cdist = torch.nn.PairwiseDistance(p=2)
 
 def create_random_slim_ind(blocks,
                            X_train,
-                           X_test,
                            FUNCTIONS, TERMINALS, CONSTANTS,
                            deflate_on,
+                            X_test = None,
                            dataset_name = None,
                            y_train = None,
                            y_test = None,
@@ -59,10 +59,12 @@ def create_random_slim_ind(blocks,
                            test_semantics=None)
 
     individual.calculate_semantics(X_train, testing = False)
-    individual.calculate_semantics(X_test, testing=True)
+    if X_test is not None:
+        individual.calculate_semantics(X_test, testing=True)
 
     individual.full_train_semantics = torch.reshape(individual.train_semantics, (individual.train_semantics.shape[1],))
-    individual.full_test_semantics = torch.reshape(individual.test_semantics, (individual.test_semantics.shape[1],))
+    if X_test is not None:
+        individual.full_test_semantics = torch.reshape(individual.test_semantics, (individual.test_semantics.shape[1],))
 
     for _ in range(blocks-1):
 
@@ -78,19 +80,18 @@ def create_random_slim_ind(blocks,
 
         if algorithm[-2] == 'sum':
             inflated_individual.full_train_semantics = torch.sum(inflated_individual.train_semantics, dim=0)
-            inflated_individual.full_test_semantics = torch.sum(inflated_individual.test_semantics, dim=0)
+            if X_test is not None:
+                inflated_individual.full_test_semantics = torch.sum(inflated_individual.test_semantics, dim=0)
         else:
             inflated_individual.full_train_semantics = torch.prod(inflated_individual.train_semantics, dim=0)
-            inflated_individual.full_test_semantics = torch.prod(inflated_individual.test_semantics, dim=0)
-
-        train_csim = csim(individual.full_train_semantics, inflated_individual.full_train_semantics).item()
-        test_csim = csim(individual.full_test_semantics, inflated_individual.full_test_semantics).item()
-
-        train_cdist = cdist(individual.full_train_semantics, inflated_individual.full_train_semantics).item()
-        test_cdist = cdist(individual.full_test_semantics, inflated_individual.full_test_semantics).item()
+            if X_test is not None:
+                inflated_individual.full_test_semantics = torch.prod(inflated_individual.test_semantics, dim=0)
 
         train_var= torch.sum(individual.full_train_semantics != inflated_individual.full_train_semantics).item() / individual.full_train_semantics.shape[0]
-        test_var = torch.sum(individual.full_test_semantics != inflated_individual.full_test_semantics).item()  /individual.full_test_semantics.shape[0]
+        if X_test is not None:
+            test_var = torch.sum(individual.full_test_semantics != inflated_individual.full_test_semantics).item()  /individual.full_test_semantics.shape[0]
+        else:
+            test_var = 0
 
         end = time.time()
 
@@ -104,7 +105,7 @@ def create_random_slim_ind(blocks,
         if log > 0:
             log_row = [dataset_name, algorithm_name, seed, 'inflate', inflated_individual.size,
                        inflated_individual.nodes_count, inflated_individual.depth, -1,
-                       train_csim, test_csim, train_cdist, test_cdist, train_var, test_var]
+                       train_var, test_var, individual.full_train_semantics[0]]
     
             with open(log_path, 'a', newline='') as file:
                 writer = csv.writer(file)
@@ -119,22 +120,22 @@ def create_random_slim_ind(blocks,
 
                 if algorithm[-2] == 'sum':
                     deflated_individual.full_train_semantics = torch.sum(deflated_individual.train_semantics, dim=0)
-                    deflated_individual.full_test_semantics = torch.sum(deflated_individual.test_semantics, dim=0)
+                    if X_test is not None:
+                        deflated_individual.full_test_semantics = torch.sum(deflated_individual.test_semantics, dim=0)
                 else:
                     deflated_individual.full_train_semantics = torch.prod(deflated_individual.train_semantics, dim=0)
-                    deflated_individual.full_test_semantics = torch.prod(deflated_individual.test_semantics, dim=0)
+                    if X_test is not None:
+                        deflated_individual.full_test_semantics = torch.prod(deflated_individual.test_semantics, dim=0)
 
-                train_csim = csim(deflated_individual.full_train_semantics, inflated_individual.full_train_semantics).item()
-                test_csim = csim(deflated_individual.full_test_semantics, inflated_individual.full_test_semantics).item()
-
-                train_cdist = cdist(deflated_individual.full_train_semantics, inflated_individual.full_train_semantics).item()
-                test_cdist = cdist(deflated_individual.full_test_semantics, inflated_individual.full_test_semantics).item()
 
                 train_var = torch.sum(
                     deflated_individual.full_train_semantics != inflated_individual.full_train_semantics).item() / \
                             individual.full_train_semantics.shape[0]
-                test_var = torch.sum(deflated_individual.full_test_semantics != inflated_individual.full_test_semantics).item() / \
-                           individual.full_test_semantics.shape[0]
+                if X_test is not None:
+                    test_var = torch.sum(deflated_individual.full_test_semantics != inflated_individual.full_test_semantics).item() / \
+                               individual.full_test_semantics.shape[0]
+                else:
+                    test_var = 0
 
                 end = time.time()
 
@@ -145,9 +146,9 @@ def create_random_slim_ind(blocks,
                                      sixth_col_name='Variation')
 
                 if log > 0:
-                    log_row = [dataset_name, algorithm_name, seed, 'deflate', deflated_individual.size,
+                    log_row = [dataset_name, algorithm_name, seed, 'deflate', deflate_on,
                                deflated_individual.nodes_count, deflated_individual.depth, j,
-                               train_csim, test_csim, train_cdist, test_cdist, train_var, test_var]
+                               train_var, test_var, deflated_individual.full_train_semantics[0]]
 
                     with open(log_path, 'a', newline='') as file:
                         writer = csv.writer(file)
