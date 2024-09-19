@@ -48,7 +48,7 @@ CONSTANTS = {
 
 ########################################################################################################################
 
-n_runs = 5
+n_runs = 10
 settings_dict = {"p_test": 0.2}
 
 ########################################################################################################################
@@ -137,7 +137,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log_crossover", "crossover_11june.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log_crossover", "newxo_19sep.csv"),
                               "run_info": None,
                               "ffunction": rmse,
                               "n_iter": 1000,  # 2000

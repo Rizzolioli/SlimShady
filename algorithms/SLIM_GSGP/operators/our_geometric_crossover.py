@@ -495,4 +495,46 @@ def slim_swap_deflate_geometric_crossover(perc_off_blocks):
     
     return inner_ssd_gxo
 
+def donor_gxo(p1, p2,  X = None, X_test = None, reconstruct = True):
 
+    #choose at random the index of the donor (0 = p1, 1= p2)
+    donor_idx = random.randint(0,1)
+    donor = p1 if donor_idx == 0 else p2
+    recipient = p1 if donor_idx == 1 else p2
+
+    #choose at random a block from the donor
+    if donor.size > 1:
+        donation_idx = random.randint(1, donor.size - 1 )
+
+        if reconstruct:
+
+            recipient.collection = recipient.collection + [donor.collection[donation_idx]]
+            donor.collection.pop[donor_idx]
+
+        recipient.train_semantics = torch.concatenate((recipient.train_semantics, donor.train_semantics[donation_idx].unsqueeze(0)), dim=0)
+        donor.train_semantics = torch.cat((donor.train_semantics[:donation_idx], donor.train_semantics[donation_idx+1:]), dim = 0)
+
+        if donor.test_semantics is not None:
+            recipient.test_semantics = torch.concatenate((recipient.test_semantics, donor.test_semantics[donation_idx].unsqueeze(0)), dim=0)
+            donor.test_semantics = torch.cat((donor.test_semantics[:donation_idx], donor.test_semantics[donation_idx+1:]), dim = 0)
+
+        recipient.size += 1
+        donor.size -= 1
+
+        recipient.nodes_collection = recipient.nodes_collection + [donor.nodes_collection[donation_idx]]
+        donor.nodes_collection.pop(donation_idx)
+
+        recipient.nodes_count = sum(recipient.nodes_collection) + (recipient.size - 1)
+        donor.nodes_count = sum(donor.nodes_collection) + (donor.size - 1)
+
+        recipient.depth_collection = recipient.depth_collection + [donor.depth_collection[donation_idx]]
+        donor.depth_collection.pop(donation_idx)
+
+        recipient.depth = sum(recipient.depth_collection) + (recipient.size - 1)
+        donor.depth = sum(donor.depth_collection) + (donor.size - 1)
+
+        return donor, recipient
+
+    else:
+
+        return p1, p2
