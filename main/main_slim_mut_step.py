@@ -1,4 +1,4 @@
-import random
+22import random
 import time
 import uuid
 
@@ -56,7 +56,7 @@ CONSTANTS = {
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 1,
+                              "log": 0,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", "mut_step.csv"),
@@ -117,7 +117,7 @@ unique_run_id = uuid.uuid1()
 
 
 
-for data_function in ['rastrigin', 'sphere', 'rosenbrock' ]:
+for data_function in ['rosenbrock' ]: #'rastrigin', 'sphere',
 
     for (input_scale, output_scale) in[((0,1), (0,1)), ((0,10), (0,1)), ((0,100), (0,1)), ((0,1000), (0,1)),
                                        ((0,1), (0,10)), ((0,1), (0,100)), ((0,1), (0,1000))]:

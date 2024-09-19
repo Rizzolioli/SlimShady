@@ -1,7 +1,12 @@
-from main.functions_impact_study import create_random_slim_ind, generate_random_uniform
+from main.functions_impact_study import inflate_deflate_study, generate_random_uniform, more_blocks_deflate_study
 from datasets.data_loader import *
 from utils.utils import get_terminals, train_test_split, protected_div
 import torch
+import datetime
+
+
+now = datetime.datetime.now()
+day = now.strftime("%Y%m%d")
 
 
 FUNCTIONS = {
@@ -21,9 +26,10 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
                        "concrete_strength": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
                        "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}}
 
-for seed in range(30):
-    for algo in [ (True, 'sum', False), (False,  "mul", True), (False,  "mul", False)]: #
-        for loader in data_loaders:
+
+for loader in data_loaders:
+    for seed in range(30):
+        for algo in [(True, 'sum', False), (False, "mul", True), (False, "mul", False)]:  #
 
             X, y = loader(X_y=True)
 
@@ -37,17 +43,32 @@ for seed in range(30):
             #                                                     p_test=0.2,
             #                                                     seed=seed)
 
-            create_random_slim_ind( blocks = 2000,
+            # inflate_deflate_study( blocks = 2000,
+            #                            X_train = X,
+            #                            # X_test = X_test,
+            #                            FUNCTIONS = FUNCTIONS,
+            #                            TERMINALS = TERMINALS,
+            #                            CONSTANTS = CONSTANTS,
+            #                            deflate_on = [50, 200, 1000, 2000],
+            #                            dataset_name = dataset,
+            #                            y_train = None,
+            #                            y_test = None,
+            #                            algorithm = algo,
+            #                            mutation_step = slim_dataset_params[dataset]["ms"] if dataset in slim_dataset_params.keys() else  slim_dataset_params["other"]["ms"],
+            #                            initial_depth = 6, seed = seed,
+            #                            log = 1, log_path = 'log/deep_mutation_impact_120924.csv', verbose = 1)
+
+            more_blocks_deflate_study( blocks = 1000,
                                        X_train = X,
                                        # X_test = X_test,
                                        FUNCTIONS = FUNCTIONS,
                                        TERMINALS = TERMINALS,
                                        CONSTANTS = CONSTANTS,
-                                       deflate_on = [50, 200, 1000, 2000],
+                                       deflate_on = [10, 25, 50, 100, 200, 250, 500, 750, 1000],
                                        dataset_name = dataset,
                                        y_train = None,
                                        y_test = None,
                                        algorithm = algo,
                                        mutation_step = slim_dataset_params[dataset]["ms"] if dataset in slim_dataset_params.keys() else  slim_dataset_params["other"]["ms"],
                                        initial_depth = 6, seed = seed,
-                                       log = 1, log_path = 'log/deep_mutation_impact_0924.csv', verbose = 1)
+                                       log = 1, log_path = f'log/moreblocks_{day}.csv', verbose = 1)

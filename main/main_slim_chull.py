@@ -19,7 +19,6 @@ from datasets.data_loader import *
 
 ########################################################################################################################
 
-algos = ["SlimGSGP"]
 
 # data_loaders = [ "airfoil", "concrete_slump", "concrete_strength", "ppb", "ld50", "bioavalability", "yatch"]
 data_loaders = [load_yatch, load_airfoil, load_concrete_slump, load_concrete_strength, load_ppb,
@@ -58,7 +57,7 @@ CONSTANTS = {
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 5,
+                              "log": 0,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", "chull.csv"),
