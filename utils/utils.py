@@ -2,7 +2,7 @@ import random
 import torch
 import math
 import numpy as np
-from sklearn.metrics import root_mean_squared_error
+from sklearn.metrics import root_mean_squared_error, accuracy_score
 
 from algorithms.GP.representations.tree_utils import create_full_random_tree, create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
@@ -302,6 +302,9 @@ def gs_rmse(y_true, y_pred):
 
 def gs_size (y_true, y_pred):
     return y_pred[1]
+
+def gs_accuracy(y_true, y_pred):
+    return accuracy_score(y_true, y_pred)
 
 
 def generate_percentiles(x: torch.Tensor) -> torch.Tensor:
