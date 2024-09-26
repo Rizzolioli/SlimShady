@@ -4,6 +4,7 @@ from algorithms.GSGP_Classification.representations.tree import Tree
 
 
 def standard_mutation(parent, random_indiv, ms, testing, COLUMNS, PERCENTILES, LOGICAL_OPERATORS, inputs):
+    ms = ms // 2
 
     col = np.random.choice(list(COLUMNS.keys()))
     # log_op = np.random.choice(list(LOGICAL_OPERATORS.keys()))
@@ -22,16 +23,17 @@ def standard_mutation(parent, random_indiv, ms, testing, COLUMNS, PERCENTILES, L
         inputs[:, int(col[1:])],  # Getting column name and then index
         interval  # Getting the interval
     )
-    print(chosen_branch)
 
+    # REMINDER: The condition is meant to change only a small portion
+    # FALSE means they keep the semantic of the original parent
+    # TRUE means that semantic changes to the random indiv
     if testing is False:
-
-        new_semantics = [parent.train_semantics[i] if chosen_branch[i] else random_indiv.train_semantics[i]
+        new_semantics = [parent.train_semantics[i] if not chosen_branch[i] else random_indiv.train_semantics[i]
                          for i in range(len(chosen_branch))]
 
         new_indiv = Tree(structure=node, train_semantics=new_semantics)
     else:
-        new_semantics = [parent.test_semantics[i] if chosen_branch[i] else random_indiv.test_semantics[i]
+        new_semantics = [parent.test_semantics[i] if not chosen_branch[i] else random_indiv.test_semantics[i]
                          for i in range(len(chosen_branch))]
 
         new_indiv = Tree(structure=node, test_semantics=new_semantics)
