@@ -8,10 +8,16 @@ from algorithms.SLIM_GSGP.operators.mutators import *
 from utils.utils import generate_random_uniform
 from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
 import os
-from utils.utils import get_best_min, replace_with_nan
+from utils.utils import get_best_min, replace_with_nan, replace_extreme_values
 from evaluators.fitness_functions import rmse
 from algorithms.GP.operators.initializers import rhh
 from datasets.data_loader import *
+
+import datetime
+
+
+now = datetime.datetime.now()
+day = now.strftime("%Y%m%d")
 
 ########################################################################################################################
 
@@ -61,7 +67,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", "missing_values_median.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", f"missing_values_{day}.csv"),
                               "run_info": None,
                               "ffunction": rmse,
                               "n_iter": 1000,
@@ -113,7 +119,7 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
 
 # for each dataset
 for loader in data_loaders:
-    for missing_values_perc in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]:
+    for extreme_level in [0.05, 0.1, 0.2, 0.3]:
 
         # for each dataset, run all the planned algorithms
         for algo_name in algos:
@@ -147,7 +153,7 @@ for loader in data_loaders:
                     # Loads the data via the dataset loader
                     X, y = loader(X_y=True)
 
-                    X = replace_with_nan(X, missing_values_perc)
+                    X = replace_extreme_values(X, extreme_level)
 
                     # getting the name of the dataset
                     dataset = loader.__name__.split("load_")[-1]
@@ -185,7 +191,7 @@ for loader in data_loaders:
 
 
                     # adding the dataset name and algorithm name to the run info for the logger
-                    slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, missing_values_perc, dataset ]
+                    slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, extreme_level, dataset ]
 
                     optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
 

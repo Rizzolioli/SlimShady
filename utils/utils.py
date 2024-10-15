@@ -346,3 +346,41 @@ def replace_with_nan(tensor, percentage):
     flat_tensor[indices] = float('nan')
 
     return flat_tensor.view(tensor.shape)
+
+def replace_extreme_values(tensor, extremity_level):
+    """
+    Replace values in a 2D tensor that are extreme based on the specified extremity level.
+
+    Args:
+        tensor (torch.Tensor): A 2D tensor of shape (m, n).
+        extremity_level (float): A value between 0 and 1 indicating the level of extremity.
+                                 For example, a value of 0.1 will consider values below the 10th percentile
+                                 and above the 90th percentile as extreme.
+
+    Returns:
+        torch.Tensor: A tensor with extreme values replaced by NaN.
+    """
+    if not (0 < extremity_level < 1):
+        raise ValueError("Extremity level must be between 0 and 1.")
+
+    # Make a copy of the tensor to avoid modifying the original tensor
+    tensor_copy = tensor.clone()
+
+    # Get the number of rows and columns
+    num_rows, num_cols = tensor_copy.shape
+
+    # Calculate the lower and upper percentile thresholds for extreme values
+    lower_percentile = extremity_level
+    upper_percentile = 1 - extremity_level
+
+    # Loop through each column
+    for col in range(num_cols):
+        # Get the lower and upper thresholds for extreme values
+        lower_threshold = torch.quantile(tensor_copy[:, col], lower_percentile)
+        upper_threshold = torch.quantile(tensor_copy[:, col], upper_percentile)
+
+        # Replace extreme values with NaN
+        tensor_copy[tensor_copy[:, col] < lower_threshold, col] = float('nan')
+        tensor_copy[tensor_copy[:, col] > upper_threshold, col] = float('nan')
+
+    return tensor_copy

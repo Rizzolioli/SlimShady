@@ -49,10 +49,12 @@ for data_function in [
         ax.set_ylabel('X2')
         ax.set_zlabel('Y')
 
-        plt.title(f'{data_function}  INP:{input_scale}  OUT:{output_scale}')
+        # plt.title(f'{data_function}  INP:{input_scale}  OUT:{output_scale}')
 
 
-        plt.savefig(f'fitness_landscapes/{data_function}_INP{input_scale[1]}_OUT{output_scale[1]}.png')
+        # plt.savefig(f'fitness_landscapes/{data_function}_INP{input_scale[1]}_OUT{output_scale[1]}.png')
+        plt.savefig(f'fitness_landscapes/{data_function}_INP{input_scale[1]}_OUT{output_scale[1]}.pdf')
+
         plt.show(block = False)
         # time.sleep(3)
         plt.close()

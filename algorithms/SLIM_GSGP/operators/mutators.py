@@ -165,7 +165,7 @@ def deflate_mutation(individual, reconstruct, allow_bt = True, mut_point = None)
     return offs
 
 
-def more_blocks_deflate_mutation(individual, reconstruct, allow_bt=True):
+def more_blocks_deflate_mutation(individual, reconstruct, allow_bt=True, blocks_to_remove = None):
 
     #deciding whihch points to drop is the same as deciding which points to keep
 
@@ -173,8 +173,13 @@ def more_blocks_deflate_mutation(individual, reconstruct, allow_bt=True):
 
     if individual.size > limit:
 
-        points_to_keep = random.sample(range(1, individual.size-1), random.randint(1, individual.size-2))
-        points_to_keep = sorted(points_to_keep)
+        if blocks_to_remove is None:
+            points_to_keep = random.sample(range(1, individual.size-1), random.randint(1, individual.size-2))
+            points_to_keep = sorted(points_to_keep)
+        else:
+            points_to_keep = random.sample(range(1, individual.size-1), blocks_to_remove)
+            points_to_keep = sorted(points_to_keep)
+
 
         if not allow_bt:
             #check it the selected points will lead to backtracking
