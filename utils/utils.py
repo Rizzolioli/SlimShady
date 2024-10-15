@@ -384,3 +384,28 @@ def replace_extreme_values(tensor, extremity_level):
         tensor_copy[tensor_copy[:, col] > upper_threshold, col] = float('nan')
 
     return tensor_copy
+
+
+def add_noise(X, n):
+    """
+    Adds n random columns to the input tensor X.
+
+    Parameters:
+    X (torch.Tensor): The input tensor (matrix).
+    n (int): The number of random columns to add.
+
+    Returns:
+    torch.Tensor: The new tensor with added random columns.
+    """
+    # Get the number of rows in X
+    rows = X.size(0)
+
+
+
+    # Generate n random columns with the same number of rows
+    random_columns = torch.randn(rows, n)
+
+    # Concatenate the original tensor with the random columns along the second dimension (columns)
+    X_new = torch.cat((X, random_columns), dim=1)
+
+    return X_new

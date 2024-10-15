@@ -75,6 +75,57 @@ class Individual():
         else: # note: clamping in case the operator results in very big semantics
             self.fitness = ffunction(y, torch.clamp(operator(self.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0))
 
+    def get_tree_representation(self, operator = '+'):
+        """
+        Returns a string representation of the trees in the Individual.
+
+        Parameters
+        ----------
+        operator : str, optional
+            The operator to use in the representation ("sum" or "mul").
+            If None, it will be determined based on the version.
+
+        Returns
+        -------
+        str
+            A string representing the structure of the trees in the individual.
+
+        Raises
+        ------
+        Exception
+            If reconstruct was set to False, indicating that the .get_tree_representation() method is not available.
+        """
+        # seeing if the tree has the structure attribute
+        if not hasattr(self, "collection"):
+            raise Exception("If reconstruct was set to False, .get_tree_representation() is not available")
+
+        return f" {operator} ".join(
+            [
+                str(t.structure) if isinstance(t.structure, tuple)
+                else f'f({t.structure[1].structure})' if len(t.structure) == 3
+                else f'f({t.structure[1].structure} - {t.structure[2].structure})'
+                for t in self.collection
+            ]
+        )
+
+    def print_tree_representation(self):
+        """
+        Prints a string representation of the trees in the Individual.
+
+        Parameters
+        ----------
+        operator : str, optional
+            The operator to use in the representation ("sum" or "mul").
+            If None, it will be determined based on the version.
+
+        Returns
+        -------
+        None
+            Prints a string representing the structure of the trees in the individual.
+        """
+
+        print(self.get_tree_representation())
+
 def apply_individual_fixed(tree, data, operator = "sum", sig = False):
 
     semantics = []
@@ -111,4 +162,6 @@ def apply_individual_fixed(tree, data, operator = "sum", sig = False):
     operator = torch.sum if operator == "sum" else torch.prod
 
     return torch.clamp(operator(torch.stack(semantics), dim=0), -1000000000000.0, 1000000000000.0)
+
+
 
