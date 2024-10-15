@@ -8,11 +8,16 @@
       <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/more_check" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/more_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/more_check.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/TIE.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/TIE.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/convexhull.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/convexhull.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main_slim_missing_values.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_slim_missing_values.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/.ipynb_checkpoints/Impact study-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/.ipynb_checkpoints/Impact study-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Impact study NEW.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Impact study NEW.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Impact study more blocks.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Impact study more blocks.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Mutation Step Analysis Real Data.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Mutation Step Analysis Real Data.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/art_data_plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/art_data_plot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +39,12 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Fari98&quot;
+  }
+}</component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
       <filtered-out-file-type name="LOCAL_BRANCH" />
@@ -42,6 +53,12 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Rizzolioli/SlimShady.git&quot;,
+    &quot;accountId&quot;: &quot;42e9619d-3970-453d-89c9-616e19f0a6a4&quot;
+  }
+}</component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -118,53 +135,45 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Python.GSGPRegressor.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.art_data_plot.executor&quot;: &quot;Debug&quot;,
     &quot;Python.dataset_merger.executor&quot;: &quot;Run&quot;,
     &quot;Python.grid_searcher.executor&quot;: &quot;Run&quot;,
+    &quot;Python.impact_study.executor&quot;: &quot;Run&quot;,
     &quot;Python.main_slim.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim_chull.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim_chull_sshc.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim_missing_values.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim_missing_values_baseline.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim_mut_step_real_datasets.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim_sshc.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.paper_vis.executor&quot;: &quot;Run&quot;,
+    &quot;Python.plot_datasets_target_distribution.executor&quot;: &quot;Run&quot;,
     &quot;Python.results_study.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/utente/OneDrive - NOVAIMS/TA/CM4O 2024/Minitests/code&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Davide&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/dfarinati/OneDrive - NOVAIMS/dottorato/SLIM-GSGP/SlimShady&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\dfarinati\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\algorithms\SLIM_GSGP\representations" />
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\algorithms\SLIM_GSGP" />
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\algorithms\GSGP\operators" />
-      <recent name="$PROJECT_DIR$/Datasets/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\dfarinati\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\algorithms\SLIM_GSGP\representations" />
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main_slim">
-    <configuration name="GSGPRegressor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.main_slim_missing_values">
+    <configuration name="art_data_plot" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/grid_search" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_search/GSGPRegressor.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="TIE" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -175,7 +184,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/TIE.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/art_data_plot.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -184,29 +193,9 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="grid_searcher" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="impact_study" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/grid_search" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_search/grid_searcher.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="main_slim" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -217,7 +206,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/main_slim.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/impact_study.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -226,8 +215,9 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="more_check" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="main_slim_missing_values" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -238,7 +228,51 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/more_check.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/main_slim_missing_values.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="paper_vis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/paper_vis.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="plot_datasets_target_distribution" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/plot_datasets_target_distribution.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -248,26 +282,26 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.TIE" />
-      <item itemvalue="Python.more_check" />
-      <item itemvalue="Python.grid_searcher" />
-      <item itemvalue="Python.GSGPRegressor" />
-      <item itemvalue="Python.main_slim" />
+      <item itemvalue="Python.art_data_plot" />
+      <item itemvalue="Python.impact_study" />
+      <item itemvalue="Python.main_slim_missing_values" />
+      <item itemvalue="Python.paper_vis" />
+      <item itemvalue="Python.plot_datasets_target_distribution" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.main_slim" />
-        <item itemvalue="Python.more_check" />
-        <item itemvalue="Python.TIE" />
-        <item itemvalue="Python.grid_searcher" />
-        <item itemvalue="Python.GSGPRegressor" />
+        <item itemvalue="Python.main_slim_missing_values" />
+        <item itemvalue="Python.art_data_plot" />
+        <item itemvalue="Python.impact_study" />
+        <item itemvalue="Python.paper_vis" />
+        <item itemvalue="Python.plot_datasets_target_distribution" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-5a2391486177-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.13763.11" />
+        <option value="bundled-python-sdk-975db3bf15a3-31b6be0877a2-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.18034.82" />
       </set>
     </attachedChunks>
   </component>
@@ -330,9 +364,19 @@
           <option name="timeStamp" value="2" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py</url>
-          <line>111</line>
-          <option name="timeStamp" value="15" />
+          <url>file://$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py</url>
+          <line>141</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main/main_slim_missing_values.py</url>
+          <line>155</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/utils/utils.py</url>
+          <line>349</line>
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
