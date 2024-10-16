@@ -112,7 +112,8 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;Python.main_slim.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.main_slim.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim_feature_selection.executor&quot;: &quot;Run&quot;,
     &quot;Python.results_study.executor&quot;: &quot;Run&quot;,
     &quot;git-widget-placeholder&quot;: &quot;crossover&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/utente/OneDrive - NOVAIMS/TA/CM4O 2024/Minitests/code&quot;,

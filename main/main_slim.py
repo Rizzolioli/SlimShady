@@ -22,7 +22,7 @@ algos = ["SlimGSGP"]
 
 data_loaders = [load_airfoil, load_boston, load_breast_cancer, load_concrete_slump, load_diabetes,
                 load_efficiency_heating, load_efficiency_cooling, load_forest_fires, load_parkinson_updrs,
-                load_airfoil, load_concrete_slump, load_concrete_strength, load_ppb,
+                load_concrete_strength, load_ppb,
                 load_bioav, load_ld50
                 ]
 
