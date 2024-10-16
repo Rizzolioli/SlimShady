@@ -21,7 +21,10 @@ from utils.utils import show_individual
 algos = ["SlimGSGP"]
 
 data_loaders = [load_airfoil, load_boston, load_breast_cancer, load_concrete_slump, load_diabetes,
-                load_efficiency_heating, load_efficiency_cooling, load_forest_fires, load_parkinson_updrs]
+                load_efficiency_heating, load_efficiency_cooling, load_forest_fires, load_parkinson_updrs,
+                load_airfoil, load_concrete_slump, load_concrete_strength, load_ppb,
+                load_bioav, load_ld50
+                ]
 
 ########################################################################################################################
 
@@ -41,16 +44,11 @@ unique_run_id = uuid.uuid1()
 for loader in data_loaders:
     for algo_name in algos:
         for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
-            if op == "sum":
-                # list_crossover = ["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7"]
-                list_crossover = ['dgx']
-            else:
-                # list_crossover = ["sc", "sdc-0.3", "sdc-0.7"]
-                list_crossover = ["dgx"]
+
+            list_crossover = ["sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
+
             for cross in list_crossover:
-                if cross == "c":
-                    list_prob = [0.2]
-                elif cross is None:
+                if cross == "no_xo":
                     list_prob = [0]
                 else:
                     list_prob = [0.2, 0.5, 0.8]
@@ -100,6 +98,8 @@ for loader in data_loaders:
                             slim_GSGP_parameters["ms"] = slim_dataset_params["other"]["ms"]
                             slim_GSGP_parameters['p_inflate'] = slim_dataset_params["other"]["p_inflate"]
 
+                        if cross != "no_xo":
+                            slim_GSGP_parameters['p_inflate'] = 1
                         slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 
                         # setting up the dataset related parameters:
