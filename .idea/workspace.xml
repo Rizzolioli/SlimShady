@@ -5,19 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/operators/mutators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/representations/individual.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/SLIM_GSGP/slim_gsgp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/main_slim_missing_values.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_slim_missing_values.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/.ipynb_checkpoints/Impact study-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/.ipynb_checkpoints/Impact study-checkpoint.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/Impact study NEW.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Impact study NEW.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/Impact study more blocks.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Impact study more blocks.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/Mutation Step Analysis Real Data.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Mutation Step Analysis Real Data.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/art_data_plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/art_data_plot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,30 +120,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.GSGPRegressor.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.art_data_plot.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.dataset_merger.executor&quot;: &quot;Run&quot;,
-    &quot;Python.grid_searcher.executor&quot;: &quot;Run&quot;,
-    &quot;Python.impact_study.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main_slim.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main_slim_chull.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main_slim_chull_sshc.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main_slim_missing_values.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main_slim_missing_values_baseline.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main_slim_mut_step_real_datasets.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main_slim_sshc.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.paper_vis.executor&quot;: &quot;Run&quot;,
-    &quot;Python.plot_datasets_target_distribution.executor&quot;: &quot;Run&quot;,
-    &quot;Python.results_study.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Davide&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/dfarinati/OneDrive - NOVAIMS/dottorato/SLIM-GSGP/SlimShady&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.GSGPRegressor.executor": "Debug",
+    "Python.art_data_plot.executor": "Debug",
+    "Python.dataset_merger.executor": "Run",
+    "Python.grid_searcher.executor": "Run",
+    "Python.impact_study.executor": "Run",
+    "Python.main_slim.executor": "Run",
+    "Python.main_slim_chull.executor": "Run",
+    "Python.main_slim_chull_sshc.executor": "Run",
+    "Python.main_slim_feature_selection.executor": "Run",
+    "Python.main_slim_missing_values.executor": "Debug",
+    "Python.main_slim_missing_values_baseline.executor": "Run",
+    "Python.main_slim_mut_step_real_datasets.executor": "Run",
+    "Python.main_slim_sshc.executor": "Debug",
+    "Python.paper_vis.executor": "Run",
+    "Python.plot_datasets_target_distribution.executor": "Run",
+    "Python.results_study.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "Davide",
+    "last_opened_file_path": "C:/Users/dfarinati/OneDrive - NOVAIMS/dottorato/SLIM-GSGP/SlimShady/main",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\dfarinati\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
@@ -170,7 +159,7 @@
       <recent name="C:\Users\lrosenfeld\Desktop\CODE\SlimShady\SlimShady\main" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main_slim_missing_values">
+  <component name="RunManager" selected="Python.main_slim_feature_selection">
     <configuration name="art_data_plot" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
       <option name="ENV_FILES" value="" />
@@ -207,6 +196,28 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/impact_study.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main_slim_feature_selection" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/main" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main/main_slim_feature_selection.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -259,42 +270,20 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="plot_datasets_target_distribution" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="SlimShady" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/utils" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/plot_datasets_target_distribution.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <list>
+      <item itemvalue="Python.main_slim_feature_selection" />
+      <item itemvalue="Python.main_slim_missing_values" />
       <item itemvalue="Python.art_data_plot" />
       <item itemvalue="Python.impact_study" />
-      <item itemvalue="Python.main_slim_missing_values" />
       <item itemvalue="Python.paper_vis" />
-      <item itemvalue="Python.plot_datasets_target_distribution" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main_slim_feature_selection" />
         <item itemvalue="Python.main_slim_missing_values" />
         <item itemvalue="Python.art_data_plot" />
         <item itemvalue="Python.impact_study" />
         <item itemvalue="Python.paper_vis" />
-        <item itemvalue="Python.plot_datasets_target_distribution" />
       </list>
     </recent_temporary>
   </component>
@@ -370,13 +359,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main/main_slim_missing_values.py</url>
-          <line>155</line>
+          <line>161</line>
           <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/utils/utils.py</url>
-          <line>349</line>
-          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
