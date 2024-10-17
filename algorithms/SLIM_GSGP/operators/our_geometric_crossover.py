@@ -506,20 +506,20 @@ def donor_gxo(p1, p2,  X = None, X_test = None, reconstruct = True):
     if donor.size > 1:
         donation_idx = random.randint(1, donor.size - 1 )
 
-        donor_offs = Individual(collection=donor.collection[:donation_idx] + donor.collection[donation_idx+1:]
+        recipient_offs = Individual(collection=[*recipient.collection, donor[donation_idx]]
                          if reconstruct else None,
                           train_semantics=torch.stack([*recipient.train_semantics, donor.train_semantics[donation_idx]]),
-                          test_semantics=torch.stack(
-                [*donor.test_semantics[:donation_idx], *donor.test_semantics[donation_idx + 1:]])
+                          test_semantics=torch.stack([*recipient.test_semantics, donor.test_semantics[donation_idx]])
                           if donor.test_semantics is not None
                           else None,
                           reconstruct=reconstruct)
 
-        recipient_offs = Individual(collection=donor.collection[:donation_idx] + donor.collection[donation_idx+1:]
+        donor_offs = Individual(collection=donor.collection[:donation_idx] + donor.collection[donation_idx+1:]
                          if reconstruct else None,
                           train_semantics=torch.stack(
                                 [*donor.train_semantics[:donation_idx], *donor.train_semantics[donation_idx + 1:]]),
-                          test_semantics=torch.stack([*recipient.test_semantics, donor.test_semantics[donation_idx]])
+                          test_semantics=torch.stack(
+                [*donor.test_semantics[:donation_idx], *donor.test_semantics[donation_idx + 1:]])
                           if donor.test_semantics is not None
                           else None,
                           reconstruct=reconstruct)
@@ -530,8 +530,7 @@ def donor_gxo(p1, p2,  X = None, X_test = None, reconstruct = True):
         recipient_offs.depth_collection = recipient.depth_collection + [donor.depth_collection[donation_idx]]
         donor_offs.depth_collection = donor.depth_collection[:donation_idx] + donor.depth_collection[donation_idx + 1:]
 
-
-        recipient_offs.size = recipient.size  + 1
+        recipient_offs.size = recipient.size + 1
         donor_offs.size = donor.size - 1
 
         recipient_offs.nodes_count = sum(recipient_offs.nodes_collection) + (recipient_offs.size - 1)

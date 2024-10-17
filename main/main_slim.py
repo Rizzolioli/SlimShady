@@ -44,7 +44,7 @@ for loader in data_loaders:
     for algo_name in algos:
         for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
 
-            list_crossover = ["sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
+            list_crossover = [ "dgx", "sdc-0.3", "sdc-0.7", "no_xo"]
 
             for cross in list_crossover:
                 if cross == "no_xo":
