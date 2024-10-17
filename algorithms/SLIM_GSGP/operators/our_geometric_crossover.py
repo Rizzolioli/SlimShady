@@ -506,34 +506,41 @@ def donor_gxo(p1, p2,  X = None, X_test = None, reconstruct = True):
     if donor.size > 1:
         donation_idx = random.randint(1, donor.size - 1 )
 
-        if reconstruct:
+        donor_offs = Individual(collection=donor.collection[:donation_idx] + donor.collection[donation_idx+1:]
+                         if reconstruct else None,
+                          train_semantics=torch.stack([*recipient.train_semantics, donor.train_semantics[donation_idx]]),
+                          test_semantics=torch.stack(
+                [*donor.test_semantics[:donation_idx], *donor.test_semantics[donation_idx + 1:]])
+                          if donor.test_semantics is not None
+                          else None,
+                          reconstruct=reconstruct)
 
-            recipient.collection = recipient.collection + [donor.collection[donation_idx]]
-            donor.collection.pop[donor_idx]
+        recipient_offs = Individual(collection=donor.collection[:donation_idx] + donor.collection[donation_idx+1:]
+                         if reconstruct else None,
+                          train_semantics=torch.stack(
+                                [*donor.train_semantics[:donation_idx], *donor.train_semantics[donation_idx + 1:]]),
+                          test_semantics=torch.stack([*recipient.test_semantics, donor.test_semantics[donation_idx]])
+                          if donor.test_semantics is not None
+                          else None,
+                          reconstruct=reconstruct)
 
-        recipient.train_semantics = torch.concatenate((recipient.train_semantics, donor.train_semantics[donation_idx].unsqueeze(0)), dim=0)
-        donor.train_semantics = torch.cat((donor.train_semantics[:donation_idx], donor.train_semantics[donation_idx+1:]), dim = 0)
+        recipient_offs.nodes_collection = recipient.nodes_collection + [donor.nodes_collection[donation_idx]]
+        donor_offs.nodes_collection = donor.nodes_collection[:donation_idx] + donor.nodes_collection[donation_idx + 1:]
 
-        if donor.test_semantics is not None:
-            recipient.test_semantics = torch.concatenate((recipient.test_semantics, donor.test_semantics[donation_idx].unsqueeze(0)), dim=0)
-            donor.test_semantics = torch.cat((donor.test_semantics[:donation_idx], donor.test_semantics[donation_idx+1:]), dim = 0)
+        recipient_offs.depth_collection = recipient.depth_collection + [donor.depth_collection[donation_idx]]
+        donor_offs.depth_collection = donor.depth_collection[:donation_idx] + donor.depth_collection[donation_idx + 1:]
 
-        recipient.size += 1
-        donor.size -= 1
 
-        recipient.nodes_collection = recipient.nodes_collection + [donor.nodes_collection[donation_idx]]
-        donor.nodes_collection.pop(donation_idx)
+        recipient_offs.size = recipient.size  + 1
+        donor_offs.size = donor.size - 1
 
-        recipient.nodes_count = sum(recipient.nodes_collection) + (recipient.size - 1)
-        donor.nodes_count = sum(donor.nodes_collection) + (donor.size - 1)
+        recipient_offs.nodes_count = sum(recipient_offs.nodes_collection) + (recipient_offs.size - 1)
+        donor_offs.nodes_count = sum(donor_offs.nodes_collection) + (donor_offs.size - 1)
 
-        recipient.depth_collection = recipient.depth_collection + [donor.depth_collection[donation_idx]]
-        donor.depth_collection.pop(donation_idx)
+        recipient_offs.depth = sum(recipient_offs.depth_collection) + (recipient_offs.size - 1)
+        donor_offs.depth = sum(donor_offs.depth_collection) + (donor_offs.size - 1)
 
-        recipient.depth = sum(recipient.depth_collection) + (recipient.size - 1)
-        donor.depth = sum(donor.depth_collection) + (donor.size - 1)
-
-        return donor, recipient
+        return donor_offs, recipient_offs
 
     else:
 

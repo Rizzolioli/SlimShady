@@ -20,10 +20,9 @@ from utils.utils import show_individual
 
 algos = ["SlimGSGP"]
 
-data_loaders = [load_airfoil, load_boston, load_breast_cancer, load_concrete_slump, load_diabetes,
-                load_efficiency_heating, load_efficiency_cooling, load_forest_fires, load_parkinson_updrs,
-                load_concrete_strength, load_ppb,
-                load_bioav, load_ld50
+data_loaders = [load_airfoil, load_concrete_strength, load_ppb,
+                load_bioav, load_ld50, load_boston, load_breast_cancer, load_concrete_slump, load_diabetes,
+                load_efficiency_heating, load_efficiency_cooling, load_forest_fires, load_parkinson_updrs
                 ]
 
 ########################################################################################################################
@@ -114,35 +113,37 @@ for loader in data_loaders:
                                                                                       'operator'],
                                                                                   sig=sig)
 
-                        slim_GSGP_parameters["crossover"] = donor_gxo
 
-                        # if cross == "c":
-                        #     slim_GSGP_parameters["crossover"] = slim_geometric_crossover(FUNCTIONS=FUNCTIONS,
-                        #                                                                  TERMINALS=TERMINALS,
-                        #                                                                  CONSTANTS=CONSTANTS,
-                        #                                                                  operator=slim_GSGP_parameters[
-                        #                                                                      'operator'])
-                        # elif cross == "ac":
-                        #     slim_GSGP_parameters["crossover"] = slim_alpha_geometric_crossover(
-                        #         operator=slim_GSGP_parameters[
-                        #             'operator'])
-                        #
-                        # elif cross == "sc":
-                        #     slim_GSGP_parameters["crossover"] = slim_swap_geometric_crossover
-                        #
-                        # elif cross == "sda-0.3":
-                        #     slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
-                        #         operator=slim_GSGP_parameters['operator'], perc_off_blocks=0.3)
-                        #
-                        # elif cross == "sda-0.7":
-                        #     slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
-                        #         operator=slim_GSGP_parameters['operator'], perc_off_blocks=0.7)
-                        #
-                        # elif cross == "sdc-0.3":
-                        #     slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(perc_off_blocks=0.3)
-                        #
-                        # elif cross == "sdc-0.7":
-                        #     slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(perc_off_blocks=0.7)
+
+                        if cross == "c":
+                            slim_GSGP_parameters["crossover"] = slim_geometric_crossover(FUNCTIONS=FUNCTIONS,
+                                                                                         TERMINALS=TERMINALS,
+                                                                                         CONSTANTS=CONSTANTS,
+                                                                                         operator=slim_GSGP_parameters[
+                                                                                             'operator'])
+                        elif cross == "ac":
+                            slim_GSGP_parameters["crossover"] = slim_alpha_geometric_crossover(
+                                operator=slim_GSGP_parameters[
+                                    'operator'])
+
+                        elif cross == "sc":
+                            slim_GSGP_parameters["crossover"] = slim_swap_geometric_crossover
+
+                        elif cross == "sda-0.3":
+                            slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
+                                operator=slim_GSGP_parameters['operator'], perc_off_blocks=0.3)
+
+                        elif cross == "sda-0.7":
+                            slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
+                                operator=slim_GSGP_parameters['operator'], perc_off_blocks=0.7)
+
+                        elif cross == "sdc-0.3":
+                            slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(perc_off_blocks=0.3)
+
+                        elif cross == "sdc-0.7":
+                            slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(perc_off_blocks=0.7)
+                        elif cross == 'dgx':
+                            slim_GSGP_parameters["crossover"] = donor_gxo
 
                         # adding the dataset name and algorithm name to the run info for the logger
                         slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]

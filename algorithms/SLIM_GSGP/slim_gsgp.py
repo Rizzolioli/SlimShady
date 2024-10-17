@@ -15,8 +15,6 @@ from utils.diversity import gsgp_pop_div_from_vectors
 
 
 class SLIM_GSGP:
-    # TODO: implement improvement rate
-    # TODO: implement TIE & convex hull
 
     def __init__(self, pi_init, initializer, selector, inflate_mutator, deflate_mutator, ms, crossover, find_elit_func,
                  p_m=1, p_xo=0, p_inflate = 0.3, p_deflate = 0.7, pop_size=100, seed=0, operator = 'sum',
@@ -158,11 +156,15 @@ class SLIM_GSGP:
 
                 offs_pop.extend(self.elites)
 
+
+
             while len(offs_pop) < self.pop_size:
+
 
 
                 # choosing between crossover and mutation
                 if random.random() < self.p_xo:
+
 
                     # if crossover selecting two parents
                     p1, p2 = self.selector(population), self.selector(population)
@@ -282,6 +284,7 @@ class SLIM_GSGP:
             self.population = population
 
             end = time.time()
+
 
             # obtaining the initial population elites
             self.elites, self.elite = self.find_elit_func(population, n_elites)
