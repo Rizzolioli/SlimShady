@@ -409,3 +409,39 @@ def add_noise(X, n):
     X_new = torch.cat((X, random_columns), dim=1)
 
     return X_new
+
+def add_noise_to_random_columns(X, num_columns=1, noise_std=1.0):
+    """
+    Adds num_columns noisy copies of random columns from the input tensor X.
+
+    Parameters:
+    X (torch.Tensor): The input tensor (matrix).
+    num_columns (int): The number of noisy columns to add.
+    noise_std (float): The standard deviation of the Gaussian noise to be added.
+
+    Returns:
+    torch.Tensor: The new tensor with the noisy columns appended.
+    """
+    # Initialize the new tensor as the original one
+    X_new = X.clone()
+
+    for _ in range(num_columns):
+        # Randomly select a column index
+        col_idx = torch.randint(0, X.size(1), (1,)).item()
+
+        # Copy the selected column
+        column = X[:, col_idx].clone().unsqueeze(1)  # Keep it as a 2D tensor
+
+        # Compute the standard deviation of the selected column
+        column_std = column.std()
+
+        # Generate Gaussian noise proportional to the column's standard deviation
+        noise = torch.randn_like(column) * column_std * noise_std
+
+        # Add noise to the copied column
+        noisy_column = column + noise
+
+        # Concatenate the noisy column to the original tensor
+        X_new = torch.cat((X_new, noisy_column), dim=1)
+
+    return X_new
