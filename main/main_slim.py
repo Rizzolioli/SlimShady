@@ -47,21 +47,22 @@ for loader in data_loaders:
 
             # list_crossover = [ "dgx", "sdc-0.3", "sdc-0.7", "no_xo"]
 
+            if op == "sum":
+                list_crossover = ["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
+            else:
+                list_crossover = ["sc", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
+
+
+
             for cross in list_crossover:
-
-                if op == "sum":
-                    list_crossover = ["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
+                if cross == "c":
+                    list_prob = [0.2]
+                elif cross == "no_xo":
+                    list_prob = [0]
                 else:
-                    list_crossover = ["sc", "sdc-0.3", "sdc-0.7",  "dgx", "no_xo"]
-                for cross in list_crossover:
-                    if cross == "c":
-                        list_prob = [0.2]
-                    elif cross == "no_xo":
-                        list_prob = [0]
-                    else:
-                        list_prob = [0.2, 0.5, 0.8]
+                    list_prob = [0.2, 0.5, 0.8]
 
-                
+
                 for cross_prob in list_prob:
 
                     slim_GSGP_parameters["two_trees"] = ttress
