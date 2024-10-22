@@ -480,3 +480,27 @@ def load_bioav(X_y=False):
     else:
         return df
 
+def load_yatch(X_y=False):
+
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "yatch.txt"))
+    if X_y:
+        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    else:
+        return df
+
+def load_instanbul(X_y=False):
+
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "instanbul.txt"))
+    if X_y:
+        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    else:
+        return df
+
+def load_resid_build_sale_price(X_y=False):
+
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "resid_buid_sale_price.txt"))
+    if X_y:
+        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    else:
+        return df
+

@@ -20,8 +20,10 @@ from utils.utils import show_individual
 
 algos = ["SlimGSGP"]
 
-data_loaders = [load_airfoil, load_concrete_strength,
-                load_concrete_slump, 
+data_loaders = [ load_yatch,
+                load_instanbul, load_resid_build_sale_price,
+                load_airfoil, load_concrete_strength,
+                                load_concrete_slump,
                                    ]
 
 ########################################################################################################################
@@ -43,13 +45,23 @@ for loader in data_loaders:
     for algo_name in algos:
         for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
 
-            list_crossover = [ "dgx", "sdc-0.3", "sdc-0.7", "no_xo"]
+            # list_crossover = [ "dgx", "sdc-0.3", "sdc-0.7", "no_xo"]
 
             for cross in list_crossover:
-                if cross == "no_xo":
-                    list_prob = [0]
+
+                if op == "sum":
+                    list_crossover = ["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
                 else:
-                    list_prob = [0.2, 0.5, 0.8]
+                    list_crossover = ["sc", "sdc-0.3", "sdc-0.7",  "dgx", "no_xo"]
+                for cross in list_crossover:
+                    if cross == "c":
+                        list_prob = [0.2]
+                    elif cross == "no_xo":
+                        list_prob = [0]
+                    else:
+                        list_prob = [0.2, 0.5, 0.8]
+
+                
                 for cross_prob in list_prob:
 
                     slim_GSGP_parameters["two_trees"] = ttress
