@@ -538,7 +538,7 @@ def load_istanbul(X_y=True):
     """
 
     df = pd.read_csv(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "istanbul.txt"), sep=" ",
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "instanbul.txt"), sep=" ",
         header=None
     )
     if X_y:
