@@ -152,7 +152,7 @@ for noise_creation in [add_noise_to_random_columns, add_noise]:
                     # getting the name of the dataset:
                     curr_dataset = loader.__name__
 
-                    for seed in range(n_runs):
+                    for seed in range(10, 20):
                         start = time.time()
 
 
