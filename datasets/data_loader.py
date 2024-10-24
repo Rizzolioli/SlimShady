@@ -488,19 +488,64 @@ def load_yatch(X_y=False):
     else:
         return df
 
-def load_instanbul(X_y=False):
+def load_resid_build_sale_price(X_y=True):
+    """
+    Loads and returns the RESIDNAME data set (regression). Taken from https://archive.ics.uci.edu/dataset/437/residential+building+data+set
 
-    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "instanbul.txt"))
+    Parameters
+    ----------
+    X_y : bool, optional
+        Indicates if the data is to be returned as two objects of type torch.Tensor, otherwise as single Tensor.
+
+    Returns
+    -------
+    X, y : torch.Tensor, torch.Tensor
+        The input data (X) and the target of the prediction (y). The
+        latter is extracted from the data set as the last column.
+    df : pandas.DataFrame
+        An object of type pandas.DataFrame which holds the data. The
+        target is the last column.
+    """
+    df = pd.read_csv(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "resid_build_sale_price.txt"), sep=" ",
+        header=None
+    )
     if X_y:
-        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+        return (
+            torch.from_numpy(df.values[:, :-1]).float(),
+            torch.from_numpy(df.values[:, -1]).float(),
+        )
     else:
         return df
 
-def load_resid_build_sale_price(X_y=False):
+def load_istanbul(X_y=True):
+    """
+    Loads and returns the Istanbul data set (regression). Taken from https://docs.1010data.com/MachineLearningExamples/IstanbulDataSet.html.
 
-    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "resid_buid_sale_price.txt"))
+    Parameters
+    ----------
+    X_y : bool, optional
+        Indicates if the data is to be returned as two objects of type torch.Tensor, otherwise as single Tensor.
+
+    Returns
+    -------
+    X, y : torch.Tensor, torch.Tensor
+        The input data (X) and the target of the prediction (y). The
+        latter is extracted from the data set as the last column.
+    df : pandas.DataFrame
+        An object of type pandas.DataFrame which holds the data. The
+        target is the last column.
+    """
+
+    df = pd.read_csv(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "istanbul.txt"), sep=" ",
+        header=None
+    )
     if X_y:
-        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+        return (
+            torch.from_numpy(df.values[:, :-1]).float(),
+            torch.from_numpy(df.values[:, -1]).float(),
+        )
     else:
         return df
 
