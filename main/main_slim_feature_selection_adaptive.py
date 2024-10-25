@@ -78,7 +78,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "n_elites": 1,
                               "reconstruct" : True,
                               "terminal_prob_distr" : True,
-                              "coefficient_terminal_prob" : 2
+                              # "coefficient_terminal_prob" : 2
                               }
 
 slim_GSGP_parameters = {"initializer": rhh,
@@ -123,109 +123,110 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
 for noise_creation in [add_noise_to_random_columns, add_noise]:
     # for each dataset
     for loader in data_loaders:
-        for extra_noise in [1, 5, 10, 50]:
+        for coeff in [0, 2, 5, 10]:
+            for extra_noise in [0, 1, 5, 10, 50]:
 
-            # for each dataset, run all the planned algorithms
-            for algo_name in algos:
+                # for each dataset, run all the planned algorithms
+                for algo_name in algos:
 
-                for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum"), (True, True, 'std')]: #
+                    for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]: #, (True, True, 'std')
 
-                    # getting the log file name according to the used parameters:
+                        # getting the log file name according to the used parameters:
 
-                    if  (sig, ttress, op) == (True, False, "mul"):
-                        algo = 'SLIM*1SIG'
-                    elif (sig, ttress, op) == (False, False, "mul"):
-                        algo = 'SLIM*ABS'
-                    elif (sig, ttress, op) == (True, True, "sum"):
-                        algo = 'SLIM+2SIG'
-                    else:
-                        algo = 'GSGP'
-
-                    if op == 'std':
-                        op == 'sum'
-
-                    slim_GSGP_parameters["two_trees"] = ttress
-                    slim_GSGP_parameters["operator"] = op
-
-                    print(algo)
-                    # running each dataset + algo configuration n_runs times
-
-                    # getting the name of the dataset:
-                    curr_dataset = loader.__name__
-
-                    for seed in range(10, 20):
-                        start = time.time()
-
-
-                        # Loads the data via the dataset loader
-                        X, y = loader(X_y=True)
-
-                        extra_features = [f'x{i}' for i in range(X.shape[1], X.shape[1] + extra_noise)]
-                        X = noise_creation(X, extra_noise)
-
-
-                        # getting the name of the dataset
-                        dataset = loader.__name__.split("load_")[-1]
-
-                        # getting the terminals and defining the terminal-dependant parameters
-                        TERMINALS = {f"x{i}": i for i in range(X.shape[1])}
-                        # Performs train/test split
-                        X_train, X_test, y_train, y_test = train_test_split(X=X, y=y,
-                                                                            p_test=settings_dict['p_test'],
-                                                                            seed=seed)
-
-                        slim_GSGP_parameters["ms"] = generate_random_uniform(0, torch.median(y_train).item())
-
-                        # setting up the dataset related slim parameters:
-                        if dataset in slim_dataset_params.keys():
-                            # slim_GSGP_parameters["ms"] = slim_dataset_params[dataset]["ms"]
-                            slim_GSGP_parameters['p_inflate'] = slim_dataset_params[dataset]["p_inflate"]
-
+                        if  (sig, ttress, op) == (True, False, "mul"):
+                            algo = 'SLIM*1SIG'
+                        elif (sig, ttress, op) == (False, False, "mul"):
+                            algo = 'SLIM*ABS'
+                        elif (sig, ttress, op) == (True, True, "sum"):
+                            algo = 'SLIM+2SIG'
                         else:
-                            # slim_GSGP_parameters["ms"] = slim_dataset_params["other"]["ms"]
+                            algo = 'GSGP'
 
-                            slim_GSGP_parameters['p_inflate'] = slim_dataset_params["other"]["p_inflate"]
+                        if op == 'std':
+                            op == 'sum'
 
-                        slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
+                        slim_GSGP_parameters["two_trees"] = ttress
+                        slim_GSGP_parameters["operator"] = op
 
-                        if algo == 'GSGP':
-                            slim_GSGP_parameters['p_inflate'] = 1
-                            slim_GSGP_parameters['p_deflate'] = 0
+                        print(algo)
+                        # running each dataset + algo configuration n_runs times
 
+                        # getting the name of the dataset:
+                        curr_dataset = loader.__name__
 
-                        # setting up the dataset related parameters:
-                        slim_gsgp_pi_init["TERMINALS"] = TERMINALS
-
-                        slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
-                                                                                  TERMINALS=TERMINALS,
-                                                                                  CONSTANTS=CONSTANTS,
-                                                                                  two_trees=slim_GSGP_parameters[
-                                                                                      'two_trees'],
-                                                                                  operator=slim_GSGP_parameters[
-                                                                                      'operator'],
-                                                                                  sig=sig)
+                        for seed in range(10, 20):
+                            start = time.time()
 
 
-                        # adding the dataset name and algorithm name to the run info for the logger
-                        slim_gsgp_solve_parameters['run_info'] = [algo, noise_creation.__name__, extra_noise, dataset]
+                            # Loads the data via the dataset loader
+                            X, y = loader(X_y=True)
 
-                        optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
+                            extra_features = [f'x{i}' for i in range(X.shape[1], X.shape[1] + extra_noise)]
+                            X = noise_creation(X, extra_noise)
 
-                        optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test,
-                                        curr_dataset=curr_dataset,
-                                        **slim_gsgp_solve_parameters)
 
-                        count_noise = [optimizer.elite.get_tree_representation().count(var) for var in extra_features]
-                        print(count_noise)
+                            # getting the name of the dataset
+                            dataset = loader.__name__.split("load_")[-1]
 
-                        if slim_gsgp_solve_parameters["log"] > 0:
+                            # getting the terminals and defining the terminal-dependant parameters
+                            TERMINALS = {f"x{i}": i for i in range(X.shape[1])}
+                            # Performs train/test split
+                            X_train, X_test, y_train, y_test = train_test_split(X=X, y=y,
+                                                                                p_test=settings_dict['p_test'],
+                                                                                seed=seed)
 
-                            with open(os.path.join(os.getcwd(), "log", f"_{day}.csv"), 'a', newline='') as file:
-                                writer = csv.writer(file)
-                                writer.writerow([algo, unique_run_id, extra_noise, dataset, count_noise, noise_creation.__name__])
+                            slim_GSGP_parameters["ms"] = generate_random_uniform(0, torch.median(y_train).item())
 
-                        print(time.time() - start)
-                        print("THE USED SEED WAS", seed)
+                            # setting up the dataset related slim parameters:
+                            if dataset in slim_dataset_params.keys():
+                                # slim_GSGP_parameters["ms"] = slim_dataset_params[dataset]["ms"]
+                                slim_GSGP_parameters['p_inflate'] = slim_dataset_params[dataset]["p_inflate"]
+
+                            else:
+                                # slim_GSGP_parameters["ms"] = slim_dataset_params["other"]["ms"]
+
+                                slim_GSGP_parameters['p_inflate'] = slim_dataset_params["other"]["p_inflate"]
+
+                            slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
+
+                            if algo == 'GSGP':
+                                slim_GSGP_parameters['p_inflate'] = 1
+                                slim_GSGP_parameters['p_deflate'] = 0
+
+
+                            # setting up the dataset related parameters:
+                            slim_gsgp_pi_init["TERMINALS"] = TERMINALS
+
+                            slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
+                                                                                      TERMINALS=TERMINALS,
+                                                                                      CONSTANTS=CONSTANTS,
+                                                                                      two_trees=slim_GSGP_parameters[
+                                                                                          'two_trees'],
+                                                                                      operator=slim_GSGP_parameters[
+                                                                                          'operator'],
+                                                                                      sig=sig)
+
+                            slim_gsgp_solve_parameters["coefficient_terminal_prob"] = coeff
+                            # adding the dataset name and algorithm name to the run info for the logger
+                            slim_gsgp_solve_parameters['run_info'] = [algo, noise_creation.__name__, extra_noise, coeff, dataset]
+
+                            optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
+
+                            optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test,
+                                            curr_dataset=curr_dataset,
+                                            **slim_gsgp_solve_parameters)
+
+                            count_noise = [optimizer.elite.get_tree_representation().count(var) for var in extra_features]
+                            print(count_noise)
+
+                            if slim_gsgp_solve_parameters["log"] > 0:
+
+                                with open(os.path.join(os.getcwd(), "log", f"_{day}.csv"), 'a', newline='') as file:
+                                    writer = csv.writer(file)
+                                    writer.writerow([algo, unique_run_id, extra_noise, dataset, count_noise, noise_creation.__name__])
+
+                            print(time.time() - start)
+                            print("THE USED SEED WAS", seed)
 
 # elite_saving_path = os.path.join(os.getcwd(), "log", "elite_looks.txt")
 # with open(elite_saving_path, 'w+') as file:
