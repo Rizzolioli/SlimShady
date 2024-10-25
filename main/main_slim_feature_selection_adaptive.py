@@ -67,7 +67,7 @@ CONSTANTS = {
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 0,
+                              "log": 1,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", f"feature_selection_adptive_{day}.csv"),
