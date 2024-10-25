@@ -53,7 +53,8 @@ def one_tree_delta(operator='sum', sig=False):
 
 def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='sum', single_tree_sigmoid=False,
                      sig=False):
-    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1, reconstruct = True, terminal_probabilities = None):
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1, reconstruct = True,
+                terminals_probabilities = None):
 
         # getting a random tree
 
@@ -61,10 +62,10 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
         if two_trees:
             # getting two random trees
             random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
-                                            grow_probability=grow_probability, logistic=True, terminal_probabilities=terminal_probabilities)
+                                            grow_probability=grow_probability, logistic=True, terminals_probabilities=terminals_probabilities)
 
             random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
-                                           grow_probability=grow_probability, logistic=True, terminal_probabilities=terminal_probabilities)
+                                           grow_probability=grow_probability, logistic=True, terminals_probabilities=terminals_probabilities)
 
             random_trees = [random_tree1, random_tree2]
 
@@ -80,7 +81,7 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
             random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
                                            grow_probability=grow_probability,
                                            logistic=single_tree_sigmoid or sig,
-                                           terminal_probabilities=terminal_probabilities)
+                                           terminals_probabilities=terminals_probabilities)
 
             random_trees = [random_tree1]
 
