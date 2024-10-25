@@ -122,7 +122,7 @@ class SLIM_GSGP:
                 total_terminals = sum(terminals_probabilities)
                 terminals_probabilities = [prob/total_terminals for prob in terminals_probabilities]
                 count = sum([0 if prob > 0 else 1 for prob in terminals_probabilities])
-                delta = ((1/(coefficient_terminal_prob * len(terminals_probabilities))) * count) / (len(terminals_probabilities) - count)
+                delta = ((1/(coefficient_terminal_prob * len(terminals_probabilities))) * count) / (len(terminals_probabilities) - count) if coefficient_terminal_prob != 0 else 0
                 terminals_probabilities = [prob - delta if prob > 0 else prob + delta for prob in terminals_probabilities]
 
             else:
@@ -425,7 +425,7 @@ class SLIM_GSGP:
                 total_terminals = sum(terminals_probabilities)
                 terminals_probabilities = [prob/total_terminals for prob in terminals_probabilities]
                 count = sum([0 if prob > 0 else 1 for prob in terminals_probabilities])
-                delta = ((1/(coefficient_terminal_prob * len(terminals_probabilities))) * count) / (len(terminals_probabilities) - count)
+                delta = ((1/(coefficient_terminal_prob * len(terminals_probabilities))) * count) / (len(terminals_probabilities) - count) if coefficient_terminal_prob != 0 else 0
                 terminals_probabilities = [prob - delta if prob > 0 else prob + delta for prob in terminals_probabilities]
 
             else:
