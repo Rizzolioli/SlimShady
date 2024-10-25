@@ -98,7 +98,7 @@ class SSHC():
         for i in range(start_gen, start_gen+generations):
 
             start = time.time()
-            
+
             neighboors = [self.neigh_operator(self.individual, self.reconstruct) for _ in range(neighborhood_size)]
             neighboors = Population(neighboors)
             neighboors.calculate_semantics(self.X_train)

@@ -47,7 +47,7 @@ def flatten(data):
 
 
 # Function to create a random grow tree.
-def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True):
+def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True, terminal_probabilities = None):
     """
         Generates a random tree using the Grow method with a specified depth.
 
@@ -88,7 +88,7 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
     if (depth <= 1 or random.random() < p_terminal) and not first_call:
         # Choose a terminal node (input or constant)
         if random.random() > p_c:
-            node = np.random.choice(list(TERMINALS.keys()))
+            node = np.random.choice(list(TERMINALS.keys()), p = terminal_probabilities)
         else:
             node = np.random.choice(list(CONSTANTS.keys()))
     else:
@@ -113,7 +113,7 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
     return node
 
 # Function to create a random full tree.
-def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
+def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, terminal_probabilities = None):
     """
         Generates a full random tree with a specified depth.
 
@@ -142,7 +142,7 @@ def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3):
     if depth <= 1:
         # Choose a terminal node (input or constant)
         if random.random() > p_c:
-            node = np.random.choice(list(TERMINALS.keys()))
+            node = np.random.choice(list(TERMINALS.keys()), p = terminal_probabilities)
         else:
             node = np.random.choice(list(CONSTANTS.keys()))
     else:

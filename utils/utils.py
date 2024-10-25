@@ -239,12 +239,12 @@ def get_best_max(population, n_elites):
 
 
 def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3, grow_probability=1,
-                    logistic=True):
+                    logistic=True, terminal_probabilities = None):
     # choose between grow and full
     if random.random() < grow_probability:
 
         # creating a tree using grow
-        tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c)
+        tree = create_grow_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c, terminal_probabilities)
 
         #reconstruct set to true to calculate the s
         tree = Tree(structure=tree,

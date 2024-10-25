@@ -53,7 +53,9 @@ class SLIM_GSGP:
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset, run_info ,n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, ffunction=None, max_depth=17, n_elites=1, reconstruct = True,
               pause_deflate = None, #only for CHULL study
-              gp_imputing_missing_values = False #only for missing values study
+              gp_imputing_missing_values = False, #only for missing values study
+              terminal_prob_distr = False,
+              coefficient_terminal_prob = 0
               ):
 
 
@@ -113,6 +115,18 @@ class SLIM_GSGP:
              for ind in population]
 
             self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
+
+            if terminal_prob_distr:
+                elite_repr_ = self.elite.get_tree_representation()
+                terminals_probabilities = [elite_repr_.count(terminal) for terminal in Tree.TERMINALS.keys()]
+                total_terminals = sum(terminals_probabilities)
+                terminals_probabilities = [prob/total_terminals for prob in terminals_probabilities]
+                count = sum([0 if prob > 0 else 1 for prob in terminals_probabilities])
+                delta = ((1/(coefficient_terminal_prob * len(terminals_probabilities))) * count) / (len(terminals_probabilities) - count)
+                terminals_probabilities = [prob - delta if prob > 0 else prob + delta for prob in terminals_probabilities]
+
+            else:
+                terminals_probabilities = None
 
 
         # logging the population initialization
@@ -337,7 +351,8 @@ class SLIM_GSGP:
                                                         max_depth = self.pi_init["init_depth"],
                                                         p_c = self.pi_init["p_c"],
                                                         X_test = X_test,
-                                                        reconstruct = reconstruct)
+                                                        reconstruct = reconstruct,
+                                                        terminals_probabilities = terminals_probabilities)
 
                         # checking if after inflation the offspring isnt valid:
                         if max_depth is not None and off1.depth > max_depth:
@@ -403,6 +418,18 @@ class SLIM_GSGP:
                      for ind in population]
 
                 self.elite.evaluate(ffunction, y=y_test, testing=True, operator=self.operator)
+
+            if terminal_prob_distr:
+                elite_repr_ = self.elite.get_tree_representation()
+                terminals_probabilities = [elite_repr_.count(terminal) for terminal in Tree.TERMINALS.keys()]
+                total_terminals = sum(terminals_probabilities)
+                terminals_probabilities = [prob/total_terminals for prob in terminals_probabilities]
+                count = sum([0 if prob > 0 else 1 for prob in terminals_probabilities])
+                delta = ((1/(coefficient_terminal_prob * len(terminals_probabilities))) * count) / (len(terminals_probabilities) - count)
+                terminals_probabilities = [prob - delta if prob > 0 else prob + delta for prob in terminals_probabilities]
+
+            else:
+                terminals_probabilities = None
 
             # logging the population initialization
             if log != 0:
