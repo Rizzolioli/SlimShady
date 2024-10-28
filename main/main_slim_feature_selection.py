@@ -48,7 +48,7 @@ elites = {}
 # attibuting a unique id to the run
 unique_run_id = uuid.uuid1()
 
-n_runs = 10
+#n_runs = 10
 settings_dict = {"p_test": 0.2}
 
 FUNCTIONS = {
@@ -152,7 +152,7 @@ for noise_creation in [add_noise_to_random_columns, add_noise]:
                     # getting the name of the dataset:
                     curr_dataset = loader.__name__
 
-                    for seed in range(10, 20):
+                    for seed in range(10, 30):
                         start = time.time()
 
 
