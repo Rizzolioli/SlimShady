@@ -20,10 +20,13 @@ from utils.utils import show_individual
 
 algos = ["SlimGSGP"]
 
-data_loaders = [ load_yatch,
-                load_instanbul, load_resid_build_sale_price,
-                load_airfoil, load_concrete_strength,
-                                load_concrete_slump,
+data_loaders = [
+                load_yatch,
+                load_istanbul,
+                # load_resid_build_sale_price,
+                load_airfoil,
+                load_concrete_strength,
+                load_concrete_slump,
                                    ]
 
 ########################################################################################################################
@@ -43,12 +46,12 @@ unique_run_id = uuid.uuid1()
 # for each dataset
 for loader in data_loaders:
     for algo_name in algos:
-        for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
+        for (sig, ttress, op) in [(True, True, "sum")]: #(True, False, "mul"), (False, False, "mul"),
 
             # list_crossover = [ "dgx", "sdc-0.3", "sdc-0.7", "no_xo"]
 
             if op == "sum":
-                list_crossover = ["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
+                list_crossover = ["adc-0.3", "adc-0.7"] #["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
             else:
                 list_crossover = ["sc", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
 
@@ -61,6 +64,8 @@ for loader in data_loaders:
                     list_prob = [0]
                 else:
                     list_prob = [0.2, 0.5, 0.8]
+                # list_prob = [0.2]
+
 
 
                 for cross_prob in list_prob:
@@ -78,6 +83,8 @@ for loader in data_loaders:
                     print('SIG:', sig)
                     print('2T:', ttress)
                     print('OPERATOR', op)
+                    print('XO', cross)
+                    print('p_xo', cross_prob)
 
                     # running each dataset + algo configuration n_runs times
                     for seed in range(n_runs):
@@ -125,8 +132,6 @@ for loader in data_loaders:
                                                                                       'operator'],
                                                                                   sig=sig)
 
-
-
                         if cross == "c":
                             slim_GSGP_parameters["crossover"] = slim_geometric_crossover(FUNCTIONS=FUNCTIONS,
                                                                                          TERMINALS=TERMINALS,
@@ -141,11 +146,11 @@ for loader in data_loaders:
                         elif cross == "sc":
                             slim_GSGP_parameters["crossover"] = slim_swap_geometric_crossover
 
-                        elif cross == "sda-0.3":
+                        elif cross == "adc-0.3":
                             slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
                                 operator=slim_GSGP_parameters['operator'], perc_off_blocks=0.3)
 
-                        elif cross == "sda-0.7":
+                        elif cross == "adc-0.7":
                             slim_GSGP_parameters["crossover"] = slim_alpha_deflate_geometric_crossover(
                                 operator=slim_GSGP_parameters['operator'], perc_off_blocks=0.7)
 
@@ -154,6 +159,7 @@ for loader in data_loaders:
 
                         elif cross == "sdc-0.7":
                             slim_GSGP_parameters["crossover"] = slim_swap_deflate_geometric_crossover(perc_off_blocks=0.7)
+
                         elif cross == 'dgx':
                             slim_GSGP_parameters["crossover"] = donor_gxo
 

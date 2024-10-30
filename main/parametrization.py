@@ -148,7 +148,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
 
 slim_GSGP_parameters = {"initializer": rhh,
                         "selector": tournament_selection_min_slim(2),
-                        "crossover": geometric_crossover,
+                        "crossover": None,
                         "ms": None,
                         "inflate_mutator": None,
                         "deflate_mutator": deflate_mutation,
