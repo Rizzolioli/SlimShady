@@ -51,9 +51,9 @@ for loader in data_loaders:
             # list_crossover = [ "dgx", "sdc-0.3", "sdc-0.7", "no_xo"]
 
             if op == "sum":
-                list_crossover = ["adc-0.3", "adc-0.7"] #["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
+                list_crossover = [ "sc", "dgx",  "sdc-0.7", "adc-0.7"] #["c", "sc", "adc-0.3", "adc-0.7", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
             else:
-                list_crossover = ["sc", "sdc-0.3", "sdc-0.7", "dgx", "no_xo"]
+                list_crossover = ["sc",  "dgx", "sdc-0.7",] #, "no_xo"
 
 
 
@@ -116,8 +116,8 @@ for loader in data_loaders:
                             slim_GSGP_parameters["ms"] = slim_dataset_params["other"]["ms"]
                             slim_GSGP_parameters['p_inflate'] = slim_dataset_params["other"]["p_inflate"]
 
-                        if cross != "no_xo":
-                            slim_GSGP_parameters['p_inflate'] = 1
+                        # if cross != "no_xo":
+                        #     slim_GSGP_parameters['p_inflate'] = 1
                         slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 
                         # setting up the dataset related parameters:
