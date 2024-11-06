@@ -46,7 +46,7 @@ unique_run_id = uuid.uuid1()
 # for each dataset
 for loader in data_loaders:
     for algo_name in algos:
-        for (sig, ttress, op) in [(True, True, "sum")]: #(True, False, "mul"), (False, False, "mul"),
+        for (sig, ttress, op) in [(True, False, "mul")]: #(True, False, "mul"), (False, False, "mul"),
 
             # list_crossover = [ "dgx", "sdc-0.3", "sdc-0.7", "no_xo"]
 
