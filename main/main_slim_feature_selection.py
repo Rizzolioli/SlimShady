@@ -127,14 +127,14 @@ for noise_creation in [add_noise_to_random_columns, add_noise]:
             # for each dataset, run all the planned algorithms
             for algo_name in algos:
 
-                for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum"), (True, True, 'std')]: #
+                for (sig, ttress, op, gsgp) in [(True, False, "mul", True), (False, False, "mul", True)]: # (True, True, "sum"), (True, True, 'std')
 
                     # getting the log file name according to the used parameters:
 
-                    if  (sig, ttress, op) == (True, False, "mul"):
-                        algo = 'SLIM*1SIG'
-                    elif (sig, ttress, op) == (False, False, "mul"):
-                        algo = 'SLIM*ABS'
+                    if  (sig, ttress, op, gsgp) == (True, False, "mul", True):
+                        algo = 'GSGP*1SIG'
+                    elif (sig, ttress, op, gsgp) == (False, False, "mul", True):
+                        algo = 'GSGP*ABS'
                     elif (sig, ttress, op) == (True, True, "sum"):
                         algo = 'SLIM+2SIG'
                     else:
@@ -152,7 +152,7 @@ for noise_creation in [add_noise_to_random_columns, add_noise]:
                     # getting the name of the dataset:
                     curr_dataset = loader.__name__
 
-                    for seed in range(10, 30):
+                    for seed in range(30):
                         start = time.time()
 
 
@@ -187,7 +187,7 @@ for noise_creation in [add_noise_to_random_columns, add_noise]:
 
                         slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 
-                        if algo == 'GSGP':
+                        if gsgp:
                             slim_GSGP_parameters['p_inflate'] = 1
                             slim_GSGP_parameters['p_deflate'] = 0
 
