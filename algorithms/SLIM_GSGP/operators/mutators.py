@@ -5,6 +5,7 @@ from algorithms.GP.representations.tree_utils import create_grow_random_tree
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual
 from utils.utils import get_random_tree, consecutive_final_indexes
+import numpy as np
 
 
 def two_trees_delta(operator='sum'):
@@ -223,3 +224,53 @@ def more_blocks_deflate_mutation(individual, reconstruct, allow_bt=True, blocks_
             individual.nodes_collection, individual.nodes_count, individual.depth_collection, individual.depth, individual.size
 
     return offs
+
+
+
+def weighted_deflate_mutation(metric, selection = np.random.choice):
+
+    def wdm(individual, reconstruct, allow_bt=False):
+
+        limit = 1 if allow_bt else 2
+
+        probabilities = [metric(individual.head_signed_error, block).item() for block in individual.train_semantics[1:individual.size - limit + 1 ]]
+        probabilities = [p/sum(probabilities) for p in probabilities]
+        idxs = [i for i in range(1,  individual.size - limit + 1 )]
+
+        if individual.size > limit:
+
+            mut_point = selection(idxs, p = probabilities)
+
+            offs = Individual(collection=[*individual.collection[:mut_point], *individual.collection[mut_point + 1:]]
+            if reconstruct else None,
+                              train_semantics=torch.stack(
+                                  [*individual.train_semantics[:mut_point], *individual.train_semantics[mut_point + 1:]]
+                              ),
+                              test_semantics=torch.stack(
+                                  [*individual.test_semantics[:mut_point], *individual.test_semantics[mut_point + 1:]]
+                              )
+                              if individual.test_semantics is not None
+                              else None,
+                              reconstruct=reconstruct)
+
+            offs.size = individual.size - 1
+            offs.nodes_collection = [*individual.nodes_collection[:mut_point], *individual.nodes_collection[mut_point + 1:]]
+            offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
+
+            offs.depth_collection = [*individual.depth_collection[:mut_point], *individual.depth_collection[mut_point + 1:]]
+            offs.depth = max([depth - (i - 1) if i != 0 else depth
+                              for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
+
+
+        else:
+            offs = Individual(collection=individual.collection if reconstruct else None,
+                              train_semantics=individual.train_semantics,
+                              test_semantics=individual.test_semantics,
+                              reconstruct=reconstruct
+                              )
+            offs.nodes_collection, offs.nodes_count, offs.depth_collection, offs.depth, offs.size = \
+                individual.nodes_collection, individual.nodes_count, individual.depth_collection, individual.depth, individual.size
+
+        return offs
+
+    return wdm

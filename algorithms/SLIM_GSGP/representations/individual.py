@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from algorithms.GSGP.representations.tree_utils import apply_tree
 from utils.utils import show_individual
+from evaluators.fitness_functions import signed_errors
 
 class Individual():
 
@@ -40,6 +41,7 @@ class Individual():
 
 
 
+
     def __len__(self):
         return self.size
 
@@ -74,6 +76,7 @@ class Individual():
 
         else: # note: clamping in case the operator results in very big semantics
             self.fitness = ffunction(y, torch.clamp(operator(self.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0))
+            self.head_signed_error = signed_errors(y, self.train_semantics[0])
 
     def get_tree_representation(self, operator = '+'):
         """

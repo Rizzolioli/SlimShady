@@ -67,7 +67,7 @@ CONSTANTS = {
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 1,
+                              "log": 0,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", f"feature_selection_{day}.csv"),
@@ -219,7 +219,7 @@ for noise_creation in [add_noise_to_random_columns, add_noise]:
 
                         if slim_gsgp_solve_parameters["log"] > 0:
 
-                            with open(os.path.join(os.getcwd(), "log", f"_{day}.csv"), 'a', newline='') as file:
+                            with open(os.path.join(os.getcwd(), "log", f"varcount_{day}.csv"), 'a', newline='') as file:
                                 writer = csv.writer(file)
                                 writer.writerow([algo, unique_run_id, extra_noise, dataset, count_noise, noise_creation.__name__])
 
