@@ -234,7 +234,7 @@ def weighted_deflate_mutation(metric, selection = np.random.choice):
         limit = 1 if allow_bt else 2
 
         probabilities = [metric(individual.head_signed_error, block).item() for block in individual.train_semantics[1:individual.size - limit + 1 ]]
-        probabilities = [p/sum(probabilities) for p in probabilities]
+        probabilities = [p/sum(probabilities) for p in probabilities] if sum(probabilities) > 0 else None
         idxs = [i for i in range(1,  individual.size - limit + 1 )]
 
         if individual.size > limit:

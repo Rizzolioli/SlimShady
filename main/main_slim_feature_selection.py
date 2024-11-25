@@ -67,7 +67,7 @@ CONSTANTS = {
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 0,
+                              "log": 1,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", f"feature_selection_{day}.csv"),
@@ -122,7 +122,7 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
 for noise_creation in [add_noise_to_random_columns, add_noise]:
     # for each dataset
     for loader in data_loaders:
-        for extra_noise in [1, 5, 10, 50]:
+        for extra_noise in [0]:
 
             # for each dataset, run all the planned algorithms
             for algo_name in algos:

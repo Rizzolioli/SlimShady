@@ -119,7 +119,7 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
                        "concrete_strength": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
                        "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}}
 
-for metric in [rmse, sign, sign_rmse]:
+for metric in [ sign, sign_rmse]: #rmse,
     for noise_creation in [add_noise_to_random_columns, add_noise]:
         # for each dataset
         for loader in data_loaders:
