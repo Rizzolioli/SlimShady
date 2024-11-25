@@ -70,7 +70,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", f"feature_selection_smart_{day}.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", f"feature_selection_smart2_{day}.csv"),
                               "run_info": None,
                               "ffunction": rmse,
                               "n_iter": 1000,
@@ -119,7 +119,7 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
                        "concrete_strength": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
                        "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}}
 
-for metric in [ sign, sign_rmse]: #rmse,
+for metric in [ rmse, sign, sign_rmse]: #rmse,
     for noise_creation in [add_noise_to_random_columns, add_noise]:
         # for each dataset
         for loader in data_loaders:
@@ -136,14 +136,14 @@ for metric in [ sign, sign_rmse]: #rmse,
                             algo = 'GSGP*1SIG'
                         elif (sig, ttress, op, gsgp) == (False, False, "mul", True):
                             algo = 'GSGP*ABS'
-                        if  (sig, ttress, op, gsgp) == (True, False, "mul", True):
+                        if  (sig, ttress, op, gsgp) == (True, False, "mul", False):
                             algo = 'SLIM*1SIG'
-                        elif (sig, ttress, op, gsgp) == (False, False, "mul", True):
+                        elif (sig, ttress, op, gsgp) == (False, False, "mul", False):
                             algo = 'SLIM*ABS'
-                        elif (sig, ttress, op) == (True, True, "sum", False):
+                        elif (sig, ttress, op, gsgp) == (True, True, "sum", False):
                             algo = 'SLIM+2SIG'
-                        else:
-                            algo = 'GSGP'
+                        # else:
+                        #     algo = 'GSGP'
 
                         if op == 'std':
                             op == 'sum'
@@ -227,7 +227,7 @@ for metric in [ sign, sign_rmse]: #rmse,
 
                             if slim_gsgp_solve_parameters["log"] > 0:
 
-                                with open(os.path.join(os.getcwd(), "log", f"varcount_smart_{day}.csv"), 'a', newline='') as file:
+                                with open(os.path.join(os.getcwd(), "log", f"varcount_smart2_{day}.csv"), 'a', newline='') as file:
                                     writer = csv.writer(file)
                                     writer.writerow([algo, unique_run_id, extra_noise, dataset, count_noise,
                                                      noise_creation.__name__, metric.__name__,])
