@@ -127,8 +127,8 @@ for noise_creation in [add_noise_to_random_columns, add_noise]:
             # for each dataset, run all the planned algorithms
             for algo_name in algos:
 
-                for (sig, ttress, op, gsgp) in [(True, False, "mul", False), (False, False, "mul", False),
-                                                (True, True, "sum", False)]:  # (True, True, "sum"), (True, True, 'std')
+                for (sig, ttress, op, gsgp) in [(True, True, "sum",
+                                                 True)]:  # (True, True, "sum"), (True, True, 'std') (True, False, "mul", False), (False, False, "mul", False), (True, True, "sum", False)
 
                     # getting the log file name according to the used parameters:
 
@@ -142,8 +142,8 @@ for noise_creation in [add_noise_to_random_columns, add_noise]:
                         algo = 'SLIM*ABS'
                     elif (sig, ttress, op, gsgp) == (True, True, "sum", False):
                         algo = 'SLIM+2SIG'
-                    # elif (sig, ttress, op, gsgp) == (True, True, "sum", True)::
-                    #     algo = 'GSGP'
+                    elif (sig, ttress, op, gsgp) == (True, True, "sum", True):
+                        algo = 'GSGP'
 
                     if op == 'std':
                         op = 'sum'

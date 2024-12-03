@@ -128,7 +128,7 @@ for metric in [ rmse, sign, sign_rmse]: #rmse,
                 # for each dataset, run all the planned algorithms
                 for algo_name in algos:
 
-                    for (sig, ttress, op, gsgp) in [(True, False, "mul", False), (False, False, "mul", False), (True, True, "sum", False)]: # (True, True, "sum"), (True, True, 'std')
+                    for (sig, ttress, op, gsgp) in [(True, True, "sum", True), (True, False, "mul", False), (False, False, "mul", False), (True, True, "sum", False)]: # (True, True, "sum"), (True, True, 'std')
 
                         # getting the log file name according to the used parameters:
 
@@ -142,8 +142,8 @@ for metric in [ rmse, sign, sign_rmse]: #rmse,
                             algo = 'SLIM*ABS'
                         elif (sig, ttress, op, gsgp) == (True, True, "sum", False):
                             algo = 'SLIM+2SIG'
-                        # elif (sig, ttress, op, gsgp) == (True, True, "sum", True)::
-                        #     algo = 'GSGP'
+                        elif (sig, ttress, op, gsgp) == (True, True, "sum", True):
+                            algo = 'GSGP'
 
                         if op == 'std':
                             op = 'sum'
