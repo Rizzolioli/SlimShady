@@ -142,11 +142,11 @@ for metric in [ rmse, sign, sign_rmse]: #rmse,
                             algo = 'SLIM*ABS'
                         elif (sig, ttress, op, gsgp) == (True, True, "sum", False):
                             algo = 'SLIM+2SIG'
-                        # else:
+                        # elif (sig, ttress, op, gsgp) == (True, True, "sum", True)::
                         #     algo = 'GSGP'
 
                         if op == 'std':
-                            op == 'sum'
+                            op = 'sum'
 
                         slim_GSGP_parameters["two_trees"] = ttress
                         slim_GSGP_parameters["operator"] = op

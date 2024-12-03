@@ -127,21 +127,26 @@ for noise_creation in [add_noise_to_random_columns, add_noise]:
             # for each dataset, run all the planned algorithms
             for algo_name in algos:
 
-                for (sig, ttress, op, gsgp) in [(True, False, "mul", True), (False, False, "mul", True)]: # (True, True, "sum"), (True, True, 'std')
+                for (sig, ttress, op, gsgp) in [(True, False, "mul", False), (False, False, "mul", False),
+                                                (True, True, "sum", False)]:  # (True, True, "sum"), (True, True, 'std')
 
                     # getting the log file name according to the used parameters:
 
-                    if  (sig, ttress, op, gsgp) == (True, False, "mul", True):
+                    if (sig, ttress, op, gsgp) == (True, False, "mul", True):
                         algo = 'GSGP*1SIG'
                     elif (sig, ttress, op, gsgp) == (False, False, "mul", True):
                         algo = 'GSGP*ABS'
-                    elif (sig, ttress, op) == (True, True, "sum"):
+                    if (sig, ttress, op, gsgp) == (True, False, "mul", False):
+                        algo = 'SLIM*1SIG'
+                    elif (sig, ttress, op, gsgp) == (False, False, "mul", False):
+                        algo = 'SLIM*ABS'
+                    elif (sig, ttress, op, gsgp) == (True, True, "sum", False):
                         algo = 'SLIM+2SIG'
-                    else:
-                        algo = 'GSGP'
+                    # elif (sig, ttress, op, gsgp) == (True, True, "sum", True)::
+                    #     algo = 'GSGP'
 
                     if op == 'std':
-                        op == 'sum'
+                        op = 'sum'
 
                     slim_GSGP_parameters["two_trees"] = ttress
                     slim_GSGP_parameters["operator"] = op
