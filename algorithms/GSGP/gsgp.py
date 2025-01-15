@@ -123,7 +123,6 @@ class GSGP:
                 chull_distance = distance_from_chull(errors)
 
                 add_info = [self.elite.test_fitness, self.elite.nodes, chull_distance]
-                add_info.append(False)
 
             else:
 
@@ -171,6 +170,17 @@ class GSGP:
                                                         logistic=True,
                                                         p_c=self.pi_init['p_c'])]
 
+                        # calculating its semantics on testing, if applicable
+                        if test_elite:
+                            [r_tree.calculate_semantics(X_test, testing=True, logistic=True) for r_tree in random_trees]
+
+                        # the two parents generate one offspring
+                        offs1 = Tree(structure=[self.crossover, p1, p2, *random_trees] if reconstruct else None,
+                                     train_semantics=self.crossover(p1, p2, *random_trees, testing=False),
+                                     test_semantics=self.crossover(p1, p2, *random_trees,
+                                                                   testing=True) if test_elite else None,
+                                     reconstruct=reconstruct)
+
                     elif self.crossover.__name__ == 'combined_geometric_crossover':
 
                         # getting a random tree
@@ -182,16 +192,22 @@ class GSGP:
                                                  logistic=True,
                                                  p_c= self.pi_init['p_c']) for _ in range(5)]
 
-                    # calculating its semantics on testing, if applicable
-                    if test_elite:
-                       [ r_tree.calculate_semantics(X_test, testing=True, logistic=True) for r_tree in random_trees]
-                        
+                        # calculating its semantics on testing, if applicable
+                        if test_elite:
+                            [r_tree.calculate_semantics(X_test, testing=True, logistic=True) for r_tree in random_trees]
 
-                    # the two parents generate one offspring
-                    offs1 = Tree(structure = [self.crossover, p1, p2, *random_trees] if reconstruct else None,
-                                 train_semantics=self.crossover(p1, p2, *random_trees, testing = False),
-                                 test_semantics=self.crossover(p1, p2, *random_trees, testing=True) if test_elite else None,
-                                 reconstruct=reconstruct)
+                        ms_ = self.ms()
+
+                        # the two parents generate one offspring
+                        offs1 = Tree(structure=[self.crossover, p1, p2, *random_trees, ms_] if reconstruct else None,
+                                     train_semantics=self.crossover(p1, p2, *random_trees, ms_, testing=False),
+                                     test_semantics=self.crossover(p1, p2, *random_trees, ms_,
+                                                                   testing=True) if test_elite else None,
+                                     reconstruct=reconstruct)
+                    else:
+                        raise Exception('Invalid crossover operator')
+
+
                     if not reconstruct:
                         offs1.nodes = nested_nodes_calculator(self.crossover,
                                                           [p1.nodes, p2.nodes, *[r_tree.nodes  for r_tree in random_trees]])
@@ -200,14 +216,6 @@ class GSGP:
 
                     # adding the offspring to the population
                     offs_pop.append(offs1)
-
-
-
-
-
-                    else:
-                        raise Exception('Invalid crossover operator')
-
 
                 else:
                     # if mutation choose one parent
@@ -332,7 +340,6 @@ class GSGP:
                     chull_distance = distance_from_chull(errors)
 
                     add_info = [self.elite.test_fitness, self.elite.nodes, chull_distance]
-                    add_info.append(False)
 
                 else:
 

@@ -51,7 +51,11 @@ def apply_tree(tree, inputs):
 
 def nested_depth_calculator(operator, depths):
 
-    if operator.__name__ == 'tt_delta_sum':
+    if operator.__name__ == 'standard_geometric_mutation':
+        depths[0] += 1
+        depths[1:] = [d + 3 for d in depths[1:]]
+
+    elif operator.__name__ == 'tt_delta_sum':
         depths[0] += 3
         
     elif operator.__name__ in ['tt_delta_mul', 'ot_delta_sum_True']:
@@ -64,27 +68,53 @@ def nested_depth_calculator(operator, depths):
         depths[0] += 6
         
     elif operator.__name__ in ['geometric_crossover', 'stdxo_delta']:
-        depths[:] += 2
+        depths = [d + 2 for d in depths]
+        # depths[:] += 2
         depths.append(depths[-1] + 1)
 
     elif operator.__name__ == 'stdxo_ot_delta_first':
         depths[:] += 1
 
     elif operator.__name__ == 'stdxo_ot_delta_second':
-        depths[0] += 1
+        depths = [d + 1 for d in depths]
+        # depths[0] += 1
         depths[1] += 2
 
     elif operator.__name__ == 'stdxo_a_delta':
-        depths[:] += 2
+        # depths[:] += 2
+        depths = [d + 2 for d in depths]
 
     elif operator.__name__ in ['stdxo_ot_a_delta_first', 'stdxo_ot_a_delta_second']:
-        depths[:] += 1
+        depths = [d + 1 for d in depths]
+        # depths[:] += 1
+
+    elif operator.__name__ == 'combined_geometric_crossover':
+
+        depths[:3] = [d +3 for d in depths[:3] ]
+        depths[4:] = [d + 4 for d in depths[4:]]
+
+    else:
+
+        raise Exception('Invalid Operator')
         
 
     return max(depths)
 
 
 def nested_nodes_calculator(operator, nodes):
+    if operator.__name__ not in ['standard_geometric_mutation', 'tt_delta_sum',
+                                'tt_delta_mul', 'ot_delta_sum_True',
+                                'ot_delta_sum_False', 'ot_delta_mul_True',
+                                'ot_delta_mul_False',
+                                'geometric_crossover', 'stdxo_delta',
+                                'stdxo_ot_delta_first',
+                                'stdxo_ot_delta_second',
+                                'stdxo_a_delta',
+                                'stdxo_ot_a_delta_first', 'stdxo_ot_a_delta_second',
+                                'combined_geometric_crossover',
+                                ]:
+        raise Exception("Invalid Operator")
+
     extra_operators_nodes = \
          \
          [5, nodes[-1]] if operator.__name__ in ['geometric_crossover', 'stdxo_delta'] else \
@@ -103,8 +133,10 @@ def nested_nodes_calculator(operator, nodes):
 
          ([6] if operator.__name__ == 'tt_delta_mul' else
 
-         ([4] if operator.__name__ in ['stdxo_ot_a_delta_second','tt_delta_sum'] else [0]
+         ([4] if operator.__name__ in ['stdxo_ot_a_delta_second','tt_delta_sum', 'standard_geometric_mutation'] else
 
-           ))))))))
+          ([13] if operator.__name__ == 'combined_geometric_crossover' else [0]
+
+           )))))))))
 
     return sum([*nodes, *extra_operators_nodes])

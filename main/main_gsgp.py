@@ -1,5 +1,5 @@
 import uuid
-from parametrization import *
+# from parametrization import *
 from algorithms.GSGP.gsgp import GSGP
 import datasets.data_loader as ds
 from utils.utils import get_terminals, train_test_split
@@ -30,8 +30,35 @@ day = now.strftime("%Y%m%d")
 
 ########################################################################################################################
 
+n_runs = 30
+settings_dict = {"p_test": 0.2}
+
+FUNCTIONS = {
+    'add': {'function': lambda x, y: torch.add(x, y), 'arity': 2},
+    'subtract': {'function': lambda x, y: torch.sub(x, y), 'arity': 2},
+    'multiply': {'function': lambda x, y: torch.mul(x, y), 'arity': 2},
+    'divide': {'function': lambda x, y: protected_div(x, y), 'arity': 2}
+}
+
+"""
+
+'mean': {'function': lambda x, y: mean_(x, y), 'arity': 2},
+    'tan': {'function': lambda x: torch.tan(x), 'arity': 1},
+    'sin': {'function': lambda x: torch.sin(x), 'arity': 1},
+    'cos': {'function': lambda x: torch.cos(x), 'arity': 1},
+
+"""
+
+CONSTANTS = {
+    'constant_2': lambda x: torch.tensor(2).float(),
+    'constant_3': lambda x: torch.tensor(3).float(),
+    'constant_4': lambda x: torch.tensor(4).float(),
+    'constant_5': lambda x: torch.tensor(5).float(),
+    'constant__1': lambda x: torch.tensor(-1).float()
+}
+
 gsgp_solve_parameters = {"elitism": True,
-                         "log": 5,
+                         "log": 1,
                          "verbose": 1,
                          "test_elite": True,
                          "log_path": os.path.join(os.getcwd(), "log", f"GSGP_CGXO_{day}.csv"),
@@ -91,7 +118,7 @@ for loader in data_loaders:
     # getting the name of the dataset
     dataset = loader.__name__.split("load_")[-1]
 
-    for experiment in ['only_gsm', 'only_gxo', 'only_cgxo']:
+    for experiment in ['only_gxo' , 'only_cgxo', 'only_gsm', ]:
         # adding the dataset name and algorithm name to the run info for the logger
         gsgp_solve_parameters['run_info'] = [algos[0], experiment, unique_run_id ,dataset]
 
