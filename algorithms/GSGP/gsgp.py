@@ -155,38 +155,58 @@ class GSGP:
                 # choosing between crossover and mutation
                 if random.random() < self.p_xo:
 
-                    # if crossover, select two parents
                     p1, p2 = self.selector(population), self.selector(population)
 
                     while p1 == p2:
                         p1, p2 = self.selector(population), self.selector(population)
 
-                    # getting a random tree
-                    r_tree = get_random_tree(max_depth=self.pi_init['init_depth'],
-                                             FUNCTIONS=self.pi_init['FUNCTIONS'],
-                                             TERMINALS=self.pi_init['TERMINALS'],
-                                             CONSTANTS=self.pi_init['CONSTANTS'],
-                                             inputs=X_train,
-                                             logistic=True,
-                                             p_c= self.pi_init['p_c'])
+                    if self.crossover.__name__ == 'geometric_crossover':
+
+                        # getting a random tree
+                        random_trees = [get_random_tree(max_depth=self.pi_init['init_depth'],
+                                                        FUNCTIONS=self.pi_init['FUNCTIONS'],
+                                                        TERMINALS=self.pi_init['TERMINALS'],
+                                                        CONSTANTS=self.pi_init['CONSTANTS'],
+                                                        inputs=X_train,
+                                                        logistic=True,
+                                                        p_c=self.pi_init['p_c'])]
+
+                    elif self.crossover.__name__ == 'combined_geometric_crossover':
+
+                        # getting a random tree
+                        random_trees = [get_random_tree(max_depth=self.pi_init['init_depth'],
+                                                 FUNCTIONS=self.pi_init['FUNCTIONS'],
+                                                 TERMINALS=self.pi_init['TERMINALS'],
+                                                 CONSTANTS=self.pi_init['CONSTANTS'],
+                                                 inputs=X_train,
+                                                 logistic=True,
+                                                 p_c= self.pi_init['p_c']) for _ in range(5)]
 
                     # calculating its semantics on testing, if applicable
                     if test_elite:
-                        r_tree.calculate_semantics(X_test, testing=True, logistic=True)
+                       [ r_tree.calculate_semantics(X_test, testing=True, logistic=True) for r_tree in random_trees]
+                        
 
                     # the two parents generate one offspring
-                    offs1 = Tree(structure = [self.crossover, p1, p2, r_tree] if reconstruct else None,
-                                 train_semantics=self.crossover(p1, p2, r_tree, testing = False),
-                                 test_semantics=self.crossover(p1, p2, r_tree, testing=True) if test_elite else None,
+                    offs1 = Tree(structure = [self.crossover, p1, p2, *random_trees] if reconstruct else None,
+                                 train_semantics=self.crossover(p1, p2, *random_trees, testing = False),
+                                 test_semantics=self.crossover(p1, p2, *random_trees, testing=True) if test_elite else None,
                                  reconstruct=reconstruct)
                     if not reconstruct:
                         offs1.nodes = nested_nodes_calculator(self.crossover,
-                                                          [p1.nodes, p2.nodes, r_tree.nodes])
+                                                          [p1.nodes, p2.nodes, *[r_tree.nodes  for r_tree in random_trees]])
                         offs1.depth = nested_depth_calculator(self.crossover,
-                                                              [p1.depth, p2.depth, r_tree.depth])
+                                                              [p1.depth, p2.depth, *[r_tree.depth  for r_tree in random_trees]])
 
                     # adding the offspring to the population
                     offs_pop.append(offs1)
+
+
+
+
+
+                    else:
+                        raise Exception('Invalid crossover operator')
 
 
                 else:

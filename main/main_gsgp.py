@@ -71,8 +71,9 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
 algos = ["GSGP"]
 
 # data_loaders = [ "airfoil", "concrete_slump", "concrete_strength", "ppb", "ld50", "bioavalability", "yatch"]
-data_loaders = [load_yatch, load_airfoil, load_concrete_slump, load_concrete_strength, load_ppb,
-                load_bioav, load_ld50]
+data_loaders = [load_yatch,  load_bioav, load_airfoil,  load_ld50,
+                load_concrete_slump, load_concrete_strength, load_ppb,
+               ]
 
 ########################################################################################################################
 
