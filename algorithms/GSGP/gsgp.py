@@ -12,6 +12,7 @@ from utils.logger import logger
 from utils.diversity import gsgp_pop_div_from_vectors
 
 from algorithms.GSGP.representations.tree_utils import apply_tree, nested_depth_calculator, nested_nodes_calculator
+from utils.convexhull import distance_from_chull, calculate_signed_errors
 
 
 class GSGP:
@@ -115,6 +116,14 @@ class GSGP:
                             " ".join([str(ind.nodes) for ind in population.population]),
                             " ".join([str(f) for f in population.fit]), log
                             ]
+
+            elif log == 5:
+                errors = torch.stack(
+                    [calculate_signed_errors(individual.train_semantics, y_train) for individual in population])
+                chull_distance = distance_from_chull(errors)
+
+                add_info = [self.elite.test_fitness, self.elite.nodes, chull_distance]
+                add_info.append(False)
 
             else:
 
@@ -296,6 +305,14 @@ class GSGP:
                                 " ".join([str(ind.nodes) for ind in population.population]),
                                 " ".join([str(f) for f in population.fit]), log
                                 ]
+
+                elif log == 5:
+                    errors = torch.stack(
+                        [calculate_signed_errors(individual.train_semantics, y_train) for individual in population])
+                    chull_distance = distance_from_chull(errors)
+
+                    add_info = [self.elite.test_fitness, self.elite.nodes, chull_distance]
+                    add_info.append(False)
 
                 else:
 
