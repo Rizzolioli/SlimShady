@@ -30,7 +30,7 @@ day = now.strftime("%Y%m%d")
 
 ########################################################################################################################
 
-n_runs = 30
+n_runs = 1
 settings_dict = {"p_test": 0.2}
 
 FUNCTIONS = {
@@ -98,8 +98,14 @@ gsgp_pi_init = {'init_pop_size': GSGP_parameters["pop_size"],
 algos = ["GSGP"]
 
 # data_loaders = [ "airfoil", "concrete_slump", "concrete_strength", "ppb", "ld50", "bioavalability", "yatch"]
-data_loaders = [load_yatch,  load_bioav, load_airfoil,  load_ld50,
-                load_concrete_slump, load_concrete_strength, load_ppb,
+data_loaders = [
+                load_yatch,
+                load_bioav,
+                load_airfoil,
+                load_ld50,
+                load_concrete_slump,
+                load_concrete_strength,
+                load_ppb,
                ]
 
 ########################################################################################################################
@@ -118,7 +124,7 @@ for loader in data_loaders:
     # getting the name of the dataset
     dataset = loader.__name__.split("load_")[-1]
 
-    for experiment in ['only_gxo' , 'only_cgxo', 'only_gsm', ]:
+    for experiment in ['only_gxo' , 'only_cgxo', 'only_gsm', 'cgxo_gsm']:
         # adding the dataset name and algorithm name to the run info for the logger
         gsgp_solve_parameters['run_info'] = [algos[0], experiment, unique_run_id ,dataset]
 
@@ -155,6 +161,12 @@ for loader in data_loaders:
                 GSGP_parameters["p_xo"] = 1
                 GSGP_parameters["crossover"] = combined_geometric_crossover
 
+            elif experiment == 'cgxo_gsm':
+
+                GSGP_parameters["p_xo"] = 0.2
+                GSGP_parameters["crossover"] = combined_geometric_crossover
+
+
             else:
 
                 raise Exception("invalid experiment")
@@ -167,5 +179,5 @@ for loader in data_loaders:
 
             optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, curr_dataset=dataset, **gsgp_solve_parameters)
 
-log_settings(path=os.path.join(os.getcwd(), "log", "settings.csv"), settings_dict=[globals()[d] for d in all_params["GSGP"]], unique_run_id=unique_run_id)
+log_settings(path=os.path.join(os.getcwd(), "log", "settings.csv"), settings_dict=[globals()[d] for d in  [gsgp_solve_parameters, GSGP_parameters, gsgp_pi_init, settings_dict]], unique_run_id=unique_run_id)
 
