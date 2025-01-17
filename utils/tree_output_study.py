@@ -158,7 +158,7 @@ for loader in data_loaders:
     plt.clf()
 
     adj_abs_sem = torch.add(semantics, torch.abs(torch.min(semantics)))
-    print('CORR ABS: ', pearson_corr(semantics, adj_abs_sem).item())
+    print('CORR ADJ ABS: ', pearson_corr(semantics, adj_abs_sem).item())
     # plt.hist(log_tens[torch.isfinite(log_tens)])
     if img:
         plt.hist(adj_abs_sem)
@@ -191,7 +191,7 @@ for loader in data_loaders:
 
     plt.clf()
 
-    ms_sig1 = torch.sub(torch.mul(2, semantics),1)
+    ms_sig1 = torch.sub(torch.mul(2, sig_sem),1)
     plt.hist(ms_sig1)
     plt.title(dataset + '_ms_sig1')
     # plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_abs.png')
