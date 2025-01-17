@@ -445,3 +445,17 @@ def add_noise_to_random_columns(X, num_columns=1, noise_std=1.0):
         X_new = torch.cat((X_new, noisy_column), dim=1)
 
     return X_new
+
+def specular_log(tensor):
+    log_tens = tensor.detach().clone()
+    idxs = torch.le(tensor, 0)
+    log_tens[idxs] = torch.log(torch.mul(-1, tensor[idxs]))
+    log_tens[torch.logical_not(idxs)] = torch.log(tensor[torch.logical_not(idxs)])
+    log_tens[torch.eq(tensor, 0)] = 0.0
+    return log_tens
+
+def modified_sigmoid(tensor, scaling_factor):
+    return torch.div(1,torch.add(1,torch.exp(torch.mul(-1,torch.div(tensor, scaling_factor)))))
+
+def pearson_corr(tensor1, tensor2):
+    return torch.cov(torch.stack((tensor1, tensor2)))[0][1] / (torch.std(tensor1) * torch.std(tensor2))
