@@ -5,8 +5,9 @@ from algorithms.GP.representations.tree import Tree as GP_Tree
 from algorithms.GP.operators.initializers import rhh
 import matplotlib.pyplot as plt
 from algorithms.GSGP.operators.mutators import standard_geometric_mutation
-from utils import generate_random_uniform, protected_div, specular_log, modified_sigmoid, pearson_corr
+from utils import generate_random_uniform, protected_div, specular_log, modified_sigmoid, pearson_corr, min_max_alpha
 import torch
+from sklearn.preprocessing import MinMaxScaler
 
 img = False
 
@@ -83,6 +84,11 @@ for loader in data_loaders:
 
     semantics = torch.flatten(torch.cat(population.train_semantics))
 
+    # getting the individuals' semantics
+    population.calculate_semantics(torch.Tensor(MinMaxScaler().fit_transform(X)), testing=True)
+
+    scaled_semantics = torch.flatten(torch.cat(population.test_semantics))
+
     # initializing the population
     population_2 = Population([Tree(structure=tree,
                                   train_semantics=None,
@@ -136,6 +142,32 @@ for loader in data_loaders:
 
         plt.clf()
 
+
+
+    log_mm10 = min_max_alpha(semantics, 0.1)
+    print('CORR MINMAX_10: ', pearson_corr(semantics, log_mm10).item())
+    # plt.hist(log_tens[torch.isfinite(log_tens)])
+    if img:
+        plt.hist(log_mm10)
+        plt.title(dataset + '_mm10')
+        plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_mm10.png')
+        # plt.show()
+        # plt.close()
+
+        plt.clf()
+
+    log_mm20 = min_max_alpha(semantics, 0.2)
+    print('CORR MINMAX_20: ', pearson_corr(semantics, log_mm10).item())
+    # plt.hist(log_tens[torch.isfinite(log_tens)])
+    if img:
+        plt.hist(log_mm20)
+        plt.title(dataset + '_mm20')
+        plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_mm20.png')
+        # plt.show()
+        # plt.close()
+
+        plt.clf()
+
     abs_sem = torch.abs(semantics)
     print('CORR ABS: ', pearson_corr(semantics, abs_sem).item())
     # plt.hist(log_tens[torch.isfinite(log_tens)])
@@ -148,14 +180,6 @@ for loader in data_loaders:
 
         plt.clf()
 
-    ms_abs = torch.sub(1, torch.div(2, torch.add(1, abs_sem)))
-    plt.hist(ms_abs)
-    plt.title(dataset + '_ms_abs')
-    # plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_abs.png')
-    plt.show()
-    # plt.close()
-
-    plt.clf()
 
     adj_abs_sem = torch.add(semantics, torch.abs(torch.min(semantics)))
     print('CORR ADJ ABS: ', pearson_corr(semantics, adj_abs_sem).item())
@@ -182,23 +206,46 @@ for loader in data_loaders:
 
         plt.clf()
 
-    ms_sig2 = torch.sub(sig_sem, torch.sigmoid(semantics_2))
-    plt.hist(ms_sig2)
-    plt.title(dataset + '_ms_sig2')
-    # plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_abs.png')
-    plt.show()
-    # plt.close()
+    scaled_sig_sem = torch.sigmoid(scaled_semantics)
+    print('CORR SCALED SIG: ', pearson_corr(semantics, scaled_sig_sem).item())
 
-    plt.clf()
+    if img:
+        plt.hist(scaled_sig_sem)
+        plt.title(dataset + '_scaled_sigmoid')
+        plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_scaled_sigmoid.png')
+        # plt.show()
+        # plt.close()
 
-    ms_sig1 = torch.sub(torch.mul(2, sig_sem),1)
-    plt.hist(ms_sig1)
-    plt.title(dataset + '_ms_sig1')
-    # plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_abs.png')
-    plt.show()
-    # plt.close()
+        plt.clf()
 
-    plt.clf()
+
+
+    # ms_sig2 = torch.sub(sig_sem, torch.sigmoid(semantics_2))
+    # plt.hist(ms_sig2)
+    # plt.title(dataset + '_ms_sig2')
+    # # plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_abs.png')
+    # plt.show()
+    # # plt.close()
+    #
+    # plt.clf()
+    #
+    # ms_sig1 = torch.sub(torch.mul(2, sig_sem),1)
+    # plt.hist(ms_sig1)
+    # plt.title(dataset + '_ms_sig1')
+    # # plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_abs.png')
+    # plt.show()
+    # # plt.close()
+    #
+    # plt.clf()
+    #
+    # ms_abs = torch.sub(1, torch.div(2, torch.add(1, abs_sem)))
+    # plt.hist(ms_abs)
+    # plt.title(dataset + '_ms_abs')
+    # # plt.savefig(os.getcwd() + f'\\tree_output_distr\\{dataset}_abs.png')
+    # plt.show()
+    # # plt.close()
+    #
+    # plt.clf()
 
     # scaling_factor = max(abs(torch.quantile(X, 0.25).item()), abs(torch.quantile(X, 0.75).item()))
     # print('SCALING FACTOR: ', scaling_factor)

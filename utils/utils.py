@@ -459,3 +459,11 @@ def modified_sigmoid(tensor, scaling_factor):
 
 def pearson_corr(tensor1, tensor2):
     return torch.cov(torch.stack((tensor1, tensor2)))[0][1] / (torch.std(tensor1) * torch.std(tensor2))
+
+def min_max_alpha(tensor, alpha):
+
+    x_min = torch.quantile(tensor, alpha/2)
+    x_max = torch.quantile(tensor, 1 - alpha/2)
+
+    return  torch.clamp( torch.div(torch.sub(tensor, x_min), x_max - x_min), min = 0.0, max = 1.0)
+
