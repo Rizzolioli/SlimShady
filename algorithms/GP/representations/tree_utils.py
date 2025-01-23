@@ -78,19 +78,29 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
             The generated tree according to the specified parameters.
         """
 
-    if p_c > 0 :
+    if p_c > 0 and isinstance(CONSTANTS, dict):
         p_terminal = (len(list(TERMINALS.keys())) + len(list(CONSTANTS.keys())) ) / \
                   (len(list(TERMINALS.keys())) + len(list(CONSTANTS.keys())) + len(list(FUNCTIONS.keys())) )
+        p_constant = p_c if p_c < 1 else (len(list(CONSTANTS.keys())) ) / \
+                  (len(list(TERMINALS.keys())) + len(list(CONSTANTS.keys()))  )
+    elif p_c > 0:
+        p_terminal = (len(list(TERMINALS.keys())) + 1)/ \
+                     (len(list(TERMINALS.keys())) + len(list(FUNCTIONS.keys())) + 1)
+        p_constant = p_c if p_c < 1 else 1/ (len(list(TERMINALS.keys())) + 1)
     else:
         p_terminal = len(list(TERMINALS.keys()))/ \
                      (len(list(TERMINALS.keys())) + len(list(FUNCTIONS.keys())))
+        p_constant = 0
 
     if (depth <= 1 or random.random() < p_terminal) and not first_call:
         # Choose a terminal node (input or constant)
-        if random.random() > p_c:
+        if random.random() > p_constant:
             node = np.random.choice(list(TERMINALS.keys()), p = terminals_probabilities)
         else:
-            node = np.random.choice(list(CONSTANTS.keys()))
+            if isinstance(CONSTANTS, dict):
+                node = np.random.choice(list(CONSTANTS.keys()))
+            else:
+                node = 1 #todo still needs to be implemented
     else:
         # Choose a function node
         node = np.random.choice(list(FUNCTIONS.keys()))
@@ -139,12 +149,23 @@ def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, t
         tuple
             The generated full tree based on the specified parameters.
         """
+    if p_c > 0 and isinstance(CONSTANTS, dict):
+        p_constant = p_c if p_c < 1 else (len(list(CONSTANTS.keys())) ) / \
+                  (len(list(TERMINALS.keys())) + len(list(CONSTANTS.keys()))  )
+    elif p_c > 0:
+        p_constant = p_c if p_c < 1 else 1/ (len(list(TERMINALS.keys())) + 1)
+    else:
+        p_constant = 0
+
     if depth <= 1:
         # Choose a terminal node (input or constant)
-        if random.random() > p_c:
-            node = np.random.choice(list(TERMINALS.keys()), p = terminals_probabilities)
+        if random.random() > p_constant:
+            node = np.random.choice(list(TERMINALS.keys()), p=terminals_probabilities)
         else:
-            node = np.random.choice(list(CONSTANTS.keys()))
+            if isinstance(CONSTANTS, dict):
+                node = np.random.choice(list(CONSTANTS.keys()))
+            else:
+                node = 1 #todo still needs to be implemented
     else:
         # Choose a function node
         node = np.random.choice(list(FUNCTIONS.keys()))

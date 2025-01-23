@@ -445,3 +445,40 @@ def add_noise_to_random_columns(X, num_columns=1, noise_std=1.0):
         X_new = torch.cat((X_new, noisy_column), dim=1)
 
     return X_new
+
+def binary_sign_transformer(tensor):
+    """
+    Transforms a tensor such that all negative values become 0,
+    and all non-negative values become 1.
+
+    Args:
+        input_tensor (torch.Tensor): The input tensor to transform.
+
+    Returns:
+        torch.Tensor: The transformed tensor.
+    """
+    transformed_tensor = (tensor >= 0).float()
+    return transformed_tensor
+
+def minmax_binarizer(tensor):
+    """
+    Transforms a tensor such that all negative values become 0,
+    and all non-negative values become 1.
+
+    Args:
+        input_tensor (torch.Tensor): The input tensor to transform.
+
+    Returns:
+        torch.Tensor: The transformed tensor.
+    """
+    transformed_tensor = (tensor >= torch.median(tensor)).float()
+    return transformed_tensor
+
+def modified_sigmoid( scaling_factor):
+        def ms(tensor):
+            return torch.div(1,torch.add(1,torch.exp(torch.mul(-1,torch.mul(tensor, scaling_factor)))))
+
+        return ms
+
+def minmax_scaler(tensor):
+    return torch.div(torch.sub(tensor, torch.min(tensor)), torch.sub(torch.max(tensor), torch.min(tensor)))

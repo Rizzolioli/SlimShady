@@ -105,8 +105,8 @@ class Individual():
         return f" {operator} ".join(
             [
                 str(t.structure) if isinstance(t.structure, tuple)
-                else f'f({t.structure[1].structure})' if len(t.structure) == 3
-                else f'f({t.structure[1].structure} - {t.structure[2].structure})'
+                else f'f({t.structure[1].structure}, {t.structure[-1]})' if len(t.structure) == 3
+                else f'f({t.structure[1].structure} - {t.structure[2].structure}, {t.structure[-1]})'
                 for t in self.collection
             ]
         )
