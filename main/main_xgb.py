@@ -55,5 +55,17 @@ for loader in data_loaders:
             clf = XGBClassifier()
             clf.fit(X_train, y_train, eval_set = [(X_val, y_val)])
 
-            pred = clf.predict(X_test)
-            print(matthews_corrcoef(y_test, pred))
+            train_pred = clf.predict(X_train)
+            train_corr = matthews_corrcoef(y_train, train_pred)
+
+            val_pred = clf.predict(X_val)
+            val_corr = matthews_corrcoef(y_val, val_pred)
+
+            test_pred = clf.predict(X_test)
+            test_corr = matthews_corrcoef(y_test, test_pred)
+
+
+            with open(os.path.join(os.getcwd(), "log", f"xgb_gametes_{day}.csv"), 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(
+                    ['XGBClassifier', seed, dataset, train_corr, val_corr, test_corr])

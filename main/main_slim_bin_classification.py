@@ -302,11 +302,11 @@ for loader in data_loaders:
                 optimizer.elite = inds[np.argmin(fits)]
 
                 if '*' in algo:
-                    train_corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.train_semantics, dim = 0)))
+                    train_corr = class_metric(y_train, final_binarizer(torch.prod(optimizer.elite.train_semantics, dim = 0)))
                     test_corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
 
                 elif '+' in algo or algo == 'GSGP':
-                    train_corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.train_semantics, dim = 0)))
+                    train_corr = class_metric(y_train, final_binarizer(torch.sum(optimizer.elite.train_semantics, dim = 0)))
                     test_corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
 
                 else:
