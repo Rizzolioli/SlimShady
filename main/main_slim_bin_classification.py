@@ -85,14 +85,14 @@ CONSTANTS = {f'constant_{int}' : lambda x: torch.tensor(int).float() for int in 
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 0,
+                              "log": 1,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", f"slim_gametes_{day}.csv"),
                               "run_info": None,
                               "ffunction": binarized_rmse(binarizer),
                               # "ffunction": bin_ce(binarizer),
-                              "n_iter": 1000,
+                              "n_iter": 100,
                               "max_depth": None,
                               "n_elites": 1,
                               "reconstruct" : True,
@@ -139,14 +139,14 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
                        "other": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 1)}}
 
 
-for loader in ['2w_10a_0.4her.txt']:
+for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo_name in algos:
 
         for (sig, ttress, op, gsgp) in [
-                                        # (True, False, "mul", False),
-                                        # (False, False, "mul", False),
-                                        (True, True, "sum", False)
+                                        (True, True, "sum", False),
+                                        (False, False, "mul", False),
+                                        (False, False, "sum", False)
                                         ]:  # (True, True, "sum"), (True, True, 'std') (True, False, "mul", False), (False, False, "mul", False), (True, True, "sum", False)
 
             # getting the log file name according to the used parameters:
@@ -161,6 +161,10 @@ for loader in ['2w_10a_0.4her.txt']:
                 algo = 'SLIM*ABS'
             elif (sig, ttress, op, gsgp) == (True, True, "sum", False):
                 algo = 'SLIM+2SIG'
+            elif (sig, ttress, op, gsgp) == (True, False, "sum", False):
+                algo = 'SLIM+1SIG'
+            elif (sig, ttress, op, gsgp) == (False, False, "sum", False):
+                algo = 'SLIM+ABS'
             elif (sig, ttress, op, gsgp) == (True, True, "sum", True):
                 algo = 'GSGP'
 
@@ -176,7 +180,7 @@ for loader in ['2w_10a_0.4her.txt']:
             # getting the name of the dataset:
             curr_dataset = loader[:-4]
 
-            for seed in range(1):
+            for seed in range(30):
                 start = time.time()
 
                 # Loads the data via the dataset loader
@@ -263,6 +267,8 @@ for loader in ['2w_10a_0.4her.txt']:
 
                 for i in range(5):
 
+                    slim_gsgp_solve_parameters['run_info'][0] = f'SSHC_{i}'
+
                     print(f'STARTING {i}th LOCAL SEARCH')
 
                     local_search = SSHC(X_train=X_train,
@@ -277,7 +283,7 @@ for loader in ['2w_10a_0.4her.txt']:
                                         curr_dataset=curr_dataset,
                                         X_test=X_test,
                                         y_test=y_test,
-                                        log=0,
+                                        log=1,
                                         log_path=slim_gsgp_solve_parameters['log_path'],
                                         run_info=slim_gsgp_solve_parameters['run_info'],
                                         verbose=1,
@@ -296,15 +302,18 @@ for loader in ['2w_10a_0.4her.txt']:
                 optimizer.elite = inds[np.argmin(fits)]
 
                 if '*' in algo:
-                    corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
+                    train_corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.train_semantics, dim = 0)))
+                    test_corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
 
                 elif '+' in algo or algo == 'GSGP':
-                    corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
+                    train_corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.train_semantics, dim = 0)))
+                    test_corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
 
                 else:
                     print('Dont know what algorithm to use')
 
-                print(corr)
+                print(train_corr)
+                print(test_corr)
 
                 optimizer.elite.print_tree_representation()
 
@@ -312,7 +321,7 @@ for loader in ['2w_10a_0.4her.txt']:
                     with open(os.path.join(os.getcwd(), "log", f"elite_looks_gametes_{day}.csv"), 'a', newline='') as file:
                         writer = csv.writer(file)
                         writer.writerow(
-                            [algo, seed, unique_run_id, dataset, corr, optimizer.elite.get_tree_representation()])
+                            [algo, seed, unique_run_id, dataset, train_corr, test_corr, optimizer.elite.get_tree_representation()])
 
 
                 print(time.time() - start)

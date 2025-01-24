@@ -27,9 +27,9 @@ algos = ["SlimGSGP"]
 path = '../../../GAMETES dataset/data'
 data_loaders = os.listdir(path)
 
-for loader in ['2w_10a_0.4her.txt']:
+for loader in data_loaders:
 
-        for seed in range(1):
+        for seed in range(30):
             start = time.time()
 
             # Loads the data via the dataset loader
