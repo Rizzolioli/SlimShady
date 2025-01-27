@@ -7,6 +7,7 @@ from sklearn.metrics import matthews_corrcoef, accuracy_score
 from sklearn.model_selection import train_test_split as tts_sklearn
 from sklearn.decomposition import PCA
 from xgboost import XGBClassifier
+from sklearn.model_selection import GridSearchCV
 
 
 
@@ -15,6 +16,14 @@ import datetime
 
 now = datetime.datetime.now()
 day = now.strftime("%Y%m%d")
+
+parameters = {    'gamma': [0, 0.1, 0.4, 1.6, 3.2,  12.8,  51.2, 200],
+                  'learning_rate': [0.01, 0.06, 0.1,  0.2,  0.3, 0.4,  0.6, 0.7],
+                  'max_depth': [5,  7,  10,  13, 15],
+                  'n_estimators': [100, 250, 500, 750, 1000],
+                  'reg_alpha': [0, 0.1, 0.4, 1.6, 3.2,  12.8,  51.2, 200],
+                  'reg_lambda': [0, 0.1, 0.4, 1.6, 3.2,  12.8,  51.2, 200]
+              }
 
 ########################################################################################################################
 
@@ -40,20 +49,36 @@ for loader in data_loaders:
 
             X_train, X_test, y_train, y_test = tts_sklearn(X, y,
                                                            stratify= y,
-                                                           test_size=0.4,
+                                                           test_size=0.2,
                                                            shuffle = True,
                                                            random_state=seed)
 
-            X_val, X_test, y_val, y_test = tts_sklearn(X_test, y_test,
-                                                           stratify= y_test,
-                                                           test_size=0.5,
-                                                           shuffle = True,
-                                                           random_state=seed)
+
             # getting the name of the dataset
             dataset = loader[:-4]
 
-            clf = XGBClassifier()
-            clf.fit(X_train, y_train, eval_set = [(X_val, y_val)])
+            clf = XGBClassifier(nthread=4,
+                                seed=42)
+
+            grid_search = GridSearchCV(
+            estimator = clf,
+            param_grid = parameters,
+            scoring = 'f1_weighted',
+            n_jobs = 10,
+            cv = 3,
+            verbose = True
+            )
+
+            grid_search.fit(X_train, y_train)
+
+            X_train, X_val, y_train, y_val = tts_sklearn(X_test, y_test,
+                                                           stratify= y_test,
+                                                           test_size=0.25,
+                                                           shuffle = True,
+                                                           random_state=seed)
+
+
+            clf.fit(X_train, y_train, eval_set = [(X_val, y_val)], **grid_search.best_params_)
 
             train_pred = clf.predict(X_train)
             train_corr = matthews_corrcoef(y_train, train_pred)
