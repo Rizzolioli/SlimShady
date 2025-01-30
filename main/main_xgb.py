@@ -38,6 +38,8 @@ algos = ["SlimGSGP"]
 path = '../../GAMETES dataset/data'
 data_loaders = os.listdir(path)
 
+results = {}
+
 for loader in data_loaders:
 
         # Loads the data via the dataset loader
@@ -51,30 +53,36 @@ for loader in data_loaders:
                                                        test_size=0.2,
                                                        shuffle=True,
                                                        random_state=1)
-
-        # getting the name of the dataset
+#
+#         # getting the name of the dataset
         dataset = loader[:-4]
-
-        clf = XGBClassifier(nthread=4,
-                            seed=42)
-
-        grid_search = GridSearchCV(
-            estimator=clf,
-            param_grid=parameters,
-            scoring='f1_weighted',
-            n_jobs=10,
-            cv=3,
-            verbose=True
-        )
-
-        grid_search.fit(X_train, y_train)
+#
+#         clf = XGBClassifier(seed=42,
+#                             nthread=4)
+#
+#         grid_search = GridSearchCV(
+#             estimator=clf,
+#             param_grid=parameters,
+#             scoring='f1_weighted',
+#             n_jobs=10,
+#             cv=3,
+#             verbose=True
+#         )
+#
+#         grid_search.fit(X_train, y_train)
+#
+#         print(dataset)
+#         print(grid_search.best_params_)
+#
+#         results[dataset] = grid_search.best_params_
+#
+# print(results)
 
         for seed in range(30):
             start = time.time()
 
-            clf = XGBClassifier(nthread=4,
-                                seed=seed,
-                                **grid_search.best_params_)
+            clf = XGBClassifier(seed=seed, n_estimators = 500, learning_rate = 0.0001, max_depth = 10
+                                )
 
 
 
@@ -100,4 +108,4 @@ for loader in data_loaders:
             with open(os.path.join(os.getcwd(), "log", f"tuned_xgb_gametes_{day}.csv"), 'a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(
-                    ['XGBClassifier', seed, dataset, train_corr, val_corr, test_corr, grid_search.best_params_])
+                    ['XGBClassifier', seed, dataset, train_corr, val_corr, test_corr])
