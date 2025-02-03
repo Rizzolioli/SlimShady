@@ -11,6 +11,10 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
+import datetime
+
+
+
 
 models = {'DecisonTree' : DecisionTreeClassifier(),
           'SupportVectorMachine' : SVC(),
@@ -19,7 +23,7 @@ models = {'DecisonTree' : DecisionTreeClassifier(),
 
 
 
-import datetime
+
 
 
 now = datetime.datetime.now()

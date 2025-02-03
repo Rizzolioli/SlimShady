@@ -41,8 +41,6 @@ day = now.strftime("%Y%m%d")
 
 algos = ["SlimGSGP"]
 
-path = '../../../GAMETES dataset/data'
-data_loaders = os.listdir(path)
 
 ########################################################################################################################
 
