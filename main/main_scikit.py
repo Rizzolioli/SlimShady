@@ -15,7 +15,7 @@ from sklearn.model_selection import GridSearchCV
 models = {'DecisonTree' : DecisionTreeClassifier(),
           'SupportVectorMachine' : SVC(),
           'NaiveBayes' : GaussianNB(),
-          'LogisticRegression' : LogisticRegression}
+          'LogisticRegression' : LogisticRegression()}
 
 
 
