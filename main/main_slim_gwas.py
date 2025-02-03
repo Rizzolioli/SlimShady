@@ -25,7 +25,7 @@ from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import PCA
 from algorithms.SSHC.sshc import SSHC
-from mdr import MDR
+
 
 import datetime
 
