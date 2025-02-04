@@ -30,7 +30,7 @@ algos = ["SlimGSGP"]
 
 
 results = {}
-data = pd.read_csv('../../../Bicocca/GWAS/data/GWAS_cleaned.csv')
+data = pd.read_csv('../../GWAS_cleaned.csv')
 
 X = data.values[:, 1:]
 y = data.values[:, 1]
@@ -40,7 +40,7 @@ y = data.values[:, 1]
 dataset = 'GWAS'
 
 
-for seed in range(1):
+for seed in range(30):
     start = time.time()
 
     clf = XGBClassifier(seed=seed, n_estimators = 500, learning_rate = 0.0001, max_depth = 10
