@@ -16,7 +16,7 @@ import datetime
 
 
 
-models = {'DecisonTree' : DecisionTreeClassifier(),
+models = {'DecisionTree' : DecisionTreeClassifier(),
           'SupportVectorMachine' : SVC(),
           'NaiveBayes' : GaussianNB(),
           'LogisticRegression' : LogisticRegression()}
@@ -47,46 +47,47 @@ param_grids = {
 
 results = {}
 
-path = '../../../GAMETES dataset/data'
-data_loaders = os.listdir(path)
+# path = '../../GAMETES dataset/data'
+# data_loaders = os.listdir(path)
 
+data_results = {}
+
+data = pd.read_csv('../../gwas_cleaned_ordered.csv')
+
+X = data.values[:, :-1]
+y = data.values[:, -1]
+
+#
+#         # getting the name of the dataset
+data_name = 'GWAS'
 
 for model in models.keys():
 
     print(model)
 
-    data_results = {}
-
-    for loader in data_loaders:
-
-        data = pd.read_csv(path + '/' + loader, sep='\t')
-
-        data_name = loader[:-4]
-
-        X = data.values[:, :-1]
-        y = data.values[:, -1]
-
-        X_train, X_test, y_train, y_test = tts_sklearn(X, y, test_size=0.4,  stratify=y)
-
-        estimator = models[model]
-
-        grid_search = GridSearchCV(
-            estimator=estimator,
-            param_grid=param_grids[model],
-            scoring='f1_weighted',
-            n_jobs=10,
-            cv=3,
-            verbose=True
-        )
 
 
-        grid_search.fit(X_train, y_train)
+    X_train, X_test, y_train, y_test = tts_sklearn(X, y, test_size=0.4,  stratify=y)
 
-        print(data_name)
-        print(grid_search.best_params_)
+    estimator = models[model]
 
-        data_results[data_name] = grid_search.best_params_
+    grid_search = GridSearchCV(
+        estimator=estimator,
+        param_grid=param_grids[model],
+        scoring='f1_weighted',
+        n_jobs=10,
+        cv=3,
+        verbose=True
+    )
 
-    results[model] = data_results
+
+    grid_search.fit(X_train, y_train)
+
+    print(data_name)
+    print(grid_search.best_params_)
+
+    results[model] = grid_search.best_params_
+
+    # data_results
 
 print(results)

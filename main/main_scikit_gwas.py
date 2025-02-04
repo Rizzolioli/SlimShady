@@ -86,10 +86,11 @@ models = {'DecisionTree' : DecisionTreeClassifier,
 #                                      '2w_1000a_0.4her': {'C': 0.1, 'max_iter': 100, 'penalty': 'l1', 'solver': 'liblinear'},
 #                                      '2w_10a_0.05her': {'C': 0.1, 'max_iter': 100, 'penalty': 'l2', 'solver': 'liblinear'}}}
 
-parameters_gwas = {'DecisionTree': {'criterion': 'gini', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2},
-                    'SupportVectorMachine': {'C': 10, 'gamma': 'scale', 'kernel': 'rbf'},
-                    'NaiveBayes': {'var_smoothing': 1e-09},
-                    'LogisticRegression': {'C': 1, 'max_iter': 100, 'penalty': 'l1', 'solver': 'liblinear'}}
+parameters_gwas = {'DecisionTree': {'criterion': 'entropy', 'max_depth': 20, 'min_samples_leaf': 1, 'min_samples_split': 5},
+                   'SupportVectorMachine': {'C': 100, 'gamma': 'scale', 'kernel': 'sigmoid'},
+                   'NaiveBayes': {'var_smoothing': 1e-09},
+                   'LogisticRegression': {'C': 0.01, 'max_iter': 100, 'penalty': 'l2', 'solver': 'newton-cg'}}
+
 
 
 now = datetime.datetime.now()
@@ -104,10 +105,10 @@ day = now.strftime("%Y%m%d")
 
 algos = ["SlimGSGP"]
 
-data = pd.read_csv('../../../Bicocca/GWAS/data/GWAS_cleaned.csv')
+data = pd.read_csv('../../gwas_cleaned_ordered.csv')
 
-X = data.values[:, 1:]
-y = data.values[:, 1]
+X = data.values[:, :-1]
+y = data.values[:, -1]
 
 #
 #         # getting the name of the dataset
@@ -124,7 +125,7 @@ for model in models.keys():
     for seed in range(30):
         start = time.time()
 
-        clf = models[model](parameters_gwas[model])
+        clf = models[model](**parameters_gwas[model])
 
         X_train, X_test, y_train, y_test = tts_sklearn(X, y,
                                                        stratify=y,
@@ -151,7 +152,7 @@ for model in models.keys():
         test_corr = matthews_corrcoef(y_test, test_pred)
 
 
-        with open(os.path.join(os.getcwd(), "log", f"tuned_models_gametes_{day}.csv"), 'a', newline='') as file:
+        with open(os.path.join(os.getcwd(), "log", f"fixed_tuned_models_gwas_{day}.csv"), 'a', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(
                 [model, seed, dataset, train_corr,  test_corr])

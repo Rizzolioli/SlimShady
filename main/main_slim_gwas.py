@@ -90,7 +90,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gwas_{day}.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", f"fixed_slim_gwas_{day}.csv"),
                               "run_info": None,
                               "ffunction": binarized_rmse(binarizer),
                               # "ffunction": bin_ce(binarizer),
@@ -145,14 +145,14 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
 
 
 # Loads the data via the dataset loader
-data = pd.read_csv('../../../Bicocca/GWAS/data/GWAS_cleaned.csv')
+data = pd.read_csv('../../gwas_cleaned_ordered.csv')
 
 # getting the name of the dataset
 dataset = 'GWAS'
 curr_dataset = 'GWAS'
 
-X = data.values[:, 1:]
-y = data.values[:, 1]
+X = data.values[:, :-1]
+y = data.values[:, -1]
 
 TERMINALS = {f"x{i}": i for i in range(X.shape[1])}
 
@@ -363,7 +363,7 @@ for algo_name in algos:
             optimizer.elite.print_tree_representation()
 
             if slim_gsgp_solve_parameters['log'] > 0:
-                with open(os.path.join(os.getcwd(), "log", f"elite_looks_gwas_{day}.csv"), 'a', newline='') as file:
+                with open(os.path.join(os.getcwd(), "log", f"fixed_elite_looks_gwas_{day}.csv"), 'a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(
                         [algo, seed, unique_run_id, dataset, train_corr, test_corr,

@@ -99,7 +99,7 @@ day = now.strftime("%Y%m%d")
 
 algos = ["SlimGSGP"]
 
-path = '../../../GAMETES dataset/data'
+path = '../../GAMETES dataset/data'
 data_loaders = os.listdir(path)
 
 results = {}
@@ -122,7 +122,7 @@ for loader in data_loaders:
             for seed in range(30):
                 start = time.time()
 
-                clf = models[model](parameters[model][dataset])
+                clf = models[model](**parameters[model][dataset])
 
                 X_train, X_test, y_train, y_test = tts_sklearn(X, y,
                                                                stratify=y,

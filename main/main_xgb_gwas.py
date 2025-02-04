@@ -30,7 +30,7 @@ algos = ["SlimGSGP"]
 
 
 results = {}
-data = pd.read_csv('../../GWAS_cleaned.csv')
+data = pd.read_csv('../../gwas_cleaned_ordered.csv')
 
 X = data.values[:, 1:]
 y = data.values[:, 1]
