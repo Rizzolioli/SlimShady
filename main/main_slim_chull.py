@@ -116,7 +116,7 @@ slim_GSGP_parameters['p_inflate'] = 1
 for loader in data_loaders:
 
     # for each dataset, run all the planned algorithms
-    for algo_name in algos:
+    # for algo_name in algos:
 
         for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
 
