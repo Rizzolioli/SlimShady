@@ -616,3 +616,59 @@ def load_bioav(X_y=False):
         )
     else:
         return df
+
+def load_yatch(X_y=False):
+    """ yatch
+
+    Parameters
+    ----------
+    X_y : bool (default=False)
+        Return data as two objects of type torch.Tensor, otherwise as a
+        pandas.DataFrame.
+
+    Returns
+    -------
+    pandas.DataFrame
+        An object of type pandas.DataFrame which holds the data. The
+        target is the last column.
+    """
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "yatch.txt"))
+    if X_y:
+        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    else:
+        return df
+
+
+def load_boston(X_y=False):
+    """ Loads and returns the Boston Housing data set (regression)
+
+    This dataset contains information collected by the U.S. Census
+    Service concerning housing in the area of Boston Massachusetts.
+    Downloaded from the StatLib archive.
+    The file is located in /gpol/utils/data/boston.txt
+
+    Basic information:
+    - Number of data instances: 506;
+    - Number of input features: 13;
+    - Target's range: [5, 50].
+
+    Parameters
+    ----------
+    X_y : bool (default=False)
+        Return data as two objects of type torch.Tensor, otherwise as a
+        pandas.DataFrame.
+
+    Returns
+    -------
+    X, y : torch.Tensor, torch.Tensor
+        The input data (X) and the target of the prediction (y). The
+        latter is extracted from the data set as the last column.
+    df : pandas.DataFrame
+        An object of type pandas.DataFrame which holds the data. The
+        target is the last column.
+    """
+    df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "boston.txt"))
+    if X_y:
+        return torch.from_numpy(df.values[:, :-1]).float(), torch.from_numpy(df.values[:, -1]).float()
+    else:
+        return df
