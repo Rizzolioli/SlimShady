@@ -10,7 +10,7 @@ data_loaders = [load_yatch, load_airfoil, load_concrete_slump, load_concrete_str
 
 for loader in data_loaders:
 
-    for i in range(i):
+    for i in range(30):
         # Load the PPB dataset
         X, y = loader(X_y=True)
 
