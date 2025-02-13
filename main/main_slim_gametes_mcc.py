@@ -9,10 +9,10 @@ from utils.utils import get_terminals, train_test_split, protected_div
 from utils.logger import log_settings
 from algorithms.SLIM_GSGP.operators.mutators import *
 from utils.utils import generate_random_uniform
-from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
+from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim, tournament_selection_max_slim
 import os
-from utils.utils import get_best_min, binary_sign_transformer, minmax_binarizer, modified_sigmoid
-from evaluators.fitness_functions import binarized_rmse, rmse, bin_ce, sign_rmse
+from utils.utils import get_best_min, binary_sign_transformer, minmax_binarizer, modified_sigmoid, get_best_max
+from evaluators.fitness_functions import binarized_rmse, rmse, bin_ce, sign_rmse, binarized_fitness
 from algorithms.GP.operators.initializers import rhh
 from datasets.data_loader import *
 import csv
@@ -92,11 +92,11 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 0,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gametes_{day}.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gametes_mcc_{day}.csv"),
                               "run_info": None,
-                              "ffunction": binarized_rmse(binarizer),
-                              # "ffunction": bin_ce(binarizer),
-                              "n_iter": 10,
+                              # "ffunction": binarized_rmse(binarizer),
+                              "ffunction":binarized_fitness(matthews_corrcoef, final_binarizer),
+                              "n_iter": 1000,
                               "max_depth": None,
                               "n_elites": 1,
                               "reconstruct" : True,
@@ -104,16 +104,18 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               }
 
 slim_GSGP_parameters = {"initializer": rhh,
-                        "selector": tournament_selection_min_slim(2),
+                        # "selector": tournament_selection_min_slim(2),
+                        "selector": tournament_selection_max_slim(2),
                         "crossover": None,
                         "ms": None,
                         "inflate_mutator": None,
-                        # "deflate_mutator": deflate_mutation,
-                        "deflate_mutator": weighted_deflate_mutation(sign_rmse, np.random.choice),
+                        "deflate_mutator": deflate_mutation,
+                        # "deflate_mutator": weighted_deflate_mutation(sign_rmse, np.random.choice),
                         "p_xo": 0,
-                        "pop_size": 1000,
+                        "pop_size": 100,
                         "settings_dict": settings_dict,
-                        "find_elit_func": get_best_min,
+                        # "find_elit_func": get_best_min,
+                        "find_elit_func": get_best_max,
                         "p_inflate": None,
                         "copy_parent": None,
                         "operator": None
@@ -153,8 +155,8 @@ for loader in [data_loaders[0]]:
     for algo_name in algos:
 
         for (sig, ttress, op, gsgp) in [
-                                        (True, True, "sum", False),
-                                        (False, False, "mul", False),
+                                        # (True, True, "sum", False),
+                                        # (False, False, "mul", False),
                                         (False, False, "sum", False)
                                         ]:  # (True, True, "sum"), (True, True, 'std') (True, False, "mul", False), (False, False, "mul", False), (True, True, "sum", False)
 
@@ -362,7 +364,7 @@ for loader in [data_loaders[0]]:
                 optimizer.elite.print_tree_representation()
 
                 if slim_gsgp_solve_parameters['log'] > 0:
-                    with open(os.path.join(os.getcwd(), "log", f"elite_looks_gametes_{day}.csv"), 'a', newline='') as file:
+                    with open(os.path.join(os.getcwd(), "log", f"elite_looks_mcc_gametes_{day}.csv"), 'a', newline='') as file:
                         writer = csv.writer(file)
                         writer.writerow(
                             [algo, seed, unique_run_id, dataset, train_corr, test_corr,

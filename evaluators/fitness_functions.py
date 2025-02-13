@@ -14,6 +14,12 @@ def bin_ce(binarizer):
 
     return bc
 
+def binarized_fitness(ffunction, binarizer):
+
+    def bf(y_true, y_pred):
+        my_pred = binarizer(y_pred)
+        return ffunction(y_true, my_pred)
+    return bf
 
 def binarized_rmse(binarizer):
     def sr(y_true, y_pred):
