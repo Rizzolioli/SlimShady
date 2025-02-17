@@ -239,7 +239,22 @@ def get_best_max(population, n_elites):
 
 
 def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3, grow_probability=1,
-                    logistic=True, terminals_probabilities = None):
+                    logistic=True, terminals_probabilities = None, constrained_terminals = False):
+
+
+    # terminal = tbu_terminals.random_terminal()
+    # tbu_terminals.TOBEUSED_TERMINALS.pop(terminal)
+
+    # if constrained_terminals:
+    #     global TOBEUSED_TERMINALS
+    #     if len(TOBEUSED_TERMINALS) > 0:
+    #         terminal = random.choice(list(TOBEUSED_TERMINALS.keys()))
+    #         TERMINALS = {terminal : TERMINALS[terminal]}
+    #         TOBEUSED_TERMINALS.pop(terminal)
+    #     else:
+    #         TOBEUSED_TERMINALS = TERMINALS.copy()
+
+
     # choose between grow and full
     if random.random() < grow_probability:
 

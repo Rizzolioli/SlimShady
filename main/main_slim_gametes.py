@@ -202,6 +202,8 @@ for loader in [data_loaders[0]]:
 
                 TERMINALS = {f"x{i}": i for i in range(X.shape[1])}
 
+                # tbu_terminals.init(TERMINALS.copy())
+
                 X_train, X_test, y_train, y_test = tts_sklearn(X, y,
                                                                stratify= y,
                                                                test_size=settings_dict['p_test'],
