@@ -15,6 +15,7 @@ from utils.utils import get_best_min, binary_sign_transformer, minmax_binarizer,
 from evaluators.fitness_functions import binarized_rmse, rmse, bin_ce, sign_rmse, binarized_fitness
 from algorithms.GP.operators.initializers import rhh
 from datasets.data_loader import *
+from algorithms.SLIM_GSGP.operators.crossover import donor_gxo
 import csv
 
 from sklearn.metrics import matthews_corrcoef, accuracy_score
@@ -93,8 +94,8 @@ CONSTANTS = {f'constant_{int}' : lambda x: torch.tensor(int).float() for int in 
 slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
-                              "test_elite": True,+
-                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gametes_ct_{day}.csv"),
+                              "test_elite": True,
+                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gametes_ct_xo_{day}.csv"),
                               "run_info": None,
                               "ffunction": binarized_rmse(binarizer),
                               # "ffunction":binarized_fitness(matthews_corrcoef, final_binarizer),
@@ -113,7 +114,8 @@ slim_GSGP_parameters = {"initializer": rhh,
                         "inflate_mutator": None,
                         "deflate_mutator": deflate_mutation,
                         # "deflate_mutator": weighted_deflate_mutation(sign_rmse, np.random.choice),
-                        "p_xo": 0,
+                        "crossover" : donor_gxo,
+                        "p_xo": 0.5,
                         "pop_size": 100,
                         "settings_dict": settings_dict,
                         "find_elit_func": get_best_min,
@@ -371,7 +373,7 @@ for loader in [data_loaders]:
                 optimizer.elite.print_tree_representation()
 
                 if slim_gsgp_solve_parameters['log'] > 0:
-                    with open(os.path.join(os.getcwd(), "log", f"elite_looks_ct_gametes_{day}.csv"), 'a', newline='') as file:
+                    with open(os.path.join(os.getcwd(), "log", f"elite_looks_ct_xo_gametes_{day}.csv"), 'a', newline='') as file:
                         writer = csv.writer(file)
                         writer.writerow(
                             [algo, seed, unique_run_id, dataset, train_corr, test_corr,

@@ -9,6 +9,9 @@ from algorithms.GP.representations.tree_utils import create_full_random_tree, cr
 from algorithms.GSGP.representations.tree import Tree
 from datasets.data_loader import load_preloaded
 
+import main.tbu_terminals
+import importlib
+
 """
 Taken from GPOL
 """
@@ -241,18 +244,17 @@ def get_best_max(population, n_elites):
 def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3, grow_probability=1,
                     logistic=True, terminals_probabilities = None, constrained_terminals = False):
 
+    if constrained_terminals:
+        TOBEUSED_TERMINALS  = main.tbu_terminals.get_variable()
 
-    # terminal = tbu_terminals.random_terminal()
-    # tbu_terminals.TOBEUSED_TERMINALS.pop(terminal)
-
-    # if constrained_terminals:
-    #     global TOBEUSED_TERMINALS
-    #     if len(TOBEUSED_TERMINALS) > 0:
-    #         terminal = random.choice(list(TOBEUSED_TERMINALS.keys()))
-    #         TERMINALS = {terminal : TERMINALS[terminal]}
-    #         TOBEUSED_TERMINALS.pop(terminal)
-    #     else:
-    #         TOBEUSED_TERMINALS = TERMINALS.copy()
+        if len(TOBEUSED_TERMINALS) > 0:
+            terminal = random.choice(list(TOBEUSED_TERMINALS.keys()))
+            TERMINALS = {terminal : TERMINALS[terminal]}
+            TOBEUSED_TERMINALS.pop(terminal)
+            main.tbu_terminals.update_variable(TOBEUSED_TERMINALS)
+        else:
+            TOBEUSED_TERMINALS = TERMINALS.copy()
+            main.tbu_terminals.update_variable(TOBEUSED_TERMINALS)
 
 
     # choose between grow and full

@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import torch
+import main.tbu_terminals
 # from gp4os.utils.functions import TERMINALS
 
 def bound_value(vector, min_val, max_val):
@@ -47,7 +48,8 @@ def flatten(data):
 
 
 # Function to create a random grow tree.
-def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True, terminals_probabilities = None):
+def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, first_call=True, terminals_probabilities = None,
+                            constrained_terminals = False):
     """
         Generates a random tree using the Grow method with a specified depth.
 
@@ -77,6 +79,18 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
         tuple
             The generated tree according to the specified parameters.
         """
+
+    if constrained_terminals:
+        TOBEUSED_TERMINALS  = main.tbu_terminals.get_variable()
+
+        if len(TOBEUSED_TERMINALS) > 0:
+            terminal = random.choice(list(TOBEUSED_TERMINALS.keys()))
+            TERMINALS = {terminal : TERMINALS[terminal]}
+            TOBEUSED_TERMINALS.pop(terminal)
+            main.tbu_terminals.update_variable(TOBEUSED_TERMINALS)
+        else:
+            TOBEUSED_TERMINALS = TERMINALS.copy()
+            main.tbu_terminals.update_variable(TOBEUSED_TERMINALS)
 
     if p_c > 0 and isinstance(CONSTANTS, dict):
         p_terminal = (len(list(TERMINALS.keys())) + len(list(CONSTANTS.keys())) ) / \
@@ -123,7 +137,8 @@ def create_grow_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, f
     return node
 
 # Function to create a random full tree.
-def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, terminals_probabilities = None):
+def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, terminals_probabilities = None,
+                            constrained_terminals = False):
     """
         Generates a full random tree with a specified depth.
 
@@ -149,6 +164,19 @@ def create_full_random_tree(depth, FUNCTIONS, TERMINALS, CONSTANTS, p_c = 0.3, t
         tuple
             The generated full tree based on the specified parameters.
         """
+
+    if constrained_terminals:
+        TOBEUSED_TERMINALS  = main.tbu_terminals.get_variable()
+
+        if len(TOBEUSED_TERMINALS) > 0:
+            terminal = random.choice(list(TOBEUSED_TERMINALS.keys()))
+            TERMINALS = {terminal : TERMINALS[terminal]}
+            TOBEUSED_TERMINALS.pop(terminal)
+            main.tbu_terminals.update_variable(TOBEUSED_TERMINALS)
+        else:
+            TOBEUSED_TERMINALS = TERMINALS.copy()
+            main.tbu_terminals.update_variable(TOBEUSED_TERMINALS)
+
     if p_c > 0 and isinstance(CONSTANTS, dict):
         p_constant = p_c if p_c < 1 else (len(list(CONSTANTS.keys())) ) / \
                   (len(list(TERMINALS.keys())) + len(list(CONSTANTS.keys()))  )
