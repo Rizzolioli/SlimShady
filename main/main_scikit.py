@@ -12,14 +12,20 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 import datetime
+import numpy as np
 
-
+def check(feat_imp, dataset):
+    features = int(dataset.split('a')[0].split('_')[-1])
+    return [features - 1 in np.argpartition(feat_imp, -10)[-10:], features - 2 in np.argpartition(feat_imp, -10)[-10:], \
+            features - 1 in np.argpartition(feat_imp, -5)[-5:], features - 2 in np.argpartition(feat_imp, -5)[-5:], \
+            features - 1 in np.argpartition(feat_imp, -2)[-2:], features - 2 in np.argpartition(feat_imp, -2)[-2:]]
 
 
 models = {'DecisionTree' : DecisionTreeClassifier,
-          'SupportVectorMachine' : SVC,
-          'NaiveBayes' : GaussianNB,
-          'LogisticRegression' : LogisticRegression}
+          # 'SupportVectorMachine' : SVC,
+          # 'NaiveBayes' : GaussianNB,
+          # 'LogisticRegression' : LogisticRegression
+          }
 
 parameters = {'DecisionTree': {'2w_1000a_0.05her': {'criterion': 'gini', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 2},
                                '2w_1000a_0.1her': {'criterion': 'gini', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 10},
@@ -99,7 +105,7 @@ day = now.strftime("%Y%m%d")
 
 algos = ["SlimGSGP"]
 
-path = '../../GAMETES dataset/data'
+path = '../../../GAMETES dataset/data'
 data_loaders = os.listdir(path)
 
 results = {}
@@ -148,8 +154,15 @@ for loader in data_loaders:
                 test_pred = clf.predict(X_test)
                 test_corr = matthews_corrcoef(y_test, test_pred)
 
+                #
+                # with open(os.path.join(os.getcwd(), "log", f"tuned_models_gametes_{day}.csv"), 'a', newline='') as file:
+                #     writer = csv.writer(file)
+                #     writer.writerow(
+                #         [model, seed, dataset, train_corr,  test_corr])
 
-                with open(os.path.join(os.getcwd(), "log", f"tuned_models_gametes_{day}.csv"), 'a', newline='') as file:
+
+                with open(os.path.join(os.getcwd(), "log", f"dt_feat_imp_gametes_{day}.csv"), 'a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(
-                        [model, seed, dataset, train_corr,  test_corr])
+                        [dataset] + [seed] + check(clf.feature_importances_, dataset))
+

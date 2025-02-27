@@ -12,14 +12,15 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 import datetime
-
+import numpy as np
 
 
 
 models = {'DecisionTree' : DecisionTreeClassifier,
-          'SupportVectorMachine' : SVC,
-          'NaiveBayes' : GaussianNB,
-          'LogisticRegression' : LogisticRegression}
+          # 'SupportVectorMachine' : SVC,
+          # 'NaiveBayes' : GaussianNB,
+          # 'LogisticRegression' : LogisticRegression
+          }
 
 # parameters = {'DecisionTree': {'2w_1000a_0.05her': {'criterion': 'gini', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 2},
 #                                '2w_1000a_0.1her': {'criterion': 'gini', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 10},
@@ -105,7 +106,8 @@ day = now.strftime("%Y%m%d")
 
 algos = ["SlimGSGP"]
 
-data = pd.read_csv('../../gwas_cleaned_ordered.csv')
+# data = pd.read_csv('../../../gwas_cleaned_ordered.csv')
+data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
 
 X = data.values[:, :-1]
 y = data.values[:, -1]
@@ -152,7 +154,12 @@ for model in models.keys():
         test_corr = matthews_corrcoef(y_test, test_pred)
 
 
-        with open(os.path.join(os.getcwd(), "log", f"fixed_tuned_models_gwas_{day}.csv"), 'a', newline='') as file:
+        # with open(os.path.join(os.getcwd(), "log", f"fixed_tuned_models_gwas_{day}.csv"), 'a', newline='') as file:
+        #     writer = csv.writer(file)
+        #     writer.writerow(
+        #         [model, seed, dataset, train_corr,  test_corr])
+
+        with open(os.path.join(os.getcwd(), "log", f"dt_feat_imp_gwas_{day}.csv"), 'a', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(
-                [model, seed, dataset, train_corr,  test_corr])
+                np.argpartition(clf.feature_importances_, -20)[-20:])

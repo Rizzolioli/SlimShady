@@ -282,9 +282,7 @@ class SLIM_GSGP:
                         offs_pop.extend([offs[0], offs[1]])
                     else:
                         offs_pop.append(offs)
-
                 else:
-
 
                     # choose between deflating or inflating the individual
                     if random.random() < self.p_deflate:

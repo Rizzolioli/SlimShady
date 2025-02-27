@@ -92,7 +92,7 @@ CONSTANTS = {f'constant_{int}' : lambda x: torch.tensor(int).float() for int in 
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 1,
+                              "log": 0,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", f"slim_gametes_ct_xo_{day}.csv"),
@@ -155,7 +155,7 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
 
 # data_loaders = list(filter(lambda x: ('1000' in x ) or ('5000' in x), data_loaders) )
 
-for loader in [data_loaders]:
+for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo_name in algos:
 
