@@ -2,9 +2,9 @@ import random
 import torch
 
 from algorithms.GP.representations.tree_utils import create_grow_random_tree
-from algorithms.GSGP.representations.tree import Tree
+from algorithms.GSGP.representations.tree import Tree, find_minimum
 from algorithms.SLIM_GSGP.representations.individual import Individual
-from utils.utils import get_random_tree, consecutive_final_indexes
+from utils.utils import get_random_tree, consecutive_final_indexes, modified_abs
 import numpy as np
 
 
@@ -24,7 +24,7 @@ def two_trees_delta(operator='sum'):
     return tt_delta
 
 
-def one_tree_delta(operator='sum', sig=False):
+def one_tree_delta(operator='sum', sig=False, adjust = False):
     def ot_delta(tr1, ms, testing):
 
         if sig:
@@ -37,15 +37,23 @@ def one_tree_delta(operator='sum', sig=False):
                     torch.add(1, torch.mul(ms, torch.sub(torch.mul(2, tr1.train_semantics), 1)))
         else:
 
+            if adjust: #todo only use approximation
+                try:
+                    f_min = find_minimum(tr1.structure)
+                except:
+                    f_min = torch.min(tr1.train_semantics) - torch.std(tr1.train_semantics) if torch.min(tr1.train_semantics) < 0 else torch.min(tr1.train_semantics)
+            else:
+                f_min = None
+
             if testing:
-                return torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(
-                    tr1.test_semantics))))) if operator == 'sum' else \
+                return torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, modified_abs(
+                    tr1.test_semantics, f_min=f_min))))) if operator == 'sum' else \
                     torch.add(1, torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.test_semantics))))))
             else:
                 return torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(
                     tr1.train_semantics))))) if operator == 'sum' else \
                     torch.add(1,
-                              torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, torch.abs(tr1.train_semantics))))))
+                              torch.mul(ms, torch.sub(1, torch.div(2, torch.add(1, modified_abs(tr1.train_semantics, f_min=f_min))))))
 
     ot_delta.__name__ += ('_' + operator + '_' + str(sig))
 
@@ -53,7 +61,7 @@ def one_tree_delta(operator='sum', sig=False):
 
 
 def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='sum', single_tree_sigmoid=False,
-                     sig=False):
+                     sig=False, adjust = False):
     def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1, reconstruct = True,
                 terminals_probabilities = None):
 
@@ -63,16 +71,19 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
         if two_trees:
             # getting two random trees
             random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
-                                            grow_probability=grow_probability, logistic=True, terminals_probabilities=terminals_probabilities)
+                                            grow_probability=grow_probability, logistic=True, terminals_probabilities=terminals_probabilities,
+                                           adjusted_sigmoid=adjust)
 
             random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
-                                           grow_probability=grow_probability, logistic=True, terminals_probabilities=terminals_probabilities)
+                                           grow_probability=grow_probability, logistic=True, terminals_probabilities=terminals_probabilities,
+                                           adjusted_sigmoid=adjust)
 
             random_trees = [random_tree1, random_tree2]
 
             # getting the testing semantics of the random trees
             if X_test is not None:
-                [rt.calculate_semantics(X_test, testing=True, logistic=True) for rt in random_trees]
+                [rt.calculate_semantics(X_test, testing=True, logistic=True,
+                                           adjusted_sigmoid=adjust) for rt in random_trees]
 
         else:
             # getting one random tree
@@ -82,15 +93,16 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
             random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
                                            grow_probability=grow_probability,
                                            logistic=single_tree_sigmoid or sig,
-                                           terminals_probabilities=terminals_probabilities)
+                                           terminals_probabilities=terminals_probabilities,
+                                           adjusted_sigmoid=adjust and (single_tree_sigmoid or sig))
 
             random_trees = [random_tree1]
 
             if X_test is not None:
-                [rt.calculate_semantics(X_test, testing=True, logistic=single_tree_sigmoid or sig) for rt in random_trees]
+                [rt.calculate_semantics(X_test, testing=True, logistic=single_tree_sigmoid or sig, adjusted_sigmoid=adjust and (single_tree_sigmoid or sig)) for rt in random_trees]
 
         # creating the mutation resulting block to be added to the individual
-        variator = two_trees_delta(operator=operator) if two_trees else one_tree_delta(operator=operator, sig=sig)
+        variator = two_trees_delta(operator=operator) if two_trees else one_tree_delta(operator=operator, sig=sig, adjust = adjust)
         new_block = Tree(
             structure = [variator, *random_trees, ms],
             train_semantics=variator( *random_trees, ms, testing= False),

@@ -1,7 +1,8 @@
 from algorithms.GSGP.representations.tree_utils import apply_tree, nested_depth_calculator, nested_nodes_calculator
 from algorithms.GP.representations.tree_utils import flatten, tree_depth
 import torch
-
+from scipy.optimize import fmin
+import numpy as np
 
 class Tree:
     FUNCTIONS = None
@@ -34,18 +35,24 @@ class Tree:
         self.fitness = None
         self.test_fitness = None
 
-    def calculate_semantics(self, inputs, testing = False, logistic=False):
+    def calculate_semantics(self, inputs, testing = False, logistic=False, adjusted_sigmoid = False):
+
+        if adjusted_sigmoid:
+            structure = flatten_structure(self.structure)
+            scaling_factor = torch.max(torch.abs(inputs[:, [int(el[1:]) for el in structure if 'x' in el]]))
+        else:
+            scaling_factor = None
 
         if testing and self.test_semantics is None:
             # checking if the individual is part of the initial population (table) or is a random tree (table)
             if isinstance(self.structure, tuple):
-                self.test_semantics = torch.sigmoid(apply_tree(self, inputs)) if logistic else apply_tree(self, inputs)
+                self.test_semantics = modified_sigmoid(apply_tree(self, inputs), scaling_factor=scaling_factor) if logistic else apply_tree(self, inputs)
             else:
                 # self.structure[0] is the operator (mutation or xo) while the remaining of the structure dare pointers to the trees
                 self.test_semantics = self.structure[0](*self.structure[1:], testing=True)
         elif self.train_semantics is None:
             if isinstance(self.structure, tuple):
-                self.train_semantics = torch.sigmoid(apply_tree(self, inputs)) if logistic else apply_tree(self, inputs)
+                self.train_semantics =modified_sigmoid(apply_tree(self, inputs), scaling_factor=scaling_factor) if logistic else apply_tree(self, inputs)
             else:
                 self.train_semantics = self.structure[0](*self.structure[1:], testing=False)
 
@@ -79,3 +86,45 @@ class Tree:
             self.test_fitness = ffunction(y, self.test_semantics)
         else:
             self.fitness = ffunction(y, self.train_semantics)
+
+def modified_sigmoid(tensor, scaling_factor = None):
+    if scaling_factor:
+        return torch.div(1, torch.add(1, torch.exp(torch.mul(-1, torch.div(tensor, scaling_factor)))))
+    else:
+        return torch.sigmoid(tensor)
+
+def flatten_structure(struct):
+    result = []
+    if isinstance(struct, tuple):
+        result.append(struct[0])  # Add the operator
+        for item in struct[1:]:
+            result.extend(flatten_structure(item))
+    else:
+        result.append(struct)  # Base case: add the variable directly
+    return result
+
+def evaluate_structure(struct, values):
+    if isinstance(struct, tuple):
+        operator = struct[0]
+        operands = [evaluate_structure(item, values) for item in struct[1:]]
+        if operator == 'add':
+            return sum(operands)
+        elif operator == 'subtract':
+            return operands[0] - operands[1]
+    else:
+        return values.get(struct, 0)  # Default to 0 if variable not in dictionary
+
+def generate_variables(struct):
+    flattened = flatten_structure(struct)
+    return sorted(set(item for item in flattened if isinstance(item, str) and not item in ['add', 'subtract']))
+
+def objective_function(x, struct, variables):
+    values = dict(zip(variables, x))
+    return evaluate_structure(struct, values)
+
+def find_minimum(struct):
+    variables = generate_variables(struct)
+    initial_guess = np.zeros(len(variables))
+    result = fmin(objective_function, initial_guess, args=(struct, variables), disp=False)
+    min_value = objective_function(result, struct, variables)
+    return min_value

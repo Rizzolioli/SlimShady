@@ -239,7 +239,7 @@ def get_best_max(population, n_elites):
 
 
 def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3, grow_probability=1,
-                    logistic=True, terminals_probabilities = None):
+                    logistic=True, terminals_probabilities = None, adjusted_sigmoid = False):
     # choose between grow and full
     if random.random() < grow_probability:
 
@@ -253,7 +253,7 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3,
                     reconstruct=True)
 
         # calculating the tree semantics
-        tree.calculate_semantics(inputs, testing=False, logistic=logistic)
+        tree.calculate_semantics(inputs, testing=False, logistic=logistic, adjusted_sigmoid = adjusted_sigmoid)
 
     else:
         # creating a full tree
@@ -265,7 +265,7 @@ def get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs, p_c=0.3,
                     reconstruct=True)
 
         # calculating the tree semantics
-        tree.calculate_semantics(inputs, testing=False, logistic=logistic)
+        tree.calculate_semantics(inputs, testing=False, logistic=logistic, adjusted_sigmoid = adjusted_sigmoid)
 
     return tree
 
@@ -454,8 +454,7 @@ def specular_log(tensor):
     log_tens[torch.eq(tensor, 0)] = 0.0
     return log_tens
 
-def modified_sigmoid(tensor, scaling_factor):
-    return torch.div(1,torch.add(1,torch.exp(torch.mul(-1,torch.div(tensor, scaling_factor)))))
+
 
 def pearson_corr(tensor1, tensor2):
     return torch.cov(torch.stack((tensor1, tensor2)))[0][1] / (torch.std(tensor1) * torch.std(tensor2))
@@ -466,4 +465,14 @@ def min_max_alpha(tensor, alpha):
     x_max = torch.quantile(tensor, 1 - alpha/2)
 
     return  torch.clamp( torch.div(torch.sub(tensor, x_min), x_max - x_min), min = 0.0, max = 1.0)
+
+def modified_abs(tensor, f_min = None):
+
+    if f_min and f_min < 0:
+            return torch.add(tensor, abs(f_min))
+
+
+    else:
+
+        return torch.abs(tensor)
 
