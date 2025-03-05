@@ -22,11 +22,8 @@ day = now.strftime("%Y%m%d")
 
 ########################################################################################################################
 
-
-# data_loaders = [ "airfoil", "concrete_slump", "concrete_strength", "ppb", "ld50", "bioavalability", "yatch"]
 data_loaders = [ "toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
-# data_loaders = [load_yatch, load_airfoil, load_concrete_slump, load_concrete_strength, load_ppb,
-#                 load_bioav, load_ld50]
+
 
 ########################################################################################################################
 
@@ -42,7 +39,7 @@ elites = {}
 # attibuting a unique id to the run
 unique_run_id = uuid.uuid1()
 
-n_runs = 10
+n_runs = 30
 settings_dict = {"p_test": 0.2}
 
 FUNCTIONS = {
@@ -67,7 +64,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log_path": os.path.join(os.getcwd(), "log", f"xo_{day}.csv"),
                               "run_info": None,
                               "ffunction": rmse,
-                              "n_iter": 1000,
+                              "n_iter": 2000,
                               "max_depth": None,
                               "n_elites": 1,
                               "reconstruct" : False
@@ -87,13 +84,13 @@ slim_GSGP_parameters = {"initializer": rhh,
                         "copy_parent": None,
                         "operator": None
                         }
+slim_GSGP_parameters["crossover"] = donor_gxo
 
 mutation_parameters ={
 "sig": None,
 "two_trees": None
 }
 
-# inflate_mutator = inflate_mutation
 
 slim_GSGP_parameters["p_m"] = 1 - slim_GSGP_parameters["p_xo"]
 
@@ -151,80 +148,79 @@ for loader in data_loaders:
             algo = 'SLIM*ABS'
         elif (sig, ttress, op, gsgp) == (True, True, "sum", False):
             algo = 'SLIM+2SIG'
+        elif (sig, ttress, op, gsgp) == (True, True, "mul", False):
+            algo = 'SLIM+*2SIG'
         elif (sig, ttress, op, gsgp) == (True, False, "sum", False):
             algo = 'SLIM+1SIG'
         elif (sig, ttress, op, gsgp) == (False, False, "sum", False):
             algo = 'SLIM+ABS'
         elif (sig, ttress, op, gsgp) == (True, True, "sum", True):
             algo = 'GSGP'
+        else:
+            raise Exception('invalid variant')
 
         if op == 'std':
             op = 'sum'
 
-            slim_GSGP_parameters["two_trees"] = ttress
-            slim_GSGP_parameters["operator"] = op
-            slim_GSGP_parameters["p_m"] = 1 - slim_GSGP_parameters["p_xo"]
+        slim_GSGP_parameters["two_trees"] = ttress
+        slim_GSGP_parameters["operator"] = op
+        slim_GSGP_parameters["p_m"] = 1 - slim_GSGP_parameters["p_xo"]
 
-            # running each dataset + algo configuration n_runs times
-            for seed in range(n_runs):
+        # running each dataset + algo configuration n_runs times
+        for seed in range(n_runs):
 
-                start = time.time()
+            start = time.time()
 
-                if isinstance(loader, str):
-                    dataset = loader
-                    curr_dataset = f"load_{dataset}"
-                    TERMINALS = get_terminals(loader, seed + 1)
-                    X_train, y_train = load_preloaded(loader, seed=seed + 1, training=True, X_y=True)
-                    X_test, y_test = load_preloaded(loader, seed=seed + 1, training=False, X_y=True)
+            if isinstance(loader, str):
+                dataset = loader
+                curr_dataset = f"load_{dataset}"
+                TERMINALS = get_terminals(loader, seed + 1)
+                X_train, y_train = load_preloaded(loader, seed=seed + 1, training=True, X_y=True)
+                X_test, y_test = load_preloaded(loader, seed=seed + 1, training=False, X_y=True)
 
-                else:
-                    X, y = loader(X_y=True)
-                    curr_dataset = loader.__name__
-                    dataset = loader.__name__.split("load_")[-1]
-                    TERMINALS = get_terminals(loader)
-                    X_train, X_test, y_train, y_test = train_test_split(X=X, y=y,
-                                                                        p_test=settings_dict['p_test'],
-                                                                        seed=seed)
+            else:
+                X, y = loader(X_y=True)
+                curr_dataset = loader.__name__
+                dataset = loader.__name__.split("load_")[-1]
+                TERMINALS = get_terminals(loader)
+                X_train, X_test, y_train, y_test = train_test_split(X=X, y=y,
+                                                                    p_test=settings_dict['p_test'],
+                                                                    seed=seed)
 
-                # setting up the dataset related slim parameters:
-                if dataset in slim_dataset_params.keys():
-                    slim_GSGP_parameters["ms"] = slim_dataset_params[dataset]["ms"]
-                    slim_GSGP_parameters['p_inflate'] = slim_dataset_params[dataset]["p_inflate"]
+            # setting up the dataset related slim parameters:
+            if dataset in slim_dataset_params.keys():
+                slim_GSGP_parameters["ms"] = slim_dataset_params[dataset]["ms"]
+                slim_GSGP_parameters['p_inflate'] = slim_dataset_params[dataset]["p_inflate"]
 
-                else:
-                    slim_GSGP_parameters["ms"] = slim_dataset_params["other"]["ms"]
-                    slim_GSGP_parameters['p_inflate'] = slim_dataset_params["other"]["p_inflate"]
+            else:
+                slim_GSGP_parameters["ms"] = slim_dataset_params["other"]["ms"]
+                slim_GSGP_parameters['p_inflate'] = slim_dataset_params["other"]["p_inflate"]
 
-                # if cross != "no_xo":
-                #     slim_GSGP_parameters['p_inflate'] = 1
-                slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
+            # if cross != "no_xo":
+            #     slim_GSGP_parameters['p_inflate'] = 1
+            slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 
-                # setting up the dataset related parameters:
-                slim_gsgp_pi_init["TERMINALS"] = TERMINALS
+            # setting up the dataset related parameters:
+            slim_gsgp_pi_init["TERMINALS"] = TERMINALS
 
-                slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
-                                                                          TERMINALS=TERMINALS,
-                                                                          CONSTANTS=CONSTANTS,
-                                                                          two_trees=slim_GSGP_parameters[
-                                                                              'two_trees'],
-                                                                          operator=slim_GSGP_parameters[
-                                                                              'operator'],
-                                                                          sig=sig)
+            slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
+                                                                      TERMINALS=TERMINALS,
+                                                                      CONSTANTS=CONSTANTS,
+                                                                      two_trees=slim_GSGP_parameters[
+                                                                          'two_trees'],
+                                                                      operator=slim_GSGP_parameters[
+                                                                          'operator'],
+                                                                      sig=sig)
 
 
-                slim_GSGP_parameters["crossover"] = donor_gxo
+            # adding the dataset name and algorithm name to the run info for the logger
+            slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]
 
-                # adding the dataset name and algorithm name to the run info for the logger
-                slim_gsgp_solve_parameters['run_info'] = [algo, unique_run_id, dataset]
+            optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
 
-                optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
+            optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test,
+                            curr_dataset=curr_dataset,
+                            **slim_gsgp_solve_parameters)
 
-                optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test,
-                                curr_dataset=curr_dataset,
-                                **slim_gsgp_solve_parameters)
-
-                print(time.time() - start)
-                print("THE USED SEED WAS", seed)
-
-# log_settings(path=os.path.join(os.getcwd(), "log", "settings.csv"),
-#              settings_dict=[globals()[d] for d in all_params["SLIM_GSGP"]], unique_run_id=unique_run_id)
+            print(time.time() - start)
+            print("THE USED SEED WAS", seed)
