@@ -173,7 +173,16 @@ class SLIM_GSGP:
                     while p1 == p2:
                         p1, p2 = self.selector(population), self.selector(population)
 
-                    offs = self.crossover(p1, p2, X_train, X_test, reconstruct = reconstruct) # implement crossover
+                    if self.crossover.__name__ in [
+                        'imp_donor_xo',
+                        'best_imp_donor_xo'
+                    ]:
+
+                        offs = self.crossover(p1, p2, ffunction, y_train, self.operator, reconstruct)
+
+                    else:
+
+                        offs = self.crossover(p1, p2, X_train, X_test, reconstruct = reconstruct) # implement crossover
                     # understand if xo return 1 or 2 offsprings
                     if isinstance(offs, tuple):
                         offs_pop.extend([offs[0], offs[1]])
