@@ -30,47 +30,57 @@ day = now.strftime("%Y%m%d")
 
 results = {}
 
+# # Loads the data via the dataset loader
+# data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
+#
+# # getting the name of the dataset
+# dataset = 'GWAS'
+# curr_dataset = 'GWAS'
+
+# X = data.values[:, -3:-1]
+# y = data.values[:, -1]
+
+path = '../../../GAMETES dataset/data'
+data_loaders = os.listdir(path)
+
+for loader in data_loaders:
 # Loads the data via the dataset loader
-data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
-
-# getting the name of the dataset
-dataset = 'GWAS'
-curr_dataset = 'GWAS'
-
-X = data.values[:, :-1]
-y = data.values[:, -1]
+    data = pd.read_csv(path + '/' + loader, sep = '\t')
+    dataset = loader[:-4]
 
 
+    X = data.values[:, :-1]
+    y = data.values[:, -1]
 
-for seed in range(30):
+    for seed in range(30):
 
-    start = time.time()
+        start = time.time()
 
 
-    X_train, X_test, y_train, y_test = tts_sklearn(X, y,
-                                                   stratify=y,
-                                                   test_size=0.2,
-                                                   shuffle=True,
-                                                   random_state=seed)
+        X_train, X_test, y_train, y_test = tts_sklearn(X, y,
+                                                       stratify=y,
+                                                       test_size=0.2,
+                                                       shuffle=True,
+                                                       random_state=seed)
 
 
 
-    my_mdr = MDR()
+        my_mdr = MDR()
 
 
-    train_pred = my_mdr.fit_transform(X_train, y_train)
-    test_pred = my_mdr.transform(X_test)
+        train_pred = my_mdr.fit_transform(X_train, y_train)
+        test_pred = my_mdr.transform(X_test)
 
 
-    # train_pred = clf.predict(X_train)
-    train_corr = matthews_corrcoef(y_train, train_pred)
+        # train_pred = clf.predict(X_train)
+        train_corr = matthews_corrcoef(y_train, train_pred)
 
 
-    # test_pred = clf.predict(X_test)
-    test_corr = matthews_corrcoef(y_test, test_pred)
+        # test_pred = clf.predict(X_test)
+        test_corr = matthews_corrcoef(y_test, test_pred)
 
 
-    with open(os.path.join(os.getcwd(), "log", f"fixed_mdr_gwas_{day}.csv"), 'a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(
-            ['MDR', seed, dataset, train_corr,  test_corr])
+        with open(os.path.join(os.getcwd(), "log", f"fixed_mdr_gametes_{day}.csv"), 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(
+                ['MDR', seed, dataset, train_corr,  test_corr])
