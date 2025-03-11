@@ -30,7 +30,7 @@ algos = ["SlimGSGP"]
 
 
 results = {}
-data = pd.read_csv('../../gwas_cleaned_ordered.csv')
+data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
 
 X = data.values[:, 1:]
 y = data.values[:, 1]
@@ -69,8 +69,6 @@ for seed in range(30):
 
     test_pred = clf.predict(X_test)
     test_corr = matthews_corrcoef(y_test, test_pred)
-
-    print(train_corr, test_corr)
 
 
     with open(os.path.join(os.getcwd(), "log", f"tuned_xgb_gwas_{day}.csv"), 'a', newline='') as file:
