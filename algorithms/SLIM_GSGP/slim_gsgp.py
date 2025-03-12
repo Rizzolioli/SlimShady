@@ -180,6 +180,10 @@ class SLIM_GSGP:
 
                         offs = self.crossover(p1, p2, ffunction, y_train, self.operator, reconstruct)
 
+                    elif self.crossover.__name__ == 'best_d_xo':
+
+                        offs = self.crossover(p1, p2, reconstruct)
+
                     else:
 
                         offs = self.crossover(p1, p2, X_train, X_test, reconstruct = reconstruct) # implement crossover

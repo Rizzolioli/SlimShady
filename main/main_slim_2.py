@@ -9,7 +9,7 @@ from algorithms.SLIM_GSGP.operators.mutators import *
 from algorithms.SLIM_GSGP.operators.standard_geometric_crossover import *
 from algorithms.SLIM_GSGP.operators.our_geometric_crossover import *
 from algorithms.SLIM_GSGP.operators.our_geometric_crossover import *
-from algorithms.SLIM_GSGP.operators.crossover_operators import improved_donor_xo
+from algorithms.SLIM_GSGP.operators.crossover_operators import improved_donor_xo, best_donor_xo
 from utils.logger import log_settings
 from utils.utils import show_individual
 import datetime
@@ -59,7 +59,7 @@ CONSTANTS = {
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 0,
+                              "log": 1,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", f"xo_{day}.csv"),
@@ -85,7 +85,7 @@ slim_GSGP_parameters = {"initializer": rhh,
                         "copy_parent": None,
                         "operator": None
                         }
-slim_GSGP_parameters["crossover"] = improved_donor_xo()
+slim_GSGP_parameters["crossover"] = best_donor_xo()
 
 mutation_parameters ={
 "sig": None,
