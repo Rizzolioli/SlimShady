@@ -32,8 +32,8 @@ algos = ["SlimGSGP"]
 results = {}
 data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
 
-X = data.values[:, 1:]
-y = data.values[:, 1]
+X = data.values[:, :-1]
+y = data.values[:, -1]
 
 #
 #         # getting the name of the dataset

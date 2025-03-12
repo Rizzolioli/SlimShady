@@ -144,248 +144,248 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
 # fs = RFE(RandomForestClassifier(), n_features_to_select=100)
 
 
-for dataset in [ 'GWAS_syn', 'GWAS_all_syn']: #'GWAS_all',
+# for dataset in [ 'GWAS_syn', 'GWAS_all_syn']: #'GWAS_all',
 
-    if dataset == 'GWAS_all':
-
-        # Loads the data via the dataset loader
-        data = pd.read_csv('../../gwas_cleaned_ordered.csv')
-
-        curr_dataset = dataset
-
-    elif dataset == 'GWAS_syn':
+    # if dataset == 'GWAS_all':
 
         # Loads the data via the dataset loader
-        data = pd.read_csv('../../gwas_FINAL_cleaned_ordered.csv')
+data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
+dataset = 'GWAS'
+
+curr_dataset = dataset
+
+    # elif dataset == 'GWAS_syn':
+    #
+    #     # Loads the data via the dataset loader
+    #     data = pd.read_csv('../../gwas_FINAL_cleaned_ordered.csv')
+    #
+    #     curr_dataset = dataset
+    #
+    # else:
+    #
+    #     raise Exception('NOT YET IMPLEMENTED')
 
-        curr_dataset = dataset
 
-    else:
+X = data.values[:, :-1]
+y = data.values[:, -1]
 
-        raise Exception('NOT YET IMPLEMENTED')
+TERMINALS = {f"x{i}": i for i in range(X.shape[1])}
 
 
-    X = data.values[:, :-1]
-    y = data.values[:, -1]
+# for each dataset, run all the planned algorithms
+for algo_name in algos:
 
-    TERMINALS = {f"x{i}": i for i in range(X.shape[1])}
+    for (sig, ttress, op, gsgp) in [
+                                    # (True, True, "sum", False),
+                                    (False, False, "mul", False),
+                                    # (False, False, "sum", False)
+                                    ]:  # (True, True, "sum"), (True, True, 'std') (True, False, "mul", False), (False, False, "mul", False), (True, True, "sum", False)
 
+        # getting the log file name according to the used parameters:
 
+        if (sig, ttress, op, gsgp) == (True, False, "mul", True):
+            algo = 'GSGP*1SIG'
+        elif (sig, ttress, op, gsgp) == (False, False, "mul", True):
+            algo = 'GSGP*ABS'
+        if (sig, ttress, op, gsgp) == (True, False, "mul", False):
+            algo = 'SLIM*1SIG'
+        elif (sig, ttress, op, gsgp) == (False, False, "mul", False):
+            algo = 'SLIM*ABS'
+        elif (sig, ttress, op, gsgp) == (True, True, "sum", False):
+            algo = 'SLIM+2SIG'
+        elif (sig, ttress, op, gsgp) == (True, False, "sum", False):
+            algo = 'SLIM+1SIG'
+        elif (sig, ttress, op, gsgp) == (False, False, "sum", False):
+            algo = 'SLIM+ABS'
+        elif (sig, ttress, op, gsgp) == (True, True, "sum", True):
+            algo = 'GSGP'
 
-    # for each dataset, run all the planned algorithms
-    for algo_name in algos:
+        if op == 'std':
+            op = 'sum'
 
-        for (sig, ttress, op, gsgp) in [
-                                        # (True, True, "sum", False),
-                                        # (False, False, "mul", False),
-                                        (False, False, "sum", False)
-                                        ]:  # (True, True, "sum"), (True, True, 'std') (True, False, "mul", False), (False, False, "mul", False), (True, True, "sum", False)
+        slim_GSGP_parameters["two_trees"] = ttress
+        slim_GSGP_parameters["operator"] = op
 
-            # getting the log file name according to the used parameters:
+        print(algo)
+        # running each dataset + algo configuration n_runs times
 
-            if (sig, ttress, op, gsgp) == (True, False, "mul", True):
-                algo = 'GSGP*1SIG'
-            elif (sig, ttress, op, gsgp) == (False, False, "mul", True):
-                algo = 'GSGP*ABS'
-            if (sig, ttress, op, gsgp) == (True, False, "mul", False):
-                algo = 'SLIM*1SIG'
-            elif (sig, ttress, op, gsgp) == (False, False, "mul", False):
-                algo = 'SLIM*ABS'
-            elif (sig, ttress, op, gsgp) == (True, True, "sum", False):
-                algo = 'SLIM+2SIG'
-            elif (sig, ttress, op, gsgp) == (True, False, "sum", False):
-                algo = 'SLIM+1SIG'
-            elif (sig, ttress, op, gsgp) == (False, False, "sum", False):
-                algo = 'SLIM+ABS'
-            elif (sig, ttress, op, gsgp) == (True, True, "sum", True):
-                algo = 'GSGP'
 
-            if op == 'std':
-                op = 'sum'
+        for seed in range(10,  30):
 
-            slim_GSGP_parameters["two_trees"] = ttress
-            slim_GSGP_parameters["operator"] = op
+            X_train, X_test, y_train, y_test = tts_sklearn(X, y,
+                                                           stratify=y,
+                                                           test_size=settings_dict['p_test'],
+                                                           shuffle=True,
+                                                           random_state=seed)
 
-            print(algo)
-            # running each dataset + algo configuration n_runs times
+            start = time.time()
 
 
-            for seed in range(30):
+            # previuos = 0
+            # folds = 100
+            # for i in range(folds):
+            #
+            #     current = int((i+1)*X_train.shape[1]/folds)
+            #     my_mdr = MDR()
+            #
+            #     if i == 0:
+            #         new_X_train = my_mdr.fit_transform(X_train[:, previuos:current], y_train)
+            #         new_X_test = my_mdr.transform(X_test[:, previuos:current])
+            #     elif i == 10:
+            #         new_X_train = np.append(new_X_train, my_mdr.fit_transform(X_train[:, previuos:], y_train), axis=1)
+            #         new_X_test = np.append(new_X_test, my_mdr.transform(X_test[:, previuos:]), axis=1)
+            #     else:
+            #         new_X_train =  np.append(new_X_train, my_mdr.fit_transform(X_train[:, previuos:current], y_train), axis=1)
+            #         new_X_test = np.append(new_X_test, my_mdr.transform(X_test[:, previuos:current]), axis=1)
+            #
+            #     previous = current
+            #
+            # X_train = new_X_train
+            # X_test = new_X_test
 
-                X_train, X_test, y_train, y_test = tts_sklearn(X, y,
-                                                               stratify=y,
-                                                               test_size=settings_dict['p_test'],
-                                                               shuffle=True,
-                                                               random_state=seed)
 
-                start = time.time()
+            # print(f"After fs: {X_train.shape}")
+            TERMINALS = {f"x{i}": i for i in range(X_train.shape[1])}
+            # TERMINALS = {feat: i for i, feat in enumerate(fs.get_feature_names_out())}
 
+            X_train, X_test, y_train, y_test = torch.tensor(X_train), torch.tensor(X_test), \
+                                                torch.tensor(y_train), torch.tensor(y_test)
 
-                # previuos = 0
-                # folds = 100
-                # for i in range(folds):
-                #
-                #     current = int((i+1)*X_train.shape[1]/folds)
-                #     my_mdr = MDR()
-                #
-                #     if i == 0:
-                #         new_X_train = my_mdr.fit_transform(X_train[:, previuos:current], y_train)
-                #         new_X_test = my_mdr.transform(X_test[:, previuos:current])
-                #     elif i == 10:
-                #         new_X_train = np.append(new_X_train, my_mdr.fit_transform(X_train[:, previuos:], y_train), axis=1)
-                #         new_X_test = np.append(new_X_test, my_mdr.transform(X_test[:, previuos:]), axis=1)
-                #     else:
-                #         new_X_train =  np.append(new_X_train, my_mdr.fit_transform(X_train[:, previuos:current], y_train), axis=1)
-                #         new_X_test = np.append(new_X_test, my_mdr.transform(X_test[:, previuos:current]), axis=1)
-                #
-                #     previous = current
-                #
-                # X_train = new_X_train
-                # X_test = new_X_test
 
 
-                # print(f"After fs: {X_train.shape}")
-                TERMINALS = {f"x{i}": i for i in range(X_train.shape[1])}
-                # TERMINALS = {feat: i for i, feat in enumerate(fs.get_feature_names_out())}
+            # getting the terminals and defining the terminal-dependant parameters
 
-                X_train, X_test, y_train, y_test = torch.tensor(X_train), torch.tensor(X_test), \
-                                                    torch.tensor(y_train), torch.tensor(y_test)
 
 
 
-                # getting the terminals and defining the terminal-dependant parameters
 
+            # slim_GSGP_parameters["ms"] = generate_random_uniform(0, torch.median(y_train).item())
 
+            slim_GSGP_parameters["ms"] = generate_random_uniform(0, 0.5 )
 
+            # setting up the dataset related slim parameters:
+            if dataset in slim_dataset_params.keys():
+                # slim_GSGP_parameters["ms"] = slim_dataset_params[dataset]["ms"]
+                slim_GSGP_parameters['p_inflate'] = slim_dataset_params[dataset]["p_inflate"]
 
+            else:
+                # slim_GSGP_parameters["ms"] = slim_dataset_params["other"]["ms"]
 
-                # slim_GSGP_parameters["ms"] = generate_random_uniform(0, torch.median(y_train).item())
+                slim_GSGP_parameters['p_inflate'] = slim_dataset_params["other"]["p_inflate"]
 
-                slim_GSGP_parameters["ms"] = generate_random_uniform(0, 0.5 )
+            slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
 
-                # setting up the dataset related slim parameters:
-                if dataset in slim_dataset_params.keys():
-                    # slim_GSGP_parameters["ms"] = slim_dataset_params[dataset]["ms"]
-                    slim_GSGP_parameters['p_inflate'] = slim_dataset_params[dataset]["p_inflate"]
+            if gsgp:
+                slim_GSGP_parameters['p_inflate'] = 1
+                slim_GSGP_parameters['p_deflate'] = 0
 
-                else:
-                    # slim_GSGP_parameters["ms"] = slim_dataset_params["other"]["ms"]
 
-                    slim_GSGP_parameters['p_inflate'] = slim_dataset_params["other"]["p_inflate"]
+            # setting up the dataset related parameters:
+            slim_gsgp_pi_init["TERMINALS"] = TERMINALS
 
-                slim_GSGP_parameters['p_deflate'] = 1 - slim_GSGP_parameters['p_inflate']
+            slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
+                                                                      TERMINALS=TERMINALS,
+                                                                      CONSTANTS=CONSTANTS,
+                                                                      two_trees=slim_GSGP_parameters[
+                                                                          'two_trees'],
+                                                                      operator=slim_GSGP_parameters[
+                                                                          'operator'],
+                                                                      sig=sig)
 
-                if gsgp:
-                    slim_GSGP_parameters['p_inflate'] = 1
-                    slim_GSGP_parameters['p_deflate'] = 0
 
+            # adding the dataset name and algorithm name to the run info for the logger
+            slim_gsgp_solve_parameters['run_info'] = [algo, dataset]
 
-                # setting up the dataset related parameters:
-                slim_gsgp_pi_init["TERMINALS"] = TERMINALS
+            optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
 
-                slim_GSGP_parameters["inflate_mutator"] = inflate_mutator(FUNCTIONS=FUNCTIONS,
-                                                                          TERMINALS=TERMINALS,
-                                                                          CONSTANTS=CONSTANTS,
-                                                                          two_trees=slim_GSGP_parameters[
-                                                                              'two_trees'],
-                                                                          operator=slim_GSGP_parameters[
-                                                                              'operator'],
-                                                                          sig=sig)
+            optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test,
+                            curr_dataset=curr_dataset,
+                            **slim_gsgp_solve_parameters)
 
+            if '*' in algo:
+                corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
 
-                # adding the dataset name and algorithm name to the run info for the logger
-                slim_gsgp_solve_parameters['run_info'] = [algo, dataset]
+            elif '+' in algo or algo == 'GSGP':
+                corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
 
-                optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
+            else:
+                print('Dont know what algorithm to use')
 
-                optimizer.solve(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test,
-                                curr_dataset=curr_dataset,
-                                **slim_gsgp_solve_parameters)
+            print(corr)
 
-                if '*' in algo:
-                    corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
+            sorted_idxs = torch.argsort(torch.tensor(optimizer.population.fit))[:5]
+            inds = []
+            fits = []
 
-                elif '+' in algo or algo == 'GSGP':
-                    corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
+            for i in range(5):
 
-                else:
-                    print('Dont know what algorithm to use')
+                slim_gsgp_solve_parameters['run_info'][0] = f'SSHC_{i}'
 
-                print(corr)
+                print(f'STARTING {i}th LOCAL SEARCH')
 
-                sorted_idxs = torch.argsort(torch.tensor(optimizer.population.fit))[:5]
-                inds = []
-                fits = []
+                local_search = SSHC(X_train=X_train,
+                                    y_train=y_train,
+                                    ffunction=slim_gsgp_solve_parameters['ffunction'],
+                                    eval_operator=slim_GSGP_parameters["operator"],
+                                    neigh_operator=slim_GSGP_parameters["deflate_mutator"],
+                                    FUNCTIONS=FUNCTIONS,
+                                    TERMINALS=TERMINALS,
+                                    CONSTANTS=CONSTANTS,
+                                    reconstruct=slim_gsgp_solve_parameters['reconstruct'],
+                                    curr_dataset=curr_dataset,
+                                    X_test=X_test,
+                                    y_test=y_test,
+                                    log=slim_gsgp_solve_parameters['log'],
+                                    log_path=slim_gsgp_solve_parameters['log_path'],
+                                    run_info=slim_gsgp_solve_parameters['run_info'],
+                                    verbose=slim_gsgp_solve_parameters['verbose'],
+                                    initial_depth=None,
+                                    individual=optimizer.population[sorted_idxs[i].item()],
+                                    seed = seed)
 
-                for i in range(5):
+                local_search.solve(neighborhood_size=slim_GSGP_parameters['pop_size'],
+                                   generations=1000,
+                                   start_gen=1000,
+                                   early_stopping=10)
 
-                    slim_gsgp_solve_parameters['run_info'][0] = f'SSHC_{i}'
+                inds.append(local_search.individual)
+                fits.append(local_search.individual.fitness)
 
-                    print(f'STARTING {i}th LOCAL SEARCH')
+            # optimizer = local_search
+            optimizer.elite = inds[np.argmin(fits)]
+            #
+            if '*' in algo:
+                train_corr = class_metric(y_train, final_binarizer(torch.prod(optimizer.elite.train_semantics, dim = 0)))
+                test_corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
+                train_acc = accuracy_score(y_train, final_binarizer(torch.prod(optimizer.elite.train_semantics, dim = 0)))
+                test_acc = accuracy_score(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
 
-                    local_search = SSHC(X_train=X_train,
-                                        y_train=y_train,
-                                        ffunction=slim_gsgp_solve_parameters['ffunction'],
-                                        eval_operator=slim_GSGP_parameters["operator"],
-                                        neigh_operator=slim_GSGP_parameters["deflate_mutator"],
-                                        FUNCTIONS=FUNCTIONS,
-                                        TERMINALS=TERMINALS,
-                                        CONSTANTS=CONSTANTS,
-                                        reconstruct=slim_gsgp_solve_parameters['reconstruct'],
-                                        curr_dataset=curr_dataset,
-                                        X_test=X_test,
-                                        y_test=y_test,
-                                        log=slim_gsgp_solve_parameters['log'],
-                                        log_path=slim_gsgp_solve_parameters['log_path'],
-                                        run_info=slim_gsgp_solve_parameters['run_info'],
-                                        verbose=slim_gsgp_solve_parameters['verbose'],
-                                        initial_depth=None,
-                                        individual=optimizer.population[sorted_idxs[i].item()],
-                                        seed = seed)
+            elif '+' in algo or algo == 'GSGP':
+                train_corr = class_metric(y_train, final_binarizer(torch.sum(optimizer.elite.train_semantics, dim = 0)))
+                test_corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
+                train_acc = accuracy_score(y_train, final_binarizer(torch.sum(optimizer.elite.train_semantics, dim = 0)))
+                test_acc = accuracy_score(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
 
-                    local_search.solve(neighborhood_size=slim_GSGP_parameters['pop_size'],
-                                       generations=1000,
-                                       start_gen=1000,
-                                       early_stopping=10)
+            else:
+                print('Dont know what algorithm to use')
 
-                    inds.append(local_search.individual)
-                    fits.append(local_search.individual.fitness)
+            print(train_corr)
+            print(test_corr)
+            print(train_acc)
+            print(test_acc)
 
-                # optimizer = local_search
-                optimizer.elite = inds[np.argmin(fits)]
-                #
-                if '*' in algo:
-                    train_corr = class_metric(y_train, final_binarizer(torch.prod(optimizer.elite.train_semantics, dim = 0)))
-                    test_corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
-                    train_acc = accuracy_score(y_train, final_binarizer(torch.prod(optimizer.elite.train_semantics, dim = 0)))
-                    test_acc = accuracy_score(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
+            optimizer.elite.print_tree_representation()
 
-                elif '+' in algo or algo == 'GSGP':
-                    train_corr = class_metric(y_train, final_binarizer(torch.sum(optimizer.elite.train_semantics, dim = 0)))
-                    test_corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
-                    train_acc = accuracy_score(y_train, final_binarizer(torch.sum(optimizer.elite.train_semantics, dim = 0)))
-                    test_acc = accuracy_score(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
+            if slim_gsgp_solve_parameters['log'] > 0:
+                with open(os.path.join(os.getcwd(), "log", f"fixed_elite_looks_gwas_{day}.csv"), 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(
+                        [algo, seed, unique_run_id, dataset, train_corr, test_corr,
+                         train_acc, test_acc, optimizer.elite.get_tree_representation()])
 
-                else:
-                    print('Dont know what algorithm to use')
 
-                print(train_corr)
-                print(test_corr)
-                print(train_acc)
-                print(test_acc)
-
-                optimizer.elite.print_tree_representation()
-
-                if slim_gsgp_solve_parameters['log'] > 0:
-                    with open(os.path.join(os.getcwd(), "log", f"fixed_elite_looks_gwas_{day}.csv"), 'a', newline='') as file:
-                        writer = csv.writer(file)
-                        writer.writerow(
-                            [algo, seed, unique_run_id, dataset, train_corr, test_corr,
-                             train_acc, test_acc, optimizer.elite.get_tree_representation()])
-
-
-                print(time.time() - start)
-                print("THE USED SEED WAS", seed)
+            print(time.time() - start)
+            print("THE USED SEED WAS", seed)
 
 
 
