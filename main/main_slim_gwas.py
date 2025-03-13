@@ -87,10 +87,10 @@ CONSTANTS = {f'constant_{int}' : lambda x: torch.tensor(int).float() for int in 
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 1,
+                              "log": 0,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", f"fixed_slim_gwas_{day}.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gwas_leaveoneout_{day}.csv"),
                               "run_info": None,
                               "ffunction": binarized_rmse(binarizer),
                               # "ffunction": bin_ce(binarizer),
@@ -113,7 +113,7 @@ slim_GSGP_parameters = {"initializer": rhh,
                         "settings_dict": settings_dict,
                         "find_elit_func": get_best_min,
                         "p_inflate": None,
-                        "copy_parent": None,
+                        "copy_parent": False,
                         "operator": None
                         }
 
@@ -148,9 +148,12 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
 
     # if dataset == 'GWAS_all':
 
-        # Loads the data via the dataset loader
+
 data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
 dataset = 'GWAS'
+# Loads the data via the dataset loader
+# data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv')
+# dataset = 'GWAS_ANALYZED'
 
 curr_dataset = dataset
 
@@ -177,8 +180,8 @@ for algo_name in algos:
 
     for (sig, ttress, op, gsgp) in [
                                     # (True, True, "sum", False),
-                                    (False, False, "mul", False),
-                                    # (False, False, "sum", False)
+                                    # (False, False, "mul", False),
+                                    (False, False, "sum", False)
                                     ]:  # (True, True, "sum"), (True, True, 'std') (True, False, "mul", False), (False, False, "mul", False), (True, True, "sum", False)
 
         # getting the log file name according to the used parameters:
@@ -210,13 +213,16 @@ for algo_name in algos:
         # running each dataset + algo configuration n_runs times
 
 
-        for seed in range(10,  30):
+        for seed in range(X.shape[0]): #leave one out
 
-            X_train, X_test, y_train, y_test = tts_sklearn(X, y,
-                                                           stratify=y,
-                                                           test_size=settings_dict['p_test'],
-                                                           shuffle=True,
-                                                           random_state=seed)
+            # X_train, X_test, y_train, y_test = tts_sklearn(X, y,
+            #                                                stratify=y,
+            #                                                test_size=settings_dict['p_test'],
+            #                                                shuffle=True,
+            #                                                random_state=seed)
+
+            X_train, X_test, y_train, y_test = np.delete(X, seed, axis = 0), X[seed].reshape(1, -1), \
+                                                np.delete(y, seed, axis = 0), y[seed].reshape(1, -1) #leaveoneout
 
             start = time.time()
 
@@ -254,10 +260,6 @@ for algo_name in algos:
 
 
             # getting the terminals and defining the terminal-dependant parameters
-
-
-
-
 
             # slim_GSGP_parameters["ms"] = generate_random_uniform(0, torch.median(y_train).item())
 
@@ -313,47 +315,48 @@ for algo_name in algos:
 
             print(corr)
 
-            sorted_idxs = torch.argsort(torch.tensor(optimizer.population.fit))[:5]
-            inds = []
-            fits = []
-
-            for i in range(5):
-
-                slim_gsgp_solve_parameters['run_info'][0] = f'SSHC_{i}'
-
-                print(f'STARTING {i}th LOCAL SEARCH')
-
-                local_search = SSHC(X_train=X_train,
-                                    y_train=y_train,
-                                    ffunction=slim_gsgp_solve_parameters['ffunction'],
-                                    eval_operator=slim_GSGP_parameters["operator"],
-                                    neigh_operator=slim_GSGP_parameters["deflate_mutator"],
-                                    FUNCTIONS=FUNCTIONS,
-                                    TERMINALS=TERMINALS,
-                                    CONSTANTS=CONSTANTS,
-                                    reconstruct=slim_gsgp_solve_parameters['reconstruct'],
-                                    curr_dataset=curr_dataset,
-                                    X_test=X_test,
-                                    y_test=y_test,
-                                    log=slim_gsgp_solve_parameters['log'],
-                                    log_path=slim_gsgp_solve_parameters['log_path'],
-                                    run_info=slim_gsgp_solve_parameters['run_info'],
-                                    verbose=slim_gsgp_solve_parameters['verbose'],
-                                    initial_depth=None,
-                                    individual=optimizer.population[sorted_idxs[i].item()],
-                                    seed = seed)
-
-                local_search.solve(neighborhood_size=slim_GSGP_parameters['pop_size'],
-                                   generations=1000,
-                                   start_gen=1000,
-                                   early_stopping=10)
-
-                inds.append(local_search.individual)
-                fits.append(local_search.individual.fitness)
-
-            # optimizer = local_search
-            optimizer.elite = inds[np.argmin(fits)]
+            # sorted_idxs = torch.argsort(torch.tensor(optimizer.population.fit))[:5]
+            # inds = []
+            # fits = []
             #
+            # for i in range(5):
+            #
+            #     slim_gsgp_solve_parameters['run_info'][0] = f'SSHC_{i}'
+            #
+            #     print(f'STARTING {i}th LOCAL SEARCH')
+            #
+            #     local_search = SSHC(X_train=X_train,
+            #                         y_train=y_train,
+            #                         ffunction=slim_gsgp_solve_parameters['ffunction'],
+            #                         eval_operator=slim_GSGP_parameters["operator"],
+            #                         neigh_operator=slim_GSGP_parameters["deflate_mutator"],
+            #                         FUNCTIONS=FUNCTIONS,
+            #                         TERMINALS=TERMINALS,
+            #                         CONSTANTS=CONSTANTS,
+            #                         reconstruct=slim_gsgp_solve_parameters['reconstruct'],
+            #                         curr_dataset=curr_dataset,
+            #                         X_test=X_test,
+            #                         y_test=y_test,
+            #                         log=slim_gsgp_solve_parameters['log'],
+            #                         log_path=slim_gsgp_solve_parameters['log_path'],
+            #                         run_info=slim_gsgp_solve_parameters['run_info'],
+            #                         verbose=slim_gsgp_solve_parameters['verbose'],
+            #                         initial_depth=None,
+            #                         individual=optimizer.population[sorted_idxs[i].item()],
+            #                         seed = seed)
+            #
+            #     local_search.solve(neighborhood_size=slim_GSGP_parameters['pop_size'],
+            #                        generations=1000,
+            #                        start_gen=1000,
+            #                        early_stopping=10)
+            #
+            #     inds.append(local_search.individual)
+            #     fits.append(local_search.individual.fitness)
+            #
+            # # optimizer = local_search
+            # optimizer.elite = inds[np.argmin(fits)]
+            # #
+
             if '*' in algo:
                 train_corr = class_metric(y_train, final_binarizer(torch.prod(optimizer.elite.train_semantics, dim = 0)))
                 test_corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
@@ -368,16 +371,16 @@ for algo_name in algos:
 
             else:
                 print('Dont know what algorithm to use')
-
-            print(train_corr)
-            print(test_corr)
-            print(train_acc)
-            print(test_acc)
-
-            optimizer.elite.print_tree_representation()
+            #
+            # print(train_corr)
+            # print(test_corr)
+            # print(train_acc)
+            # print(test_acc)
+            #
+            # optimizer.elite.print_tree_representation()
 
             if slim_gsgp_solve_parameters['log'] > 0:
-                with open(os.path.join(os.getcwd(), "log", f"fixed_elite_looks_gwas_{day}.csv"), 'a', newline='') as file:
+                with open(os.path.join(os.getcwd(), "log", f"elite_looks_gwas_leaveoneout_{day}.csv"), 'a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(
                         [algo, seed, unique_run_id, dataset, train_corr, test_corr,

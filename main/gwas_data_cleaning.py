@@ -15,4 +15,4 @@ enc = OrdinalEncoder()
 
 data = enc.fit_transform(data)
 
-pd.DataFrame(data).to_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
+pd.DataFrame(data).to_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv', index = None)

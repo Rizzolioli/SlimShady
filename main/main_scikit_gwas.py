@@ -17,9 +17,9 @@ import numpy as np
 
 
 models = {'DecisionTree' : DecisionTreeClassifier,
-          # 'SupportVectorMachine' : SVC,
-          # 'NaiveBayes' : GaussianNB,
-          # 'LogisticRegression' : LogisticRegression
+          'SupportVectorMachine' : SVC,
+          'NaiveBayes' : GaussianNB,
+          'LogisticRegression' : LogisticRegression
           }
 
 # parameters = {'DecisionTree': {'2w_1000a_0.05her': {'criterion': 'gini', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 2},
@@ -107,14 +107,21 @@ day = now.strftime("%Y%m%d")
 algos = ["SlimGSGP"]
 
 # data = pd.read_csv('../../../gwas_cleaned_ordered.csv')
-data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
+# data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
+# getting the name of the dataset
+dataset = 'GWAS'
+
+# data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
+# dataset = 'GWAS'
+# Loads the data via the dataset loader
+data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv')
+dataset = 'GWAS_ANALYZED'
 
 X = data.values[:, :-1]
 y = data.values[:, -1]
 
 #
-#         # getting the name of the dataset
-dataset = 'GWAS'
+
 
 
 X = data.values[:, :-1]
