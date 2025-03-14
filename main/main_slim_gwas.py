@@ -87,10 +87,10 @@ CONSTANTS = {f'constant_{int}' : lambda x: torch.tensor(int).float() for int in 
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 0,
+                              "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gwas_leaveoneout_{day}.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gwas_FULL_{day}.csv"),
                               "run_info": None,
                               "ffunction": binarized_rmse(binarizer),
                               # "ffunction": bin_ce(binarizer),
@@ -139,7 +139,7 @@ all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters"
 slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
                         "ld50": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
                        "concrete_strength": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
-                       "other": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 1)}}
+                       "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}}
 
 # fs = RFE(RandomForestClassifier(), n_features_to_select=100)
 
@@ -149,7 +149,7 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
     # if dataset == 'GWAS_all':
 
 
-data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
+data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv')
 dataset = 'GWAS'
 # Loads the data via the dataset loader
 # data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv')
@@ -213,16 +213,16 @@ for algo_name in algos:
         # running each dataset + algo configuration n_runs times
 
 
-        for seed in range(X.shape[0]): #leave one out
+        for seed in range(30): #leave one outX.shape[0]
 
-            # X_train, X_test, y_train, y_test = tts_sklearn(X, y,
-            #                                                stratify=y,
-            #                                                test_size=settings_dict['p_test'],
-            #                                                shuffle=True,
-            #                                                random_state=seed)
+            X_train, X_test, y_train, y_test = tts_sklearn(X, y,
+                                                           stratify=y,
+                                                           test_size=settings_dict['p_test'],
+                                                           shuffle=True,
+                                                           random_state=seed)
 
-            X_train, X_test, y_train, y_test = np.delete(X, seed, axis = 0), X[seed].reshape(1, -1), \
-                                                np.delete(y, seed, axis = 0), y[seed].reshape(1, -1) #leaveoneout
+            # X_train, X_test, y_train, y_test = np.delete(X, seed, axis = 0), X[seed].reshape(1, -1), \
+            #                                     np.delete(y, seed, axis = 0), y[seed].reshape(1, -1) #leaveoneout
 
             start = time.time()
 
@@ -380,7 +380,7 @@ for algo_name in algos:
             # optimizer.elite.print_tree_representation()
 
             if slim_gsgp_solve_parameters['log'] > 0:
-                with open(os.path.join(os.getcwd(), "log", f"elite_looks_gwas_leaveoneout_{day}.csv"), 'a', newline='') as file:
+                with open(os.path.join(os.getcwd(), "log", f"elite_looks_gwas_FINAL_{day}.csv"), 'a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(
                         [algo, seed, unique_run_id, dataset, train_corr, test_corr,

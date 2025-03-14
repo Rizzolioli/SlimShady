@@ -91,10 +91,10 @@ CONSTANTS = {f'constant_{int}' : lambda x: torch.tensor(int).float() for int in 
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 1,
+                              "log": 0,
                               "verbose": 1,
-                              "test_elite": True,+
-                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gametes_ct_{day}.csv"),
+                              "test_elite": True,
+                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gametes_{day}.csv"),
                               "run_info": None,
                               "ffunction": binarized_rmse(binarizer),
                               # "ffunction":binarized_fitness(matthews_corrcoef, final_binarizer),
@@ -132,12 +132,14 @@ inflate_mutator = inflate_mutation
 
 slim_GSGP_parameters["p_m"] = 1 - slim_GSGP_parameters["p_xo"]
 
+constrained_terminals = False
+
 slim_gsgp_pi_init = {'init_pop_size': slim_GSGP_parameters["pop_size"],
                      'init_depth':3,
                      'FUNCTIONS': FUNCTIONS,
                      'CONSTANTS': CONSTANTS,
                      "p_c": 0,
-                     "constrained_terminals" : True}
+                     "constrained_terminals" : constrained_terminals}
 
 all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters", "slim_gsgp_pi_init", "settings_dict"],
               "GSGP": ["gsgp_solve_parameters", "GSGP_parameters", "gsgp_pi_init", "settings_dict"],
@@ -146,21 +148,21 @@ all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters"
 slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
                         "ld50": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
                        "concrete_strength": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
-                       "other": {"p_inflate": 0.9, "ms": generate_random_uniform(0, 1)}}
+                       "other": {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)}}
 
 # fs = RFE(RandomForestClassifier(), n_features_to_select=100)
 
 
-# data_loaders = list(filter(lambda x: ('1000' in x ) or ('5000' in x), data_loaders) )
+data_loaders = list(filter(lambda x: ('1000' in x ) or ('5000' in x), data_loaders) )
 
-for loader in [data_loaders]:
+for loader in data_loaders:
     # for each dataset, run all the planned algorithms
     for algo_name in algos:
 
         for (sig, ttress, op, gsgp) in [
-                                        # (True, True, "sum", False),
+                                        (True, True, "sum", False),
                                         # (False, False, "mul", False),
-                                        (False, False, "sum", False)
+                                        # (False, False, "sum", False)
                                         ]:  # (True, True, "sum"), (True, True, 'std') (True, False, "mul", False), (False, False, "mul", False), (True, True, "sum", False)
 
             # getting the log file name according to the used parameters:
@@ -284,7 +286,7 @@ for loader in [data_loaders]:
                                                                           operator=slim_GSGP_parameters[
                                                                               'operator'],
                                                                           sig=sig,
-                                                                          constrained_terminals=True)
+                                                                          constrained_terminals=constrained_terminals)
 
 
                 # adding the dataset name and algorithm name to the run info for the logger
@@ -371,7 +373,7 @@ for loader in [data_loaders]:
                 optimizer.elite.print_tree_representation()
 
                 if slim_gsgp_solve_parameters['log'] > 0:
-                    with open(os.path.join(os.getcwd(), "log", f"elite_looks_ct_gametes_{day}.csv"), 'a', newline='') as file:
+                    with open(os.path.join(os.getcwd(), "log", f"elite_looks_gametes_{day}.csv"), 'a', newline='') as file:
                         writer = csv.writer(file)
                         writer.writerow(
                             [algo, seed, unique_run_id, dataset, train_corr, test_corr,

@@ -109,13 +109,13 @@ algos = ["SlimGSGP"]
 # data = pd.read_csv('../../../gwas_cleaned_ordered.csv')
 # data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
 # getting the name of the dataset
-dataset = 'GWAS'
+# dataset = 'GWAS'
 
 # data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_cleaned_ordered.csv')
 # dataset = 'GWAS'
 # Loads the data via the dataset loader
 data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv')
-dataset = 'GWAS_ANALYZED'
+dataset = 'GWAS'
 
 X = data.values[:, :-1]
 y = data.values[:, -1]
@@ -161,12 +161,12 @@ for model in models.keys():
         test_corr = matthews_corrcoef(y_test, test_pred)
 
 
-        # with open(os.path.join(os.getcwd(), "log", f"fixed_tuned_models_gwas_{day}.csv"), 'a', newline='') as file:
-        #     writer = csv.writer(file)
-        #     writer.writerow(
-        #         [model, seed, dataset, train_corr,  test_corr])
-
-        with open(os.path.join(os.getcwd(), "log", f"dt_feat_imp_gwas_{day}.csv"), 'a', newline='') as file:
+        with open(os.path.join(os.getcwd(), "log", f"tuned_models_gwas_FULL_{day}.csv"), 'a', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(
-                np.argpartition(clf.feature_importances_, -20)[-20:])
+                [model, seed, dataset, train_corr,  test_corr])
+
+        # with open(os.path.join(os.getcwd(), "log", f"dt_feat_imp_gwas_{day}.csv"), 'a', newline='') as file:
+        #     writer = csv.writer(file)
+        #     writer.writerow(
+        #         np.argpartition(clf.feature_importances_, -20)[-20:])

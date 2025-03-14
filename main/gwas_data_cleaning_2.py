@@ -1,21 +1,30 @@
 import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder
+import numpy as np
 
-data = pd.read_excel('../../../Bicocca/GWAS/data/MG-PerMed database_Italy_shared 31224.xlsx', sheet_name='SIGNIFICANT NGS VARIANTS')
+significant = pd.read_excel('../../../Bicocca/GWAS/data/MG-PerMed database_Italy_shared 31224.xlsx', sheet_name='SIGNIFICANT NGS VARIANTS')
+all = pd.read_excel('../../../Bicocca/GWAS/data/MG-PerMed database_Italy_shared 31224.xlsx', sheet_name='ALL NGS DATA-GENETIC VARIANTS')
 
-data.drop(columns = ['MG-PerMed', 'codice INNCB', 'Unnamed: 11'], inplace=True)
-data.drop(index = [0, 3], inplace = True)
+complete = pd.merge(significant, all, how = 'inner', left_on = 'MG-PerMed', right_on = 'Cod. MG-PerMed')
 
-data['status (R/NR to IS drugs)'] = data['status (R/NR to IS drugs)'].replace({'NR?': 'NR'})
+complete.drop(columns = ['MG-PerMed', 'codice INNCB_x',  'codice INNCB_y', 'Unnamed: 11', 'Cod. MG-PerMed',
+                         'familyID in ngs FILES ', 'individualID', 'Cod. RF-2016'], inplace=True)
+# complete.drop(index = [0, 3], inplace = True)
 
-columns = list(data.columns)
-columns.pop(0)
-columns.append('status (R/NR to IS drugs)')
+print(np.all((complete['status (R/NR to IS drugs)_y'] == complete['status (R/NR to IS drugs)_y']).values))
+# complete['status (R/NR to IS drugs)'] = complete['status (R/NR to IS drugs)'].replace({'NR?': 'NR'})
 
-data = data[columns]
+columns = list(complete.columns)
+columns.remove('status (R/NR to IS drugs)_y')
+columns.remove('status (R/NR to IS drugs)_x')
+columns.append('status (R/NR to IS drugs)_x')
+
+complete = complete[columns]
+
+complete.dropna(axis = 0, how = 'any', inplace = True)
 
 enc = OrdinalEncoder()
 
-data = enc.fit_transform(data)
+complete = enc.fit_transform(complete)
 
-pd.DataFrame(data).to_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv', index = None)
+pd.DataFrame(complete).to_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv', index = None)
