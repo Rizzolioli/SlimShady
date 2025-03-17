@@ -87,7 +87,7 @@ CONSTANTS = {f'constant_{int}' : lambda x: torch.tensor(int).float() for int in 
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 1,
+                              "log": 0,
                               "verbose": 1,
                               "test_elite": True,
                               "log_path": os.path.join(os.getcwd(), "log", f"slim_gwas_FULL_{day}.csv"),
@@ -213,16 +213,16 @@ for algo_name in algos:
         # running each dataset + algo configuration n_runs times
 
 
-        for seed in range(30): #leave one outX.shape[0]
+        for seed in range( X.shape[0] ): #leave one out X.shape[0]
 
-            X_train, X_test, y_train, y_test = tts_sklearn(X, y,
-                                                           stratify=y,
-                                                           test_size=settings_dict['p_test'],
-                                                           shuffle=True,
-                                                           random_state=seed)
+            # X_train, X_test, y_train, y_test = tts_sklearn(X, y,
+            #                                                stratify=y,
+            #                                                test_size=settings_dict['p_test'],
+            #                                                shuffle=True,
+            #                                                random_state=seed)
 
-            # X_train, X_test, y_train, y_test = np.delete(X, seed, axis = 0), X[seed].reshape(1, -1), \
-            #                                     np.delete(y, seed, axis = 0), y[seed].reshape(1, -1) #leaveoneout
+            X_train, X_test, y_train, y_test = np.delete(X, seed, axis = 0), X[seed].reshape(1, -1), \
+                                                np.delete(y, seed, axis = 0), y[seed].reshape(1, -1) #leaveoneout
 
             start = time.time()
 
