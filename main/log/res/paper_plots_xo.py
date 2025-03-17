@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Enable LaTeX rendering
-plt.rc('text', usetex=True)
+plt.rc('text', usetex=False)
 plt.rc('font', family='serif')
 
 base_palette = sns.color_palette("deep", 5)  # 'deep' is often used for its vibrant colors
@@ -48,7 +48,14 @@ def plot_all_median_node_counts(name_ds, argument):
                            'SlimGSGP_1_sum_False': 'SLIM+ABS',
                            'SlimGSGP_1_sum_True': 'SLIM+SIG1',
                            'SlimGSGP_2_mul_False': 'SLIM*SIG2',
-                           'SlimGSGP_2_sum_False': 'SLIM+SIG2'
+                           'SlimGSGP_2_sum_False': 'SLIM+SIG2',
+                           # 'SlimGSGP_1_mul_False': 'SLIM*ABS',
+                           'SLIM*1SIG': 'SLIM*SIG1',
+                           # 'SlimGSGP_1_sum_False': 'SLIM+ABS',
+                           'SLIM+1SIG': 'SLIM+SIG1',
+                           'SLIM*2SIG': 'SLIM*SIG2',
+                           'SLIM+2SIG': 'SLIM+SIG2',
+                           'SLIM+*2SIG' : 'SLIM*SIG2'
                            }},
                  inplace=True)
 
