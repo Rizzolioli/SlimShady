@@ -49,7 +49,8 @@ for loader in data_loaders:
     dataset = loader[:-4]
 
 
-    X = data.values[:, :-1]
+    X = data.values[:, -3:-1]
+
     y = data.values[:, -1]
 
     for seed in range(30):
@@ -62,6 +63,7 @@ for loader in data_loaders:
                                                        test_size=0.2,
                                                        shuffle=True,
                                                        random_state=seed)
+
 
 
 

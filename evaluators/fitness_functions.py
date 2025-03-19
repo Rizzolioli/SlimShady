@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 from utils.utils import modified_sigmoid, minmax_scaler
 from torch.nn.functional import binary_cross_entropy
+# import numpy as np
 
 
 
@@ -21,12 +22,27 @@ def binarized_fitness(ffunction, binarizer):
         return ffunction(y_true, my_pred)
     return bf
 
-def binarized_rmse(binarizer):
+def binarized_rmse(binarizer, balance = False):
     def sr(y_true, y_pred):
         my_pred = binarizer(y_pred)
-        return torch.sqrt(torch.mean(torch.pow(torch.sub(y_true, my_pred), 2), len(y_pred.shape) - 1))
+        if not balance:
+            return torch.sqrt(torch.mean(torch.pow(torch.sub(y_true, my_pred), 2), len(y_pred.shape) - 1))
+        else:
+            # count_c0 = sum(y_true == 0)
+            idx_c0 = torch.where(y_true == 0)
+
+            # count_c1 = sum(y_true == 1)
+            idx_c1 = torch.where(y_true == 1)
+
+            return torch.div(
+                            torch.add(rmse(y_true[idx_c0], y_pred[idx_c0]),
+                                      rmse(y_true[idx_c1], y_pred[idx_c1])),
+                             2
+                             )
 
     return sr
+
+
 
 def rmse(y_true, y_pred):
     return torch.sqrt(torch.mean(torch.pow(torch.sub(y_true, y_pred), 2), len(y_pred.shape)-1))

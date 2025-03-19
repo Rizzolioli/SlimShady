@@ -17,7 +17,7 @@ from algorithms.GP.operators.initializers import rhh
 from datasets.data_loader import *
 import csv
 
-from sklearn.metrics import matthews_corrcoef, accuracy_score
+from sklearn.metrics import matthews_corrcoef, accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split as tts_sklearn
 from sklearn.feature_selection import VarianceThreshold, RFE, SelectFromModel
 from sklearn.svm import LinearSVC
@@ -56,6 +56,7 @@ elites = {}
 # attibuting a unique id to the run
 unique_run_id = uuid.uuid1()
 
+constrained_terminals = True
 #n_runs = 10
 settings_dict = {"p_test": 0.2}
 
@@ -87,12 +88,12 @@ CONSTANTS = {f'constant_{int}' : lambda x: torch.tensor(int).float() for int in 
 
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 0,
+                              "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gwas_FULL_{day}.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gwas_WRMSE_{day}.csv"),
                               "run_info": None,
-                              "ffunction": binarized_rmse(binarizer),
+                              "ffunction": binarized_rmse(binarizer, balance=True),
                               # "ffunction": bin_ce(binarizer),
                               "n_iter": 1000,
                               "max_depth": None,
@@ -130,7 +131,8 @@ slim_gsgp_pi_init = {'init_pop_size': slim_GSGP_parameters["pop_size"],
                      'init_depth':3,
                      'FUNCTIONS': FUNCTIONS,
                      'CONSTANTS': CONSTANTS,
-                     "p_c": 0}
+                     "p_c": 0,
+                     "constrained_terminals" : constrained_terminals}
 
 all_params = {"SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters", "slim_gsgp_pi_init", "settings_dict"],
               "GSGP": ["gsgp_solve_parameters", "GSGP_parameters", "gsgp_pi_init", "settings_dict"],
@@ -213,16 +215,16 @@ for algo_name in algos:
         # running each dataset + algo configuration n_runs times
 
 
-        for seed in range( X.shape[0] ): #leave one out X.shape[0]
+        for seed in range(30): #leave one out X.shape[0]
 
-            # X_train, X_test, y_train, y_test = tts_sklearn(X, y,
-            #                                                stratify=y,
-            #                                                test_size=settings_dict['p_test'],
-            #                                                shuffle=True,
-            #                                                random_state=seed)
+            X_train, X_test, y_train, y_test = tts_sklearn(X, y,
+                                                           stratify=y,
+                                                           test_size=settings_dict['p_test'],
+                                                           shuffle=True,
+                                                           random_state=seed)
 
-            X_train, X_test, y_train, y_test = np.delete(X, seed, axis = 0), X[seed].reshape(1, -1), \
-                                                np.delete(y, seed, axis = 0), y[seed].reshape(1, -1) #leaveoneout
+            # X_train, X_test, y_train, y_test = np.delete(X, seed, axis = 0), X[seed].reshape(1, -1), \
+            #                                     np.delete(y, seed, axis = 0), y[seed].reshape(1, -1) #leaveoneout
 
             start = time.time()
 
@@ -292,7 +294,9 @@ for algo_name in algos:
                                                                           'two_trees'],
                                                                       operator=slim_GSGP_parameters[
                                                                           'operator'],
-                                                                      sig=sig)
+                                                                      sig=sig,
+                                                                      constrained_terminals = constrained_terminals
+                                                                        )
 
 
             # adding the dataset name and algorithm name to the run info for the logger
@@ -362,12 +366,14 @@ for algo_name in algos:
                 test_corr = class_metric(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
                 train_acc = accuracy_score(y_train, final_binarizer(torch.prod(optimizer.elite.train_semantics, dim = 0)))
                 test_acc = accuracy_score(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
+                cmatrix = confusion_matrix(y_test, final_binarizer(torch.prod(optimizer.elite.test_semantics, dim = 0)))
 
             elif '+' in algo or algo == 'GSGP':
                 train_corr = class_metric(y_train, final_binarizer(torch.sum(optimizer.elite.train_semantics, dim = 0)))
                 test_corr = class_metric(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
                 train_acc = accuracy_score(y_train, final_binarizer(torch.sum(optimizer.elite.train_semantics, dim = 0)))
                 test_acc = accuracy_score(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim = 0)))
+                cmatrix = confusion_matrix(y_test, final_binarizer(torch.sum(optimizer.elite.test_semantics, dim=0)))
 
             else:
                 print('Dont know what algorithm to use')
@@ -379,12 +385,14 @@ for algo_name in algos:
             #
             # optimizer.elite.print_tree_representation()
 
+            print(cmatrix)
+
             if slim_gsgp_solve_parameters['log'] > 0:
-                with open(os.path.join(os.getcwd(), "log", f"elite_looks_gwas_FINAL_{day}.csv"), 'a', newline='') as file:
+                with open(os.path.join(os.getcwd(), "log", f"elite_looks_gwas_WRMSE_{day}.csv"), 'a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(
                         [algo, seed, unique_run_id, dataset, train_corr, test_corr,
-                         train_acc, test_acc, optimizer.elite.get_tree_representation()])
+                         train_acc, test_acc, optimizer.elite.get_tree_representation(), cmatrix])
 
 
             print(time.time() - start)
