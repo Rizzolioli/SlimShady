@@ -102,18 +102,21 @@ def compute_pval(alg1, alg2, name_ds, argument):
 
 
 # slim_algs = ['SLIM-NORM*1', 'SLIM-SIG*1', 'SLIM-NORM+1', 'SLIM-SIG+1', 'SLIM*2', 'SLIM+2']
-slim_algs = [ 'SLIM*ABS',
-'SLIM*SIG1',
- 'SLIM+ABS',
-'SLIM+SIG1',
+slim_algs = [
+    'SLIM+SIG2',
 'SLIM*SIG2',
-'SLIM+SIG2',]
+    'SLIM+ABS',
+    'SLIM*ABS',
+'SLIM+SIG1',
+'SLIM*SIG1'
+
+]
 for name_ds in ["toxicity", "instanbul", "energy", "ppb", "concrete", "resid_build_sale_price"]:
     print(name_ds)
     # alg2 = "SLIM-SIG+1"
     for alg2 in slim_algs:
-        compute_pval("gp", alg2, name_ds, "test_fitness")
-        compute_pval("gsgp", alg2, name_ds, "test_fitness")
+        compute_pval("gp", alg2, name_ds, "elite_size")
+        compute_pval("gsgp", alg2, name_ds, "elite_size")
 
 
 def compute_median_ranking(name_ds, argument):
@@ -183,12 +186,12 @@ def compute_median_ranking(name_ds, argument):
     return rankdata(medians, method='min')
 
 
-for metric in ["test_fitness", "elite_size"]:
-    print(metric)
-    rank_list = []
-    for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
-        rank = compute_median_ranking(name_ds, metric)
-        rank_list.append(rank)
-    rank_list = np.array(rank_list)
-    median = np.median(rank_list, axis=0)
-    print(f"median {median}")
+# for metric in ["test_fitness", "elite_size"]:
+#     print(metric)
+#     rank_list = []
+#     for name_ds in ["concrete", "ppb", "instanbul", "toxicity", "resid_build_sale_price", "energy"]:
+#         rank = compute_median_ranking(name_ds, metric)
+#         rank_list.append(rank)
+#     rank_list = np.array(rank_list)
+#     median = np.median(rank_list, axis=0)
+#     print(f"median {median}")

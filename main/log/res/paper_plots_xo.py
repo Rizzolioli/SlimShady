@@ -161,8 +161,9 @@ def plot_all_median_node_counts(name_ds, argument):
 
     # Now save the legend separately
     handles, labels = plt.gca().get_legend_handles_labels()
-    fig_legend = plt.figure(figsize=(10, 2))
+    fig_legend = plt.figure(figsize=(15, 2))
     ax_legend = fig_legend.add_subplot(111)
+    ordered_labels = ['STDGP', 'GSGP', 'SLIMMER+SIG2', 'SLIMMER*SIG2', 'SLIMMER+ABS', 'SLIMMER*ABS', 'SLIMMER+SIG1', 'SLIMMER*SIG1']
     ax_legend.legend(ordered_handles, ordered_labels, loc='center', ncol=4, frameon=False)
     ax_legend.axis('off')
     fig_legend.tight_layout()
