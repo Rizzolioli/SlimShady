@@ -91,7 +91,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gwas_WRMSE_{day}.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", f"slim_gwas_2_{day}.csv"),
                               "run_info": None,
                               "ffunction": binarized_rmse(binarizer, balance=True),
                               # "ffunction": bin_ce(binarizer),
@@ -151,7 +151,14 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
     # if dataset == 'GWAS_all':
 
 
-data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv')
+# data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv')
+# X = data.values[:, :-1]
+# y = data.values[:, -1]
+X = pd.read_csv('../../../Bicocca/GWAS/data/kaggle/X_reduced.csv').values
+y = pd.read_csv('../../../Bicocca/GWAS/data/kaggle/y.txt', header = None).values.tolist()
+y_median = np.median(y)
+y = [1 if e > y_median else 0 for e in y]
+y = np.array(y)
 dataset = 'GWAS'
 # Loads the data via the dataset loader
 # data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv')
@@ -171,8 +178,7 @@ curr_dataset = dataset
     #     raise Exception('NOT YET IMPLEMENTED')
 
 
-X = data.values[:, :-1]
-y = data.values[:, -1]
+
 
 TERMINALS = {f"x{i}": i for i in range(X.shape[1])}
 
