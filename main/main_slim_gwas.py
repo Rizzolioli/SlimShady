@@ -154,7 +154,7 @@ slim_dataset_params = {"toxicity": {"p_inflate": 0.1, "ms": generate_random_unif
 # data = pd.read_csv('../../../Bicocca/GWAS/data/gwas_FINAL_cleaned_ordered.csv')
 # X = data.values[:, :-1]
 # y = data.values[:, -1]
-X = pd.read_csv('../../../Bicocca/GWAS/data/kaggle/X_reduced.csv').values
+X = pd.read_csv('../../../Bicocca/GWAS/data/kaggle/X_reduced.csv').values #snp fiorst 24 columns
 y = pd.read_csv('../../../Bicocca/GWAS/data/kaggle/y.txt', header = None).values.tolist()
 y_median = np.median(y)
 y = [1 if e > y_median else 0 for e in y]
