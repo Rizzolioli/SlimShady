@@ -57,10 +57,10 @@ CONSTANTS = {
 }
 
 slim_gsgp_solve_parameters = {"elitism": True,
-                              "log": 0,
+                              "log": 1,
                               "verbose": 1,
                               "test_elite": True,
-                              "log_path": os.path.join(os.getcwd(), "log", "chull.csv"),
+                              "log_path": os.path.join(os.getcwd(), "log", "review.csv"),
                               "run_info": None,
                               "ffunction": rmse,
                               "n_iter": 1000,
@@ -120,7 +120,7 @@ for loader in data_loaders:
 
         for (sig, ttress, op) in [(True, False, "mul"), (False, False, "mul"), (True, True, "sum")]:
 
-            for pause_deflate in [100, 250, 500, 750, 900]:
+            for pause_deflate in [200, 400, 600, 800]:
 
                 slim_GSGP_parameters["two_trees"] = ttress
                 slim_GSGP_parameters["operator"] = op
@@ -142,12 +142,12 @@ for loader in data_loaders:
 
                 # getting the name of the dataset:
                 curr_dataset = loader.__name__
-                if curr_dataset == 'ld50':
-                    ranger = range(30)
-                else:
-                    ranger = range(10, 30)
+                # if curr_dataset == 'ld50':
+                #     ranger = range(30)
+                # else:
+                #     ranger = range(10, 30)
 
-                for seed in ranger:
+                for seed in range(10):
                     start = time.time()
 
 
