@@ -219,6 +219,10 @@ class SLIM_GSGP:
                             tie_deflate, diff_sn_deflate, size_sn_deflate,
                             tie_mb_deflate, diff_sn_mb_deflate, size_sn_mb_deflate]
 
+            elif log == 7:
+
+                add_info = [self.elite.test_fitness, self.elite.nodes_count, self.elite.get_tree_representation(), log]
+
             else:
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
