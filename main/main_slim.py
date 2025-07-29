@@ -22,7 +22,7 @@ algos = ["testing"]
 
 # data_loaders = [ "toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
 
-data_loaders = ["toxicity", "concrete"]
+data_loaders = ["ppb"]
 
 ########################################################################################################################
 
@@ -134,6 +134,7 @@ for loader in data_loaders:
 
                             print(time.time() - start)
 
+                            optimizer.elite.print_tree_representation()
                             # elites[seed] = {"structure": optimizer.elite.structure,
                             #                 "looks": show_individual(optimizer.elite,
                             #                                          operator=slim_GSGP_parameters['operator']),
