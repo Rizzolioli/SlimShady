@@ -479,3 +479,33 @@ def load_bioav(X_y=False):
     else:
         return df
 
+def load_istanbul(X_y=True):
+    """
+    Loads and returns the Istanbul data set (regression). Taken from https://docs.1010data.com/MachineLearningExamples/IstanbulDataSet.html.
+
+    Parameters
+    ----------
+    X_y : bool, optional
+        Indicates if the data is to be returned as two objects of type torch.Tensor, otherwise as single Tensor.
+
+    Returns
+    -------
+    X, y : torch.Tensor, torch.Tensor
+        The input data (X) and the target of the prediction (y). The
+        latter is extracted from the data set as the last column.
+    df : pandas.DataFrame
+        An object of type pandas.DataFrame which holds the data. The
+        target is the last column.
+    """
+
+    df = pd.read_csv(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), "merged_data", "instanbul_merged.txt"), sep=" ",
+        header=None
+    )
+    if X_y:
+        return (
+            torch.from_numpy(df.values[:, :-1]).float(),
+            torch.from_numpy(df.values[:, -1]).float(),
+        )
+    else:
+        return df

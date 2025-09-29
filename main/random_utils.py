@@ -3,7 +3,9 @@ from numpy.polynomial.chebyshev import Chebyshev
 from sympy.utilities.lambdify import lambdify
 from sympy.printing import srepr
 import zlib
-
+from algorithms.GP.representations.tree_utils import flatten
+from math import isclose
+from typing import List, Optional
 
 def sigmoid_tree(x):
     # Returns full sigmoid tree: 1 / (1 + exp(-x))
@@ -120,11 +122,6 @@ def tree_to_sympy(tree, x_symbols=None):
         raise ValueError(f"Unknown operator: {op}")
 
 
-import sympy as sp
-
-
-import sympy as sp
-
 def sympy_to_tree(expr):
     # Atoms: numbers and symbols
     if expr.is_Number:
@@ -187,7 +184,7 @@ def sympy_to_tree(expr):
             # handled in Mul, but just in case:
             return ('divide', 1.0, sympy_to_tree(base))
         else:
-            raise ValueError("Unsupported power operator other than exponent -1 (division)")
+            return ('exp', sympy_to_tree(base), exponent)
 
     elif op == sp.exp:
         return ('exp', sympy_to_tree(args[0]))
@@ -195,232 +192,168 @@ def sympy_to_tree(expr):
     elif op == sp.Abs:
         return ('abs', sympy_to_tree(args[0]))
 
+    elif op == sp.log:
+        return ('log',  sympy_to_tree(args[0]))
+
+    elif op == sp.core.numbers.Exp1:
+        return 2.71828
+
     else:
         raise ValueError(f"Unsupported operator: {op}")
 
 
 
 
-
-def tree_to_sympy_basic(tree, x_symbols=None):
+def kolmogorov_complexity(tree) -> int:
     """
-    Converts a GP tree to a SymPy expression using +, -, *, / (as Pow), and exp.
-    Disables simplification by using evaluate=False.
+    Approximate Kolmogorov complexity of a GP tree structure by compressing
+    its serialized tuple representation.
     """
-    if x_symbols is None:
-        x_symbols = {f'x{i}': sp.Symbol(f'x{i}') for i in range(100)}
-
-    if isinstance(tree, (int, float)):
-        return sp.sympify(tree, rational=True)
-    elif isinstance(tree, str):
-        return x_symbols.get(tree, sp.Symbol(tree))
-
-    op, *args = tree
-
-    if op == 'add':
-        return sp.Add(
-            tree_to_sympy_basic(args[0], x_symbols),
-            tree_to_sympy_basic(args[1], x_symbols),
-            evaluate=False
-        )
-    elif op == 'subtract':
-        return sp.Add(
-            tree_to_sympy_basic(args[0], x_symbols),
-            -tree_to_sympy_basic(args[1], x_symbols),
-            evaluate=False
-        )
-    elif op == 'multiply':
-        return sp.Mul(
-            tree_to_sympy_basic(args[0], x_symbols),
-            tree_to_sympy_basic(args[1], x_symbols),
-            evaluate=False
-        )
-    elif op == 'divide':
-        numerator = tree_to_sympy_basic(args[0], x_symbols)
-        denominator = tree_to_sympy_basic(args[1], x_symbols)
-        return sp.Mul(
-            numerator,
-            sp.Pow(denominator, -1, evaluate=False),
-            evaluate=False
-        )
-    elif op == 'neg':
-        return sp.Mul(-1, tree_to_sympy_basic(args[0], x_symbols), evaluate=False)
-    elif op == 'exp':
-        return sp.exp(tree_to_sympy_basic(args[0], x_symbols), evaluate=False)
-    else:
-        raise ValueError(f"Unsupported operator: {op}")
-
-
-def count_nodes(expr):
-    """
-    Count all operator and operand nodes in a SymPy expression,
-    excluding trivial internal wrappers.
-    """
-    # Base case: if expr is a symbol or a number (Atom)
-    if expr.is_Atom:
-        return 1
-
-    # For some expressions like Pow with exponent -1 (which SymPy uses for division),
-    # treat it as division operator node instead of separate Pow node.
-    # So, let's consider 'Pow' with exponent -1 as division.
-
-    op = expr.func
-    args = expr.args
-
-    # Special case: count division as 1 operator node for 'Pow' with exponent -1
-    if op == sp.Pow and len(args) == 2 and args[1] == -1:
-        # count 1 node for division + count numerator nodes
-        numerator_nodes = count_nodes(args[0])
-        # division operator node itself counts as 1
-        return 1 + numerator_nodes
-
-    # Otherwise, count 1 node for this operator plus nodes in children
-    return 1 + sum(count_nodes(arg) for arg in args)
-
-def kolmogorov_complexity(expr):
-    """
-    Approximates Kolmogorov Complexity using compression.
-    """
-    expr_str = srepr(expr)  # Full string representation of expression tree
-    compressed = zlib.compress(expr_str.encode('utf-8'))
+    tree_str = repr(tree)  # or str(tree) if preferred
+    compressed = zlib.compress(tree_str.encode('utf-8'))
     return len(compressed)
 
 
-def chebyshev_order(expr, var, interval=[-10, 10], tol=1e-6):
-    from numpy.polynomial.chebyshev import Chebyshev
-    func = lambdify(var, expr, 'numpy')
-    x = np.linspace(interval[0], interval[1], 500)
-
-    try:
-        y = func(x)
-        y = np.asarray(y, dtype=np.float64)  # Convert and catch issues
-        mask = np.isfinite(y)
-        x, y = x[mask], y[mask]
-
-        if len(x) < 10:
-            return float('inf')  # Not enough valid points
-
-        for deg in range(1, 50):
-            cheb_fit = Chebyshev.fit(x, y, deg, domain=interval)
-            if np.max(np.abs(cheb_fit(x) - y)) < tol:
-                return deg
-        return 50  # Max degree tested
-    except Exception as e:
-        print(f"Chebyshev fitting error: {e}")
-        return float('inf')  # Use a large value to indicate failure
-
-
-def chebyshev_order_multivariate(expr, vars, interval=[-10, 10], tol=1e-6):
-    degrees = []
-    for i, var in enumerate(vars):
-        other_vars = [v for j, v in enumerate(vars) if j != i]
-        fixed_values = [0.1] * len(other_vars)  # Avoid 0 if it causes singularities
-
-        expr_slice = expr
-        for ov, val in zip(other_vars, fixed_values):
-            expr_slice = expr_slice.subs(ov, val)
-
-        deg = chebyshev_order(expr_slice, var, interval, tol)
-        degrees.append(deg)
-    return max(degrees)
-
-
-
-def holderian_regularity(expr, var, interval=[-10, 10], num_points=500):
-    if expr.has(sp.zoo) or expr.has(sp.oo) or expr.has(sp.nan):
-        return float('-inf')  # Lower regularity = more erratic
-
-    func = lambdify(var, expr, 'numpy')
-    x = np.linspace(interval[0], interval[1], num_points)
-
-    try:
-        y = func(x)
-        y = np.asarray(y, dtype=np.float64)
-        mask = np.isfinite(y)
-        x, y = x[mask], y[mask]
-
-        if len(x) < 20:
-            return float('-inf')
-
-        epsilons = np.logspace(-3, -0.1, 20)
-        osc = []
-
-        for eps in epsilons:
-            osc_eps = []
-            for xi in x:
-                x_left = max(xi - eps, interval[0])
-                x_right = min(xi + eps, interval[1])
-                idx = (x >= x_left) & (x <= x_right)
-                if np.any(idx):
-                    osc_eps.append(np.max(y[idx]) - np.min(y[idx]))
-            if osc_eps:
-                osc.append(np.mean(osc_eps))
-
-        log_eps = np.log(epsilons[:len(osc)])
-        log_osc = np.log(osc)
-        coeffs = np.polyfit(log_eps, log_osc, 1)
-        alpha = coeffs[0]
-        return alpha
-    except Exception as e:
-        print(f"Hölderian error: {e}")
-        return float('-inf')
-
-
-def holderian_regularity_multivariate(expr, variables, interval=[-10, 10], num_points=500):
-    alphas = []
-    for i, var in enumerate(variables):
-        other_vars = [v for j, v in enumerate(variables) if j != i]
-        fixed_values = [0] * len(other_vars)
-
-        expr_slice = expr
-        for ov, val in zip(other_vars, fixed_values):
-            expr_slice = expr_slice.subs(ov, val)
-
-        alpha = holderian_regularity(expr_slice, var, interval, num_points)
-        alphas.append(alpha)
-    return min(alphas)  # Conservative estimate of regularity
-
-
-def slope_complexity(expr, vars, data_points):
+# Compute slope-based complexity
+def slope_complexity(tree, data_points) -> float:
     """
-    Compute the slope-based functional complexity for a SymPy expression.
-
-    Parameters:
-        expr        : sympy expression
-        vars        : list of sympy.Symbol, e.g. [x1, x2, ..., xm]
-        data_points : numpy.ndarray of shape (n, m), n points in m-dimensional space
-
-    Returns:
-        complexity: float
+    Compute slope-based complexity from a GP tree without simplification.
+    - data_points: ndarray of shape (n, m).
     """
-    # Convert the SymPy expression to a Python callable
-    f = sp.lambdify(vars, expr, modules=["numpy"])
-
     m = data_points.shape[1]
     n = data_points.shape[0]
-
     total_complexity = 0.0
 
-    for j in range(m):  # Loop over each input dimension
-        # Sort data points by the j-th variable
+    for j in range(m):
         sorted_idx = np.argsort(data_points[:, j])
         sorted_points = data_points[sorted_idx]
+        f_vals = eval_tree(tree, sorted_points)
 
-        # Evaluate function at each sorted point
-        f_vals = np.array([f(*point) for point in sorted_points])
-
-        # Compute slopes
         slopes = []
         for i in range(n - 1):
-            delta_x = sorted_points[i + 1, j] - sorted_points[i, j]
-            if delta_x == 0:
-                slope = 0
-            else:
-                slope = (f_vals[i + 1] - f_vals[i]) / delta_x
+            dx = sorted_points[i + 1, j] - sorted_points[i, j]
+            slope = 0 if dx == 0 else (f_vals[i + 1] - f_vals[i]) / dx
             slopes.append(slope)
 
-        # Compute sum of absolute differences of consecutive slopes
-        partial_complexity = sum(abs(slopes[i + 1] - slopes[i]) for i in range(len(slopes) - 1))
-        total_complexity += partial_complexity
+        total_complexity += sum(abs(slopes[i + 1] - slopes[i])
+                                for i in range(len(slopes) - 1))
 
     return total_complexity / m
+
+
+def eval_tree(tree, X):
+    if isinstance(tree, str):  # terminal
+        if tree.startswith('x'):
+            return X[:, int(tree[1:])]  # variable
+        else:
+            return float(tree)  # constant
+    elif isinstance(tree, (float, int)):  # numeric constant
+        return tree
+    elif isinstance(tree, tuple):
+        op = tree[0]
+
+        # Unary operators
+        if op == 'neg':
+            return -eval_tree(tree[1], X)
+        if op == 'abs':
+            return np.abs(eval_tree(tree[1], X))
+        if op == 'exp':
+            return np.exp(eval_tree(tree[1], X))
+
+        # Binary operators
+        left, right = tree[1], tree[2]
+        a, b = eval_tree(left, X), eval_tree(right, X)
+        if op == 'add':
+            return a + b
+        if op == 'subtract':
+            return a - b
+        if op == 'multiply':
+            return a * b
+        if op == 'divide':
+            return np.where(b != 0, a / b, np.inf)
+
+        raise ValueError(f"Unknown op {op}")
+    else:
+        raise ValueError(f"Invalid tree node type: {type(tree)}")
+
+def r2_score(y_true, y_pred):
+    ss_res = np.sum((y_true - y_pred) ** 2)
+    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+    return 1 - ss_res / ss_tot if ss_tot != 0 else -np.inf
+
+def sam_s(tree, X, eps=0.1, n=10):
+    sigma = np.std(X, axis=0)
+    idx = np.random.choice(len(X), n, replace=False)
+    Xs = X[idx].copy()
+    Xs_eps = Xs + np.random.uniform(-eps * sigma, eps * sigma)
+
+    y_orig = eval_tree(tree, Xs)
+    y_pert = eval_tree(tree, Xs_eps)
+
+    return r2_score(y_orig, y_pert)
+
+
+
+def get_info(tree):
+
+    len_before_simpl = len(list(flatten(tree)))
+
+    x_symbols = {f'x{i}': sp.Symbol(f'x{i}') for i in range(20)}
+
+    s_tree = tree_to_sympy(tree, x_symbols)
+    ss_tree = sp.simplify(s_tree)
+    ss_tree = ss_tree.rewrite(sp.exp)
+
+    len_after_simpl = len(list(flatten(sympy_to_tree(ss_tree))))
+
+    data = np.random.uniform(-5, 5, size=(100, 20))
+    data[data == 0] = -5
+
+    k_complexity = kolmogorov_complexity(tree)
+    s_complexity = slope_complexity(tree, data)
+    sharpness = sam_s(tree, data)
+
+    return [len_before_simpl, len_after_simpl, k_complexity, s_complexity, sharpness]
+
+
+def compute_partial_complexity(p, semantics):
+    unique_p = np.unique(p)
+
+    n = len(unique_p)
+    if n < 3:
+        return 0.0
+
+    median_g = np.array([np.median(semantics[p == val]) for val in unique_p])
+
+    sorted_indices = np.argsort(unique_p)
+
+    p_sorted = unique_p[sorted_indices]
+    g_sorted = median_g[sorted_indices]
+
+    pcFinal = 0.0
+
+    for i in range(n - 2):
+        pc = 0.0
+
+        num1 = g_sorted[i + 1] - g_sorted[i]
+        den1 = p_sorted[i + 1] - p_sorted[i]
+        num2 = g_sorted[i + 2] - g_sorted[i + 1]
+        den2 = p_sorted[i + 2] - p_sorted[i + 1]
+
+        pc = abs((num1 / den1) - (num2 / den2))
+        pcFinal += pc
+
+    return pcFinal
+
+
+def compute_complexity(X, semantics):
+    fc = 0
+
+    n, m = X.shape
+
+    for feature in range(m):
+        pc = compute_partial_complexity(X[:, feature], np.array(semantics))
+        fc = fc + pc
+
+    return fc / m
+

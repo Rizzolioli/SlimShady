@@ -49,7 +49,8 @@ class SLIM_GSGP:
         GP_Tree.CONSTANTS = pi_init['CONSTANTS']
 
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset, run_info ,n_iter=20, elitism=True, log=0, verbose=0,
-              test_elite=False, log_path=None, ffunction=None, max_depth=17, n_elites=1, reconstruct = True):
+              test_elite=False, log_path=None, ffunction=None, max_depth=17, n_elites=1,
+              reconstruct = True, interpretability = False):
 
         # TO REMOVE:
 
