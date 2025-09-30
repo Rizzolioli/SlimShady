@@ -76,8 +76,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "n_iter": 1000,
                               "max_depth": None,
                               "n_elites": 1,
-                              "reconstruct" : True,
-                              "gp_imputing_missing_values" : False
+                              "reconstruct" : True
                               }
 
 slim_GSGP_parameters = {"initializer": rhh,
