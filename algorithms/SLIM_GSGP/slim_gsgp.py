@@ -12,6 +12,7 @@ from algorithms.SLIM_GSGP.representations.individual import Individual
 
 from utils.diversity import gsgp_pop_div_from_vectors
 from utils.convexhull import distance_from_chull, calculate_signed_errors
+from evaluators.fitness_functions import inverse_r2, rmse, mse, mae
 
 
 class SLIM_GSGP:
@@ -51,7 +52,7 @@ class SLIM_GSGP:
     def solve(self, X_train, X_test, y_train, y_test, curr_dataset, run_info ,n_iter=20, elitism=True, log=0, verbose=0,
               test_elite=False, log_path=None, ffunction=None, max_depth=17, n_elites=1, reconstruct = True):
 
-        # TO REMOVE:
+        self.operator_f = torch.sum if self.operator=='sum' else torch.prod
 
         # setting the seeds
         torch.manual_seed(self.seed)
@@ -94,53 +95,17 @@ class SLIM_GSGP:
         if log != 0:
 
             if log == 2:
-                gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
-                                                                        for ind in population.population]),
-                                                           ) \
-                    if self.operator == 'sum' else \
-                    gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
-                                                           for ind in population.population]))
-                add_info = [self.elite.test_fitness,
-                            self.elite.nodes_count,
-                            float(gen_diversity),
-                            np.std(population.fit), log]
+                add_info = [self.elite.test_fitness, self.elite.nodes_count, log,
+                            rmse(y_train,torch.clamp(self.operator_f(self.elite.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                            rmse(y_test,torch.clamp(self.operator_f(self.elite.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                            mse(y_train,torch.clamp(self.operator_f(self.elite.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                            mse(y_test,torch.clamp(self.operator_f(self.elite.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                            mae(y_train,torch.clamp(self.operator_f(self.elite.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                            mae(y_test,torch.clamp(self.operator_f(self.elite.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                            inverse_r2(y_train,torch.clamp(self.operator_f(self.elite.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                            inverse_r2(y_test,torch.clamp(self.operator_f(self.elite.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0))]
 
-            # log level 3 saves the number of nodes and fitness of all the individuals in the population
-            elif log == 3:
 
-                add_info = [self.elite.test_fitness,
-                            self.elite.nodes_count,
-                        " ".join([str(ind.nodes_count) for ind in population.population]),
-                        " ".join([str(f) for f in population.fit]), log]
-
-            elif log == 4:
-
-                gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
-                                                                       for ind in population.population]),
-                                                          ) \
-                    if self.operator == 'sum' else \
-                    gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
-                                                           for ind in population.population]))
-                add_info = [self.elite.test_fitness,
-                            self.elite.nodes_count,
-                            float(gen_diversity),
-                            np.std(population.fit),
-                            " ".join([str(ind.nodes_count) for ind in population.population]),
-                            " ".join([str(f) for f in population.fit]), log
-                            ]
-
-            elif log == 5:
-                #log level for distance to convex hull
-                errors = torch.stack([calculate_signed_errors(semantics, y_train, self.operator) for semantics in population.train_semantics])
-                chull_distance = distance_from_chull(errors)
-
-                add_info = [self.elite.test_fitness, self.elite.nodes_count, chull_distance]
-
-            elif log == 6:
-                #log level for tie
-                #save size of deflate (and maybe inflate) sm
-                tie = 0
-                add_info = [tie]
             else:
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
@@ -296,53 +261,16 @@ class SLIM_GSGP:
             if log != 0:
 
                 if log == 2:
-                    gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
-                                                                           for ind in population.population]),
-                                                              ) \
-                        if self.operator == 'sum' else \
-                        gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
-                                                               for ind in population.population]))
-                    add_info = [self.elite.test_fitness,
-                                self.elite.nodes_count,
-                                float(gen_diversity),
-                                np.std(population.fit), log]
+                    add_info = [self.elite.test_fitness, self.elite.nodes_count, log,
+                                rmse(y_train,torch.clamp(self.operator_f(self.elite.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                                rmse(y_test,torch.clamp(self.operator_f(self.elite.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                                mse(y_train,torch.clamp(self.operator_f(self.elite.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                                mse(y_test,torch.clamp(self.operator_f(self.elite.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                                mae(y_train,torch.clamp(self.operator_f(self.elite.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                                mae(y_test,torch.clamp(self.operator_f(self.elite.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                                inverse_r2(y_train,torch.clamp(self.operator_f(self.elite.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0)),
+                                inverse_r2(y_test,torch.clamp(self.operator_f(self.elite.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0))]
 
-                # log level 3 saves the number of nodes and fitness of all the individuals in the population
-                elif log == 3:
-
-                    add_info = [self.elite.test_fitness,
-                                self.elite.nodes_count,
-                                " ".join([str(ind.nodes_count) for ind in population.population]),
-                                " ".join([str(f) for f in population.fit]), log]
-
-                elif log == 4:
-
-                    gen_diversity = gsgp_pop_div_from_vectors(torch.stack([torch.sum(ind.train_semantics, dim=0)
-                                                                           for ind in population.population]),
-                                                              ) \
-                        if self.operator == 'sum' else \
-                        gsgp_pop_div_from_vectors(torch.stack([torch.prod(ind.train_semantics, dim=0)
-                                                               for ind in population.population]))
-                    add_info = [self.elite.test_fitness,
-                                self.elite.nodes_count,
-                                float(gen_diversity),
-                                np.std(population.fit),
-                                " ".join([str(ind.nodes_count) for ind in population.population]),
-                                " ".join([str(f) for f in population.fit]), log
-                                ]
-
-                elif log == 5:
-                    # log level for distance to convex hull
-                    errors = torch.stack([calculate_signed_errors(semantics, y_train, self.operator) for semantics in population.train_semantics])
-                    chull_distance = distance_from_chull(errors)
-
-                    add_info = [self.elite.test_fitness, self.elite.nodes_count, chull_distance]
-
-                elif log == 6:
-                    # log level for tie
-                    # save size of deflate (and maybe inflate) sm
-                    tie = 0
-                    add_info = [tie]
 
                 else:
 
