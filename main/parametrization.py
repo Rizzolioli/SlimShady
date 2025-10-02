@@ -66,7 +66,7 @@ gp_solve_parameters = {"elitism": True,
                        "max_depth": 17,
                        "max_": False,
                        "ffunction": rmse,
-                       "n_iter": 2000,
+                       "n_iter": 1000,
                        "n_elites": 1,
                        "tree_pruner": None
                        }
@@ -103,7 +103,7 @@ gsgp_solve_parameters = {"elitism": True,
                          "run_info": None,
                          # "max_": False,
                          "ffunction": rmse,
-                         "n_iter": 2000,
+                         "n_iter": 1000,
                          "reconstruct": False,
                          "n_elites": 1,
                          }
@@ -140,7 +140,7 @@ slim_gsgp_solve_parameters = {"elitism": True,
                               "log_path": os.path.join(os.getcwd(), "log", "concrete_toxicity_sig.csv"),
                               "run_info": None,
                               "ffunction": rmse,
-                              "n_iter": 2000,  # 2000
+                              "n_iter": 1000,  # 2000
                               "max_depth": None,
                               "n_elites": 1,
                               "reconstruct" : False

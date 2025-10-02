@@ -31,7 +31,7 @@ day = now.strftime("%Y%m%d")
 algos = ["SlimGSGP"]
 
 # data_loaders = [ "airfoil", "concrete_slump", "concrete_strength", "ppb", "ld50", "bioavalability", "yatch"]
-data_loaders = [load_boston, load_yatch, load_airfoil, load_concrete_slump, load_concrete_strength, load_ppb,
+data_loaders = [load_boston, load_airfoil, load_concrete_slump, load_concrete_strength, load_ppb,
                 load_bioav, load_ld50]
 
 ########################################################################################################################
@@ -215,8 +215,8 @@ for metric in [ rmse, inverse_r2]:
                                     curr_dataset=curr_dataset,
                                     **slim_gsgp_solve_parameters)
 
-                    count_noise = [optimizer.elite.get_tree_representation().count(var) for var in extra_features]
-                    print(count_noise)
+                    # count_noise = [optimizer.elite.get_tree_representation().count(var) for var in extra_features]
+                    # print(count_noise)
 
 
                     print(time.time() - start)

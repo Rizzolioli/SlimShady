@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="">
+    <list default="true" id="c91a114d-543f-446e-ac1b-472d99021d28" name="Changes" comment="run different datasets no crossover.">
+      <change beforePath="$PROJECT_DIR$/.idea/SlimShady.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SlimShady.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search/.ipynb_checkpoints/grid_search_result_analyzer-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search/.ipynb_checkpoints/grid_search_result_analyzer-checkpoint.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search/grid_search_result_analyzer.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search/grid_search_result_analyzer.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main_slim.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main_slim.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +28,11 @@
     </findStrings>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="crossover" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitSEFilterConfiguration">
@@ -110,19 +116,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.GSGPRegressor.executor": "Debug",
-    "Python.dataset_merger.executor": "Run",
-    "Python.grid_searcher.executor": "Run",
-    "Python.main_slim.executor": "Run",
-    "Python.results_study.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/jimmy/Documents/Refresh/SLIMSHADY/SlimShady",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.GSGPRegressor.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.dataset_merger.executor&quot;: &quot;Run&quot;,
+    &quot;Python.grid_search_analyzer.executor&quot;: &quot;Run&quot;,
+    &quot;Python.grid_searcher.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_slim.executor&quot;: &quot;Run&quot;,
+    &quot;Python.results_study.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Correlation&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/jimmy/Documents/Refresh/SLIMSHADY/SlimShady&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\utente\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\main" />
@@ -139,6 +146,7 @@
   <component name="RunManager" selected="Python.grid_search_analyzer">
     <configuration name="GSGPRegressor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -160,6 +168,7 @@
     </configuration>
     <configuration name="dataset_merger" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -181,6 +190,7 @@
     </configuration>
     <configuration name="grid_search_analyzer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -202,6 +212,7 @@
     </configuration>
     <configuration name="grid_searcher" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -223,6 +234,7 @@
     </configuration>
     <configuration name="main_slim" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SlimShady" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -262,7 +274,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-5a2391486177-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.13763.11" />
+        <option value="bundled-python-sdk-0509580d9d50-746f403e7f0c-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.14494.241" />
       </set>
     </attachedChunks>
   </component>
