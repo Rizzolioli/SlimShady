@@ -2,7 +2,6 @@ import torch
 import numpy as np
 from algorithms.GSGP.representations.tree_utils import apply_tree
 from utils.utils import show_individual
-from evaluators.fitness_functions import weibull_cindex_loss, weibull_expected_time
 
 class Individual():
 
@@ -49,31 +48,31 @@ class Individual():
 
     def evaluate(self, ffunction, y, testing = False, operator = 'sum'):
         """
-        Evaluate individual fitness. If `ffunction` expects Weibull params, pass two-tree semantics;
-        otherwise reduce semantics with operator (sum/prod) and pass as predictions.
-        """
-        if testing:
-            semantics = self.test_semantics
-        else:
-            semantics = self.train_semantics
+                evaluates the population given a certain fitness function, input data(x) and target data (y)
+                Parameters
+                ----------
+                ffunction: function
+                    fitness function to evaluate the individual
+                X: torch tensor
+                    the input data (which can be training or testing)
+                y: torch tensor
+                    the expected output (target) values
 
-        # if two-tree semantics for Weibull parameters: shape [2, N]
-        if semantics is not None and semantics.shape[0] == 2 and ffunction in (weibull_cindex_loss,):
-            loss = ffunction(y, semantics)
-            if testing:
-                self.test_fitness = loss
-            else:
-                self.fitness = loss
-            return
-
-        # fallback: aggregate semantics using operator
-        op = torch.sum if operator == 'sum' else torch.prod
-        preds = torch.clamp(op(semantics, dim=0), -1000000000000.0, 1000000000000.0)
-        out = ffunction(y, preds)
-        if testing:
-            self.test_fitness = out
+                Returns
+                -------
+                None
+                    attributes a fitness tensor to the population
+                """
+        if operator == 'sum':
+            operator = torch.sum
         else:
-            self.fitness = out
+            operator = torch.prod
+
+        if testing:
+            self.test_fitness = ffunction(y, torch.clamp(operator(self.test_semantics, dim = 0), -1000000000000.0, 1000000000000.0))
+
+        else: # note: clamping in case the operator results in very big semantics
+            self.fitness = ffunction(y, torch.clamp(operator(self.train_semantics, dim = 0), -1000000000000.0, 1000000000000.0))
 
 def apply_individual_fixed(tree, data, operator = "sum", sig = False):
 
