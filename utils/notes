@@ -1,4 +1,0 @@
-- trees with single arity functions (e.g., cos) and a constant generate a unidimensional one valued tensor when with constants
-        - the same thing applies to (multiply, constant_3, constant_1) --> tensor(3.)
-
-- dataloader taken from GPOL. Problem?
