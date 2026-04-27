@@ -23,7 +23,7 @@ algos = ["SlimGSGP"]
 data_loaders = [
                 load_yatch,
                 load_istanbul,
-                # load_resid_build_sale_price,
+                load_resid_build_sale_price,
                 load_airfoil,
                 load_concrete_strength,
                 load_concrete_slump,
