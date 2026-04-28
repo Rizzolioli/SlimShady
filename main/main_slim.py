@@ -110,15 +110,30 @@ all_params = {
 
 ########################################################################################################################
 
-algo_name = "SlimGSGP"
-
 # Datasets to run — string keys use pre-loaded splits; pass a loader function for custom data.
 data_loaders = ["ppb"]
 # data_loaders = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
 
-operators        = ["sum", "mul"]  # how blocks are combined
-sig_values       = [True]          # signed inflate mutation
-two_trees_values = [False]         # one tree (False) or two trees (True) per mutation
+variants = [
+    # (sig, ttrees, op, gsgp)
+    # (True, True, "mul", False),   # SLIM*2SIG
+    (True,  True,  "sum", False),   # SLIM+2SIG
+    (False, False, "mul", False),   # SLIM*ABS
+    (False, False, "sum", False),   # SLIM+ABS
+    (True,  False, "mul", False),   # SLIM*1SIG
+    (True,  False, "sum", False),   # SLIM+1SIG
+]
+
+_algo_names = {
+    (True,  False, "mul", True):  "GSGP*1SIG",
+    (False, False, "mul", True):  "GSGP*ABS",
+    (True,  True,  "sum", True):  "GSGP",
+    (True,  False, "mul", False): "SLIM*1SIG",
+    (False, False, "mul", False): "SLIM*ABS",
+    (True,  True,  "sum", False): "SLIM+2SIG",
+    (True,  False, "sum", False): "SLIM+1SIG",
+    (False, False, "sum", False): "SLIM+ABS",
+}
 
 ########################################################################################################################
 
@@ -129,60 +144,57 @@ two_trees_values = [False]         # one tree (False) or two trees (True) per mu
 unique_run_id = uuid.uuid1()
 
 for loader in data_loaders:
-    for sig in sig_values:
-        for two_trees in two_trees_values:
-            slim_GSGP_parameters["two_trees"] = two_trees
+    for (sig, ttrees, op, gsgp) in variants:
+        slim_GSGP_parameters["two_trees"] = ttrees
+        slim_GSGP_parameters["operator"]  = op
 
-            for op in operators:
-                slim_GSGP_parameters["operator"] = op
+        algo = _algo_names[(sig, ttrees, op, gsgp)]
 
-                algo = f'{algo_name}_{1 + two_trees}_{op}_{sig}'
+        for seed in range(n_runs):
+            start = time.time()
 
-                for seed in range(n_runs):
-                    start = time.time()
+            if isinstance(loader, str):
+                dataset = loader
+                curr_dataset = f"load_{dataset}"
+                TERMINALS = get_terminals(loader, seed + 1)
+                X_train, y_train = load_preloaded(loader, seed=seed + 1, training=True,  X_y=True)
+                X_test,  y_test  = load_preloaded(loader, seed=seed + 1, training=False, X_y=True)
+            else:
+                X, y = loader(X_y=True)
+                curr_dataset = loader.__name__
+                dataset = loader.__name__.split("load_")[-1]
+                TERMINALS = get_terminals(loader)
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X=X, y=y, p_test=settings_dict['p_test'], seed=seed)
 
-                    if isinstance(loader, str):
-                        dataset = loader
-                        curr_dataset = f"load_{dataset}"
-                        TERMINALS = get_terminals(loader, seed + 1)
-                        X_train, y_train = load_preloaded(loader, seed=seed + 1, training=True,  X_y=True)
-                        X_test,  y_test  = load_preloaded(loader, seed=seed + 1, training=False, X_y=True)
-                    else:
-                        X, y = loader(X_y=True)
-                        curr_dataset = loader.__name__
-                        dataset = loader.__name__.split("load_")[-1]
-                        TERMINALS = get_terminals(loader)
-                        X_train, X_test, y_train, y_test = train_test_split(
-                            X=X, y=y, p_test=settings_dict['p_test'], seed=seed)
+            # apply dataset-specific mutation parameters
+            params = slim_dataset_params.get(dataset, slim_dataset_params["other"])
+            slim_GSGP_parameters["ms"]        = params["ms"]
+            slim_GSGP_parameters["p_inflate"] = params["p_inflate"]
+            slim_GSGP_parameters["p_deflate"] = 1 - params["p_inflate"]
 
-                    # apply dataset-specific mutation parameters
-                    params = slim_dataset_params.get(dataset, slim_dataset_params["other"])
-                    slim_GSGP_parameters["ms"]        = params["ms"]
-                    slim_GSGP_parameters["p_inflate"] = params["p_inflate"]
-                    slim_GSGP_parameters["p_deflate"] = 1 - params["p_inflate"]
+            slim_gsgp_pi_init["TERMINALS"] = TERMINALS
+            slim_GSGP_parameters["inflate_mutator"] = inflate_mutation(
+                FUNCTIONS=FUNCTIONS,
+                TERMINALS=TERMINALS,
+                CONSTANTS=CONSTANTS,
+                two_trees=ttrees,
+                operator=op,
+                sig=sig,
+            )
 
-                    slim_gsgp_pi_init["TERMINALS"] = TERMINALS
-                    slim_GSGP_parameters["inflate_mutator"] = inflate_mutation(
-                        FUNCTIONS=FUNCTIONS,
-                        TERMINALS=TERMINALS,
-                        CONSTANTS=CONSTANTS,
-                        two_trees=two_trees,
-                        operator=op,
-                        sig=sig,
-                    )
+            slim_gsgp_solve_parameters["run_info"] = [algo, unique_run_id, dataset]
 
-                    slim_gsgp_solve_parameters["run_info"] = [algo, unique_run_id, dataset]
+            optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
+            optimizer.solve(
+                X_train=X_train, X_test=X_test,
+                y_train=y_train, y_test=y_test,
+                curr_dataset=curr_dataset,
+                **slim_gsgp_solve_parameters,
+            )
 
-                    optimizer = SLIM_GSGP(pi_init=slim_gsgp_pi_init, **slim_GSGP_parameters, seed=seed)
-                    optimizer.solve(
-                        X_train=X_train, X_test=X_test,
-                        y_train=y_train, y_test=y_test,
-                        curr_dataset=curr_dataset,
-                        **slim_gsgp_solve_parameters,
-                    )
-
-                    print(f"[{dataset}] seed={seed} op={op} sig={sig} time={time.time()-start:.1f}s")
-                    optimizer.elite.print_tree_representation()
+            print(f"[{dataset}] seed={seed} {algo} time={time.time()-start:.1f}s")
+            optimizer.elite.print_tree_representation()
 
 log_settings(
     path=os.path.join(os.getcwd(), "log", "settings.csv"),

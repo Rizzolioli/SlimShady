@@ -11,6 +11,7 @@ from algorithms.GSGP.representations.tree import Tree
 from algorithms.GP.representations.tree import Tree as GP_Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual
 from algorithms.SLIM_GSGP.operators.mutators import more_blocks_deflate_mutation
+from algorithms.SLIM_GSGP.operators.crossover_operators import slim_head_crossover
 
 from utils.diversity import gsgp_pop_div_from_vectors
 from utils.convexhull import distance_from_chull, calculate_signed_errors
@@ -55,7 +56,8 @@ class SLIM_GSGP:
               pause_deflate = None, #only for CHULL study
               gp_imputing_missing_values = False, #only for missing values study
               terminal_prob_distr = False,
-              coefficient_terminal_prob = 0
+              coefficient_terminal_prob = 0,
+              head_xo_freq = None,
               ):
 
 
@@ -243,6 +245,8 @@ class SLIM_GSGP:
 
         ################################################################################################################
 
+        head_xo = slim_head_crossover(Tree.FUNCTIONS) if head_xo_freq is not None else None
+
         for it in range(1, n_iter +1, 1):
 
             if pause_deflate is not None:
@@ -269,6 +273,16 @@ class SLIM_GSGP:
 
             while len(offs_pop) < self.pop_size:
 
+                if head_xo_freq is not None and it % head_xo_freq == 0:
+                    p1 = self.selector(population)
+                    p2 = self.selector(population)
+                    while p1 == p2:
+                        p2 = self.selector(population)
+                    off1, off2 = head_xo(p1, p2, X_test=X_test, reconstruct=reconstruct)
+                    offs_pop.append(off1)
+                    if len(offs_pop) < self.pop_size:
+                        offs_pop.append(off2)
+                    continue
 
                 # choosing between crossover and mutation
                 if random.random() < self.p_xo:
@@ -522,6 +536,23 @@ class SLIM_GSGP:
                                 tie_inflate, diff_sn_inflate, size_sn_inflate,
                                 tie_deflate, diff_sn_deflate, size_sn_deflate,
                                 tie_mb_deflate, diff_sn_mb_deflate, size_sn_mb_deflate]
+
+                elif log == 8:
+                    # elite genotype + combined train/test semantics at every generation
+                    op_fn = torch.sum if self.operator == 'sum' else torch.prod
+                    elite_train_out = op_fn(self.elite.train_semantics, dim=0)
+                    elite_test_out  = op_fn(self.elite.test_semantics,  dim=0) \
+                                      if self.elite.test_semantics is not None else None
+
+                    add_info = [
+                        self.elite.test_fitness,
+                        self.elite.nodes_count,
+                        self.elite.get_tree_representation(),
+                        " ".join(str(float(v)) for v in elite_train_out.tolist()),
+                        " ".join(str(float(v)) for v in elite_test_out.tolist())
+                            if elite_test_out is not None else "None",
+                        log,
+                    ]
 
                 else:
 
