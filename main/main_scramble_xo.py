@@ -53,7 +53,7 @@ _dataset_params = {
     "other":    {"p_inflate": 0.3, "ms_lo": 0.0, "ms_hi": 1.0},
 }
 
-_LOG_PATH      = os.path.join(os.path.dirname(__file__), "log", "results_scramble_xo.csv")
+_LOG_PATH      = os.path.join(os.path.dirname(__file__), "log", "results_scramble_xo_05052026.csv")
 _SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "log", "settings.csv")
 
 ########################################################################################################################
