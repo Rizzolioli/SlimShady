@@ -137,7 +137,7 @@ def run_one(task):
         run_info=[algo, unique_run_id, loader],
         elitism=True,
         log=8,
-        verbose=0,
+        verbose=1,
         test_elite=True,
         log_path=log_path,
         ffunction=rmse,
