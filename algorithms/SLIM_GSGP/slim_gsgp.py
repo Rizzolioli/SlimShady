@@ -247,6 +247,8 @@ class SLIM_GSGP:
 
         head_xo = slim_head_crossover(Tree.FUNCTIONS) if head_xo_freq is not None else None
 
+        _prev_elite = None
+
         for it in range(1, n_iter +1, 1):
 
             if pause_deflate is not None:
@@ -538,21 +540,22 @@ class SLIM_GSGP:
                                 tie_mb_deflate, diff_sn_mb_deflate, size_sn_mb_deflate]
 
                 elif log == 8:
-                    # elite genotype + combined train/test semantics at every generation
-                    op_fn = torch.sum if self.operator == 'sum' else torch.prod
-                    elite_train_out = op_fn(self.elite.train_semantics, dim=0)
-                    elite_test_out  = op_fn(self.elite.test_semantics,  dim=0) \
-                                      if self.elite.test_semantics is not None else None
-
-                    add_info = [
-                        self.elite.test_fitness,
-                        self.elite.nodes_count,
-                        self.elite.get_tree_representation(),
-                        " ".join(str(float(v)) for v in elite_train_out.tolist()),
-                        " ".join(str(float(v)) for v in elite_test_out.tolist())
-                            if elite_test_out is not None else "None",
-                        log,
-                    ]
+                    if self.elite is _prev_elite:
+                        add_info = [self.elite.test_fitness, self.elite.nodes_count, "same", log]
+                    else:
+                        op_fn = torch.sum if self.operator == 'sum' else torch.prod
+                        elite_train_out = op_fn(self.elite.train_semantics, dim=0)
+                        elite_test_out  = op_fn(self.elite.test_semantics,  dim=0) \
+                                          if self.elite.test_semantics is not None else None
+                        add_info = [
+                            self.elite.test_fitness,
+                            self.elite.nodes_count,
+                            self.elite.get_tree_representation(),
+                            " ".join(str(float(v)) for v in elite_train_out.tolist()),
+                            " ".join(str(float(v)) for v in elite_test_out.tolist())
+                                if elite_test_out is not None else "None",
+                            log,
+                        ]
 
                 else:
 
@@ -566,3 +569,5 @@ class SLIM_GSGP:
             if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,
                                          self.elite.nodes_count)
+
+            _prev_elite = self.elite
