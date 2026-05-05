@@ -278,7 +278,7 @@ class SLIM_GSGP:
                     p2 = self.selector(population)
                     while p1 == p2:
                         p2 = self.selector(population)
-                    off1, off2 = head_xo(p1, p2, X_test=X_test, reconstruct=reconstruct)
+                    off1, off2 = head_xo(p1, p2, X_train=X_train, X_test=X_test, reconstruct=reconstruct)
                     offs_pop.append(off1)
                     if len(offs_pop) < self.pop_size:
                         offs_pop.append(off2)
