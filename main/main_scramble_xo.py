@@ -3,6 +3,7 @@ import sys
 import uuid
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
+import pandas as pd
 
 # project root on path for worker processes (Windows spawn starts a fresh interpreter)
 _PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -55,6 +56,26 @@ _dataset_params = {
 
 _LOG_PATH      = os.path.join(os.path.dirname(__file__), "log", "results_scramble_xo_05052026.csv")
 _SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "log", "settings.csv")
+
+########################################################################################################################
+
+# COMPLETED-RUN DETECTION
+
+########################################################################################################################
+
+def load_completed_runs(log_path, n_iter):
+    """Return a set of (algo, loader, seed) for runs whose final generation is logged."""
+    if not os.path.exists(log_path):
+        return set()
+    try:
+        # CSV layout: algo(0), run_id(1), loader(2), seed(3), generation(4), ...
+        df = pd.read_csv(log_path, header=None, usecols=[0, 2, 3, 4])
+        # after usecols selection, column positions are 0=algo, 1=loader, 2=seed, 3=generation
+        done = df[df.iloc[:, 3] == n_iter]
+        return set(zip(done.iloc[:, 0], done.iloc[:, 1], done.iloc[:, 2].astype(int)))
+    except Exception:
+        return set()
+
 
 ########################################################################################################################
 
@@ -164,6 +185,10 @@ def run_one(task):
 if __name__ == '__main__':
     unique_run_id = uuid.uuid1()
 
+    completed = load_completed_runs(_LOG_PATH, n_iter=2000)
+    if completed:
+        print(f"Found {len(completed)} already-completed run(s) — skipping.")
+
     tasks = []
     for loader in data_loaders:
         dp = _dataset_params.get(loader, _dataset_params["other"])
@@ -172,6 +197,9 @@ if __name__ == '__main__':
             for head_xo_freq in head_xo_freq_values:
                 algo = f'{algo_base}_head_xo{head_xo_freq}'
                 for seed in range(n_runs):
+                    if (algo, loader, seed) in completed:
+                        print(f"  skip [{loader}] {algo} seed={seed}")
+                        continue
                     tasks.append((
                         loader, sig, ttrees, op, head_xo_freq, seed,
                         algo, unique_run_id, _LOG_PATH,

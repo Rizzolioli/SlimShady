@@ -1,6 +1,24 @@
 from algorithms.GP.representations.tree_utils import bound_value
 from algorithms.GP.representations.tree_utils import flatten, tree_depth
 
+
+def _apply(structure, inputs, FUNCTIONS, TERMINALS, CONSTANTS):
+    """Evaluate a GP tree structure recursively without creating Tree objects."""
+    if isinstance(structure, tuple):
+        fn = FUNCTIONS[structure[0]]
+        if fn['arity'] == 2:
+            l = _apply(structure[1], inputs, FUNCTIONS, TERMINALS, CONSTANTS)
+            r = _apply(structure[2], inputs, FUNCTIONS, TERMINALS, CONSTANTS)
+            return bound_value(fn['function'](l, r), -1000000000000.0, 10000000000000.0)
+        else:
+            l = _apply(structure[1], inputs, FUNCTIONS, TERMINALS, CONSTANTS)
+            return bound_value(fn['function'](l), -1000000000000.0, 10000000000000.0)
+    elif structure in TERMINALS:
+        return inputs[:, TERMINALS[structure]]
+    elif structure in CONSTANTS:
+        return CONSTANTS[structure](1)
+
+
 class Tree:
 
     """
@@ -69,53 +87,7 @@ class Tree:
         self.node_count = len(list(flatten(self.repr_)))
     # Function to evaluate a tree on input vectors x and y.
     def apply_tree(self, inputs):
-
-        """
-                Evaluates the tree on input vectors x and y.
-
-                Parameters
-                ----------
-                inputs : tuple
-                    Input vectors x and y.
-
-                Returns
-                -------
-                float
-                    Output of the evaluated tree.
-        """
-
-        if isinstance(self.repr_, tuple):  # If it's a function node
-            function_name = self.repr_[0]
-            if Tree.FUNCTIONS[function_name]['arity'] == 2:
-                left_subtree, right_subtree = self.repr_[1], self.repr_[2]
-                left_subtree = Tree(left_subtree)
-                right_subtree = Tree(right_subtree)
-                left_result = left_subtree.apply_tree(inputs)
-                right_result = right_subtree.apply_tree(inputs)
-                output = Tree.FUNCTIONS[function_name]['function'](left_result, right_result)
-            else:
-                left_subtree = self.repr_[1]
-                left_subtree = Tree(left_subtree)
-                # right_subtree = Tree(right_subtree, Tree.FUNCTIONS, Tree.TERMINALS, self.CONSTANTS)
-                left_result = left_subtree.apply_tree(inputs)
-                # right_result = right_subtree.apply_tree(inputs)
-                output = Tree.FUNCTIONS[function_name]['function'](left_result)
-
-            return bound_value(output, -1000000000000.0, 10000000000000.0)
-
-        else:  # If it's a terminal node
-            # if self.repr_ == '_':
-            #     output = '_'
-            if self.repr_ in list(self.TERMINALS.keys()):
-                output = inputs[:, self.TERMINALS[self.repr_]]
-
-                return output
-
-            elif self.repr_ in list(self.CONSTANTS.keys()):
-
-                output = self.CONSTANTS[self.repr_](1)
-
-                return output
+        return _apply(self.repr_, inputs, Tree.FUNCTIONS, Tree.TERMINALS, Tree.CONSTANTS)
 
     def evaluate(self, ffunction, X, y, testing=False):
 
