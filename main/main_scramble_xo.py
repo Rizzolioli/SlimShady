@@ -90,6 +90,8 @@ def run_one(task):
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
 
+    sys.setrecursionlimit(10000)
+
     import time
     import torch
     from utils.utils import protected_div, get_best_min, get_terminals, generate_random_uniform

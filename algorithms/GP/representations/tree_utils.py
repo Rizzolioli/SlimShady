@@ -38,12 +38,14 @@ def flatten(data):
         object
             Flattened data element by element.
     """
-
-    if isinstance(data, tuple):
-        for x in data:
-            yield from flatten(x)
-    else:
-        yield data
+    stack = [data]
+    while stack:
+        item = stack.pop()
+        if isinstance(item, tuple):
+            for x in reversed(item):
+                stack.append(x)
+        else:
+            yield item
 
 
 # Function to create a random grow tree.
@@ -330,16 +332,18 @@ def tree_depth(FUNCTIONS):
 
     def depth(tree):
         if not isinstance(tree, tuple):
-            # If it's a terminal node, the depth is 1
             return 1
-        else:
-            # Recursively calculate the depth of the left and right subtrees
-            if FUNCTIONS[tree[0]]['arity'] == 2:
-                left_depth = depth(tree[1])
-                right_depth = depth(tree[2])
-            elif FUNCTIONS[tree[0]]['arity'] == 1:
-                left_depth = depth(tree[1])
-                right_depth = 0
-            # The depth of the tree is one more than the maximum depth of its subtrees
-            return 1 + max(left_depth, right_depth)
+        max_d = 0
+        stack = [(tree, 1)]
+        while stack:
+            node, d = stack.pop()
+            if isinstance(node, tuple):
+                arity = FUNCTIONS[node[0]]['arity']
+                stack.append((node[1], d + 1))
+                if arity == 2:
+                    stack.append((node[2], d + 1))
+            else:
+                if d > max_d:
+                    max_d = d
+        return max_d
     return depth
