@@ -2,21 +2,40 @@ from algorithms.GP.representations.tree_utils import bound_value
 from algorithms.GP.representations.tree_utils import flatten, tree_depth
 
 
+_APPLY_MARKER = object()  # sentinel that separates tree nodes from deferred fn-apply items
+
+
 def _apply(structure, inputs, FUNCTIONS, TERMINALS, CONSTANTS):
-    """Evaluate a GP tree structure recursively without creating Tree objects."""
-    if isinstance(structure, tuple):
-        fn = FUNCTIONS[structure[0]]
-        if fn['arity'] == 2:
-            l = _apply(structure[1], inputs, FUNCTIONS, TERMINALS, CONSTANTS)
-            r = _apply(structure[2], inputs, FUNCTIONS, TERMINALS, CONSTANTS)
-            return bound_value(fn['function'](l, r), -1000000000000.0, 10000000000000.0)
-        else:
-            l = _apply(structure[1], inputs, FUNCTIONS, TERMINALS, CONSTANTS)
-            return bound_value(fn['function'](l), -1000000000000.0, 10000000000000.0)
-    elif structure in TERMINALS:
-        return inputs[:, TERMINALS[structure]]
-    elif structure in CONSTANTS:
-        return CONSTANTS[structure](1)
+    """Iterative tree evaluation — no recursion, no Tree object creation per node."""
+    operands = []
+    work = [structure]
+    while work:
+        item = work.pop()
+        if isinstance(item, tuple):
+            if isinstance(item[0], str):
+                # GP tree node: (fn_name, left[, right])
+                fn_info = FUNCTIONS[item[0]]
+                arity = fn_info['arity']
+                # Push sentinel first (executed last, after children are on operands stack)
+                work.append((_APPLY_MARKER, fn_info['function'], arity))
+                if arity == 2:
+                    work.append(item[2])  # right — popped second
+                    work.append(item[1])  # left  — popped first
+                else:
+                    work.append(item[1])
+            else:
+                # Deferred function application: (_APPLY_MARKER, fn, arity)
+                _, fn, arity = item
+                if arity == 2:
+                    r, l = operands.pop(), operands.pop()
+                    operands.append(bound_value(fn(l, r), -1000000000000.0, 10000000000000.0))
+                else:
+                    operands.append(bound_value(fn(operands.pop()), -1000000000000.0, 10000000000000.0))
+        elif item in TERMINALS:
+            operands.append(inputs[:, TERMINALS[item]])
+        elif item in CONSTANTS:
+            operands.append(CONSTANTS[item](1))
+    return operands[0]
 
 
 class Tree:
