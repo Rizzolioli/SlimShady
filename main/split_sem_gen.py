@@ -1,7 +1,9 @@
 """
-Split existing joint log=8 CSVs into:
+Split an existing joint log=8 CSV into:
   - main CSV    (in-place): metrics only, uniform 11 columns
   - _sem_gen CSV (new file): genotype + semantics, 8 columns
+
+Target file: results_head_size_07052026.csv  (default, matches main_head_size.py)
 
 Existing log=8 row formats:
   12 cols  "same" row  → [algo, run_id, loader, seed, gen, train_fit, timing, nodes,
@@ -10,17 +12,18 @@ Existing log=8 row formats:
                            test_fit, nodes_count, tree_repr, train_sem, test_sem, log]
 
 After split:
-  main (11 cols):     cols 0-9 + log (col 11 or 13 respectively)
+  main (11 cols):     cols 0-9 + log  (semantics and genotype removed)
   sem_gen (8 cols):   cols 0-4 + tree_repr + train_sem + test_sem  (only for "changed" rows)
 
 Usage:
-    python split_sem_gen.py path/to/results.csv [another.csv ...]
-    python split_sem_gen.py          # processes all eligible CSVs in main/log/
+    python split_sem_gen.py                    # splits the default head_size log
+    python split_sem_gen.py path/to/file.csv   # splits a specific file
 """
 import csv
 import os
 import sys
-from glob import glob
+
+_DEFAULT_LOG = os.path.join(os.path.dirname(__file__), "log", "results_head_size_07052026.csv")
 
 SAME_NCOLS    = 12
 CHANGED_NCOLS = 14
@@ -38,12 +41,12 @@ def split_file(path):
         for row in csv.reader(f):
             n = len(row)
             if n == CHANGED_NCOLS:
-                main_rows.append(row[:10] + [row[13]])          # 11 cols
-                sem_gen_rows.append(row[:5] + row[10:13])       # 8 cols
+                main_rows.append(row[:10] + [row[13]])          # 11 cols — semantics/genotype stripped
+                sem_gen_rows.append(row[:5] + row[10:13])       # 8 cols — key + tree_repr + semantics
             elif n == SAME_NCOLS:
-                main_rows.append(row[:10] + [row[11]])          # 11 cols
+                main_rows.append(row[:10] + [row[11]])          # 11 cols — "same" marker dropped
             else:
-                main_rows.append(row)                           # unknown format, keep as-is
+                main_rows.append(row)                           # unexpected format, keep as-is
                 skipped += 1
 
     with open(path, 'w', newline='', encoding='utf-8') as f:
@@ -58,21 +61,11 @@ def split_file(path):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        paths = sys.argv[1:]
-    else:
-        log_dir = os.path.join(os.path.dirname(__file__), 'log')
-        paths = sorted(
-            p for p in glob(os.path.join(log_dir, '*.csv'))
-            if not p.endswith('_sem_gen.csv')
-            and not os.path.basename(p).startswith('settings')
-        )
+    path = sys.argv[1] if len(sys.argv) > 1 else _DEFAULT_LOG
 
-    if not paths:
-        print("No CSV files found.")
-        sys.exit(0)
+    if not os.path.exists(path):
+        print(f"File not found: {path}")
+        sys.exit(1)
 
-    for path in paths:
-        split_file(path)
-
+    split_file(path)
     print("Done.")
