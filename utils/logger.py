@@ -66,6 +66,18 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
 
         writer.writerow(infos)
 
+def logger_sem_gen(path, generation, tree_repr, train_sem, test_sem, run_info=None, seed=0):
+    """Logs elite genotype and semantics to a separate CSV."""
+    with open(path, 'a', newline='') as file:
+        writer = csv.writer(file)
+        if run_info is not None:
+            infos = copy(run_info)
+            infos.extend([seed, generation, tree_repr, train_sem, test_sem])
+        else:
+            infos = [seed, generation, tree_repr, train_sem, test_sem]
+        writer.writerow(infos)
+
+
 def drop_experiment_from_logger(experiment_id, log_path):
 
     """

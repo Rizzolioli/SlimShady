@@ -5,7 +5,7 @@ import numpy as np
 
 from utils.TIE import calculate_tie
 from utils.utils import verbose_reporter
-from utils.logger import logger
+from utils.logger import logger, logger_sem_gen
 from algorithms.SLIM_GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.GP.representations.tree import Tree as GP_Tree
@@ -58,6 +58,7 @@ class SLIM_GSGP:
               terminal_prob_distr = False,
               coefficient_terminal_prob = 0,
               head_xo_freq = None,
+              max_head_depth = None,
               ):
 
 
@@ -245,7 +246,7 @@ class SLIM_GSGP:
 
         ################################################################################################################
 
-        head_xo = slim_head_crossover(Tree.FUNCTIONS) if head_xo_freq is not None else None
+        head_xo = slim_head_crossover(Tree.FUNCTIONS, max_head_depth=max_head_depth) if head_xo_freq is not None else None
 
         _prev_elite = None
 
@@ -540,22 +541,22 @@ class SLIM_GSGP:
                                 tie_mb_deflate, diff_sn_mb_deflate, size_sn_mb_deflate]
 
                 elif log == 8:
-                    if self.elite is _prev_elite:
-                        add_info = [self.elite.test_fitness, self.elite.nodes_count, "same", log]
-                    else:
+                    add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
+                    if self.elite is not _prev_elite and log_path is not None:
                         op_fn = torch.sum if self.operator == 'sum' else torch.prod
                         elite_train_out = op_fn(self.elite.train_semantics, dim=0)
                         elite_test_out  = op_fn(self.elite.test_semantics,  dim=0) \
                                           if self.elite.test_semantics is not None else None
-                        add_info = [
-                            self.elite.test_fitness,
-                            self.elite.nodes_count,
+                        sem_gen_path = (log_path[:-4] if log_path.endswith('.csv') else log_path) + '_sem_gen.csv'
+                        logger_sem_gen(
+                            sem_gen_path, it,
                             self.elite.get_tree_representation(),
                             " ".join(str(float(v)) for v in elite_train_out.tolist()),
                             " ".join(str(float(v)) for v in elite_test_out.tolist())
                                 if elite_test_out is not None else "None",
-                            log,
-                        ]
+                            run_info=run_info,
+                            seed=self.seed,
+                        )
 
                 else:
 

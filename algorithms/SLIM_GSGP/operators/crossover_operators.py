@@ -4,7 +4,7 @@ from algorithms.GSGP.representations.tree import Tree
 from algorithms.SLIM_GSGP.representations.individual import Individual
 
 
-def slim_head_crossover(FUNCTIONS):
+def slim_head_crossover(FUNCTIONS, max_head_depth=None):
     _xo = crossover_trees(FUNCTIONS)
 
     def _test_row(tree_semantics, n_test):
@@ -22,6 +22,9 @@ def slim_head_crossover(FUNCTIONS):
 
         new_h1 = Tree(structure=s1, train_semantics=None, test_semantics=None, reconstruct=reconstruct)
         new_h2 = Tree(structure=s2, train_semantics=None, test_semantics=None, reconstruct=reconstruct)
+
+        if max_head_depth is not None and (new_h1.depth > max_head_depth or new_h2.depth > max_head_depth):
+            return p1, p2
 
         # Compute train semantics eagerly (like inflate_mutation does) so offs_pop.calculate_semantics
         # is a no-op for XO offspring, matching the O(1) cost of mutation generations.
