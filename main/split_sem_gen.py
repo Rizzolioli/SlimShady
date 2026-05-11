@@ -23,6 +23,8 @@ import csv
 import os
 import sys
 
+csv.field_size_limit(sys.maxsize)
+
 _DEFAULT_LOG = os.path.join(os.path.dirname(__file__), "log", "results_scramble_xo_05052026.csv")
 
 SAME_NCOLS    = 12
