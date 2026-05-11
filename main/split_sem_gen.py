@@ -23,7 +23,7 @@ import csv
 import os
 import sys
 
-_DEFAULT_LOG = os.path.join(os.path.dirname(__file__), "log", "results_head_size_07052026.csv")
+_DEFAULT_LOG = os.path.join(os.path.dirname(__file__), "log", "results_scramble_xo_05052026.csv")
 
 SAME_NCOLS    = 12
 CHANGED_NCOLS = 14
