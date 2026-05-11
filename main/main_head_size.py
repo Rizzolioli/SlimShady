@@ -43,8 +43,8 @@ _algo_names = {
     (False, False, "sum", False): "SLIM+ABS",
 }
 
-head_xo_freq = 10
-max_head_depth_values = [ 5, 17, 25]
+head_xo_freq_values = [50, 500]
+max_head_depth_values = [5, 17, 25]
 
 # ms stored as (lo, hi) — closures are not picklable across spawn processes
 _dataset_params = {
@@ -83,7 +83,7 @@ def load_completed_runs(log_path, n_iter):
 ########################################################################################################################
 
 def run_one(task):
-    (loader, sig, ttrees, op, max_head_depth, seed,
+    (loader, sig, ttrees, op, max_head_depth, head_xo_freq, seed,
      algo, unique_run_id, log_path, p_inflate, ms_lo, ms_hi, project_root) = task
 
     if project_root not in sys.path:
@@ -197,17 +197,18 @@ if __name__ == '__main__':
         for (sig, ttrees, op, gsgp) in variants:
             algo_base = _algo_names[(sig, ttrees, op, gsgp)]
             for max_head_depth in max_head_depth_values:
-                algo = f'{algo_base}_hd{max_head_depth}'
-                for seed in range(n_runs):
-                    if (algo, loader, seed) in completed:
-                        print(f"  skip [{loader}] {algo} seed={seed}")
-                        continue
-                    tasks.append((
-                        loader, sig, ttrees, op, max_head_depth, seed,
-                        algo, unique_run_id, _LOG_PATH,
-                        dp["p_inflate"], dp["ms_lo"], dp["ms_hi"],
-                        _PROJECT_ROOT,
-                    ))
+                for head_xo_freq in head_xo_freq_values:
+                    algo = f'{algo_base}_hd{max_head_depth}_xo{head_xo_freq}'
+                    for seed in range(n_runs):
+                        if (algo, loader, seed) in completed:
+                            print(f"  skip [{loader}] {algo} seed={seed}")
+                            continue
+                        tasks.append((
+                            loader, sig, ttrees, op, max_head_depth, head_xo_freq, seed,
+                            algo, unique_run_id, _LOG_PATH,
+                            dp["p_inflate"], dp["ms_lo"], dp["ms_hi"],
+                            _PROJECT_ROOT,
+                        ))
 
     print(f"Submitting {len(tasks)} tasks on {N_JOBS} workers...")
     wall0 = time.time()
@@ -228,7 +229,7 @@ if __name__ == '__main__':
         settings_dict=[
             {"n_runs": n_runs, "n_iter": 2000, "log": 8},
             {"pop_size": 100, "init_depth": 6, "p_xo": 0, "elitism": True},
-            {"head_xo_freq": head_xo_freq,
+            {"head_xo_freq_values": str(head_xo_freq_values),
              "max_head_depth_values": str(max_head_depth_values),
              "variants": str([_algo_names[v] for v in variants])},
             {"data_loaders": str(data_loaders), "TERMINALS": "N/A"},
