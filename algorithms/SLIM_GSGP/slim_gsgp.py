@@ -247,6 +247,7 @@ class SLIM_GSGP:
         ################################################################################################################
 
         head_xo = slim_head_crossover(Tree.FUNCTIONS, max_head_depth=max_head_depth) if head_xo_freq is not None else None
+        prob_xo  = slim_head_crossover(Tree.FUNCTIONS, max_head_depth=max_head_depth) if self.p_xo > 0 else None
 
         _prev_elite = None
 
@@ -297,7 +298,10 @@ class SLIM_GSGP:
                     while p1 == p2:
                         p1, p2 = self.selector(population), self.selector(population)
 
-                    pass # implement crossover
+                    off1, off2 = prob_xo(p1, p2, X_train=X_train, X_test=X_test, reconstruct=reconstruct)
+                    offs_pop.append(off1)
+                    if len(offs_pop) < self.pop_size:
+                        offs_pop.append(off2)
 
                 else:
 
