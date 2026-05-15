@@ -40,7 +40,7 @@ _algo_names = {
 }
 
 # p_xo=0.0 is the standard SLIM baseline (no XO)
-p_xo_values    = [0.0, 0.3, 0.5, 0.7]
+p_xo_values    = [ 0.3, 0.5, 0.7]
 max_head_depth = 17   # fixed — best configuration from head-size experiment
 
 _dataset_params = {
