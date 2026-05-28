@@ -94,11 +94,11 @@ slim_gsgp_pi_init = {
 
 # Dataset-specific inflate probability and mutation step size.
 # Datasets not listed here fall back to "other".
-slim_dataset_params = {
-    "toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
-    "concrete": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
-    "other":    {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)},
-}
+# slim_dataset_params = {
+#     "toxicity": {"p_inflate": 0.1, "ms": generate_random_uniform(0, 0.1)},
+#     "concrete": {"p_inflate": 0.5, "ms": generate_random_uniform(0, 0.3)},
+#     "other":    {"p_inflate": 0.3, "ms": generate_random_uniform(0, 1)},
+# }
 
 all_params = {
     "SLIM_GSGP": ["slim_gsgp_solve_parameters", "slim_GSGP_parameters", "slim_gsgp_pi_init", "settings_dict"],
@@ -116,9 +116,27 @@ algo_name = "SlimGSGP"
 data_loaders = ["ppb"]
 # data_loaders = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
 
-operators        = ["sum", "mul"]  # how blocks are combined
-sig_values       = [True]          # signed inflate mutation
-two_trees_values = [False]         # one tree (False) or two trees (True) per mutation
+variants = [
+    # (sig, ttrees, op, gsgp)
+    (True, True, "mul", False),   # SLIM*2SIG
+    (True,  True,  "sum", False),   # SLIM+2SIG
+    (False, False, "mul", False),   # SLIM*ABS
+    (False, False, "sum", False),   # SLIM+ABS
+    (True,  False, "mul", False),   # SLIM*1SIG
+    (True,  False, "sum", False),   # SLIM+1SIG
+]
+
+_algo_names = {
+    (True,  False, "mul", True):  "GSGP*1SIG",
+    (False, False, "mul", True):  "GSGP*ABS",
+    (True,  True,  "sum", True):  "GSGP",
+    (True,  False, "mul", False): "SLIM*1SIG",
+    (False, False, "mul", False): "SLIM*ABS",
+    (True,  True,  "sum", False): "SLIM+2SIG",
+    (True,  False, "sum", False): "SLIM+1SIG",
+    (False, False, "sum", False): "SLIM+ABS",
+}
+
 
 ########################################################################################################################
 
@@ -129,9 +147,11 @@ two_trees_values = [False]         # one tree (False) or two trees (True) per mu
 unique_run_id = uuid.uuid1()
 
 for loader in data_loaders:
-    for sig in sig_values:
-        for two_trees in two_trees_values:
-            slim_GSGP_parameters["two_trees"] = two_trees
+    for (sig, ttrees, op, gsgp) in variants:
+        slim_GSGP_parameters["two_trees"] = ttrees
+        slim_GSGP_parameters["operator"]  = op
+
+        algo = _algo_names[(sig, ttrees, op, gsgp)]
 
             for op in operators:
                 slim_GSGP_parameters["operator"] = op
@@ -157,7 +177,7 @@ for loader in data_loaders:
 
                     # apply dataset-specific mutation parameters
                     params = slim_dataset_params.get(dataset, slim_dataset_params["other"])
-                    slim_GSGP_parameters["ms"]        = params["ms"]
+                    slim_GSGP_parameters["ms"]        = np.median(y_train)
                     slim_GSGP_parameters["p_inflate"] = params["p_inflate"]
                     slim_GSGP_parameters["p_deflate"] = 1 - params["p_inflate"]
 
