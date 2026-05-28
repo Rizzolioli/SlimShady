@@ -289,19 +289,20 @@ if __name__ == '__main__':
     _STN_ROOT  = _os.path.join(_HERE, "..", "log", "stns")
     _PLOT_ROOT = _os.path.join(_HERE, "..", "log", "figs", "stns")
 
-    benchmarks = ["koza-1", "nguyen-5", "nguyen-6", "rbsp",
-                  "concrete", "istanbul", "ppb"]
-    benchmark = benchmarks[5]   # change as needed
+    BENCHMARKS = ["toxicity", "concrete", "instanbul", "ppb",
+                  "resid_build_sale_price", "energy"]
 
-    for layout in ('stress', 'fitness', 'bivar'):
-        for node_size in ('tree', 'node'):
-            # bivar defaults: x=TreeSize, y=Fitness
-            # change x_attr / y_attr to use any node attribute (TreeSize, Count, Fitness)
-            combined_plot(benchmark,
-                          stn_root=_STN_ROOT,
-                          plot_root=_PLOT_ROOT,
-                          layout=layout,
-                          node_size=node_size,
-                          ncols=3,
-                          x_attr='TreeSize',
-                          y_attr='Fitness')
+    for benchmark in BENCHMARKS:
+        print(f"\n{'='*60}")
+        print(f"  Plotting STNs: {benchmark}")
+        print(f"{'='*60}")
+        for layout in ('stress', 'fitness', 'bivar'):
+            for node_size in ('tree', 'node'):
+                combined_plot(benchmark,
+                              stn_root=_STN_ROOT,
+                              plot_root=_PLOT_ROOT,
+                              layout=layout,
+                              node_size=node_size,
+                              ncols=3,
+                              x_attr='TreeSize',
+                              y_attr='Fitness')

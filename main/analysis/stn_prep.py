@@ -149,11 +149,16 @@ def prep_stn_data(log_csv: str,
 if __name__ == '__main__':
     import os
 
-    # ── Edit these paths before running ──────────────────────────────────────
     _HERE    = os.path.dirname(os.path.abspath(__file__))
     LOG_CSV  = os.path.join(_HERE, "..", "log", "results_prob_xo_12052026.csv")
-    BENCHMARK = "istanbul"    # one of the dataset names used in the experiment
-    OUT_ROOT  = os.path.join(_HERE, "..", "log", "stn_data")  # where to write prepared CSVs
-    NRUNS     = 5             # seeds 0..4 → Run 1..5
+    OUT_ROOT = os.path.join(_HERE, "..", "log", "stn_data")
+    NRUNS    = 5   # seeds 0..4 → Run 1..5
 
-    prep_stn_data(LOG_CSV, BENCHMARK, out_root=OUT_ROOT, nruns=NRUNS)
+    BENCHMARKS = ["toxicity", "concrete", "instanbul", "ppb",
+                  "resid_build_sale_price", "energy"]
+
+    for benchmark in BENCHMARKS:
+        print(f"\n{'='*60}")
+        print(f"  Preparing STN data: {benchmark}")
+        print(f"{'='*60}")
+        prep_stn_data(LOG_CSV, benchmark, out_root=OUT_ROOT, nruns=NRUNS)

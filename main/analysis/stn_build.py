@@ -286,15 +286,18 @@ if __name__ == '__main__':
     DATA_ROOT = os.path.join(_HERE, "..", "log", "stn_data")
     STN_ROOT  = os.path.join(_HERE, "..", "log", "stns")
 
-    benchmarks = ["koza-1", "nguyen-5", "nguyen-6", "rbsp",
-                  "concrete", "istanbul", "ppb"]
-    benchmark = benchmarks[5]   # change as needed
+    BENCHMARKS = ["toxicity", "concrete", "instanbul", "ppb",
+                  "resid_build_sale_price", "energy"]
 
-    process_folder(
-        benchmark,
-        data_root=DATA_ROOT,
-        stn_root=STN_ROOT,
-        nruns=5,             # 5 seeds used in SlimShady experiments
-        n_clusters=50,
-        build_clustering=True,
-    )
+    for benchmark in BENCHMARKS:
+        print(f"\n{'='*60}")
+        print(f"  Building STNs: {benchmark}")
+        print(f"{'='*60}")
+        process_folder(
+            benchmark,
+            data_root=DATA_ROOT,
+            stn_root=STN_ROOT,
+            nruns=5,
+            n_clusters=50,
+            build_clustering=True,
+        )
