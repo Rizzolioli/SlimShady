@@ -4,7 +4,7 @@ import torch
 import numpy as np
 
 from utils.TIE import calculate_tie
-from utils.utils import verbose_reporter, compute_m_phi
+from utils.utils import verbose_reporter, compute_m_phi, slim_individual_to_sympy, sympy_m_phi
 from utils.logger import logger
 from evaluators.fitness_functions import mae, r2
 from algorithms.SLIM_GSGP.representations.population import Population
@@ -56,7 +56,8 @@ class SLIM_GSGP:
               pause_deflate = None, #only for CHULL study
               gp_imputing_missing_values = False, #only for missing values study
               terminal_prob_distr = False,
-              coefficient_terminal_prob = 0
+              coefficient_terminal_prob = 0,
+              simplify_elite = False,  # if True, run SymPy simplification at end & log row at gen n_iter+1
               ):
 
 
@@ -566,3 +567,52 @@ class SLIM_GSGP:
             if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,
                                          self.elite.nodes_count)
+
+        # ── Post-evolution symbolic simplification ────────────────────────
+        if simplify_elite and log_path is not None and reconstruct:
+            import sympy as sp
+            from concurrent.futures import ThreadPoolExecutor, TimeoutError as _FuturesTimeout
+
+            _op_fn  = torch.sum if self.operator == 'sum' else torch.prod
+            _y_pred = torch.clamp(_op_fn(self.elite.test_semantics, dim=0), -1e12, 1e12)
+
+            m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = compute_m_phi(
+                self.elite, self.pi_init['FUNCTIONS'])
+
+            simplified_ok = False
+            simp_time = 0.0
+            m_phi_a, ell_a, no_a, nnao_a, nnaoc_a = m_phi_b, ell_b, no_b, nnao_b, nnaoc_b
+
+            try:
+                sympy_expr = slim_individual_to_sympy(
+                    self.elite,
+                    self.pi_init['FUNCTIONS'],
+                    self.pi_init['TERMINALS'],
+                    self.pi_init['CONSTANTS'],
+                    self.operator,
+                )
+                simp_t0 = time.time()
+                with ThreadPoolExecutor(max_workers=1) as _pool:
+                    _fut = _pool.submit(sp.simplify, sympy_expr)
+                    try:
+                        simplified = _fut.result(timeout=60)
+                        simplified_ok = True
+                    except _FuturesTimeout:
+                        simplified = sympy_expr
+                simp_time = time.time() - simp_t0
+                m_phi_a, ell_a, no_a, nnao_a, nnaoc_a = sympy_m_phi(simplified)
+            except Exception:
+                pass
+
+            simp_add_info = [
+                float(self.elite.test_fitness),
+                int(ell_b),    float(m_phi_b), int(no_b),  int(nnao_b),  int(nnaoc_b),
+                int(ell_a),    float(m_phi_a), int(no_a),  int(nnao_a),  int(nnaoc_a),
+                int(simplified_ok),
+                float(mae(y_test, _y_pred)),
+                float(r2(y_test, _y_pred)),
+                'simp',
+            ]
+            logger(log_path, n_iter + 1, self.elite.fitness, simp_time,
+                   float(population.nodes_count),
+                   additional_infos=simp_add_info, run_info=run_info, seed=self.seed)

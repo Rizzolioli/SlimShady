@@ -477,6 +477,136 @@ def compute_m_phi(individual, FUNCTIONS):
     return m_phi, ell, no, nnao, nnaoc
 
 
+# ---------------------------------------------------------------------------
+# SymPy-based symbolic simplification utilities
+# ---------------------------------------------------------------------------
+
+def _gp_tree_to_sympy(repr_, TERMINALS, CONSTANTS, FUNCTIONS):
+    """Recursively convert a GP tree tuple repr to a SymPy expression."""
+    import sympy as sp
+    if isinstance(repr_, tuple):
+        fn_name = repr_[0]
+        arity = FUNCTIONS[fn_name]['arity']
+        if arity == 2:
+            left  = _gp_tree_to_sympy(repr_[1], TERMINALS, CONSTANTS, FUNCTIONS)
+            right = _gp_tree_to_sympy(repr_[2], TERMINALS, CONSTANTS, FUNCTIONS)
+            if fn_name == 'add':      return left + right
+            if fn_name == 'subtract': return left - right
+            if fn_name == 'multiply': return left * right
+            if fn_name == 'divide':   return left / right  # protected div → div for sympy
+        elif arity == 1:
+            child = _gp_tree_to_sympy(repr_[1], TERMINALS, CONSTANTS, FUNCTIONS)
+            return child  # fallback: treat unknown unary as identity
+    elif repr_ in TERMINALS:
+        return sp.Symbol(repr_)
+    elif repr_ in CONSTANTS:
+        val = CONSTANTS[repr_](0)
+        return sp.Float(float(val.item()))
+    return sp.Float(0.0)
+
+
+def _variator_to_sympy(variator, tree_exprs, ms_val):
+    """Convert a SLIM variator + its sub-tree SymPy exprs into one SymPy expression."""
+    import sympy as sp
+    name = variator.__name__
+    ms = sp.Float(ms_val)
+
+    if 'tt_delta_normalized' in name:
+        alpha = sp.Float(float(getattr(variator, 'alpha', 1.0)))
+        diff = tree_exprs[0] - tree_exprs[1]
+        term = ms * alpha * diff
+        return term if 'sum' in name else 1 + term
+
+    if 'ot_delta_normalized' in name:
+        t_min   = sp.Float(float(getattr(variator, 't_min',   0.0)))
+        t_range = sp.Float(float(getattr(variator, 't_range', 1.0)))
+        t = tree_exprs[0]
+        normalised = 2 * (t - t_min) / t_range - 1
+        term = ms * normalised
+        return term if 'sum' in name else 1 + term
+
+    # Two-tree sigmoid variants: trees were generated with logistic=True
+    if name in ('tt_delta_sum', 'tt_delta_mul'):
+        sig = lambda x: 1 / (1 + sp.exp(-x))
+        term = ms * (sig(tree_exprs[0]) - sig(tree_exprs[1]))
+        return term if name == 'tt_delta_sum' else 1 + term
+
+    # One-tree sigmoid variant
+    if name in ('ot_delta_sum_True', 'ot_delta_mul_True'):
+        sig = 1 / (1 + sp.exp(-tree_exprs[0]))
+        term = ms * (2 * sig - 1)
+        return term if 'sum' in name else 1 + term
+
+    # One-tree ABS variant
+    if name in ('ot_delta_sum_False', 'ot_delta_mul_False'):
+        t = tree_exprs[0]
+        term = ms * (1 - 2 / (1 + sp.Abs(t)))
+        return term if 'sum' in name else 1 + term
+
+    return sp.Float(0.0)  # unknown variator fallback
+
+
+def slim_individual_to_sympy(individual, FUNCTIONS, TERMINALS, CONSTANTS, operator):
+    """Convert a SLIM Individual into a single SymPy expression."""
+    import sympy as sp
+    block_exprs = []
+    for block in individual.collection:
+        if isinstance(block.structure, tuple):
+            expr = _gp_tree_to_sympy(block.structure, TERMINALS, CONSTANTS, FUNCTIONS)
+        else:
+            variator = block.structure[0]
+            sub_trees = [t for t in block.structure[1:] if isinstance(t, Tree)]
+            ms_scalars = [t for t in block.structure[1:] if not isinstance(t, Tree)]
+            ms_val = float(ms_scalars[0]) if ms_scalars else 1.0
+            tree_exprs = [_gp_tree_to_sympy(t.structure, TERMINALS, CONSTANTS, FUNCTIONS)
+                         for t in sub_trees]
+            expr = _variator_to_sympy(variator, tree_exprs, ms_val)
+        block_exprs.append(expr)
+
+    return sp.Add(*block_exprs) if operator == 'sum' else sp.Mul(*block_exprs)
+
+
+def _sympy_ell_no(expr):
+    """Compute (ell, no) for a SymPy expression using M_phi node-counting conventions.
+
+    n-ary Add/Mul with k args is counted as k-1 binary ops (following GP tradition).
+    Unary functions count as 1 op.
+    """
+    if expr.is_Atom:
+        return 1, 0
+    n_args = len(expr.args)
+    if n_args == 0:
+        return 1, 0
+    child_ells, child_nos = zip(*[_sympy_ell_no(a) for a in expr.args])
+    s_ell = sum(child_ells)
+    s_no  = sum(child_nos)
+    if n_args == 1:           # unary (exp, Abs, …)
+        return 1 + s_ell, 1 + s_no
+    ops_here = n_args - 1     # binary expansion of n-ary ops
+    return ops_here + s_ell, ops_here + s_no
+
+
+def _sympy_nnao(expr):
+    """Count non-arithmetic op nodes (exp / sigmoid) in a SymPy expression."""
+    import sympy as sp
+    if expr.is_Atom:
+        return 0
+    is_nnao = 1 if expr.func is sp.exp else 0
+    return is_nnao + sum(_sympy_nnao(a) for a in expr.args)
+
+
+def sympy_m_phi(expr):
+    """Compute M_phi components from a SymPy expression.
+
+    Returns (m_phi, ell, no, nnao, nnaoc).
+    """
+    ell, no = _sympy_ell_no(expr)
+    nnao    = _sympy_nnao(expr)
+    nnaoc   = 1 if nnao > 0 else 0
+    m_phi   = 79.1 - 0.2 * ell - 0.5 * no - 3.4 * nnao - 4.5 * nnaoc
+    return m_phi, ell, no, nnao, nnaoc
+
+
 def add_noise_to_random_columns(X, num_columns=1, noise_std=1.0):
     """
     Adds num_columns noisy copies of random columns from the input tensor X.

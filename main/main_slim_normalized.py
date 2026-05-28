@@ -136,17 +136,18 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
     }
 
     solve_params = {
-        "elitism":    True,
-        "log":        8,
-        "verbose":    0,
-        "test_elite": True,
-        "log_path":   tmp_log,
-        "run_info":   [variant["name"], run_id_str, dataset],
-        "ffunction":  rmse,
-        "n_iter":     2000,
-        "max_depth":  None,
-        "n_elites":   1,
-        "reconstruct": True,
+        "elitism":       True,
+        "log":           8,
+        "verbose":       0,
+        "test_elite":    True,
+        "log_path":      tmp_log,
+        "run_info":      [variant["name"], run_id_str, dataset],
+        "ffunction":     rmse,
+        "n_iter":        2000,
+        "max_depth":     None,
+        "n_elites":      1,
+        "reconstruct":   True,
+        "simplify_elite": True,
     }
 
     optimizer = SLIM_GSGP(pi_init=pi_init, **slim_params, seed=seed)

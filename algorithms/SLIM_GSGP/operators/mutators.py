@@ -19,6 +19,7 @@ def two_trees_delta_normalized(operator='sum', alpha=1.0):
         else:
             return torch.add(1, torch.mul(ms, scaled))
     tt_delta_normalized.__name__ += ('_' + operator)
+    tt_delta_normalized.alpha = float(alpha)   # stored for SymPy conversion
     return tt_delta_normalized
 
 
@@ -35,6 +36,8 @@ def one_tree_delta_normalized(operator='sum', t_min=0.0, t_range=1.0):
         else:
             return torch.add(1, torch.mul(ms, normalized))
     ot_delta_normalized.__name__ += ('_' + operator)
+    ot_delta_normalized.t_min   = float(t_min)    # stored for SymPy conversion
+    ot_delta_normalized.t_range = float(t_range)  # stored for SymPy conversion
     return ot_delta_normalized
 
 
