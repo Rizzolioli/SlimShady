@@ -77,7 +77,9 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
     }
 
     variant = VARIANTS[variant_idx]
-    tmp_log = os.path.join(log_dir, f"tmp_{_uuid.uuid4().hex}.csv")
+    _hex = _uuid.uuid4().hex
+    tmp_log      = os.path.join(log_dir, f"tmp_gen_{_hex}.csv")
+    tmp_simp_log = os.path.join(log_dir, f"tmp_simp_{_hex}.csv")
 
     X_train, y_train = load_preloaded(dataset, seed=seed + 1, training=True,  X_y=True)
     X_test,  y_test  = load_preloaded(dataset, seed=seed + 1, training=False, X_y=True)
@@ -147,7 +149,8 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
         "max_depth":     None,
         "n_elites":      1,
         "reconstruct":   True,
-        "simplify_elite": True,
+        "simplify_elite":    True,
+        "simplify_log_path": tmp_simp_log,
     }
 
     optimizer = SLIM_GSGP(pi_init=pi_init, **slim_params, seed=seed)
@@ -158,7 +161,7 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
         **solve_params,
     )
 
-    return tmp_log
+    return tmp_log, tmp_simp_log
 
 
 ########################################################################################################################
@@ -183,24 +186,32 @@ if __name__ == "__main__":
 
     t0 = time.time()
     completed = 0
-    tmp_files = []
+    tmp_gen_files  = []
+    tmp_simp_files = []
 
     with multiprocessing.Pool(processes=N_WORKERS) as pool:
-        for tmp_path in pool.starmap(run_experiment_worker, tasks):
-            tmp_files.append(tmp_path)
+        for tmp_gen, tmp_simp in pool.starmap(run_experiment_worker, tasks):
+            tmp_gen_files.append(tmp_gen)
+            tmp_simp_files.append(tmp_simp)
             completed += 1
             if completed % 10 == 0 or completed == total:
                 elapsed = time.time() - t0
                 print(f"  {completed}/{total} done  ({elapsed/60:.1f} min elapsed)")
 
-    # Merge temp files into a single results CSV
-    final_log = os.path.join(log_dir, f"results_normalized_{unique_run_id}.csv")
-    with open(final_log, "w", newline="") as outf:
-        for fname in tmp_files:
+    # Merge generation logs (no header, same schema as log=8)
+    final_gen_log = os.path.join(log_dir, f"results_normalized_{unique_run_id}.csv")
+    with open(final_gen_log, "w", newline="") as outf:
+        for fname in tmp_gen_files:
             if os.path.exists(fname):
                 with open(fname, "r") as inf:
                     outf.write(inf.read())
                 os.remove(fname)
 
+    # Merge simplification logs (adds header once)
+    from utils.logger import merge_simplification_logs
+    final_simp_log = os.path.join(log_dir, f"results_simplified_{unique_run_id}.csv")
+    merge_simplification_logs(tmp_simp_files, final_simp_log)
+
     print(f"\nAll done in {(time.time()-t0)/60:.1f} min")
-    print(f"Results → {final_log}")
+    print(f"Generation log → {final_gen_log}")
+    print(f"Simplification → {final_simp_log}")

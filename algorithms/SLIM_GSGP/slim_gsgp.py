@@ -5,7 +5,7 @@ import numpy as np
 
 from utils.TIE import calculate_tie
 from utils.utils import verbose_reporter, compute_m_phi, slim_individual_to_sympy, sympy_m_phi
-from utils.logger import logger
+from utils.logger import logger, log_simplification
 from evaluators.fitness_functions import mae, r2
 from algorithms.SLIM_GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
@@ -57,7 +57,8 @@ class SLIM_GSGP:
               gp_imputing_missing_values = False, #only for missing values study
               terminal_prob_distr = False,
               coefficient_terminal_prob = 0,
-              simplify_elite = False,  # if True, run SymPy simplification at end & log row at gen n_iter+1
+              simplify_elite = False,     # if True, run SymPy simplification after evolution
+              simplify_log_path = None,  # path to the dedicated simplification CSV
               ):
 
 
@@ -569,7 +570,7 @@ class SLIM_GSGP:
                                          self.elite.nodes_count)
 
         # ── Post-evolution symbolic simplification ────────────────────────
-        if simplify_elite and log_path is not None and reconstruct:
+        if simplify_elite and simplify_log_path is not None and reconstruct:
             import sympy as sp
             from concurrent.futures import ThreadPoolExecutor, TimeoutError as _FuturesTimeout
 
@@ -604,15 +605,15 @@ class SLIM_GSGP:
             except Exception:
                 pass
 
-            simp_add_info = [
-                float(self.elite.test_fitness),
-                int(ell_b),    float(m_phi_b), int(no_b),  int(nnao_b),  int(nnaoc_b),
-                int(ell_a),    float(m_phi_a), int(no_a),  int(nnao_a),  int(nnaoc_a),
-                int(simplified_ok),
-                float(mae(y_test, _y_pred)),
-                float(r2(y_test, _y_pred)),
-                'simp',
-            ]
-            logger(log_path, n_iter + 1, self.elite.fitness, simp_time,
-                   float(population.nodes_count),
-                   additional_infos=simp_add_info, run_info=run_info, seed=self.seed)
+            log_simplification(
+                path=simplify_log_path,
+                run_info=run_info,
+                seed=self.seed,
+                before_metrics=(ell_b, m_phi_b, no_b, nnao_b, nnaoc_b),
+                after_metrics=(ell_a, m_phi_a, no_a, nnao_a, nnaoc_a),
+                simplified_ok=simplified_ok,
+                simp_time=simp_time,
+                test_rmse=float(self.elite.test_fitness),
+                test_mae=float(mae(y_test, _y_pred)),
+                test_r2=float(r2(y_test, _y_pred)),
+            )

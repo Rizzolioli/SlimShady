@@ -1,4 +1,5 @@
 import csv
+import os
 from copy import copy
 import pandas as pd
 
@@ -65,6 +66,55 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
             infos.extend(additional_infos)
 
         writer.writerow(infos)
+
+def log_simplification(path, run_info, seed,
+                       before_metrics, after_metrics,
+                       simplified_ok, simp_time,
+                       test_rmse, test_mae, test_r2):
+    """Append one simplification-summary row to a dedicated CSV.
+
+    Columns (no header written here; caller handles header at merge time):
+      algo, run_id, dataset, seed,
+      ell_before, m_phi_before, no_before, nnao_before, nnaoc_before,
+      ell_after,  m_phi_after,  no_after,  nnao_after,  nnaoc_after,
+      simplified_ok, simp_time_s, test_rmse, test_mae, test_r2
+    """
+    ell_b, m_phi_b, no_b, nnao_b, nnaoc_b = before_metrics
+    ell_a, m_phi_a, no_a, nnao_a, nnaoc_a = after_metrics
+    row = [
+        *run_info,
+        seed,
+        int(ell_b),   float(m_phi_b), int(no_b),  int(nnao_b),  int(nnaoc_b),
+        int(ell_a),   float(m_phi_a), int(no_a),  int(nnao_a),  int(nnaoc_a),
+        int(simplified_ok),
+        float(simp_time),
+        float(test_rmse), float(test_mae), float(test_r2),
+    ]
+    with open(path, 'a', newline='') as f:
+        csv.writer(f).writerow(row)
+
+
+_SIMP_HEADER = [
+    'algo', 'run_id', 'dataset', 'seed',
+    'ell_before', 'm_phi_before', 'no_before', 'nnao_before', 'nnaoc_before',
+    'ell_after',  'm_phi_after',  'no_after',  'nnao_after',  'nnaoc_after',
+    'simplified_ok', 'simp_time_s',
+    'test_rmse', 'test_mae', 'test_r2',
+]
+
+
+def merge_simplification_logs(tmp_paths, final_path):
+    """Concatenate temp simplification CSVs into one file with a single header."""
+    with open(final_path, 'w', newline='') as out:
+        writer = csv.writer(out)
+        writer.writerow(_SIMP_HEADER)
+        for p in tmp_paths:
+            if not p or not os.path.exists(p):
+                continue
+            with open(p, 'r', newline='') as inp:
+                out.write(inp.read())
+            os.remove(p)
+
 
 def drop_experiment_from_logger(experiment_id, log_path):
 
