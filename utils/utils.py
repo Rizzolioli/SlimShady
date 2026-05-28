@@ -410,6 +410,73 @@ def add_noise(X, n):
 
     return X_new
 
+def _count_tree_ops(repr_):
+    """Count function (operation) nodes in a GP tree tuple representation."""
+    if isinstance(repr_, tuple):
+        return 1 + sum(_count_tree_ops(child) for child in repr_[1:])
+    return 0
+
+
+# Extra *total* ops (arith + non-arith) contributed by each variator's wrapper formula,
+# beyond the sub-tree node counts.
+_NO_EXTRA = {
+    'tt_delta_sum':             4,
+    'tt_delta_mul':             5,
+    'ot_delta_sum_True':        4,
+    'ot_delta_mul_True':        5,
+    'ot_delta_sum_False':       5,
+    'ot_delta_mul_False':       6,
+    'tt_delta_normalized_sum':  3,
+    'tt_delta_normalized_mul':  4,
+    'ot_delta_normalized_sum':  5,
+    'ot_delta_normalized_mul':  6,
+}
+
+# Non-arithmetic ops (sigmoids) contributed by each variator.
+_NNAO_EXTRA = {
+    'tt_delta_sum':             2,
+    'tt_delta_mul':             2,
+    'ot_delta_sum_True':        1,
+    'ot_delta_mul_True':        1,
+    'ot_delta_sum_False':       0,
+    'ot_delta_mul_False':       0,
+    'tt_delta_normalized_sum':  0,
+    'tt_delta_normalized_mul':  0,
+    'ot_delta_normalized_sum':  0,
+    'ot_delta_normalized_mul':  0,
+}
+
+
+def compute_m_phi(individual, FUNCTIONS):
+    """Compute M_phi interpretability metric for a SLIM individual.
+
+    M_phi = 79.1 - 0.2*ell - 0.5*no - 3.4*nnao - 4.5*nnaoc
+    where ell = total nodes, no = operations, nnao = non-arithmetic ops,
+    nnaoc = max consecutive non-arithmetic ops (0 or 1 in standard SLIM).
+
+    Returns (m_phi, ell, no, nnao, nnaoc).
+    """
+    ell = individual.nodes_count
+    no = 0
+    nnao = 0
+
+    for block in individual.collection:
+        if isinstance(block.structure, tuple):
+            no += _count_tree_ops(block.structure)
+        else:
+            variator_name = block.structure[0].__name__
+            for t in block.structure[1:]:
+                if isinstance(t, Tree) and isinstance(t.structure, tuple):
+                    no += _count_tree_ops(t.structure)
+            no   += _NO_EXTRA.get(variator_name, 0)
+            nnao += _NNAO_EXTRA.get(variator_name, 0)
+
+    no += individual.size - 1  # combining operators between blocks
+    nnaoc = 1 if nnao > 0 else 0
+    m_phi = 79.1 - 0.2 * ell - 0.5 * no - 3.4 * nnao - 4.5 * nnaoc
+    return m_phi, ell, no, nnao, nnaoc
+
+
 def add_noise_to_random_columns(X, num_columns=1, noise_std=1.0):
     """
     Adds num_columns noisy copies of random columns from the input tensor X.

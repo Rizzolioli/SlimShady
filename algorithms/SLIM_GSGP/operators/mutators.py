@@ -8,6 +8,36 @@ from utils.utils import get_random_tree, consecutive_final_indexes
 import numpy as np
 
 
+def two_trees_delta_normalized(operator='sum', alpha=1.0):
+    """NORM2 variator: ms * alpha * (Tr1 - Tr2), alpha fixed from training diff."""
+    def tt_delta_normalized(tr1, tr2, ms, testing):
+        diff = torch.sub(tr1.test_semantics, tr2.test_semantics) if testing \
+               else torch.sub(tr1.train_semantics, tr2.train_semantics)
+        scaled = torch.mul(alpha, diff)
+        if operator == 'sum':
+            return torch.mul(ms, scaled)
+        else:
+            return torch.add(1, torch.mul(ms, scaled))
+    tt_delta_normalized.__name__ += ('_' + operator)
+    return tt_delta_normalized
+
+
+def one_tree_delta_normalized(operator='sum', t_min=0.0, t_range=1.0):
+    """NORM1 variator: ms * (2*(T - t_min)/t_range - 1), bounds fixed from training."""
+    def ot_delta_normalized(tr1, ms, testing):
+        t = tr1.test_semantics if testing else tr1.train_semantics
+        normalized = torch.sub(
+            torch.div(torch.mul(2.0, torch.sub(t, t_min)), t_range),
+            1.0
+        )
+        if operator == 'sum':
+            return torch.mul(ms, normalized)
+        else:
+            return torch.add(1, torch.mul(ms, normalized))
+    ot_delta_normalized.__name__ += ('_' + operator)
+    return ot_delta_normalized
+
+
 def two_trees_delta(operator='sum'):
     def tt_delta(tr1, tr2, ms, testing):
 
@@ -122,6 +152,111 @@ def inflate_mutation(FUNCTIONS, TERMINALS, CONSTANTS, two_trees=True, operator='
         offs.depth = max([depth - (i - 1) if i != 0 else depth
                           for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
 
+        return offs
+
+    return inflate
+
+
+def inflate_mutation_normalized(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum'):
+    """NORM2: two raw trees, alpha-scaled difference. Alpha computed on training."""
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1,
+                reconstruct=True, terminals_probabilities=None):
+        random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                       grow_probability=grow_probability, logistic=False,
+                                       terminals_probabilities=terminals_probabilities)
+        random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                       grow_probability=grow_probability, logistic=False,
+                                       terminals_probabilities=terminals_probabilities)
+        random_trees = [random_tree1, random_tree2]
+
+        if X_test is not None:
+            [rt.calculate_semantics(X_test, testing=True, logistic=False) for rt in random_trees]
+
+        diff_train = torch.sub(random_tree1.train_semantics, random_tree2.train_semantics)
+        abs_min = torch.abs(diff_train.min())
+        max_val = diff_train.max()
+        scale = torch.max(abs_min, max_val).item()
+        alpha = torch.tensor(1.0 / scale if scale != 0.0 else 1.0,
+                             dtype=diff_train.dtype)
+
+        variator = two_trees_delta_normalized(operator=operator, alpha=alpha)
+        new_block = Tree(
+            structure=[variator, *random_trees, ms],
+            train_semantics=variator(*random_trees, ms, testing=False),
+            test_semantics=variator(*random_trees, ms, testing=True) if X_test is not None else None,
+            reconstruct=True
+        )
+
+        offs = Individual(
+            collection=[*individual.collection, new_block] if reconstruct else None,
+            train_semantics=torch.stack([*individual.train_semantics,
+                                         (new_block.train_semantics
+                                          if new_block.train_semantics.shape != torch.Size([])
+                                          else new_block.train_semantics.repeat(len(X)))]),
+            test_semantics=(torch.stack([*individual.test_semantics,
+                                          (new_block.test_semantics
+                                           if new_block.test_semantics.shape != torch.Size([])
+                                           else new_block.test_semantics.repeat(len(X_test)))])
+                             if X_test is not None else None),
+            reconstruct=reconstruct
+        )
+
+        offs.size = individual.size + 1
+        offs.nodes_collection = [*individual.nodes_collection, new_block.nodes]
+        offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
+        offs.depth_collection = [*individual.depth_collection, new_block.depth]
+        offs.depth = max([depth - (i - 1) if i != 0 else depth
+                          for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
+        return offs
+
+    return inflate
+
+
+def inflate_mutation_norm1(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum'):
+    """NORM1: single raw tree, min-max normalized to [-1,1] on training."""
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1,
+                reconstruct=True, terminals_probabilities=None):
+        random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                       grow_probability=grow_probability, logistic=False,
+                                       terminals_probabilities=terminals_probabilities)
+        random_trees = [random_tree1]
+
+        if X_test is not None:
+            [rt.calculate_semantics(X_test, testing=True, logistic=False) for rt in random_trees]
+
+        t_train = random_tree1.train_semantics
+        t_min = t_train.min().item()
+        t_max = t_train.max().item()
+        t_range = max(t_max - t_min, 1e-8)
+
+        variator = one_tree_delta_normalized(operator=operator, t_min=t_min, t_range=t_range)
+        new_block = Tree(
+            structure=[variator, random_tree1, ms],
+            train_semantics=variator(random_tree1, ms, testing=False),
+            test_semantics=variator(random_tree1, ms, testing=True) if X_test is not None else None,
+            reconstruct=True
+        )
+
+        offs = Individual(
+            collection=[*individual.collection, new_block] if reconstruct else None,
+            train_semantics=torch.stack([*individual.train_semantics,
+                                         (new_block.train_semantics
+                                          if new_block.train_semantics.shape != torch.Size([])
+                                          else new_block.train_semantics.repeat(len(X)))]),
+            test_semantics=(torch.stack([*individual.test_semantics,
+                                          (new_block.test_semantics
+                                           if new_block.test_semantics.shape != torch.Size([])
+                                           else new_block.test_semantics.repeat(len(X_test)))])
+                             if X_test is not None else None),
+            reconstruct=reconstruct
+        )
+
+        offs.size = individual.size + 1
+        offs.nodes_collection = [*individual.nodes_collection, new_block.nodes]
+        offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
+        offs.depth_collection = [*individual.depth_collection, new_block.depth]
+        offs.depth = max([depth - (i - 1) if i != 0 else depth
+                          for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
         return offs
 
     return inflate

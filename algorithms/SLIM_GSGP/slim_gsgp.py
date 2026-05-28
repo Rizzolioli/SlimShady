@@ -4,8 +4,9 @@ import torch
 import numpy as np
 
 from utils.TIE import calculate_tie
-from utils.utils import verbose_reporter
+from utils.utils import verbose_reporter, compute_m_phi
 from utils.logger import logger
+from evaluators.fitness_functions import mae, r2
 from algorithms.SLIM_GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.GP.representations.tree import Tree as GP_Tree
@@ -222,6 +223,21 @@ class SLIM_GSGP:
             elif log == 7:
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, self.elite.get_tree_representation(), log]
+
+            elif log == 8:
+
+                _op_fn = torch.sum if self.operator == 'sum' else torch.prod
+                _y_pred = torch.clamp(_op_fn(self.elite.test_semantics, dim=0), -1e12, 1e12)
+                _m_phi, _ell, _no, _nnao, _nnaoc = compute_m_phi(self.elite, self.pi_init['FUNCTIONS'])
+                add_info = [
+                    float(self.elite.test_fitness),
+                    int(self.elite.nodes_count),
+                    float(_m_phi),
+                    int(_no), int(_nnao), int(_nnaoc),
+                    float(mae(y_test, _y_pred)),
+                    float(r2(y_test, _y_pred)),
+                    log,
+                ]
 
             else:
 
@@ -522,6 +538,21 @@ class SLIM_GSGP:
                                 tie_inflate, diff_sn_inflate, size_sn_inflate,
                                 tie_deflate, diff_sn_deflate, size_sn_deflate,
                                 tie_mb_deflate, diff_sn_mb_deflate, size_sn_mb_deflate]
+
+                elif log == 8:
+
+                    _op_fn = torch.sum if self.operator == 'sum' else torch.prod
+                    _y_pred = torch.clamp(_op_fn(self.elite.test_semantics, dim=0), -1e12, 1e12)
+                    _m_phi, _ell, _no, _nnao, _nnaoc = compute_m_phi(self.elite, self.pi_init['FUNCTIONS'])
+                    add_info = [
+                        float(self.elite.test_fitness),
+                        int(self.elite.nodes_count),
+                        float(_m_phi),
+                        int(_no), int(_nnao), int(_nnaoc),
+                        float(mae(y_test, _y_pred)),
+                        float(r2(y_test, _y_pred)),
+                        log,
+                    ]
 
                 else:
 
