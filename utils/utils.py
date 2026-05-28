@@ -463,13 +463,15 @@ def compute_m_phi(individual, FUNCTIONS):
     for block in individual.collection:
         if isinstance(block.structure, tuple):
             no += _count_tree_ops(block.structure)
-        else:
+        elif isinstance(block.structure, list):
+            # Mutation block: structure[0] is the variator function
             variator_name = block.structure[0].__name__
             for t in block.structure[1:]:
                 if isinstance(t, Tree) and isinstance(t.structure, tuple):
                     no += _count_tree_ops(t.structure)
             no   += _NO_EXTRA.get(variator_name, 0)
             nnao += _NNAO_EXTRA.get(variator_name, 0)
+        # else: terminal string — contributes 0 ops
 
     no += individual.size - 1  # combining operators between blocks
     nnaoc = 1 if nnao > 0 else 0

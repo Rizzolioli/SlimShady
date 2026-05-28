@@ -90,6 +90,7 @@ def _make_tiny_setup():
     from utils.utils import protected_div
     from algorithms.GP.operators.initializers import rhh
     from algorithms.GSGP.representations.tree import Tree
+    from algorithms.GP.representations.tree import Tree as GP_Tree
     from algorithms.SLIM_GSGP.representations.individual import Individual
 
     FUNCTIONS = {
@@ -103,9 +104,13 @@ def _make_tiny_setup():
         'constant_2': lambda x: torch.tensor(2.0),
         'constant__1': lambda x: torch.tensor(-1.0),
     }
-    Tree.FUNCTIONS = FUNCTIONS
-    Tree.TERMINALS = TERMINALS
-    Tree.CONSTANTS = CONSTANTS
+    # Both Tree classes must share FUNCTIONS/TERMINALS/CONSTANTS (mirrors SLIM_GSGP.__init__)
+    Tree.FUNCTIONS    = FUNCTIONS
+    Tree.TERMINALS    = TERMINALS
+    Tree.CONSTANTS    = CONSTANTS
+    GP_Tree.FUNCTIONS = FUNCTIONS
+    GP_Tree.TERMINALS = TERMINALS
+    GP_Tree.CONSTANTS = CONSTANTS
 
     torch.manual_seed(0)
     X_train = torch.randn(20, 2)

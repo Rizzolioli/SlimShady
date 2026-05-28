@@ -22,12 +22,17 @@ class Tree:
         if isinstance(structure, tuple):
             self.depth = tree_depth(Tree.FUNCTIONS)(structure)
             self.nodes = len(list(flatten(structure)))
-        elif reconstruct:
+        elif isinstance(structure, list) and reconstruct:
+            # Mutation / crossover block: structure[0] is the variator function
             self.depth = nested_depth_calculator(self.structure[0],
                                                   [tree.depth for tree in self.structure[1:] if isinstance(tree, Tree)])
             # operator_nodes = [5, self.structure[-1].nodes] if self.structure[0].__name__ == 'geometric_crossover' else [4]
             self.nodes = nested_nodes_calculator(self.structure[0],
                                                  [tree.nodes for tree in self.structure[1:] if isinstance(tree, Tree)])
+        elif reconstruct:
+            # Terminal node (plain string) — depth and node count are both 1
+            self.depth = 1
+            self.nodes = 1
 
 
 
