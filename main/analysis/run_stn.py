@@ -8,11 +8,16 @@ Steps
 2. stn_build : build genotype / hypercube / clustering STN graphs → .pkl
 3. stn_plot  : render combined PNG figures for each layout
 
+Prep and build run sequentially (they share the same log CSV and write to
+shared folders). Plot runs in parallel across benchmarks — each benchmark's
+figures are fully independent.
+
 Edit the CONFIG block below before running.
 """
 
 import os
 import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(_HERE, "..", ".."))
@@ -27,15 +32,12 @@ PLOT_ROOT  = os.path.join(_HERE, "..", "log", "figs", "stns")
 BENCHMARKS = ["toxicity", "concrete", "instanbul", "ppb",
               "resid_build_sale_price", "energy"]
 
-NRUNS       = 5     # seeds 0..4 → Run 1..5
-N_CLUSTERS  = 50
+NRUNS      = 5    # seeds 0..4 → Run 1..5
+N_CLUSTERS = 50
+N_WORKERS  = min(6, len(BENCHMARKS))   # one worker per benchmark at most
 
-# Layout combinations to plot: (layout, node_size, x_attr, y_attr)
-PLOT_CONFIGS = [
-    ("stress",  "tree",  "TreeSize", "Fitness"),
-    ("fitness", "tree",  "TreeSize", "Fitness"),
-    ("bivar",   "tree",  "TreeSize", "Fitness"),
-]
+# Layouts to plot (node_sizes 'tree' + 'node' produced for each)
+LAYOUTS = ["stress", "fitness"]   # bivar handled separately (split by model)
 
 # ── IMPORTS ───────────────────────────────────────────────────────────────────
 
@@ -43,21 +45,56 @@ from stn_prep  import prep_stn_data
 from stn_build import process_folder
 from stn_plot  import combined_plot
 
-# ── PIPELINE ─────────────────────────────────────────────────────────────────
+# ── HELPERS ───────────────────────────────────────────────────────────────────
 
 def _banner(step, benchmark):
     print(f"\n{'='*60}")
     print(f"  [{step}]  {benchmark}")
-    print(f"{'='*60}")
+    print(f"{'='*60}", flush=True)
 
+
+def _plot_benchmark(benchmark):
+    """Plot all layouts for one benchmark (runs in a worker process)."""
+    for layout in LAYOUTS:
+        combined_plot(benchmark,
+                      stn_root=STN_ROOT,
+                      plot_root=PLOT_ROOT,
+                      layout=layout,
+                      node_sizes=('tree', 'node'),
+                      ncols=3,
+                      x_attr='TreeSize',
+                      y_attr='Fitness')
+
+    # bivar: genotype + hypercube → TreeSize vs Fitness
+    combined_plot(benchmark,
+                  stn_root=STN_ROOT,
+                  plot_root=PLOT_ROOT,
+                  layout='bivar',
+                  node_sizes=('tree', 'node'),
+                  ncols=2,
+                  x_attr='TreeSize',
+                  y_attr='Fitness',
+                  models=('genotype', 'hypercube'))
+
+    # bivar: clustering → ClusterID vs Fitness
+    combined_plot(benchmark,
+                  stn_root=STN_ROOT,
+                  plot_root=PLOT_ROOT,
+                  layout='bivar',
+                  node_sizes=('tree', 'node'),
+                  ncols=1,
+                  x_attr='ClusterID',
+                  y_attr='Fitness',
+                  models=('clustering',))
+
+    return benchmark
+
+# ── STEP 1 + 2: Prep & Build (sequential — shared I/O) ───────────────────────
 
 for benchmark in BENCHMARKS:
-
-    # ── Step 1: Prep ─────────────────────────────────────────────────────────
     _banner("PREP", benchmark)
     prep_stn_data(LOG_CSV, benchmark, out_root=DATA_ROOT, nruns=NRUNS)
 
-    # ── Step 2: Build ────────────────────────────────────────────────────────
     _banner("BUILD", benchmark)
     process_folder(benchmark,
                    data_root=DATA_ROOT,
@@ -66,16 +103,20 @@ for benchmark in BENCHMARKS:
                    n_clusters=N_CLUSTERS,
                    build_clustering=True)
 
-    # ── Step 3: Plot ─────────────────────────────────────────────────────────
-    _banner("PLOT", benchmark)
-    for layout, node_size, x_attr, y_attr in PLOT_CONFIGS:
-        combined_plot(benchmark,
-                      stn_root=STN_ROOT,
-                      plot_root=PLOT_ROOT,
-                      layout=layout,
-                      node_size=node_size,
-                      ncols=3,
-                      x_attr=x_attr,
-                      y_attr=y_attr)
+# ── STEP 3: Plot (parallel across benchmarks) ─────────────────────────────────
+
+print(f"\n{'='*60}")
+print(f"  [PLOT]  launching {N_WORKERS} workers for {len(BENCHMARKS)} benchmarks")
+print(f"{'='*60}", flush=True)
+
+with ProcessPoolExecutor(max_workers=N_WORKERS) as pool:
+    futures = {pool.submit(_plot_benchmark, b): b for b in BENCHMARKS}
+    for fut in as_completed(futures):
+        b = futures[fut]
+        try:
+            fut.result()
+            print(f"  [PLOT]  {b} done", flush=True)
+        except Exception as exc:
+            print(f"  [PLOT]  {b} FAILED: {exc}", flush=True)
 
 print("\nAll benchmarks done.")

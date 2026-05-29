@@ -43,24 +43,30 @@ EDGE_ALPHA   = 0.50
 NSIZE_RANGE  = (25,  250)   # matplotlib scatter: point² area
 EWIDTH_RANGE = (0.3, 2.5)
 FSIZE        = 11           # base font size for axes/titles
+KK_THRESHOLD = 300          # nodes above this fall back to spring_layout
 
 
 # ── LAYOUT ────────────────────────────────────────────────────────────────────
+
+def _kk_or_spring(G: nx.DiGraph) -> dict:
+    """Kamada-Kawai for small graphs, spring for large ones."""
+    if G.number_of_nodes() <= KK_THRESHOLD:
+        try:
+            return nx.kamada_kawai_layout(G)
+        except Exception:
+            pass
+    return nx.spring_layout(G, seed=42)
+
 
 def _get_layout(G: nx.DiGraph, kind: str,
                 x_attr: str = 'TreeSize', y_attr: str = 'Fitness') -> dict:
     """Return {node: (x, y)} position dict."""
     if kind in ('stress', 'kk'):
-        try:
-            return nx.kamada_kawai_layout(G)
-        except Exception:
-            return nx.spring_layout(G, seed=42)
+        return _kk_or_spring(G)
 
     if kind == 'fitness':
-        try:
-            base = nx.kamada_kawai_layout(G)
-        except Exception:
-            base = nx.spring_layout(G, seed=42)
+        # x is hidden; always use spring to avoid slow KK on large graphs
+        base = nx.spring_layout(G, seed=42)
         fits = nx.get_node_attributes(G, 'Fitness')
         return {n: (base[n][0], fits[n]) for n in G.nodes()}
 
@@ -98,7 +104,8 @@ def plot_stn(ax: plt.Axes,
              x_attr:         str   = 'TreeSize',
              y_attr:         str   = 'Fitness',
              x_limits:       tuple = None,
-             y_limits:       tuple = None):
+             y_limits:       tuple = None,
+             pos:            dict  = None):
     """
     Draw one STN panel onto `ax`.
 
@@ -114,7 +121,8 @@ def plot_stn(ax: plt.Axes,
         ax.axis('off')
         return
 
-    pos = _get_layout(G, layout, x_attr=x_attr, y_attr=y_attr)
+    if pos is None:
+        pos = _get_layout(G, layout, x_attr=x_attr, y_attr=y_attr)
 
     # ── Edges ─────────────────────────────────────────────────────────────────
     ecounts = [d['Count'] for _, _, d in G.edges(data=True)]
@@ -182,30 +190,34 @@ def plot_stn(ax: plt.Axes,
 # ── COMBINED FIGURE ───────────────────────────────────────────────────────────
 
 def combined_plot(benchmark:  str,
-                  stn_root:   str = "stns",
-                  plot_root:  str = "plots",
-                  layout:     str = 'stress',
-                  node_size:  str = 'tree',
-                  ncols:      int = 3,
-                  x_attr:     str = 'TreeSize',
-                  y_attr:     str = 'Fitness'):
+                  stn_root:   str   = "stns",
+                  plot_root:  str   = "plots",
+                  layout:     str   = 'stress',
+                  node_sizes: tuple = ('tree', 'node'),
+                  ncols:      int   = 3,
+                  x_attr:     str   = 'TreeSize',
+                  y_attr:     str   = 'Fitness',
+                  models:     tuple = ('genotype', 'hypercube', 'clustering')):
     """
-    Load all STN pickle files for `benchmark` and produce one combined PNG.
+    Load all STN pickle files for `benchmark` and produce one combined PNG per
+    node_size variant. Layouts are computed once and reused across variants.
 
     Parameters
     ----------
-    layout      'stress' | 'kk' | 'fitness'
-    node_size   'tree'  → size encodes TreeSize
-                'node'  → size encodes visit Count
+    layout      'stress' | 'kk' | 'fitness' | 'bivar'
+    node_sizes  tuple of size encodings to produce: 'tree' and/or 'node'
     ncols       number of columns in the grid
+    models      which STN models to include: any subset of
+                ('genotype', 'hypercube', 'clustering')
     """
     infolder  = os.path.join(stn_root,  benchmark)
     outfolder = os.path.join(plot_root, benchmark)
     os.makedirs(outfolder, exist_ok=True)
 
-    pkls = sorted(f for f in os.listdir(infolder) if f.endswith('.pkl'))
+    pkls = sorted(f for f in os.listdir(infolder)
+                  if f.endswith('.pkl') and any(m in f for m in models))
     if not pkls:
-        print(f"No STN pickle files in {infolder}")
+        print(f"No STN pickle files in {infolder} for models={models}")
         return
 
     graphs = []
@@ -234,51 +246,59 @@ def combined_plot(benchmark:  str,
     x_limits = (min(all_x_attr), max(all_x_attr)) if all_x_attr else None
     y_limits = (min(all_y_attr), max(all_y_attr)) if all_y_attr else None
 
-    size_range = tree_range  if node_size == 'tree' else count_range
-    attr       = 'TreeSize'  if node_size == 'tree' else 'Count'
+    # ── Compute layout once per graph, reuse across node_size variants ────────
+    print(f"  computing {layout} layouts for {len(graphs)} graphs …")
+    pos_list = [_get_layout(d['G'], layout, x_attr=x_attr, y_attr=y_attr)
+                for d in graphs]
 
-    # ── Layout ────────────────────────────────────────────────────────────────
+    # ── Render one figure per node_size ───────────────────────────────────────
     n     = len(graphs)
     ncols = min(ncols, n)
     nrows = (n + ncols - 1) // ncols
     w = 4.5 * ncols + 1.8
     h = 4.2 * nrows + 0.6
 
-    fig, axes = plt.subplots(nrows, ncols, figsize=(w, h), squeeze=False)
+    for node_size in node_sizes:
+        size_range = tree_range if node_size == 'tree' else count_range
+        attr       = 'TreeSize' if node_size == 'tree' else 'Count'
 
-    for idx, d in enumerate(graphs):
-        r, c = divmod(idx, ncols)
-        plot_stn(axes[r][c], d['G'], d['model'], d['alg'],
-                 layout=layout, node_size_attr=attr,
-                 size_range=size_range, edge_range=edge_range,
-                 fitness_limits=fitness_limits,
-                 x_attr=x_attr, y_attr=y_attr,
-                 x_limits=x_limits, y_limits=y_limits)
+        fig, axes = plt.subplots(nrows, ncols, figsize=(w, h), squeeze=False)
 
-    for idx in range(n, nrows * ncols):
-        r, c = divmod(idx, ncols)
-        axes[r][c].set_visible(False)
+        for idx, (d, pos) in enumerate(zip(graphs, pos_list)):
+            r, c = divmod(idx, ncols)
+            # pass None for axis limits → each subplot auto-scales to its own data
+            plot_stn(axes[r][c], d['G'], d['model'], d['alg'],
+                     layout=layout, node_size_attr=attr,
+                     size_range=size_range, edge_range=edge_range,
+                     fitness_limits=None,
+                     x_attr=x_attr, y_attr=y_attr,
+                     x_limits=None, y_limits=None,
+                     pos=pos)
 
-    # ── Shared legend ─────────────────────────────────────────────────────────
-    legend_handles = [
-        mpatches.Patch(color=_NODE['Start'][0],  label='Start'),
-        mpatches.Patch(color=_NODE['Medium'][0], label='Medium', alpha=0.45),
-        mpatches.Patch(color=_NODE['End'][0],    label='End'),
-        mpatches.Patch(color=_NODE['Best'][0],   label='Best'),
-    ]
-    fig.legend(handles=legend_handles,
-               loc='center right', fontsize=FSIZE,
-               framealpha=0.9, bbox_to_anchor=(1.0, 0.5))
+        for idx in range(n, nrows * ncols):
+            r, c = divmod(idx, ncols)
+            axes[r][c].set_visible(False)
 
-    fig.suptitle(f"STN — {benchmark}  |  layout={layout}  node={node_size}",
-                 fontsize=FSIZE + 1, fontweight='bold')
-    fig.tight_layout(rect=[0, 0, 0.88, 0.97])
+        legend_handles = [
+            mpatches.Patch(color=_NODE['Start'][0],  label='Start'),
+            mpatches.Patch(color=_NODE['Medium'][0], label='Medium', alpha=0.45),
+            mpatches.Patch(color=_NODE['End'][0],    label='End'),
+            mpatches.Patch(color=_NODE['Best'][0],   label='Best'),
+        ]
+        fig.legend(handles=legend_handles,
+                   loc='center right', fontsize=FSIZE,
+                   framealpha=0.9, bbox_to_anchor=(1.0, 0.5))
 
-    fname = f"{benchmark}_{layout}_{node_size}_stn.png"
-    fpath = os.path.join(outfolder, fname)
-    fig.savefig(fpath, dpi=120, bbox_inches='tight')
-    plt.close(fig)
-    print(f"Saved: {fpath}")
+        fig.suptitle(f"STN — {benchmark}  |  layout={layout}  node={node_size}",
+                     fontsize=FSIZE + 1, fontweight='bold')
+        fig.tight_layout(rect=[0, 0, 0.88, 0.97])
+
+        model_tag = '' if len(models) == 3 else '_' + '+'.join(models)
+        fname = f"{benchmark}_{layout}{model_tag}_{node_size}_stn.png"
+        fpath = os.path.join(outfolder, fname)
+        fig.savefig(fpath, dpi=120, bbox_inches='tight')
+        plt.close(fig)
+        print(f"  Saved: {fpath}")
 
 
 # ── ENTRY POINT ───────────────────────────────────────────────────────────────
@@ -296,13 +316,34 @@ if __name__ == '__main__':
         print(f"\n{'='*60}")
         print(f"  Plotting STNs: {benchmark}")
         print(f"{'='*60}")
-        for layout in ('stress', 'fitness', 'bivar'):
-            for node_size in ('tree', 'node'):
-                combined_plot(benchmark,
-                              stn_root=_STN_ROOT,
-                              plot_root=_PLOT_ROOT,
-                              layout=layout,
-                              node_size=node_size,
-                              ncols=3,
-                              x_attr='TreeSize',
-                              y_attr='Fitness')
+        for layout in ('stress', 'fitness'):
+            combined_plot(benchmark,
+                          stn_root=_STN_ROOT,
+                          plot_root=_PLOT_ROOT,
+                          layout=layout,
+                          node_sizes=('tree', 'node'),
+                          ncols=3,
+                          x_attr='TreeSize',
+                          y_attr='Fitness')
+
+        # bivar: genotype + hypercube use TreeSize on X
+        combined_plot(benchmark,
+                      stn_root=_STN_ROOT,
+                      plot_root=_PLOT_ROOT,
+                      layout='bivar',
+                      node_sizes=('tree', 'node'),
+                      ncols=2,
+                      x_attr='TreeSize',
+                      y_attr='Fitness',
+                      models=('genotype', 'hypercube'))
+
+        # bivar: clustering uses ClusterID on X
+        combined_plot(benchmark,
+                      stn_root=_STN_ROOT,
+                      plot_root=_PLOT_ROOT,
+                      layout='bivar',
+                      node_sizes=('tree', 'node'),
+                      ncols=1,
+                      x_attr='ClusterID',
+                      y_attr='Fitness',
+                      models=('clustering',))
