@@ -583,6 +583,8 @@ class SLIM_GSGP:
             simplified_ok = False
             simp_time = 0.0
             m_phi_a, ell_a, no_a, nnao_a, nnaoc_a = m_phi_b, ell_b, no_b, nnao_b, nnaoc_b
+            genotype_before = ''
+            genotype_after = ''
 
             try:
                 sympy_expr = slim_individual_to_sympy(
@@ -592,6 +594,7 @@ class SLIM_GSGP:
                     self.pi_init['CONSTANTS'],
                     self.operator,
                 )
+                genotype_before = str(sympy_expr)
                 simp_t0 = time.time()
                 with ThreadPoolExecutor(max_workers=1) as _pool:
                     _fut = _pool.submit(sp.simplify, sympy_expr)
@@ -600,6 +603,7 @@ class SLIM_GSGP:
                         simplified_ok = True
                     except _FuturesTimeout:
                         simplified = sympy_expr
+                genotype_after = str(simplified)
                 simp_time = time.time() - simp_t0
                 m_phi_a, ell_a, no_a, nnao_a, nnaoc_a = sympy_m_phi(simplified)
             except Exception:
@@ -616,4 +620,6 @@ class SLIM_GSGP:
                 test_rmse=float(self.elite.test_fitness),
                 test_mae=float(mae(y_test, _y_pred)),
                 test_r2=float(r2(y_test, _y_pred)),
+                genotype_before=genotype_before,
+                genotype_after=genotype_after,
             )

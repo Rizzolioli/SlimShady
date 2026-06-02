@@ -70,13 +70,14 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
 def log_simplification(path, run_info, seed,
                        before_metrics, after_metrics,
                        simplified_ok, simp_time,
-                       test_rmse, test_mae, test_r2):
+                       test_rmse, test_mae, test_r2,
+                       genotype_before='', genotype_after=''):
     """Append one simplification-summary row to a dedicated CSV.
 
     Columns (no header written here; caller handles header at merge time):
       algo, run_id, dataset, seed,
-      ell_before, m_phi_before, no_before, nnao_before, nnaoc_before,
-      ell_after,  m_phi_after,  no_after,  nnao_after,  nnaoc_after,
+      ell_before, m_phi_before, no_before, nnao_before, nnaoc_before, genotype_before,
+      ell_after,  m_phi_after,  no_after,  nnao_after,  nnaoc_after,  genotype_after,
       simplified_ok, simp_time_s, test_rmse, test_mae, test_r2
     """
     ell_b, m_phi_b, no_b, nnao_b, nnaoc_b = before_metrics
@@ -84,8 +85,8 @@ def log_simplification(path, run_info, seed,
     row = [
         *run_info,
         seed,
-        int(ell_b),   float(m_phi_b), int(no_b),  int(nnao_b),  int(nnaoc_b),
-        int(ell_a),   float(m_phi_a), int(no_a),  int(nnao_a),  int(nnaoc_a),
+        int(ell_b),   float(m_phi_b), int(no_b),  int(nnao_b),  int(nnaoc_b),  str(genotype_before),
+        int(ell_a),   float(m_phi_a), int(no_a),  int(nnao_a),  int(nnaoc_a),  str(genotype_after),
         int(simplified_ok),
         float(simp_time),
         float(test_rmse), float(test_mae), float(test_r2),
@@ -96,8 +97,8 @@ def log_simplification(path, run_info, seed,
 
 _SIMP_HEADER = [
     'algo', 'run_id', 'dataset', 'seed',
-    'ell_before', 'm_phi_before', 'no_before', 'nnao_before', 'nnaoc_before',
-    'ell_after',  'm_phi_after',  'no_after',  'nnao_after',  'nnaoc_after',
+    'ell_before', 'm_phi_before', 'no_before', 'nnao_before', 'nnaoc_before', 'genotype_before',
+    'ell_after',  'm_phi_after',  'no_after',  'nnao_after',  'nnaoc_after',  'genotype_after',
     'simplified_ok', 'simp_time_s',
     'test_rmse', 'test_mae', 'test_r2',
 ]

@@ -249,12 +249,14 @@ def test_simplification_logger():
                            before_metrics=(10, 77.1, 4, 0, 0),
                            after_metrics=(6,  78.3, 2, 0, 0),
                            simplified_ok=True, simp_time=1.2,
-                           test_rmse=0.5, test_mae=0.4, test_r2=0.9)
+                           test_rmse=0.5, test_mae=0.4, test_r2=0.9,
+                           genotype_before='x0 + x1**2', genotype_after='x0 + x1**2')
         log_simplification(p2, run_info=["SLIM+2SIG", "run-1", "concrete"], seed=1,
                            before_metrics=(20, 73.0, 8, 2, 1),
                            after_metrics=(20, 73.0, 8, 2, 1),
                            simplified_ok=False, simp_time=60.0,
-                           test_rmse=0.6, test_mae=0.5, test_r2=0.85)
+                           test_rmse=0.6, test_mae=0.5, test_r2=0.85,
+                           genotype_before='x0*x1 + x2', genotype_after='x0*x1 + x2')
 
         merge_simplification_logs([p1, p2], final)
 
