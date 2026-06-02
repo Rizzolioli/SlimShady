@@ -34,7 +34,7 @@ BENCHMARKS = ["toxicity", "concrete", "instanbul", "ppb",
 
 NRUNS      = 5    # seeds 0..4 → Run 1..5
 N_CLUSTERS = 50
-N_WORKERS  = min(6, len(BENCHMARKS))   # one worker per benchmark at most
+N_WORKERS  = 2   # one worker per benchmark at most
 
 # Layouts to plot (node_sizes 'tree' + 'node' produced for each)
 LAYOUTS = ["stress", "fitness"]   # bivar handled separately (split by model)
