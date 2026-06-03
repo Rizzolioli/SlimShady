@@ -17,6 +17,17 @@ from utils.diversity import gsgp_pop_div_from_vectors
 from utils.convexhull import distance_from_chull, calculate_signed_errors
 
 
+def _sympy_simplify_worker(expr, conn):
+    """Runs in a subprocess; sends simplified expr (or None on error) through a Pipe."""
+    import sympy as sp
+    try:
+        conn.send(sp.simplify(expr))
+    except Exception:
+        conn.send(None)
+    finally:
+        conn.close()
+
+
 class SLIM_GSGP:
 
     def __init__(self, pi_init, initializer, selector, inflate_mutator, deflate_mutator, ms, crossover, find_elit_func,
@@ -573,8 +584,7 @@ class SLIM_GSGP:
 
         # ── Post-evolution symbolic simplification ────────────────────────
         if simplify_elite and simplify_log_path is not None and reconstruct:
-            import sympy as sp
-            from concurrent.futures import ThreadPoolExecutor, TimeoutError as _FuturesTimeout
+            import multiprocessing as _mp
 
             _op_fn  = torch.sum if self.operator == 'sum' else torch.prod
             _y_pred = torch.clamp(_op_fn(self.elite.test_semantics, dim=0), -1e12, 1e12)
@@ -589,6 +599,7 @@ class SLIM_GSGP:
             genotype_after = ''
 
             try:
+                import sympy as sp
                 sympy_expr = slim_individual_to_sympy(
                     self.elite,
                     self.pi_init['FUNCTIONS'],
@@ -598,19 +609,29 @@ class SLIM_GSGP:
                 )
                 genotype_before = str(sympy_expr)
                 simp_t0 = time.time()
-                _executor = ThreadPoolExecutor(max_workers=1)
-                try:
-                    _fut = _executor.submit(sp.simplify, sympy_expr)
+
+                parent_conn, child_conn = _mp.Pipe(duplex=False)
+                _proc = _mp.Process(target=_sympy_simplify_worker,
+                                    args=(sympy_expr, child_conn))
+                _proc.start()
+                child_conn.close()
+
+                if parent_conn.poll(60):
                     try:
-                        simplified = _fut.result(timeout=60)
-                        simplified_ok = True
-                    except _FuturesTimeout:
-                        simplified = sympy_expr
-                finally:
-                    _executor.shutdown(wait=False)
-                genotype_after = str(simplified)
-                simp_time = time.time() - simp_t0
-                m_phi_a, ell_a, no_a, nnao_a, nnaoc_a = sympy_m_phi(simplified)
+                        _result = parent_conn.recv()
+                        if _result is not None:
+                            simplified = _result
+                            simplified_ok = True
+                            genotype_after = str(simplified)
+                            simp_time = time.time() - simp_t0
+                            m_phi_a, ell_a, no_a, nnao_a, nnaoc_a = sympy_m_phi(simplified)
+                    except EOFError:
+                        pass  # subprocess crashed before sending
+                else:
+                    _proc.kill()  # hard kill — frees all memory immediately
+
+                _proc.join()
+                parent_conn.close()
             except Exception:
                 pass
 
