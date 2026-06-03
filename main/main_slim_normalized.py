@@ -1,3 +1,4 @@
+import csv
 import os
 import sys
 import uuid
@@ -39,12 +40,23 @@ _DATASET_P_INFLATE = {
 }
 _DEFAULT_P_INFLATE = 0.3
 
+# Fixed output file names — accumulate across sessions
+_GEN_LOG_NAME  = "results_normalized_generations.csv"
+_SIMP_LOG_NAME = "results_normalized_simplification.csv"
+
+# Generation log column header (matches logger() output at log=8)
+_GEN_HEADER = [
+    'algo', 'run_id', 'dataset', 'seed', 'generation',
+    'train_fitness', 'timing', 'nodes',
+    'test_fitness', 'nodes_count', 'm_phi', 'no', 'nnao', 'nnaoc', 'mae', 'r2', 'log_level',
+]
+
 ########################################################################################################################
 # WORKER  (module-level so multiprocessing can pickle it)
 ########################################################################################################################
 
 def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
-    """Run a single (dataset, variant, seed) experiment and return the temp log path."""
+    """Run a single (dataset, variant, seed) experiment and return the temp log paths."""
     import numpy as np
     import torch
     import uuid as _uuid
@@ -169,21 +181,51 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
 ########################################################################################################################
 
 if __name__ == "__main__":
-    unique_run_id = uuid.uuid1()
-    run_id_str = str(unique_run_id)
+    import pandas as pd
 
     log_dir = os.path.join(os.path.dirname(__file__), "log")
     os.makedirs(log_dir, exist_ok=True)
 
-    tasks = [
-        (dataset, variant_idx, seed, run_id_str, log_dir)
-        for dataset    in DATASETS
-        for variant_idx in range(len(VARIANTS))
-        for seed       in range(N_RUNS)
-    ]
-    total = len(tasks)
-    print(f"Total runs: {total}  |  Workers: {N_WORKERS}")
+    gen_log_path  = os.path.join(log_dir, _GEN_LOG_NAME)
+    simp_log_path = os.path.join(log_dir, _SIMP_LOG_NAME)
 
+    # ── Skip detection: read completed (algo, dataset, seed) from simplification log ──
+    completed_runs = set()
+    if os.path.exists(simp_log_path):
+        try:
+            done_df = pd.read_csv(simp_log_path, usecols=['algo', 'dataset', 'seed'])
+            for _, row in done_df.iterrows():
+                completed_runs.add((str(row['algo']), str(row['dataset']), int(row['seed'])))
+        except Exception as e:
+            print(f"Warning: could not read existing simplification log ({e}); no runs skipped.")
+
+    # ── Build task list, filtering already-completed runs ────────────────────────────
+    run_id_str = str(uuid.uuid1())
+
+    all_tasks = [
+        (dataset, variant_idx, seed, run_id_str, log_dir)
+        for dataset     in DATASETS
+        for variant_idx in range(len(VARIANTS))
+        for seed        in range(N_RUNS)
+    ]
+    tasks = [
+        t for t in all_tasks
+        if (VARIANTS[t[1]]['name'], t[0], t[2]) not in completed_runs
+    ]
+    skipped = len(all_tasks) - len(tasks)
+    total   = len(tasks)
+    print(f"Total runs: {len(all_tasks)} | Already done: {skipped} | To run: {total} | Workers: {N_WORKERS}")
+
+    if total == 0:
+        print("Nothing to do — all runs already completed.")
+        raise SystemExit(0)
+
+    # ── Ensure generation log has a header (only if file is new/empty) ───────────────
+    if not os.path.exists(gen_log_path) or os.path.getsize(gen_log_path) == 0:
+        with open(gen_log_path, 'w', newline='') as f:
+            csv.writer(f).writerow(_GEN_HEADER)
+
+    # ── Run experiments ───────────────────────────────────────────────────────────────
     t0 = time.time()
     completed = 0
     tmp_gen_files  = []
@@ -198,20 +240,19 @@ if __name__ == "__main__":
                 elapsed = time.time() - t0
                 print(f"  {completed}/{total} done  ({elapsed/60:.1f} min elapsed)")
 
-    # Merge generation logs (no header, same schema as log=8)
-    final_gen_log = os.path.join(log_dir, f"results_normalized_{unique_run_id}.csv")
-    with open(final_gen_log, "w", newline="") as outf:
+    # ── Append generation logs to the fixed file ──────────────────────────────────────
+    with open(gen_log_path, 'a', newline='') as outf:
         for fname in tmp_gen_files:
             if os.path.exists(fname):
-                with open(fname, "r") as inf:
+                with open(fname, 'r') as inf:
                     outf.write(inf.read())
                 os.remove(fname)
 
-    # Merge simplification logs (adds header once)
+    # ── Append simplification logs to the fixed file ──────────────────────────────────
     from utils.logger import merge_simplification_logs
-    final_simp_log = os.path.join(log_dir, f"results_simplified_{unique_run_id}.csv")
-    merge_simplification_logs(tmp_simp_files, final_simp_log)
+    simp_exists = os.path.exists(simp_log_path) and os.path.getsize(simp_log_path) > 0
+    merge_simplification_logs(tmp_simp_files, simp_log_path, append=simp_exists)
 
     print(f"\nAll done in {(time.time()-t0)/60:.1f} min")
-    print(f"Generation log → {final_gen_log}")
-    print(f"Simplification → {final_simp_log}")
+    print(f"Generation log    -> {gen_log_path}")
+    print(f"Simplification log -> {simp_log_path}")

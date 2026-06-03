@@ -104,11 +104,17 @@ _SIMP_HEADER = [
 ]
 
 
-def merge_simplification_logs(tmp_paths, final_path):
-    """Concatenate temp simplification CSVs into one file with a single header."""
-    with open(final_path, 'w', newline='') as out:
+def merge_simplification_logs(tmp_paths, final_path, append=False):
+    """Concatenate temp simplification CSVs into one file.
+
+    append=False (default): create/overwrite with header.
+    append=True: append rows only (file already has a header).
+    """
+    mode = 'a' if append else 'w'
+    with open(final_path, mode, newline='') as out:
         writer = csv.writer(out)
-        writer.writerow(_SIMP_HEADER)
+        if not append:
+            writer.writerow(_SIMP_HEADER)
         for p in tmp_paths:
             if not p or not os.path.exists(p):
                 continue
