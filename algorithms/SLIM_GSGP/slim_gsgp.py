@@ -598,13 +598,16 @@ class SLIM_GSGP:
                 )
                 genotype_before = str(sympy_expr)
                 simp_t0 = time.time()
-                with ThreadPoolExecutor(max_workers=1) as _pool:
-                    _fut = _pool.submit(sp.simplify, sympy_expr)
+                _executor = ThreadPoolExecutor(max_workers=1)
+                try:
+                    _fut = _executor.submit(sp.simplify, sympy_expr)
                     try:
                         simplified = _fut.result(timeout=60)
                         simplified_ok = True
                     except _FuturesTimeout:
                         simplified = sympy_expr
+                finally:
+                    _executor.shutdown(wait=False)
                 genotype_after = str(simplified)
                 simp_time = time.time() - simp_t0
                 m_phi_a, ell_a, no_a, nnao_a, nnaoc_a = sympy_m_phi(simplified)
