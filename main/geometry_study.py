@@ -77,13 +77,13 @@ def norm2_mul(r1, r2, ms, T=T):
 #     """SLIM*1SIG: T * (1 + ms * (2*sigmoid(r) - 1))"""
 #     return T * (1 + ms * (2/(1+np.exp(-r)) - 1))
 #
-# def slim_plus_abs(r, ms, T=T):
-#     """SLIM+ABS: T + ms * (1 - 2/(1+|r|))"""
-#     return T + ms * (1 - 2/(1 + np.abs(r)))
-#
-# def slim_mul_abs(r, ms, T=T):
-#     """SLIM*ABS: T * (1 + ms * (1 - 2/(1+|r|)))"""
-#     return T * (1 + ms * (1 - 2/(1 + np.abs(r))))
+def slim_plus_abs(r, ms, T=T):
+    """SLIM+ABS: T + ms * (1 - 2/(1+|r|))"""
+    return T + ms * (1 - 2/(1 + np.abs(r)))
+
+def slim_mul_abs(r, ms, T=T):
+    """SLIM*ABS: T * (1 + ms * (1 - 2/(1+|r|)))"""
+    return T * (1 + ms * (1 - 2/(1 + np.abs(r))))
 
 ########################################################################################################################
 # Active operators for the study
@@ -91,6 +91,8 @@ def norm2_mul(r1, r2, ms, T=T):
 
 # Each entry: (label, uses_two_trees, apply_fn)
 OPERATORS = [
+    ("SLIM+ABS",   False, slim_plus_abs),
+    ("SLIM*ABS",   False, slim_mul_abs),
     ("SLIM+NORM1", False, norm1_sum),
     ("SLIM*NORM1", False, norm1_mul),
     ("SLIM+NORM2", True,  norm2_sum),
