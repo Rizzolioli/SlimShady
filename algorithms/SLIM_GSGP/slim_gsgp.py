@@ -59,6 +59,8 @@ class SLIM_GSGP:
               coefficient_terminal_prob = 0,
               simplify_elite = False,     # if True, run SymPy simplification after evolution
               simplify_log_path = None,  # path to the dedicated simplification CSV
+              log_lock = None,           # multiprocessing.Lock for concurrent gen-log writes
+              simp_lock = None,          # multiprocessing.Lock for concurrent simp-log writes
               ):
 
 
@@ -248,7 +250,7 @@ class SLIM_GSGP:
 
 
             logger(log_path, 0, self.elite.fitness, end - start, float(population.nodes_count),
-                   additional_infos=add_info, run_info=run_info, seed=self.seed)
+                   additional_infos=add_info, run_info=run_info, seed=self.seed, lock=log_lock)
 
         # displaying the results of the population initialization on console
         if verbose != 0:
@@ -563,7 +565,7 @@ class SLIM_GSGP:
 
                 # logging the desired results
                 logger(log_path, it, self.elite.fitness, end - start, float(population.nodes_count),
-                               additional_infos=add_info, run_info=run_info, seed=self.seed)
+                               additional_infos=add_info, run_info=run_info, seed=self.seed, lock=log_lock)
 
             if verbose != 0:
                 verbose_reporter(run_info[-1], it, self.elite.fitness, self.elite.test_fitness, end - start,
@@ -622,4 +624,5 @@ class SLIM_GSGP:
                 test_r2=float(r2(y_test, _y_pred)),
                 genotype_before=genotype_before,
                 genotype_after=genotype_after,
+                lock=simp_lock,
             )

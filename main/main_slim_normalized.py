@@ -55,17 +55,15 @@ _GEN_HEADER = [
 # WORKER  (module-level so multiprocessing can pickle it)
 ########################################################################################################################
 
-def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
-    """Run a single (dataset, variant, seed) experiment and return the temp log paths."""
+def run_experiment_worker(dataset, variant_idx, seed, run_id_str,
+                          gen_log_path, simp_log_path, gen_lock, simp_lock):
+    """Run a single (dataset, variant, seed) experiment, writing directly to shared log files."""
     import numpy as np
     import torch
-    import uuid as _uuid
 
-    # Re-import everything locally so each subprocess is self-contained
     from utils.utils import protected_div, get_terminals, get_best_min
     from evaluators.fitness_functions import rmse
     from algorithms.GP.operators.initializers import rhh
-    from algorithms.GSGP.operators.crossover_operators import geometric_crossover
     from algorithms.SLIM_GSGP.operators.selection_algorithms import tournament_selection_min_slim
     from algorithms.SLIM_GSGP.operators.mutators import (
         inflate_mutation, deflate_mutation,
@@ -89,9 +87,6 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
     }
 
     variant = VARIANTS[variant_idx]
-    _hex = _uuid.uuid4().hex
-    tmp_log      = os.path.join(log_dir, f"tmp_gen_{_hex}.csv")
-    tmp_simp_log = os.path.join(log_dir, f"tmp_simp_{_hex}.csv")
 
     X_train, y_train = load_preloaded(dataset, seed=seed + 1, training=True,  X_y=True)
     X_test,  y_test  = load_preloaded(dataset, seed=seed + 1, training=False, X_y=True)
@@ -150,19 +145,21 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
     }
 
     solve_params = {
-        "elitism":       True,
-        "log":           8,
-        "verbose":       0,
-        "test_elite":    True,
-        "log_path":      tmp_log,
-        "run_info":      [variant["name"], run_id_str, dataset],
-        "ffunction":     rmse,
-        "n_iter":        2000,
-        "max_depth":     None,
-        "n_elites":      1,
-        "reconstruct":   True,
+        "elitism":           True,
+        "log":               8,
+        "verbose":           0,
+        "test_elite":        True,
+        "log_path":          gen_log_path,
+        "run_info":          [variant["name"], run_id_str, dataset],
+        "ffunction":         rmse,
+        "n_iter":            2000,
+        "max_depth":         None,
+        "n_elites":          1,
+        "reconstruct":       True,
         "simplify_elite":    True,
-        "simplify_log_path": tmp_simp_log,
+        "simplify_log_path": simp_log_path,
+        "log_lock":          gen_lock,
+        "simp_lock":         simp_lock,
     }
 
     optimizer = SLIM_GSGP(pi_init=pi_init, **slim_params, seed=seed)
@@ -172,8 +169,6 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str, log_dir):
         curr_dataset=f"load_{dataset}",
         **solve_params,
     )
-
-    return tmp_log, tmp_simp_log
 
 
 ########################################################################################################################
@@ -203,17 +198,17 @@ if __name__ == "__main__":
     run_id_str = str(uuid.uuid1())
 
     all_tasks = [
-        (dataset, variant_idx, seed, run_id_str, log_dir)
+        (dataset, variant_idx, seed)
         for dataset     in DATASETS
         for variant_idx in range(len(VARIANTS))
         for seed        in range(N_RUNS)
     ]
-    tasks = [
+    pending = [
         t for t in all_tasks
         if (VARIANTS[t[1]]['name'], t[0], t[2]) not in completed_runs
     ]
-    skipped = len(all_tasks) - len(tasks)
-    total   = len(tasks)
+    skipped = len(all_tasks) - len(pending)
+    total   = len(pending)
     print(f"Total runs: {len(all_tasks)} | Already done: {skipped} | To run: {total} | Workers: {N_WORKERS}")
 
     if total == 0:
@@ -225,34 +220,33 @@ if __name__ == "__main__":
         with open(gen_log_path, 'w', newline='') as f:
             csv.writer(f).writerow(_GEN_HEADER)
 
+    # ── Ensure simplification log has a header (only if file is new/empty) ───────────
+    from utils.logger import _SIMP_HEADER
+    if not os.path.exists(simp_log_path) or os.path.getsize(simp_log_path) == 0:
+        with open(simp_log_path, 'w', newline='') as f:
+            csv.writer(f).writerow(_SIMP_HEADER)
+
+    # ── Create shared locks ───────────────────────────────────────────────────────────
+    manager = multiprocessing.Manager()
+    gen_lock  = manager.Lock()
+    simp_lock = manager.Lock()
+
+    tasks = [
+        (dataset, variant_idx, seed, run_id_str, gen_log_path, simp_log_path, gen_lock, simp_lock)
+        for dataset, variant_idx, seed in pending
+    ]
+
     # ── Run experiments ───────────────────────────────────────────────────────────────
     t0 = time.time()
     completed = 0
-    tmp_gen_files  = []
-    tmp_simp_files = []
 
     with multiprocessing.Pool(processes=N_WORKERS) as pool:
-        for tmp_gen, tmp_simp in pool.starmap(run_experiment_worker, tasks):
-            tmp_gen_files.append(tmp_gen)
-            tmp_simp_files.append(tmp_simp)
+        for _ in pool.starmap(run_experiment_worker, tasks):
             completed += 1
             if completed % 10 == 0 or completed == total:
                 elapsed = time.time() - t0
                 print(f"  {completed}/{total} done  ({elapsed/60:.1f} min elapsed)")
 
-    # ── Append generation logs to the fixed file ──────────────────────────────────────
-    with open(gen_log_path, 'a', newline='') as outf:
-        for fname in tmp_gen_files:
-            if os.path.exists(fname):
-                with open(fname, 'r') as inf:
-                    outf.write(inf.read())
-                os.remove(fname)
-
-    # ── Append simplification logs to the fixed file ──────────────────────────────────
-    from utils.logger import merge_simplification_logs
-    simp_exists = os.path.exists(simp_log_path) and os.path.getsize(simp_log_path) > 0
-    merge_simplification_logs(tmp_simp_files, simp_log_path, append=simp_exists)
-
     print(f"\nAll done in {(time.time()-t0)/60:.1f} min")
-    print(f"Generation log    -> {gen_log_path}")
+    print(f"Generation log     -> {gen_log_path}")
     print(f"Simplification log -> {simp_log_path}")

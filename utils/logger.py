@@ -20,7 +20,7 @@ def merge_settings(sd1, sd2, sd3, sd4):
     return {**sd1, **sd2, **sd3, **sd4}
 
 def logger(path, generation, pop_val_fitness, timing, nodes,
-           additional_infos=None, run_info=None,  seed=0):
+           additional_infos=None, run_info=None, seed=0, lock=None):
     """
         Logs information into a CSV file.
 
@@ -49,29 +49,34 @@ def logger(path, generation, pop_val_fitness, timing, nodes,
             Writes data to a CSV file as a log.
     """
 
-    with open(path, 'a', newline='') as file:
-        writer = csv.writer(file)
-        if run_info != None:
-            infos = copy(run_info)
-            infos.extend([seed, generation, float(pop_val_fitness), timing, nodes])
+    if run_info != None:
+        infos = copy(run_info)
+        infos.extend([seed, generation, float(pop_val_fitness), timing, nodes])
+    else:
+        infos = [seed, generation, float(pop_val_fitness), timing, nodes]
 
-        else:
-            infos = [seed, generation, float(pop_val_fitness), timing, nodes]
+    if additional_infos != None:
+        try:
+            additional_infos[0] = float(additional_infos[0])
+        except:
+            additional_infos[0] = "None"
+        infos.extend(additional_infos)
 
-        if additional_infos != None:
-            try:
-                additional_infos[0] = float(additional_infos[0])
-            except:
-                additional_infos[0] = "None"
-            infos.extend(additional_infos)
-
-        writer.writerow(infos)
+    if lock is not None:
+        lock.acquire()
+    try:
+        with open(path, 'a', newline='') as file:
+            csv.writer(file).writerow(infos)
+    finally:
+        if lock is not None:
+            lock.release()
 
 def log_simplification(path, run_info, seed,
                        before_metrics, after_metrics,
                        simplified_ok, simp_time,
                        test_rmse, test_mae, test_r2,
-                       genotype_before='', genotype_after=''):
+                       genotype_before='', genotype_after='',
+                       lock=None):
     """Append one simplification-summary row to a dedicated CSV.
 
     Columns (no header written here; caller handles header at merge time):
@@ -91,8 +96,14 @@ def log_simplification(path, run_info, seed,
         float(simp_time),
         float(test_rmse), float(test_mae), float(test_r2),
     ]
-    with open(path, 'a', newline='') as f:
-        csv.writer(f).writerow(row)
+    if lock is not None:
+        lock.acquire()
+    try:
+        with open(path, 'a', newline='') as f:
+            csv.writer(f).writerow(row)
+    finally:
+        if lock is not None:
+            lock.release()
 
 
 _SIMP_HEADER = [
