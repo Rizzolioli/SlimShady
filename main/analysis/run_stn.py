@@ -91,32 +91,33 @@ def _plot_benchmark(benchmark):
 
 # ── STEP 1 + 2: Prep & Build (sequential — shared I/O) ───────────────────────
 
-for benchmark in BENCHMARKS:
-    _banner("PREP", benchmark)
-    prep_stn_data(LOG_CSV, benchmark, out_root=DATA_ROOT, nruns=NRUNS)
+if __name__ == '__main__':
+    for benchmark in BENCHMARKS:
+        _banner("PREP", benchmark)
+        prep_stn_data(LOG_CSV, benchmark, out_root=DATA_ROOT, nruns=NRUNS)
 
-    _banner("BUILD", benchmark)
-    process_folder(benchmark,
-                   data_root=DATA_ROOT,
-                   stn_root=STN_ROOT,
-                   nruns=NRUNS,
-                   n_clusters=N_CLUSTERS,
-                   build_clustering=True)
+        _banner("BUILD", benchmark)
+        process_folder(benchmark,
+                       data_root=DATA_ROOT,
+                       stn_root=STN_ROOT,
+                       nruns=NRUNS,
+                       n_clusters=N_CLUSTERS,
+                       build_clustering=True)
 
-# ── STEP 3: Plot (parallel across benchmarks) ─────────────────────────────────
+    # ── STEP 3: Plot (parallel across benchmarks) ─────────────────────────────────
 
-print(f"\n{'='*60}")
-print(f"  [PLOT]  launching {N_WORKERS} workers for {len(BENCHMARKS)} benchmarks")
-print(f"{'='*60}", flush=True)
+    print(f"\n{'='*60}")
+    print(f"  [PLOT]  launching {N_WORKERS} workers for {len(BENCHMARKS)} benchmarks")
+    print(f"{'='*60}", flush=True)
 
-with ProcessPoolExecutor(max_workers=N_WORKERS) as pool:
-    futures = {pool.submit(_plot_benchmark, b): b for b in BENCHMARKS}
-    for fut in as_completed(futures):
-        b = futures[fut]
-        try:
-            fut.result()
-            print(f"  [PLOT]  {b} done", flush=True)
-        except Exception as exc:
-            print(f"  [PLOT]  {b} FAILED: {exc}", flush=True)
+    with ProcessPoolExecutor(max_workers=N_WORKERS) as pool:
+        futures = {pool.submit(_plot_benchmark, b): b for b in BENCHMARKS}
+        for fut in as_completed(futures):
+            b = futures[fut]
+            try:
+                fut.result()
+                print(f"  [PLOT]  {b} done", flush=True)
+            except Exception as exc:
+                print(f"  [PLOT]  {b} FAILED: {exc}", flush=True)
 
-print("\nAll benchmarks done.")
+    print("\nAll benchmarks done.")
