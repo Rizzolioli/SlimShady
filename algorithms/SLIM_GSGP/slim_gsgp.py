@@ -17,6 +17,16 @@ from utils.diversity import gsgp_pop_div_from_vectors
 from utils.convexhull import distance_from_chull, calculate_signed_errors
 
 
+def _sympy_simplify_worker(expr, conn):
+    """Runs in a subprocess; sends simplified expr (or None on error) through a Pipe."""
+    import sympy as sp
+    try:
+        conn.send(sp.simplify(expr))
+    except Exception:
+        conn.send(None)
+    finally:
+        conn.close()
+
 
 class SLIM_GSGP:
 
@@ -574,6 +584,8 @@ class SLIM_GSGP:
 
         # ── Post-evolution symbolic simplification ────────────────────────
         if simplify_elite and simplify_log_path is not None and reconstruct:
+            import multiprocessing as _mp
+
             _op_fn  = torch.sum if self.operator == 'sum' else torch.prod
             _y_pred = torch.clamp(_op_fn(self.elite.test_semantics, dim=0), -1e12, 1e12)
 
@@ -588,9 +600,6 @@ class SLIM_GSGP:
 
             try:
                 import sympy as sp
-                import subprocess as _sub
-                import sys as _sys
-                import pickle as _pkl
                 sympy_expr = slim_individual_to_sympy(
                     self.elite,
                     self.pi_init['FUNCTIONS'],
@@ -601,28 +610,28 @@ class SLIM_GSGP:
                 genotype_before = str(sympy_expr)
                 simp_t0 = time.time()
 
-                # Run simplification in a fresh interpreter — no multiprocessing
-                # machinery, so it works even when called from inside a pool worker.
-                _script = (
-                    "import pickle,sys,sympy;"
-                    "e=pickle.loads(sys.stdin.buffer.read());"
-                    "sys.stdout.buffer.write(pickle.dumps(sympy.simplify(e)))"
-                )
-                _proc = _sub.Popen(
-                    [_sys.executable, '-c', _script],
-                    stdin=_sub.PIPE, stdout=_sub.PIPE, stderr=_sub.PIPE,
-                )
-                try:
-                    _out, _ = _proc.communicate(input=_pkl.dumps(sympy_expr), timeout=60)
-                    if _proc.returncode == 0:
-                        simplified = _pkl.loads(_out)
-                        simplified_ok = True
-                        genotype_after = str(simplified)
-                        simp_time = time.time() - simp_t0
-                        m_phi_a, ell_a, no_a, nnao_a, nnaoc_a = sympy_m_phi(simplified)
-                except _sub.TimeoutExpired:
-                    _proc.kill()
-                    _proc.communicate()  # drain pipes to avoid deadlock
+                parent_conn, child_conn = _mp.Pipe(duplex=False)
+                _proc = _mp.Process(target=_sympy_simplify_worker,
+                                    args=(sympy_expr, child_conn))
+                _proc.start()
+                child_conn.close()
+
+                if parent_conn.poll(60):
+                    try:
+                        _result = parent_conn.recv()
+                        if _result is not None:
+                            simplified = _result
+                            simplified_ok = True
+                            genotype_after = str(simplified)
+                            simp_time = time.time() - simp_t0
+                            m_phi_a, ell_a, no_a, nnao_a, nnaoc_a = sympy_m_phi(simplified)
+                    except EOFError:
+                        pass  # subprocess crashed before sending
+                else:
+                    _proc.kill()  # hard kill — frees all memory immediately
+
+                _proc.join()
+                parent_conn.close()
             except Exception:
                 pass
 
