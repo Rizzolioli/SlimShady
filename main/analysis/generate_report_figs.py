@@ -515,7 +515,9 @@ def plot_stns():
             graphs = []
             for p in pkls:
                 with open(os.path.join(infolder, p), "rb") as fh:
-                    graphs.append(pickle.load(fh))
+                    d = pickle.load(fh)
+                    if d["alg"] in VARIANTS:
+                        graphs.append(d)
 
             # global scaling limits
             all_fit, all_tree, all_count, all_edge = [], [], [], []
