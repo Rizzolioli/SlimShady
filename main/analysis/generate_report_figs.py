@@ -57,6 +57,12 @@ sys.path.insert(0, _HERE)   # so stn_plot imports resolve when run from any cwd
 # ── SHARED CONFIG ─────────────────────────────────────────────────────────────
 
 VARIANTS = ["SLIM+2SIG", "SLIM*ABS", "SLIM*1SIG"]
+
+import re as _re
+# stn_prep.py sanitizes algo names for filenames (+ and * become _).
+# Pre-compute sanitized forms for matching against d["alg"] in pkl files.
+_SAFE_VARIANTS = [_re.sub(r'[^A-Za-z0-9_\-]', '_', v) for v in VARIANTS]
+# e.g. ["SLIM_2SIG", "SLIM_ABS", "SLIM_1SIG"]
 DATASETS = ["toxicity", "concrete", "instanbul", "ppb",
             "resid_build_sale_price", "energy"]
 
@@ -516,11 +522,17 @@ def plot_stns():
             for p in pkls:
                 with open(os.path.join(infolder, p), "rb") as fh:
                     d = pickle.load(fh)
-                    if any(v in d["alg"] for v in VARIANTS):
+                    if any(sv in d["alg"] for sv in _SAFE_VARIANTS):
                         graphs.append(d)
 
             if not graphs:
-                print(f"    [SKIP] no graphs matched VARIANTS for layout={layout}")
+                all_algs = []
+                for p in pkls:
+                    with open(os.path.join(infolder, p), "rb") as fh:
+                        all_algs.append(pickle.load(fh)["alg"])
+                print(f"    [SKIP] no graphs matched for layout={layout}")
+                print(f"           alg names in pkl files: {sorted(set(all_algs))}")
+                print(f"           looking for (sanitized): {_SAFE_VARIANTS}")
                 continue
 
             # global scaling limits
