@@ -1,8 +1,16 @@
 """
 generate_report_figs.py
 =======================
-Generate PNG + TikZ/LaTeX figures for all head-XO experiments.
+Generate PNG + TikZ figures for all head-XO experiments.
 Filtered to three SLIM variants: SLIM+2SIG, SLIM*ABS, SLIM*1SIG.
+
+Requirements
+------------
+    pip install matplot2tikz
+
+    matplot2tikz is the maintained successor to the abandoned tikzplotlib.
+    It fixes the `common_textification` ImportError that tikzplotlib >= 0.11
+    has with matplotlib 3.7+.
 
 Outputs
 -------
@@ -17,9 +25,9 @@ main/log/latex/
     <dataset>/
       <dataset>_<layout>_<node_size>_stn.{png,tex}
 
-Requirements
-------------
-    pip install tikzplotlib
+Include in LaTeX:
+    \\usepackage{tikz}
+    \\input{figure.tex}
 """
 
 import os
@@ -35,11 +43,7 @@ import matplotlib.ticker as ticker
 from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 import networkx as nx
-
-try:
-    import tikzplotlib
-except ImportError:
-    sys.exit("tikzplotlib not found — install it with:  pip install tikzplotlib")
+import matplot2tikz as tikzplotlib
 
 # ── PATH SETUP ────────────────────────────────────────────────────────────────
 
@@ -80,15 +84,12 @@ def _load_csv(path, n_iter=N_ITER):
 
 
 def _save_fig(fig, stem):
-    """Save *fig* as <stem>.png and <stem>.tex then close it."""
+    """Save *fig* as <stem>.png and <stem>.tex (TikZ) then close it."""
     os.makedirs(os.path.dirname(stem), exist_ok=True)
     png_path = stem + ".png"
     tex_path = stem + ".tex"
     fig.savefig(png_path, dpi=150, bbox_inches="tight")
-    try:
-        tikzplotlib.save(tex_path, figure=fig, strict=False)
-    except Exception as exc:
-        print(f"    [tikz] WARNING — could not write {tex_path}: {exc}")
+    tikzplotlib.save(tex_path, figure=fig, strict=False)
     plt.close(fig)
     print(f"  Saved: {png_path}")
     print(f"  Saved: {tex_path}")
@@ -478,8 +479,7 @@ def plot_pop_xo():
 def plot_stns():
     print("\n── STN plots ────────────────────────────────────────────────────")
 
-    from stn_plot import plot_stn, _get_layout, _NODE, DRAW_ORDER, NSIZE_RANGE, EWIDTH_RANGE, FSIZE
-    import stn_plot as _sp
+    from stn_plot import plot_stn, _get_layout, _NODE, FSIZE
 
     out_root = os.path.join(_OUT_ROOT, "stns")
 
