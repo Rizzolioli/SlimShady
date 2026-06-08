@@ -516,8 +516,12 @@ def plot_stns():
             for p in pkls:
                 with open(os.path.join(infolder, p), "rb") as fh:
                     d = pickle.load(fh)
-                    if d["alg"] in VARIANTS:
+                    if any(v in d["alg"] for v in VARIANTS):
                         graphs.append(d)
+
+            if not graphs:
+                print(f"    [SKIP] no graphs matched VARIANTS for layout={layout}")
+                continue
 
             # global scaling limits
             all_fit, all_tree, all_count, all_edge = [], [], [], []
