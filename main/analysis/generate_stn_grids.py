@@ -95,9 +95,13 @@ def _save_fig(fig, stem: str):
 def make_stn_grid(benchmark: str,
                   layout: str, model: str,
                   size_attr: str, x_attr: str, y_attr: str,
-                  stem_suffix: str):
+                  stem_suffix: str,
+                  stn_root: str = None,
+                  out_root: str = None):
 
-    infolder = os.path.join(_STN_ROOT, benchmark)
+    _stn = stn_root or _STN_ROOT
+    _out = out_root or _OUT_ROOT
+    infolder = os.path.join(_stn, benchmark)
     if not os.path.isdir(infolder):
         print(f"  [SKIP] {benchmark} — STN folder missing: {infolder}")
         return
@@ -212,8 +216,8 @@ def make_stn_grid(benchmark: str,
                  fontsize=10, fontweight="bold", rotation=90)
 
     # ── Save ──────────────────────────────────────────────────────────────────
-    os.makedirs(_OUT_ROOT, exist_ok=True)
-    stem = os.path.join(_OUT_ROOT, f"{benchmark}_stn_{stem_suffix}")
+    os.makedirs(_out, exist_ok=True)
+    stem = os.path.join(_out, f"{benchmark}_stn_{stem_suffix}")
     _save_fig(fig, stem)
 
 

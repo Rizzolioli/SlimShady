@@ -57,18 +57,20 @@ def _safe_algo_name(algo: str) -> str:
 
 def prep_stn_data(log_csv: str,
                   benchmark: str,
-                  out_root:  str  = "data",
-                  nruns:     int  = 10):
+                  out_root:   str = "data",
+                  nruns:      int = 10,
+                  fitness_col: str = 'train_fit'):
     """
     Prepare STN input CSVs for a single benchmark from a SlimShady log=8 run.
 
     Parameters
     ----------
-    log_csv   : path to the main experiment log CSV
-                (e.g. main/log/results_prob_xo_12052026.csv)
-    benchmark : dataset name to extract (e.g. "istanbul")
-    out_root  : output root folder; files are written to {out_root}/{benchmark}/
-    nruns     : max seed index to include (seeds 0..nruns-1 → Run 1..nruns)
+    log_csv     : path to the main experiment log CSV
+    benchmark   : dataset name to extract (e.g. "istanbul")
+    out_root    : output root folder; files are written to {out_root}/{benchmark}/
+    nruns       : max seed index to include (seeds 0..nruns-1 → Run 1..nruns)
+    fitness_col : column from the main log to use as Fitness in the STN
+                  ('train_fit' or 'test_fit')
     """
     sem_csv = (log_csv[:-4] if log_csv.endswith('.csv') else log_csv) + '_sem_gen.csv'
 
@@ -102,7 +104,7 @@ def prep_stn_data(log_csv: str,
     # Main log has every generation; sem_gen only has elite-change generations.
     fit_lookup = (df_main
                   .drop_duplicates(subset=['algo', 'seed', 'gen'])
-                  .set_index(['algo', 'seed', 'gen'])['train_fit'])
+                  .set_index(['algo', 'seed', 'gen'])[fitness_col])
 
     def _get_fit(row):
         return fit_lookup.get((row['algo'], row['seed'], row['gen']), float('nan'))
