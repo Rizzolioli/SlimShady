@@ -67,9 +67,11 @@ def _find_graph(infolder: str, safe_variant: str, config_tag: str, model: str):
     """
     Scan *infolder* for a pkl file whose stem contains *safe_variant*
     AND *config_tag* and whose model suffix matches *model*.
+
+    stn_build.py names files {alg}_{model}_stn.pkl.
     Returns the loaded dict or None.
     """
-    suffix = f"_{model}.pkl"
+    suffix = f"_{model}_stn.pkl"
     for fname in sorted(os.listdir(infolder)):
         if not fname.endswith(suffix):
             continue
