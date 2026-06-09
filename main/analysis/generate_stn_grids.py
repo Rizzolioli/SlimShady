@@ -116,24 +116,31 @@ def make_stn_grid(benchmark: str,
         print(f"  [SKIP] {benchmark} {stem_suffix} — no graphs found")
         return
 
-    # ── Global scaling limits (consistent across all panels) ──────────────────
+    # ── Global scaling for node/edge sizes (consistent across all panels) ────
     all_tree, all_count, all_edge = [], [], []
-    all_x,    all_y              = [], []
     for d in graphs.values():
         G = d["G"]
         all_tree.extend(nx.get_node_attributes(G, "TreeSize").values())
         all_count.extend(nx.get_node_attributes(G, "Count").values())
         all_edge.extend(nx.get_edge_attributes(G, "Count").values() or [1])
-        if layout == "bivar":
-            all_x.extend(nx.get_node_attributes(G, x_attr).values())
-            all_y.extend(nx.get_node_attributes(G, y_attr).values())
 
     tree_range  = (min(all_tree),  max(all_tree))  if all_tree  else (0, 1)
     count_range = (min(all_count), max(all_count)) if all_count else (0, 1)
     edge_range  = (min(all_edge),  max(all_edge))  if all_edge  else (0, 1)
-    x_limits    = (min(all_x), max(all_x)) if all_x else None
-    y_limits    = (min(all_y), max(all_y)) if all_y else None
     size_range  = tree_range if size_attr == "TreeSize" else count_range
+
+    # ── Per-row y-limits: the two side-by-side panels in each row share y ────
+    # x is never shared — each panel auto-scales independently on x.
+    row_y_limits = {}
+    if layout in ("fitness", "bivar"):
+        for vi in range(len(VARIANTS)):
+            all_y_row = []
+            for ci in range(len(CONFIGS)):
+                if (vi, ci) in graphs:
+                    G = graphs[(vi, ci)]["G"]
+                    all_y_row.extend(nx.get_node_attributes(G, y_attr).values())
+            if all_y_row:
+                row_y_limits[vi] = (min(all_y_row), max(all_y_row))
 
     # ── Compute layouts once, reuse across the figure ─────────────────────────
     pos_cache = {
@@ -171,11 +178,14 @@ def make_stn_grid(benchmark: str,
                 continue
 
             d = graphs[key]
+            y_lim = row_y_limits.get(vi)   # shared per row; None for stress
             plot_stn(ax, d["G"], d["model"], "",
                      layout=layout, node_size_attr=size_attr,
                      size_range=size_range, edge_range=edge_range,
                      x_attr=x_attr, y_attr=y_attr,
-                     x_limits=x_limits, y_limits=y_limits,
+                     x_limits=None,          # x never shared
+                     y_limits=y_lim,         # y shared within row
+                     fitness_limits=y_lim,   # also covers fitness layout
                      pos=pos_cache[key])
             ax.set_title("")    # clear the per-panel auto-title from plot_stn
 
