@@ -27,7 +27,7 @@ main/log/latex/
 
 Include in LaTeX:
     \\usepackage{tikz}
-    \\input{figure.tex}
+\\input{figure.tex}
 """
 
 import os
