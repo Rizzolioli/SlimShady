@@ -1,0 +1,87 @@
+\begin{longtable}{lllrrrrrr}
+\caption{Depth-cap sweep (p\_xo=0.7): median (IQR) at final generation} \label{tab:depth_cap} \\
+\toprule
+Variant & Dataset & max\_hd & \multicolumn{2}{c}{Train RMSE} & \multicolumn{2}{c}{Test RMSE} & \multicolumn{2}{c}{Model Size} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+ & & & Med & IQR & Med & IQR & Med & IQR \\
+\midrule
+\endfirsthead
+\toprule
+Variant & Dataset & max\_hd & \multicolumn{2}{c}{Train RMSE} & \multicolumn{2}{c}{Test RMSE} & \multicolumn{2}{c}{Model Size} \\
+ & & & Med & IQR & Med & IQR & Med & IQR \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+SLIM*1SIG & concrete & 5 & 9.052 & 13.234 & 9.782 & 11.453 & 731 & 302 \\
+SLIM*1SIG & concrete & 17 & 10.692 & 13.551 & 11.569 & 12.516 & 855 & 262 \\
+SLIM*1SIG & concrete & 25 & 10.692 & 11.717 & 11.569 & 10.340 & 855 & 262 \\
+\midrule
+SLIM*1SIG & energy & 5 & 2.799 & 0.054 & 3.167 & 0.132 & 253 & 84 \\
+SLIM*1SIG & energy & 17 & 2.672 & 0.266 & 2.903 & 0.308 & 259 & 90 \\
+SLIM*1SIG & energy & 25 & 2.672 & 0.266 & 2.903 & 0.308 & 259 & 90 \\
+\midrule
+SLIM*1SIG & instanbul & 5 & 0.012 & 0.000 & 0.015 & 0.000 & 797 & 108 \\
+SLIM*1SIG & instanbul & 17 & 0.012 & 0.000 & 0.016 & 0.001 & 973 & 186 \\
+SLIM*1SIG & instanbul & 25 & 0.012 & 0.000 & 0.016 & 0.001 & 799 & 178 \\
+\midrule
+SLIM*1SIG & ppb & 5 & 30.232 & 1.123 & 45.469 & 4.195 & 83 & 16 \\
+SLIM*1SIG & ppb & 17 & 30.607 & 3.969 & 50.613 & 7.527 & 87 & 20 \\
+SLIM*1SIG & ppb & 25 & 30.607 & 3.969 & 50.613 & 7.527 & 87 & 20 \\
+\midrule
+SLIM*1SIG & resid_build_sale_price & 5 & 46.620 & 3.040 & 57.431 & 8.935 & 119 & 24 \\
+SLIM*1SIG & resid_build_sale_price & 17 & 46.620 & 7.176 & 59.038 & 8.400 & 111 & 22 \\
+SLIM*1SIG & resid_build_sale_price & 25 & 46.620 & 7.176 & 59.038 & 8.400 & 111 & 22 \\
+\midrule
+SLIM*1SIG & toxicity & 5 & 1845.951 & 75.892 & 2006.073 & 329.454 & 257 & 156 \\
+SLIM*1SIG & toxicity & 17 & 1779.704 & 194.030 & 1996.041 & 42.963 & 247 & 212 \\
+SLIM*1SIG & toxicity & 25 & 1815.321 & 191.407 & 2037.773 & 90.291 & 231 & 204 \\
+\midrule
+SLIM*ABS & concrete & 5 & 7.143 & 0.634 & 7.389 & 0.965 & 1170 & 197 \\
+SLIM*ABS & concrete & 17 & 20.750 & 10.593 & 19.648 & 9.549 & 1405 & 549 \\
+SLIM*ABS & concrete & 25 & 20.750 & 9.037 & 19.648 & 7.710 & 1405 & 7756 \\
+\midrule
+SLIM*ABS & energy & 5 & 2.701 & 0.147 & 2.867 & 0.147 & 289 & 68 \\
+SLIM*ABS & energy & 17 & 2.633 & 0.035 & 2.964 & 0.163 & 307 & 121 \\
+SLIM*ABS & energy & 25 & 2.633 & 0.035 & 2.964 & 0.163 & 307 & 121 \\
+\midrule
+SLIM*ABS & instanbul & 5 & 0.013 & 0.000 & 0.015 & 0.001 & 269 & 200 \\
+SLIM*ABS & instanbul & 17 & 0.013 & 0.000 & 0.015 & 0.001 & 321 & 79 \\
+SLIM*ABS & instanbul & 25 & 0.013 & 0.000 & 0.015 & 0.001 & 321 & 79 \\
+\midrule
+SLIM*ABS & ppb & 5 & 28.828 & 4.562 & 57.295 & 9.711 & 412 & 130 \\
+SLIM*ABS & ppb & 17 & 29.386 & 2.476 & 57.837 & 5.580 & 412 & 47 \\
+SLIM*ABS & ppb & 25 & 29.196 & 2.476 & 63.309 & 6.516 & 412 & 47 \\
+\midrule
+SLIM*ABS & resid_build_sale_price & 5 & 45.478 & 7.395 & 58.881 & 3.774 & 232 & 118 \\
+SLIM*ABS & resid_build_sale_price & 17 & 49.559 & 6.484 & 56.046 & 26.383 & 305 & 109 \\
+SLIM*ABS & resid_build_sale_price & 25 & 49.559 & 6.484 & 56.046 & 26.383 & 305 & 109 \\
+\midrule
+SLIM*ABS & toxicity & 5 & 1934.040 & 75.115 & 2083.186 & 295.836 & 675 & 313 \\
+SLIM*ABS & toxicity & 17 & 1934.040 & 132.041 & 2036.889 & 260.068 & 860 & 285 \\
+SLIM*ABS & toxicity & 25 & 1934.040 & 113.284 & 2073.168 & 260.068 & 860 & 271 \\
+\midrule
+SLIM+2SIG & concrete & 5 & 12.035 & 1.881 & 12.409 & 2.070 & 11297 & 242 \\
+SLIM+2SIG & concrete & 17 & 15.487 & 8.161 & 15.577 & 4.361 & 11297 & 453 \\
+SLIM+2SIG & concrete & 25 & 16.547 & 5.571 & 16.535 & 1.460 & 11297 & 824 \\
+\midrule
+SLIM+2SIG & energy & 5 & 2.725 & 0.418 & 3.062 & 0.244 & 2914 & 410 \\
+SLIM+2SIG & energy & 17 & 2.657 & 0.143 & 2.940 & 0.182 & 2185 & 840 \\
+SLIM+2SIG & energy & 25 & 2.731 & 0.236 & 3.069 & 0.441 & 2185 & 611 \\
+\midrule
+SLIM+2SIG & instanbul & 5 & 0.013 & 0.000 & 0.015 & 0.002 & 771 & 306 \\
+SLIM+2SIG & instanbul & 17 & 0.013 & 0.000 & 0.015 & 0.000 & 480 & 40 \\
+SLIM+2SIG & instanbul & 25 & 0.013 & 0.000 & 0.015 & 0.000 & 480 & 40 \\
+\midrule
+SLIM+2SIG & ppb & 5 & 19.901 & 3.228 & 34.127 & 1.641 & 4960 & 1177 \\
+SLIM+2SIG & ppb & 17 & 19.901 & 3.489 & 33.056 & 3.757 & 4960 & 920 \\
+SLIM+2SIG & ppb & 25 & 19.901 & 3.489 & 33.056 & 3.757 & 4960 & 920 \\
+\midrule
+SLIM+2SIG & resid_build_sale_price & 5 & 89.797 & 12.018 & 105.286 & 30.370 & 2852 & 460 \\
+SLIM+2SIG & resid_build_sale_price & 17 & 88.348 & 6.745 & 100.092 & 30.370 & 3476 & 1046 \\
+SLIM+2SIG & resid_build_sale_price & 25 & 88.348 & 6.745 & 100.092 & 30.370 & 3476 & 1046 \\
+\midrule
+SLIM+2SIG & toxicity & 5 & 2230.405 & 131.991 & 2118.817 & 172.459 & 1594 & 577 \\
+SLIM+2SIG & toxicity & 17 & 2193.815 & 138.456 & 2104.095 & 348.876 & 1503 & 289 \\
+SLIM+2SIG & toxicity & 25 & 2173.771 & 130.137 & 2104.095 & 348.876 & 1489 & 82 \\
+\end{longtable}
