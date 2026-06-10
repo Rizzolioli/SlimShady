@@ -21,16 +21,18 @@ N_WORKERS = max(1, min(os.cpu_count() - 1, 8))
 # (name, sig, two_trees, op, norm)
 # norm: None = standard SLIM, "norm1" = SLIM-NORM1, "norm2" = SLIM-NORM2
 VARIANTS = [
-    {"name": "SLIM+2SIG", "sig": True,  "two_trees": True,  "op": "sum", "norm": None},
-    {"name": "SLIM*2SIG", "sig": True,  "two_trees": True,  "op": "mul", "norm": None},
-    {"name": "SLIM*ABS",  "sig": False, "two_trees": False, "op": "mul", "norm": None},
-    {"name": "SLIM+ABS",  "sig": False, "two_trees": False, "op": "sum", "norm": None},
-    {"name": "SLIM*1SIG", "sig": True,  "two_trees": False, "op": "mul", "norm": None},
-    {"name": "SLIM+1SIG", "sig": True,  "two_trees": False, "op": "sum", "norm": None},
-    {"name": "SLIM+NORM1","sig": False, "two_trees": False, "op": "sum", "norm": "norm1"},
-    {"name": "SLIM*NORM1","sig": False, "two_trees": False, "op": "mul", "norm": "norm1"},
-    {"name": "SLIM+NORM2","sig": False, "two_trees": True,  "op": "sum", "norm": "norm2"},
-    {"name": "SLIM*NORM2","sig": False, "two_trees": True,  "op": "mul", "norm": "norm2"},
+    # {"name": "SLIM+2SIG", "sig": True,  "two_trees": True,  "op": "sum", "norm": None},
+    # {"name": "SLIM*2SIG", "sig": True,  "two_trees": True,  "op": "mul", "norm": None},
+    # {"name": "SLIM*ABS",  "sig": False, "two_trees": False, "op": "mul", "norm": None},
+    # {"name": "SLIM+ABS",  "sig": False, "two_trees": False, "op": "sum", "norm": None},
+    # {"name": "SLIM*1SIG", "sig": True,  "two_trees": False, "op": "mul", "norm": None},
+    # {"name": "SLIM+1SIG", "sig": True,  "two_trees": False, "op": "sum", "norm": None},
+    # {"name": "SLIM+NORM1","sig": False, "two_trees": False, "op": "sum", "norm": "norm1"},
+    # {"name": "SLIM*NORM1","sig": False, "two_trees": False, "op": "mul", "norm": "norm1"},
+    # {"name": "SLIM+NORM2",   "sig": False, "two_trees": True,  "op": "sum", "norm": "norm2"},
+    # {"name": "SLIM*NORM2",   "sig": False, "two_trees": True,  "op": "mul", "norm": "norm2"},
+    {"name": "SLIM+NORMROB", "sig": False, "two_trees": True,  "op": "sum", "norm": "normrob"},
+    {"name": "SLIM*NORMROB", "sig": False, "two_trees": True,  "op": "mul", "norm": "normrob"},
 ]
 
 # Dataset-specific inflate probability
@@ -68,6 +70,7 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str,
     from algorithms.SLIM_GSGP.operators.mutators import (
         inflate_mutation, deflate_mutation,
         inflate_mutation_normalized, inflate_mutation_norm1,
+        inflate_mutation_normrob,
     )
     from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
     from datasets.data_loader import load_preloaded
@@ -116,6 +119,11 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str,
         inflate_mutator = inflate_mutation_norm1(
             FUNCTIONS=FUNCTIONS, TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
             operator=variant["op"],
+        )
+    elif norm == "normrob":
+        inflate_mutator = inflate_mutation_normrob(
+            FUNCTIONS=FUNCTIONS, TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
+            operator=variant["op"], scale='q99',
         )
     else:
         inflate_mutator = inflate_mutation(

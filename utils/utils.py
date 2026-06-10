@@ -430,6 +430,8 @@ _NO_EXTRA = {
     'tt_delta_normalized_mul':  4,
     'ot_delta_normalized_sum':  5,
     'ot_delta_normalized_mul':  6,
+    'tt_delta_normrob_sum':     3,
+    'tt_delta_normrob_mul':     4,
 }
 
 # Non-arithmetic ops (sigmoids) contributed by each variator.
@@ -444,6 +446,8 @@ _NNAO_EXTRA = {
     'tt_delta_normalized_mul':  0,
     'ot_delta_normalized_sum':  0,
     'ot_delta_normalized_mul':  0,
+    'tt_delta_normrob_sum':     0,
+    'tt_delta_normrob_mul':     0,
 }
 
 
@@ -513,7 +517,7 @@ def _variator_to_sympy(variator, tree_exprs, ms_val):
     name = variator.__name__
     ms = sp.Float(ms_val)
 
-    if 'tt_delta_normalized' in name:
+    if 'tt_delta_normalized' in name or 'tt_delta_normrob' in name:
         alpha = sp.Float(float(getattr(variator, 'alpha', 1.0)))
         diff = tree_exprs[0] - tree_exprs[1]
         term = ms * alpha * diff

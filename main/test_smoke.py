@@ -174,6 +174,56 @@ def test_inflate_norm1():
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# 3b. NORMROB inflate mutator
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_inflate_normrob():
+    from algorithms.SLIM_GSGP.operators.mutators import inflate_mutation_normrob
+    from utils.utils import protected_div
+    from algorithms.GP.operators.initializers import rhh
+    from algorithms.GSGP.representations.tree import Tree
+    from algorithms.GP.representations.tree import Tree as GP_Tree
+    from algorithms.SLIM_GSGP.representations.individual import Individual
+
+    FUNCTIONS = {
+        'add':      {'function': lambda x, y: torch.add(x, y), 'arity': 2},
+        'subtract': {'function': lambda x, y: torch.sub(x, y), 'arity': 2},
+        'multiply': {'function': lambda x, y: torch.mul(x, y), 'arity': 2},
+        'divide':   {'function': lambda x, y: protected_div(x, y), 'arity': 2},
+    }
+    TERMINALS = {'x0': 0, 'x1': 1}
+    CONSTANTS = {'constant_2': lambda x: torch.tensor(2.0), 'constant__1': lambda x: torch.tensor(-1.0)}
+    Tree.FUNCTIONS = FUNCTIONS; Tree.TERMINALS = TERMINALS; Tree.CONSTANTS = CONSTANTS
+    GP_Tree.FUNCTIONS = FUNCTIONS; GP_Tree.TERMINALS = TERMINALS; GP_Tree.CONSTANTS = CONSTANTS
+
+    torch.manual_seed(42)
+    # Use 200 samples so Q99 = 99th percentile is well-defined (not the max)
+    X_train = torch.randn(200, 2)
+    X_test  = torch.randn(50,  2)
+
+    t = Tree(structure='x0', train_semantics=X_train[:, 0],
+             test_semantics=X_test[:, 0], reconstruct=True)
+    ind = Individual(collection=[t],
+                     train_semantics=X_train[:, 0].unsqueeze(0),
+                     test_semantics=X_test[:, 0].unsqueeze(0),
+                     reconstruct=True)
+
+    for sc in ('q99', 'iqr', 'mad'):
+        inflate = inflate_mutation_normrob(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum', scale=sc)
+        offspring = inflate(ind, 1.0, X_train, max_depth=3, X_test=X_test)
+        assert offspring.size == 2, f"[{sc}] Expected size 2, got {offspring.size}"
+        block = offspring.collection[1]
+        alpha = block.structure[0].alpha
+        tr1, tr2 = block.structure[1], block.structure[2]
+        diff = tr1.train_semantics - tr2.train_semantics
+        # Q99 guarantees ≥99% of training steps in [-1,1]; IQR/MAD do not claim this
+        if sc == 'q99':
+            pct = (torch.abs(torch.tensor(alpha) * diff) <= 1.0 + 1e-5).float().mean().item()
+            assert pct >= 0.99, f"[q99] Only {pct*100:.1f}% of training steps in [-1,1]"
+        assert alpha > 0, f"[{sc}] alpha must be positive, got {alpha}"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # 4. slim_individual_to_sympy + sympy_m_phi
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -431,6 +481,7 @@ if __name__ == "__main__":
     run("compute_m_phi trivial individual", test_compute_m_phi_trivial)
     run("NORM2 inflate (alpha scaling)",    test_inflate_norm2)
     run("NORM1 inflate (min-max scaling)",  test_inflate_norm1)
+    run("NORMROB inflate (robust q99/iqr/mad)", test_inflate_normrob)
     run("SymPy conversion (trivial tree)",  test_sympy_conversion_trivial)
     run("sympy_m_phi (symbol + exp)",       test_sympy_m_phi_simple)
     run("log_simplification + merge",       test_simplification_logger)

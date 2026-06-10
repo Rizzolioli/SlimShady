@@ -215,6 +215,79 @@ def inflate_mutation_normalized(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum')
     return inflate
 
 
+def two_trees_delta_normrob(operator='sum', alpha=1.0):
+    """NORMROB variator: ms * alpha * (Tr1 - Tr2), alpha from robust scaling of training diff."""
+    def tt_delta_normrob(tr1, tr2, ms, testing):
+        diff = torch.sub(tr1.test_semantics, tr2.test_semantics) if testing \
+               else torch.sub(tr1.train_semantics, tr2.train_semantics)
+        scaled = torch.mul(alpha, diff)
+        return torch.mul(ms, scaled) if operator == 'sum' \
+               else torch.add(1, torch.mul(ms, scaled))
+    tt_delta_normrob.__name__ += ('_' + operator)
+    tt_delta_normrob.alpha = float(alpha)
+    return tt_delta_normrob
+
+
+def inflate_mutation_normrob(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum', scale='q99'):
+    """NORMROB: two raw trees, robust-scale alpha. scale in {'q99', 'iqr', 'mad'}."""
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1,
+                reconstruct=True, terminals_probabilities=None):
+        random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                       grow_probability=grow_probability, logistic=False,
+                                       terminals_probabilities=terminals_probabilities)
+        random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                       grow_probability=grow_probability, logistic=False,
+                                       terminals_probabilities=terminals_probabilities)
+        random_trees = [random_tree1, random_tree2]
+
+        if X_test is not None:
+            [rt.calculate_semantics(X_test, testing=True, logistic=False) for rt in random_trees]
+
+        diff_train = torch.sub(random_tree1.train_semantics, random_tree2.train_semantics)
+        if scale == 'q99':
+            denom = torch.quantile(torch.abs(diff_train), 0.99).item()
+        elif scale == 'iqr':
+            denom = (torch.quantile(diff_train, 0.75) - torch.quantile(diff_train, 0.25)).item()
+        elif scale == 'mad':
+            med = torch.median(diff_train)
+            denom = (1.4826 * torch.median(torch.abs(diff_train - med))).item()
+        else:
+            raise ValueError(f"Unknown scale '{scale}': use 'q99', 'iqr', or 'mad'")
+        alpha = torch.tensor(1.0 / denom if denom > 1e-10 else 1.0, dtype=diff_train.dtype)
+
+        variator = two_trees_delta_normrob(operator=operator, alpha=alpha)
+        new_block = Tree(
+            structure=[variator, *random_trees, ms],
+            train_semantics=variator(*random_trees, ms, testing=False),
+            test_semantics=variator(*random_trees, ms, testing=True) if X_test is not None else None,
+            reconstruct=True
+        )
+
+        offs = Individual(
+            collection=[*individual.collection, new_block] if reconstruct else None,
+            train_semantics=torch.stack([*individual.train_semantics,
+                                         (new_block.train_semantics
+                                          if new_block.train_semantics.shape != torch.Size([])
+                                          else new_block.train_semantics.repeat(len(X)))]),
+            test_semantics=(torch.stack([*individual.test_semantics,
+                                          (new_block.test_semantics
+                                           if new_block.test_semantics.shape != torch.Size([])
+                                           else new_block.test_semantics.repeat(len(X_test)))])
+                             if X_test is not None else None),
+            reconstruct=reconstruct
+        )
+
+        offs.size = individual.size + 1
+        offs.nodes_collection = [*individual.nodes_collection, new_block.nodes]
+        offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
+        offs.depth_collection = [*individual.depth_collection, new_block.depth]
+        offs.depth = max([depth - (i - 1) if i != 0 else depth
+                          for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
+        return offs
+
+    return inflate
+
+
 def inflate_mutation_norm1(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum'):
     """NORM1: single raw tree, min-max normalized to [-1,1] on training."""
     def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1,
