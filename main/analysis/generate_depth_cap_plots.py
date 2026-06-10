@@ -34,7 +34,7 @@ _LOG  = os.path.join(_HERE, "..", "log")
 _OUT  = os.path.join(_LOG, "latex", "depth_cap")
 os.makedirs(_OUT, exist_ok=True)
 
-LOG_CSV = os.path.join(_LOG, "results_depth_cap_2.csv")
+LOG_CSV = os.path.join(_LOG, "results_depth_cap_new.csv")
 
 # ── CONFIG ─────────────────────────────────────────────────────────────────────
 
@@ -44,10 +44,14 @@ _COLS = {0:"algo",1:"run_id",2:"dataset",3:"seed",4:"gen",
 DATASETS  = ["toxicity", "concrete", "instanbul", "ppb",
              "resid_build_sale_price", "energy"]
 VARIANTS  = ["SLIM+2SIG", "SLIM*ABS", "SLIM*1SIG"]
-HD_KEEP   = [5, 17, 25]           # exclude 50 and None
+HD_KEEP   = [5, 10, 17]
+PXO_KEEP  = [0.3, 0.7]
 
-HD_COLORS = {5: "#e41a1c", 17: "#377eb8", 25: "#4daf4a"}
-HD_LABELS = {5: "hd=5", 17: "hd=17", 25: "hd=25"}
+# Colors per hd value; line style distinguishes p_xo
+HD_COLORS  = {5: "#e41a1c", 10: "#ff7f00", 17: "#377eb8"}
+HD_LABELS  = {5: "hd=5",    10: "hd=10",   17: "hd=17"}
+PXO_STYLES = {0.3: "--", 0.7: "-"}
+PXO_LABELS = {0.3: "p_xo=0.3", 0.7: "p_xo=0.7"}
 
 # ── DATA LOAD ─────────────────────────────────────────────────────────────────
 
@@ -55,19 +59,18 @@ def load_data():
     df = pd.read_csv(LOG_CSV, header=None).rename(columns=_COLS)
     df["seed"] = df["seed"].astype(int)
     df["variant"] = df["algo"].str.extract(r"^(SLIM[+*]\w+)_pxo")
-    df["hd_str"]  = df["algo"].str.extract(r"_hd(\w+)$")
-    df["hd"] = pd.to_numeric(df["hd_str"], errors="coerce")
-    # keep only the hd values we want
-    df = df[df["hd"].isin(HD_KEEP)].copy()
-    df["hd"] = df["hd"].astype(int)
+    df["p_xo"]    = pd.to_numeric(df["algo"].str.extract(r"_pxo([0-9.]+)_")[0],
+                                   errors="coerce")
+    df["hd"]      = pd.to_numeric(df["algo"].str.extract(r"_hd(\d+)$")[0],
+                                   errors="coerce")
 
-    # For groups with multiple batches keep only the latest run.
-    # UUID1 encodes a timestamp; highest .time value = most recent batch.
+    df = df[df["hd"].isin(HD_KEEP) & df["p_xo"].isin(PXO_KEEP)].copy()
+    df["hd"]  = df["hd"].astype(int)
+
+    # For groups with multiple batches keep only the latest run (UUID1 timestamp).
     df["_uuid_time"] = df["run_id"].map(lambda r: UUID(r).time)
     latest = (df.groupby(["algo", "dataset", "seed"])["_uuid_time"]
-                .max()
-                .reset_index()
-                .rename(columns={"_uuid_time": "_latest"}))
+                .max().reset_index().rename(columns={"_uuid_time": "_latest"}))
     df = df.merge(latest, on=["algo", "dataset", "seed"])
     df = df[df["_uuid_time"] == df["_latest"]].drop(columns=["_uuid_time", "_latest"])
 
@@ -89,20 +92,23 @@ def _median_iqr(sub, metric):
 
 def plot_convergence(df, variant, metric="test", ax=None, dataset=None):
     """
-    Plot median (+IQR band) convergence curves for hd=5/17/25 on *ax*.
-    *metric* is 'train' or 'test'.
+    One curve per (hd, p_xo) combo: colour = hd, linestyle = p_xo.
+    Legend drawn on the first panel only.
     """
     sub = df[(df["variant"] == variant) & (df["dataset"] == dataset)]
     for hd in HD_KEEP:
-        s = sub[sub["hd"] == hd]
-        if s.empty:
-            continue
-        agg = _median_iqr(s, metric)
-        c = HD_COLORS[hd]
-        ax.plot(agg["gen"], agg["med"], color=c, linewidth=1.4,
-                label=HD_LABELS[hd])
-        ax.fill_between(agg["gen"], agg["q25"], agg["q75"],
-                        color=c, alpha=0.15)
+        for p_xo in PXO_KEEP:
+            s = sub[(sub["hd"] == hd) & (sub["p_xo"] == p_xo)]
+            if s.empty:
+                continue
+            agg = _median_iqr(s, metric)
+            c  = HD_COLORS[hd]
+            ls = PXO_STYLES[p_xo]
+            ax.plot(agg["gen"], agg["med"], color=c, linestyle=ls,
+                    linewidth=1.4,
+                    label=f"{HD_LABELS[hd]}, {PXO_LABELS[p_xo]}")
+            ax.fill_between(agg["gen"], agg["q25"], agg["q75"],
+                            color=c, alpha=0.10)
     ax.set_title(dataset, fontsize=8)
     ax.tick_params(labelsize=7)
 
@@ -111,16 +117,15 @@ def make_convergence_figures(df):
     for variant in VARIANTS:
         safe_v = re.sub(r'[^A-Za-z0-9_\-]', '_', variant)
         fig, axes = plt.subplots(2, 3, figsize=(13, 7), squeeze=False)
-        fig.suptitle(f"{variant} — test RMSE convergence  (p_xo=0.7)",
+        fig.suptitle(f"{variant} — test RMSE convergence  (colour=hd, style=p_xo)",
                      fontsize=12, fontweight="bold", y=1.01)
 
         for idx, dataset in enumerate(DATASETS):
             ax = axes[idx // 3][idx % 3]
             plot_convergence(df, variant, metric="test", ax=ax, dataset=dataset)
             if idx == 0:
-                ax.legend(fontsize=7, framealpha=0.7)
+                ax.legend(fontsize=6, framealpha=0.7, ncol=2)
 
-        # shared y-label
         for row in axes:
             row[0].set_ylabel("Test RMSE (median)", fontsize=8)
         for ax in axes[1]:
@@ -145,26 +150,29 @@ def make_size_figures(df):
     for variant in VARIANTS:
         safe_v = re.sub(r'[^A-Za-z0-9_\-]', '_', variant)
         fig, axes = plt.subplots(2, 3, figsize=(13, 7), squeeze=False)
-        fig.suptitle(f"{variant} — model size (nodes) over generations  (p_xo=0.7)",
+        fig.suptitle(f"{variant} — model size (nodes)  (colour=hd, style=p_xo)",
                      fontsize=12, fontweight="bold", y=1.01)
 
         for idx, dataset in enumerate(DATASETS):
             ax = axes[idx // 3][idx % 3]
             sub = df[(df["variant"] == variant) & (df["dataset"] == dataset)]
             for hd in HD_KEEP:
-                s = sub[sub["hd"] == hd]
-                if s.empty:
-                    continue
-                agg = _median_iqr(s, "nodes_count")
-                c = HD_COLORS[hd]
-                ax.plot(agg["gen"], agg["med"], color=c, linewidth=1.4,
-                        label=HD_LABELS[hd])
-                ax.fill_between(agg["gen"], agg["q25"], agg["q75"],
-                                color=c, alpha=0.15)
+                for p_xo in PXO_KEEP:
+                    s = sub[(sub["hd"] == hd) & (sub["p_xo"] == p_xo)]
+                    if s.empty:
+                        continue
+                    agg = _median_iqr(s, "nodes_count")
+                    c  = HD_COLORS[hd]
+                    ls = PXO_STYLES[p_xo]
+                    ax.plot(agg["gen"], agg["med"], color=c, linestyle=ls,
+                            linewidth=1.4,
+                            label=f"{HD_LABELS[hd]}, {PXO_LABELS[p_xo]}")
+                    ax.fill_between(agg["gen"], agg["q25"], agg["q75"],
+                                    color=c, alpha=0.10)
             ax.set_title(dataset, fontsize=8)
             ax.tick_params(labelsize=7)
             if idx == 0:
-                ax.legend(fontsize=7, framealpha=0.7)
+                ax.legend(fontsize=6, framealpha=0.7, ncol=2)
 
         for row in axes:
             row[0].set_ylabel("Model size (nodes, median)", fontsize=8)
@@ -194,7 +202,7 @@ def make_summary_table(df):
     df_last = df.merge(last, on=["algo","dataset","seed"])
     df_last  = df_last[df_last["gen"] == df_last["last_gen"]]
 
-    agg = (df_last.groupby(["variant","hd","dataset"])
+    agg = (df_last.groupby(["variant","p_xo","hd","dataset"])
                   .agg(
                       train_med  =("train",       "median"),
                       train_iqr  =("train",       iqr),
@@ -216,41 +224,39 @@ def make_summary_table(df):
     print(f"  Saved: depth_cap_summary_table.csv")
 
     # LaTeX
-    col_spec = "lllrrrrrr"
+    col_spec = "llllrrrrrr"
     lines = [
         r"\begin{longtable}{" + col_spec + "}",
-        r"\caption{Depth-cap sweep (p\_xo=0.7): median (IQR) at final generation}"
+        r"\caption{Depth-cap sweep: median (IQR) at final generation}"
         r" \label{tab:depth_cap} \\",
         r"\toprule",
-        r"Variant & Dataset & max\_hd & "
+        r"Variant & Dataset & p\_xo & max\_hd & "
         r"\multicolumn{2}{c}{Train RMSE} & "
         r"\multicolumn{2}{c}{Test RMSE} & "
         r"\multicolumn{2}{c}{Model Size} \\",
-        r"\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}",
-        r" & & & Med & IQR & Med & IQR & Med & IQR \\",
+        r"\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}",
+        r" & & & & Med & IQR & Med & IQR & Med & IQR \\",
         r"\midrule",
         r"\endfirsthead",
         r"\toprule",
-        r"Variant & Dataset & max\_hd & "
+        r"Variant & Dataset & p\_xo & max\_hd & "
         r"\multicolumn{2}{c}{Train RMSE} & "
         r"\multicolumn{2}{c}{Test RMSE} & "
         r"\multicolumn{2}{c}{Model Size} \\",
-        r" & & & Med & IQR & Med & IQR & Med & IQR \\",
+        r" & & & & Med & IQR & Med & IQR & Med & IQR \\",
         r"\midrule",
         r"\endhead",
         r"\bottomrule",
         r"\endfoot",
     ]
     prev_key = None
-    for _, r in agg.sort_values(["variant","dataset","hd"]).iterrows():
+    for _, r in agg.sort_values(["variant","dataset","p_xo","hd"]).iterrows():
         key = (r["variant"], r["dataset"])
         if prev_key is not None and key != prev_key:
             lines.append(r"\midrule")
         prev_key = key
-        v  = r["variant"] if key != prev_key else ""
-        ds = r["dataset"]
         lines.append(
-            f"{r['variant']} & {r['dataset']} & {r['hd']} & "
+            f"{r['variant']} & {r['dataset']} & {r['p_xo']} & {r['hd']} & "
             f"{r['train_med']:.3f} & {r['train_iqr']:.3f} & "
             f"{r['test_med']:.3f} & {r['test_iqr']:.3f} & "
             f"{r['size_med']:.0f} & {r['size_iqr']:.0f} \\\\"
@@ -290,6 +296,6 @@ if __name__ == "__main__":
     df_last = df.merge(last, on=["algo","dataset","seed"])
     df_last  = df_last[df_last["gen"] == df_last["last_gen"]]
     print("\nPooled median test RMSE at gen 2000 (across all datasets & variants):")
-    print(df_last.groupby("hd")["test"].median().to_string())
+    print(df_last.groupby(["p_xo","hd"])["test"].median().unstack("hd").to_string())
     print("\nPooled median model size at gen 2000:")
-    print(df_last.groupby("hd")["nodes_count"].median().to_string())
+    print(df_last.groupby(["p_xo","hd"])["nodes_count"].median().unstack("hd").to_string())

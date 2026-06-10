@@ -36,9 +36,8 @@ _algo_names = {
     (True,  False, "mul", False): "SLIM*1SIG",
 }
 
-# p_xo=0.7 fixed; sweep depth cap. hd=17 already exists in results_prob_xo_12052026.csv.
-p_xo           = [0.3, 0.7]
-max_head_depth_values = [5, 10, 17]   # None = uncapped
+p_xo_values           = [0.3, 0.7]
+max_head_depth_values = [5, 10, 17]
 
 _dataset_params = {
     "toxicity": {"p_inflate": 0.1, "ms_lo": 0.0, "ms_hi": 0.1},
@@ -72,7 +71,7 @@ def load_completed_runs(log_path, n_iter):
 ########################################################################################################################
 
 def run_one(task):
-    (loader, sig, ttrees, op, max_head_depth, seed,
+    (loader, sig, ttrees, op, p_xo, max_head_depth, seed,
      algo, unique_run_id, log_path, p_inflate, ms_lo, ms_hi, project_root) = task
 
     if project_root not in sys.path:
@@ -185,19 +184,20 @@ if __name__ == '__main__':
         dp = _dataset_params.get(loader, _dataset_params["other"])
         for (sig, ttrees, op, gsgp) in variants:
             algo_base = _algo_names[(sig, ttrees, op, gsgp)]
-            for max_head_depth in max_head_depth_values:
-                hd_tag = "None" if max_head_depth is None else str(max_head_depth)
-                algo = f'{algo_base}_pxo{p_xo}_hd{hd_tag}'
-                for seed in range(n_runs):
-                    if (algo, loader, seed) in completed:
-                        print(f"  skip [{loader}] {algo} seed={seed}")
-                        continue
-                    tasks.append((
-                        loader, sig, ttrees, op, max_head_depth, seed,
-                        algo, unique_run_id, _LOG_PATH,
-                        dp["p_inflate"], dp["ms_lo"], dp["ms_hi"],
-                        _PROJECT_ROOT,
-                    ))
+            for p_xo in p_xo_values:
+                for max_head_depth in max_head_depth_values:
+                    hd_tag = str(max_head_depth)
+                    algo = f'{algo_base}_pxo{p_xo}_hd{hd_tag}'
+                    for seed in range(n_runs):
+                        if (algo, loader, seed) in completed:
+                            print(f"  skip [{loader}] {algo} seed={seed}")
+                            continue
+                        tasks.append((
+                            loader, sig, ttrees, op, p_xo, max_head_depth, seed,
+                            algo, unique_run_id, _LOG_PATH,
+                            dp["p_inflate"], dp["ms_lo"], dp["ms_hi"],
+                            _PROJECT_ROOT,
+                        ))
 
     print(f"Submitting {len(tasks)} tasks on {N_JOBS} workers...")
     wall0 = time.time()
@@ -209,7 +209,7 @@ if __name__ == '__main__':
             try:
                 print(f"[{i}/{len(tasks)}] {fut.result()}")
             except Exception as exc:
-                print(f"[{i}/{len(tasks)}] FAILED [{t[0]}] {t[6]} seed={t[5]}: {exc}")
+                print(f"[{i}/{len(tasks)}] FAILED [{t[0]}] {t[7]} seed={t[6]}: {exc}")
 
     print(f"\nAll runs complete -- {time.time() - wall0:.1f}s total")
 
@@ -218,7 +218,8 @@ if __name__ == '__main__':
         settings_dict=[
             {"n_runs": n_runs, "n_iter": 2000, "log": 1},
             {"pop_size": 100, "init_depth": 6, "elitism": True},
-            {"p_xo": p_xo, "max_head_depth_values": str(max_head_depth_values),
+            {"p_xo_values": str(p_xo_values),
+             "max_head_depth_values": str(max_head_depth_values),
              "head_xo_freq": None,
              "variants": str([_algo_names[v] for v in variants])},
             {"data_loaders": str(data_loaders), "TERMINALS": "N/A"},
