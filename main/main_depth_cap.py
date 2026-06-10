@@ -38,7 +38,7 @@ _algo_names = {
 
 # p_xo=0.7 fixed; sweep depth cap. hd=17 already exists in results_prob_xo_12052026.csv.
 p_xo           = 0.3
-max_head_depth_values = [None, 5, 17, 25]   # None = uncapped
+max_head_depth_values = [5, 17, 25]   # None = uncapped
 
 _dataset_params = {
     "toxicity": {"p_inflate": 0.1, "ms_lo": 0.0, "ms_hi": 0.1},
