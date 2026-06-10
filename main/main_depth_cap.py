@@ -37,8 +37,8 @@ _algo_names = {
 }
 
 # p_xo=0.7 fixed; sweep depth cap. hd=17 already exists in results_prob_xo_12052026.csv.
-p_xo           = 0.3
-max_head_depth_values = [5, 17, 25]   # None = uncapped
+p_xo           = [0.3, 0.7]
+max_head_depth_values = [5, 10, 17]   # None = uncapped
 
 _dataset_params = {
     "toxicity": {"p_inflate": 0.1, "ms_lo": 0.0, "ms_hi": 0.1},
@@ -46,8 +46,8 @@ _dataset_params = {
     "other":    {"p_inflate": 0.3, "ms_lo": 0.0, "ms_hi": 1.0},
 }
 
-_LOG_PATH      = os.path.join(os.path.dirname(__file__), "log", "results_depth_cap_2.csv")
-_SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "log", "settings_depth_cap.csv")
+_LOG_PATH      = os.path.join(os.path.dirname(__file__), "log", "results_depth_cap_new.csv")
+_SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "log", "settings_depth_cap_new.csv")
 
 ########################################################################################################################
 
@@ -187,7 +187,7 @@ if __name__ == '__main__':
             algo_base = _algo_names[(sig, ttrees, op, gsgp)]
             for max_head_depth in max_head_depth_values:
                 hd_tag = "None" if max_head_depth is None else str(max_head_depth)
-                algo = f'{algo_base}_pxo0.7_hd{hd_tag}'
+                algo = f'{algo_base}_pxo{p_xo}_hd{hd_tag}'
                 for seed in range(n_runs):
                     if (algo, loader, seed) in completed:
                         print(f"  skip [{loader}] {algo} seed={seed}")
