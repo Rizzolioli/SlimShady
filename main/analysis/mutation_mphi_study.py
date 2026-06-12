@@ -30,6 +30,8 @@ from algorithms.SLIM_GSGP.operators.mutators import (
     inflate_mutation,
     inflate_mutation_normalized,
     inflate_mutation_norm1,
+    inflate_mutation_normrob,
+    inflate_mutation_norm12,
 )
 from utils.utils import get_random_tree, compute_m_phi, protected_div
 
@@ -51,10 +53,14 @@ VARIANTS = [
     ("SLIM*1SIG",  False, "mul", None,    "1-tree / mul"),
     ("SLIM*ABS",   False, "mul", None,    "1-tree / mul"),
     ("SLIM*NORM1", False, "mul", "norm1", "1-tree / mul"),
-    ("SLIM+2SIG",  True,  "sum", None,    "2-tree / sum"),
-    ("SLIM+NORM2", True,  "sum", "norm2", "2-tree / sum"),
-    ("SLIM*2SIG",  True,  "mul", None,    "2-tree / mul"),
-    ("SLIM*NORM2", True,  "mul", "norm2", "2-tree / mul"),
+    ("SLIM+2SIG",    True,  "sum", None,      "2-tree / sum"),
+    ("SLIM+NORM2",   True,  "sum", "norm2",   "2-tree / sum"),
+    ("SLIM+NORMROB", True,  "sum", "normrob", "2-tree / sum"),
+    ("SLIM+NORM12",  True,  "sum", "norm12",  "2-tree / sum"),
+    ("SLIM*2SIG",    True,  "mul", None,      "2-tree / mul"),
+    ("SLIM*NORM2",   True,  "mul", "norm2",   "2-tree / mul"),
+    ("SLIM*NORMROB", True,  "mul", "normrob", "2-tree / mul"),
+    ("SLIM*NORM12",  True,  "mul", "norm12",  "2-tree / mul"),
 ]
 
 # Display order for the comparison table
@@ -76,6 +82,10 @@ def _build_mutator(name, two_trees, op, norm, functions, terminals, constants):
         return inflate_mutation_norm1(functions, terminals, constants, operator=op)
     if norm == "norm2":
         return inflate_mutation_normalized(functions, terminals, constants, operator=op)
+    if norm == "normrob":
+        return inflate_mutation_normrob(functions, terminals, constants, operator=op, scale='q99')
+    if norm == "norm12":
+        return inflate_mutation_norm12(functions, terminals, constants, operator=op)
     return inflate_mutation(functions, terminals, constants,
                             two_trees=two_trees, operator=op, sig=sig)
 

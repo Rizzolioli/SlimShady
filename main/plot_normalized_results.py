@@ -31,11 +31,13 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 # ── Layout constants ───────────────────────────────────────────────────────────
 ALGOS = [
-    'SLIM+2SIG', 'SLIM*2SIG',
-    'SLIM+ABS',  'SLIM*ABS',
-    'SLIM+1SIG', 'SLIM*1SIG',
-    'SLIM+NORM1','SLIM*NORM1',
-    'SLIM+NORM2','SLIM*NORM2',
+    'SLIM+2SIG',   'SLIM*2SIG',
+    'SLIM+ABS',    'SLIM*ABS',
+    'SLIM+1SIG',   'SLIM*1SIG',
+    'SLIM+NORM1',  'SLIM*NORM1',
+    'SLIM+NORM2',  'SLIM*NORM2',
+    'SLIM+NORMROB','SLIM*NORMROB',
+    'SLIM+NORM12', 'SLIM*NORM12',
 ]
 
 DATASETS = ['concrete', 'energy', 'instanbul', 'ppb', 'resid_build_sale_price', 'toxicity']
@@ -63,6 +65,8 @@ _PALETTE = [
     '#2ca02c', '#98df8a',   # 1SIG
     '#9467bd', '#c5b0d5',   # NORM1
     '#8c564b', '#c49c94',   # NORM2
+    '#ff7f0e', '#ffbb78',   # NORMROB
+    '#e377c2', '#f7b6d2',   # NORM12
 ]
 ALGO_COLOR = {a: c for a, c in zip(ALGOS, _PALETTE)}
 ALGO_LS    = {a: ('-' if '+' in a else '--') for a in ALGOS}

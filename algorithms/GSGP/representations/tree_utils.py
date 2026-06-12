@@ -90,6 +90,14 @@ def nested_depth_calculator(operator, depths):
         depths[0] += 4
         depths[1] += 4
 
+    elif operator.__name__ == 'tt_delta_norm12_sum':
+        depths[0] += 6
+        depths[1] += 6
+
+    elif operator.__name__ == 'tt_delta_norm12_mul':
+        depths[0] += 7
+        depths[1] += 7
+
     elif operator.__name__ == 'geometric_crossover':
         depths[:] += 2
         depths.append(depths[-1] + 1)
@@ -114,6 +122,8 @@ def nested_nodes_calculator(operator, nodes):
         [12] if name == 'ot_delta_normalized_mul'   else \
         [5]  if name == 'tt_delta_normrob_sum'      else \
         [7]  if name == 'tt_delta_normrob_mul'      else \
+        [19] if name == 'tt_delta_norm12_sum'       else \
+        [21] if name == 'tt_delta_norm12_mul'       else \
         [0]
 
     return sum([*nodes, *extra_operators_nodes])

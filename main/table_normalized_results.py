@@ -29,11 +29,13 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 ALGOS = [
-    'SLIM+2SIG', 'SLIM*2SIG',
-    'SLIM+ABS',  'SLIM*ABS',
-    'SLIM+1SIG', 'SLIM*1SIG',
-    'SLIM+NORM1','SLIM*NORM1',
-    'SLIM+NORM2','SLIM*NORM2',
+    'SLIM+2SIG',   'SLIM*2SIG',
+    'SLIM+ABS',    'SLIM*ABS',
+    'SLIM+1SIG',   'SLIM*1SIG',
+    'SLIM+NORM1',  'SLIM*NORM1',
+    'SLIM+NORM2',  'SLIM*NORM2',
+    'SLIM+NORMROB','SLIM*NORMROB',
+    'SLIM+NORM12', 'SLIM*NORM12',
 ]
 DATASETS = ['concrete', 'energy', 'instanbul', 'ppb', 'resid_build_sale_price', 'toxicity']
 DS_SHORT  = {

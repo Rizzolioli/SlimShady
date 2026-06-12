@@ -432,6 +432,8 @@ _NO_EXTRA = {
     'ot_delta_normalized_mul':  6,
     'tt_delta_normrob_sum':     3,
     'tt_delta_normrob_mul':     4,
+    'tt_delta_norm12_sum':     10,
+    'tt_delta_norm12_mul':     11,
 }
 
 # Non-arithmetic ops (sigmoids) contributed by each variator.
@@ -448,6 +450,8 @@ _NNAO_EXTRA = {
     'ot_delta_normalized_mul':  0,
     'tt_delta_normrob_sum':     0,
     'tt_delta_normrob_mul':     0,
+    'tt_delta_norm12_sum':      0,
+    'tt_delta_norm12_mul':      0,
 }
 
 
@@ -521,6 +525,16 @@ def _variator_to_sympy(variator, tree_exprs, ms_val):
         alpha = sp.Float(float(getattr(variator, 'alpha', 1.0)))
         diff = tree_exprs[0] - tree_exprs[1]
         term = ms * alpha * diff
+        return term if 'sum' in name else 1 + term
+
+    if 'tt_delta_norm12' in name:
+        t1_min   = sp.Float(float(getattr(variator, 't1_min',   0.0)))
+        t1_range = sp.Float(float(getattr(variator, 't1_range', 1.0)))
+        t2_min   = sp.Float(float(getattr(variator, 't2_min',   0.0)))
+        t2_range = sp.Float(float(getattr(variator, 't2_range', 1.0)))
+        n1 = 2 * (tree_exprs[0] - t1_min) / t1_range - 1
+        n2 = 2 * (tree_exprs[1] - t2_min) / t2_range - 1
+        term = ms * sp.Rational(1, 2) * (n1 - n2)
         return term if 'sum' in name else 1 + term
 
     if 'ot_delta_normalized' in name:

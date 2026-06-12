@@ -288,6 +288,79 @@ def inflate_mutation_normrob(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum', sc
     return inflate
 
 
+def two_trees_delta_norm12(operator='sum', t1_min=0., t1_range=1., t2_min=0., t2_range=1.):
+    """NORM12 variator: (ms/2) * (N(Tr1) - N(Tr2)), N = per-tree min-max to [-1,1]."""
+    def tt_delta_norm12(tr1, tr2, ms, testing):
+        t1 = tr1.test_semantics if testing else tr1.train_semantics
+        t2 = tr2.test_semantics if testing else tr2.train_semantics
+        n1 = 2 * (t1 - t1_min) / t1_range - 1
+        n2 = 2 * (t2 - t2_min) / t2_range - 1
+        diff = torch.sub(n1, n2)
+        return torch.mul(ms * 0.5, diff) if operator == 'sum' \
+               else torch.add(1, torch.mul(ms * 0.5, diff))
+    tt_delta_norm12.__name__ += ('_' + operator)
+    tt_delta_norm12.t1_min   = float(t1_min)
+    tt_delta_norm12.t1_range = float(t1_range)
+    tt_delta_norm12.t2_min   = float(t2_min)
+    tt_delta_norm12.t2_range = float(t2_range)
+    return tt_delta_norm12
+
+
+def inflate_mutation_norm12(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum'):
+    """NORM12: two raw trees, individually min-max normalised to [-1,1]. Step = (ms/2)*(N1-N2)."""
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1,
+                reconstruct=True, terminals_probabilities=None):
+        random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                       grow_probability=grow_probability, logistic=False,
+                                       terminals_probabilities=terminals_probabilities)
+        random_tree2 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                       grow_probability=grow_probability, logistic=False,
+                                       terminals_probabilities=terminals_probabilities)
+        random_trees = [random_tree1, random_tree2]
+
+        if X_test is not None:
+            [rt.calculate_semantics(X_test, testing=True, logistic=False) for rt in random_trees]
+
+        t1_train = random_tree1.train_semantics
+        t2_train = random_tree2.train_semantics
+        t1_min_v, t1_max_v = t1_train.min().item(), t1_train.max().item()
+        t2_min_v, t2_max_v = t2_train.min().item(), t2_train.max().item()
+        t1_range = max(t1_max_v - t1_min_v, 1e-8)
+        t2_range = max(t2_max_v - t2_min_v, 1e-8)
+
+        variator = two_trees_delta_norm12(operator, t1_min_v, t1_range, t2_min_v, t2_range)
+        new_block = Tree(
+            structure=[variator, *random_trees, ms],
+            train_semantics=variator(*random_trees, ms, testing=False),
+            test_semantics=variator(*random_trees, ms, testing=True) if X_test is not None else None,
+            reconstruct=True
+        )
+
+        offs = Individual(
+            collection=[*individual.collection, new_block] if reconstruct else None,
+            train_semantics=torch.stack([*individual.train_semantics,
+                                         (new_block.train_semantics
+                                          if new_block.train_semantics.shape != torch.Size([])
+                                          else new_block.train_semantics.repeat(len(X)))]),
+            test_semantics=(torch.stack([*individual.test_semantics,
+                                          (new_block.test_semantics
+                                           if new_block.test_semantics.shape != torch.Size([])
+                                           else new_block.test_semantics.repeat(len(X_test)))])
+                             if X_test is not None else None),
+            reconstruct=reconstruct
+        )
+
+        offs.size = individual.size + 1
+        offs.nodes_collection = [*individual.nodes_collection, new_block.nodes]
+        offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
+        offs.depth_collection = [*individual.depth_collection, new_block.depth]
+        offs.depth = max([depth - (i - 1) if i != 0 else depth
+                          for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
+        return offs
+
+    return inflate
+
+
 def inflate_mutation_norm1(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum'):
     """NORM1: single raw tree, min-max normalized to [-1,1] on training."""
     def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1,

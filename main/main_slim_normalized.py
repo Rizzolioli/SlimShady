@@ -33,6 +33,8 @@ VARIANTS = [
     # {"name": "SLIM*NORM2",   "sig": False, "two_trees": True,  "op": "mul", "norm": "norm2"},
     {"name": "SLIM+NORMROB", "sig": False, "two_trees": True,  "op": "sum", "norm": "normrob"},
     {"name": "SLIM*NORMROB", "sig": False, "two_trees": True,  "op": "mul", "norm": "normrob"},
+    {"name": "SLIM+NORM12",  "sig": False, "two_trees": True,  "op": "sum", "norm": "norm12"},
+    {"name": "SLIM*NORM12",  "sig": False, "two_trees": True,  "op": "mul", "norm": "norm12"},
 ]
 
 # Dataset-specific inflate probability
@@ -70,7 +72,7 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str,
     from algorithms.SLIM_GSGP.operators.mutators import (
         inflate_mutation, deflate_mutation,
         inflate_mutation_normalized, inflate_mutation_norm1,
-        inflate_mutation_normrob,
+        inflate_mutation_normrob, inflate_mutation_norm12,
     )
     from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
     from datasets.data_loader import load_preloaded
@@ -124,6 +126,11 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str,
         inflate_mutator = inflate_mutation_normrob(
             FUNCTIONS=FUNCTIONS, TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
             operator=variant["op"], scale='q99',
+        )
+    elif norm == "norm12":
+        inflate_mutator = inflate_mutation_norm12(
+            FUNCTIONS=FUNCTIONS, TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
+            operator=variant["op"],
         )
     else:
         inflate_mutator = inflate_mutation(

@@ -224,6 +224,39 @@ def test_inflate_normrob():
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# 3c. NORM12 inflate mutator
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_inflate_norm12():
+    from algorithms.SLIM_GSGP.operators.mutators import inflate_mutation_norm12
+    FUNCTIONS, TERMINALS, CONSTANTS, X_train, X_test, _, _, ind = _make_tiny_setup()
+
+    inflate = inflate_mutation_norm12(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum')
+    offspring = inflate(ind, 1.0, X_train, max_depth=3, X_test=X_test)
+    assert offspring.size == 2, f"Expected size 2, got {offspring.size}"
+
+    block = offspring.collection[1]
+    variator = block.structure[0]
+    assert variator.__name__ == 'tt_delta_norm12_sum', \
+        f"Wrong variator name: {variator.__name__}"
+    assert hasattr(variator, 't1_min') and hasattr(variator, 't1_range'), \
+        "t1_min / t1_range attributes missing"
+    assert hasattr(variator, 't2_min') and hasattr(variator, 't2_range'), \
+        "t2_min / t2_range attributes missing"
+
+    tr1, tr2 = block.structure[1], block.structure[2]
+    # N(T) on training must be exactly in [-1, 1] by construction
+    n1 = 2 * (tr1.train_semantics - variator.t1_min) / variator.t1_range - 1
+    n2 = 2 * (tr2.train_semantics - variator.t2_min) / variator.t2_range - 1
+    assert (n1.abs() <= 1.0 + 1e-5).all(), f"N(T1) out of [-1,1]: max={n1.abs().max()}"
+    assert (n2.abs() <= 1.0 + 1e-5).all(), f"N(T2) out of [-1,1]: max={n2.abs().max()}"
+
+    # Step (ms/2)*(N1-N2) must be in [-ms, ms] on training (ms=1.0 here)
+    step = 0.5 * (n1 - n2)
+    assert (step.abs() <= 1.0 + 1e-5).all(), f"Step out of [-1,1]: max={step.abs().max()}"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # 4. slim_individual_to_sympy + sympy_m_phi
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -482,6 +515,7 @@ if __name__ == "__main__":
     run("NORM2 inflate (alpha scaling)",    test_inflate_norm2)
     run("NORM1 inflate (min-max scaling)",  test_inflate_norm1)
     run("NORMROB inflate (robust q99/iqr/mad)", test_inflate_normrob)
+    run("NORM12 inflate (pair-normalised diff)", test_inflate_norm12)
     run("SymPy conversion (trivial tree)",  test_sympy_conversion_trivial)
     run("sympy_m_phi (symbol + exp)",       test_sympy_m_phi_simple)
     run("log_simplification + merge",       test_simplification_logger)

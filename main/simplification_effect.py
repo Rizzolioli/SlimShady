@@ -25,11 +25,13 @@ OUT_DIR  = os.path.join(LOG_DIR, 'figs')
 os.makedirs(OUT_DIR, exist_ok=True)
 
 ALGOS = [
-    'SLIM+2SIG', 'SLIM*2SIG',
-    'SLIM+ABS',  'SLIM*ABS',
-    'SLIM+1SIG', 'SLIM*1SIG',
-    'SLIM+NORM1','SLIM*NORM1',
-    'SLIM+NORM2','SLIM*NORM2',
+    'SLIM+2SIG',   'SLIM*2SIG',
+    'SLIM+ABS',    'SLIM*ABS',
+    'SLIM+1SIG',   'SLIM*1SIG',
+    'SLIM+NORM1',  'SLIM*NORM1',
+    'SLIM+NORM2',  'SLIM*NORM2',
+    'SLIM+NORMROB','SLIM*NORMROB',
+    'SLIM+NORM12', 'SLIM*NORM12',
 ]
 _PALETTE = [
     '#1f77b4', '#aec7e8',
@@ -37,6 +39,8 @@ _PALETTE = [
     '#2ca02c', '#98df8a',
     '#9467bd', '#c5b0d5',
     '#8c564b', '#c49c94',
+    '#ff7f0e', '#ffbb78',
+    '#e377c2', '#f7b6d2',
 ]
 ALGO_COLOR = {a: c for a, c in zip(ALGOS, _PALETTE)}
 
