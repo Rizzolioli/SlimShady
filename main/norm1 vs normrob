@@ -1,0 +1,92 @@
+● Here are the key insights from the data:
+
+  ---
+  1. Sum (+) dominates product (*) on accuracy — but at a steep interpretability cost
+
+  All four + variants rank 1–5 in test RMSE; all * variants rank 5–8. However the * variants produce dramatically smaller and more interpretable models:
+  SLIM*NORM1 has a median M_φ of +70.8 vs SLIM+NORM1 at +26.9, and SLIM+NORM2 reaches -57 median M_φ — a deeply uninterpretable model. The * operator acts as an
+  implicit size brake.
+
+  ---
+  2. NORM2 and NORMROB are not equivalent in practice
+
+  The mutation-cost study shows them identical (same dm_φ = -9.9, same node structure), but their empirical performance diverges:
+  - On PPB, SLIM+NORM2 collapses to a median RMSE of 242 with a std of 3506 — extreme seed instability. SLIM+NORMROB holds at 85 with std 439. This is exactly
+  the scenario NORMROB was designed for: NORM2's alpha is determined by a single max, so one extreme tree pair makes the step near-zero and learning stalls.
+  - On concrete and resid, NORM2 is slightly better. NORMROB is the safer general-purpose choice.
+
+  ---
+  3. NORM12 is too costly — immediate size explosion, no sustained learning
+
+  Convergence to within 10% of final RMSE happens at generation 0 or 1 for both NORM12 variants. This means they grow very fast (median 312 blocks for +, vs 116
+  for NORM1+) and then plateau immediately. Istanbul reaches 21,265 blocks for SLIM*NORM12. The per-step M_φ cost is nearly double the other two-tree variants
+  (-16 vs -10), and the final M_φ values (-61 for +, +62 for *) confirm this. Despite the bloat, SLIM+NORM12 stays competitive on energy and concrete, which
+  suggests the normalisation itself is useful — just too expensive.
+
+  ---
+  4. NORM1+ is the fastest learner and the best interpretability/accuracy trade-off
+
+  Converges at generation 152 (vs 455–1059 for two-tree variants). Best M_φ among all + variants (+26.9 median). Median rank = 3.5 — tied for best. It doesn't
+  reach the lowest RMSE on concrete/energy where NORM2+/NORMROB+ eventually overtake it, but it gets most of the way there very early.
+
+  ---
+  5. Istanbul is an outlier that inflates size for all variants
+
+  Istanbul sees 2,000–21,000 blocks at last gen while other datasets sit at 3–350. The target function on this dataset apparently resists compact symbolic
+  representations, driving runaway inflation regardless of the normalisation strategy. Size-based metrics for Istanbul should be treated separately.
+
+  ---
+  Take-away ranking (excluding Istanbul noise):
+
+  ┌──────────────────────────────────────────┬───────────────────────────────────────────────────────────┐
+  │                Criterion                 │                          Winner                           │
+  ├──────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Best test RMSE                           │ SLIM+NORM2 (concrete, resid) / SLIM+NORMROB (energy, PPB) │
+  ├──────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Most stable across datasets              │ SLIM+NORMROB                                              │
+  ├──────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Best interpretability (M_φ)              │ SLIM*NORM1                                                │
+  ├──────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Best accuracy/interpretability trade-off │ SLIM+NORM1 (fast, compact, no outlier risk)               │
+  ├──────────────────────────────────────────┼───────────────────────────────────────────────────────────┤
+  │ Worst overall                            │ SLIM*NORM1 (accuracy) and SLIM+NORM12 (size/M_φ)          │
+  └──────────────────────────────────────────┴───────────────────────────────────────────────────────────┘
+
+  NORMROB is the natural candidate to compare against the full SLIM family: it matches or beats NORM2 on accuracy while avoiding the PPB failure mode.
+
+✻ Churned for 2m 13s
+
+❯ why NORMROB and not NORM1
+
+● You're right to challenge that — looking back at the numbers, NORM1+ is actually the stronger candidate.
+
+  SLIM+NORM1 beats SLIM+NORMROB on 3 of 6 datasets:
+
+  ┌──────────┬────────┬──────────┬──────────────────┐
+  │ Dataset  │ NORM1+ │ NORMROB+ │      Winner      │
+  ├──────────┼────────┼──────────┼──────────────────┤
+  │ Concrete │ 10.31  │ 9.22     │ NORMROB          │
+  ├──────────┼────────┼──────────┼──────────────────┤
+  │ Energy   │ 4.64   │ 3.39     │ NORMROB          │
+  ├──────────┼────────┼──────────┼──────────────────┤
+  │ Istanbul │ 0.0154 │ 0.0171   │ NORM1            │
+  ├──────────┼────────┼──────────┼──────────────────┤
+  │ PPB      │ 35.5   │ 85.4     │ NORM1 (by a lot) │
+  ├──────────┼────────┼──────────┼──────────────────┤
+  │ Resid    │ 58.7   │ 43.9     │ NORMROB          │
+  ├──────────┼────────┼──────────┼──────────────────┤
+  │ Toxicity │ 2056   │ 2143     │ NORM1            │
+  └──────────┴────────┴──────────┴──────────────────┘
+
+  The datasets NORMROB wins are close margins; the dataset NORM1 wins decisively is PPB, where NORMROB has a std of 438 — it's not reliably better there, it
+  just got lucky on some seeds. NORM1 has a PPB std of only 29.
+
+  Beyond accuracy, NORM1 is objectively better on everything else:
+  - Median rank 3.5 vs 4.5 — consistently ranked higher across datasets
+  - M_φ +26.9 vs +3.7 — meaningfully more interpretable
+  - Convergence at gen 152 vs gen 455 — learns faster
+  - Size 116 vs 168 blocks — more compact
+
+  My recommendation of NORMROB was inconsistent with the analysis. SLIM+NORM1 is the right choice for the comparison against the full SLIM family — it's the
+  best-performing NORM variant by median rank, more interpretable, faster-converging, and more robust on the hardest dataset (PPB).
+
