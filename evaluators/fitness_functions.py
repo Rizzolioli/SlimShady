@@ -29,3 +29,6 @@ def r2(y_true, y_pred):
     ss_res = torch.sum(torch.pow(torch.sub(y_true, y_pred), 2))
     ss_tot = torch.sum(torch.pow(torch.sub(y_true, torch.mean(y_true)), 2))
     return 1.0 - ss_res / (ss_tot + 1e-10)
+
+def neg_r2(y_true, y_pred):
+    return -r2(y_true, y_pred)

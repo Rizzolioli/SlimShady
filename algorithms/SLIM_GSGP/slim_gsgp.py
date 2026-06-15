@@ -6,7 +6,7 @@ import numpy as np
 from utils.TIE import calculate_tie
 from utils.utils import verbose_reporter, compute_m_phi, slim_individual_to_sympy, sympy_m_phi
 from utils.logger import logger, log_simplification
-from evaluators.fitness_functions import mae, r2
+from evaluators.fitness_functions import mae, r2, rmse
 from algorithms.SLIM_GSGP.representations.population import Population
 from algorithms.GSGP.representations.tree import Tree
 from algorithms.GP.representations.tree import Tree as GP_Tree
@@ -251,6 +251,7 @@ class SLIM_GSGP:
                     int(_no), int(_nnao), int(_nnaoc),
                     float(mae(y_test, _y_pred)),
                     float(r2(y_test, _y_pred)),
+                    float(rmse(y_test, _y_pred)),
                     log,
                 ]
 
