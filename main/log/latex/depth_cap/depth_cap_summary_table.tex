@@ -1,87 +1,141 @@
-\begin{longtable}{lllrrrrrr}
-\caption{Depth-cap sweep (p\_xo=0.7): median (IQR) at final generation} \label{tab:depth_cap} \\
+\begin{longtable}{llllrrrrrr}
+\caption{Depth-cap sweep: median (IQR) at final generation} \label{tab:depth_cap} \\
 \toprule
-Variant & Dataset & max\_hd & \multicolumn{2}{c}{Train RMSE} & \multicolumn{2}{c}{Test RMSE} & \multicolumn{2}{c}{Model Size} \\
-\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
- & & & Med & IQR & Med & IQR & Med & IQR \\
+Variant & Dataset & p\_xo & max\_hd & \multicolumn{2}{c}{Train RMSE} & \multicolumn{2}{c}{Test RMSE} & \multicolumn{2}{c}{Model Size} \\
+\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}
+ & & & & Med & IQR & Med & IQR & Med & IQR \\
 \midrule
 \endfirsthead
 \toprule
-Variant & Dataset & max\_hd & \multicolumn{2}{c}{Train RMSE} & \multicolumn{2}{c}{Test RMSE} & \multicolumn{2}{c}{Model Size} \\
- & & & Med & IQR & Med & IQR & Med & IQR \\
+Variant & Dataset & p\_xo & max\_hd & \multicolumn{2}{c}{Train RMSE} & \multicolumn{2}{c}{Test RMSE} & \multicolumn{2}{c}{Model Size} \\
+ & & & & Med & IQR & Med & IQR & Med & IQR \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-SLIM*1SIG & concrete & 5 & 9.052 & 13.234 & 9.782 & 11.453 & 731 & 302 \\
-SLIM*1SIG & concrete & 17 & 10.692 & 13.551 & 11.569 & 12.516 & 855 & 262 \\
-SLIM*1SIG & concrete & 25 & 10.692 & 11.386 & 11.569 & 10.101 & 855 & 262 \\
+SLIM*1SIG & concrete & 0.3 & 5 & 9.052 & 13.234 & 9.782 & 11.453 & 731 & 302 \\
+SLIM*1SIG & concrete & 0.3 & 10 & 10.692 & 13.359 & 11.569 & 11.808 & 855 & 62 \\
+SLIM*1SIG & concrete & 0.3 & 17 & 10.692 & 13.551 & 11.569 & 12.516 & 855 & 262 \\
+SLIM*1SIG & concrete & 0.7 & 5 & 8.139 & 0.719 & 9.169 & 1.354 & 1173 & 366 \\
+SLIM*1SIG & concrete & 0.7 & 10 & 8.916 & 0.913 & 8.561 & 0.403 & 1095 & 162 \\
+SLIM*1SIG & concrete & 0.7 & 17 & 8.916 & 1.690 & 8.561 & 0.391 & 1119 & 82 \\
 \midrule
-SLIM*1SIG & energy & 5 & 2.799 & 0.054 & 3.167 & 0.132 & 253 & 84 \\
-SLIM*1SIG & energy & 17 & 2.672 & 0.266 & 2.903 & 0.308 & 259 & 90 \\
-SLIM*1SIG & energy & 25 & 2.672 & 0.266 & 2.903 & 0.308 & 259 & 90 \\
+SLIM*1SIG & energy & 0.3 & 5 & 2.799 & 0.054 & 3.167 & 0.132 & 253 & 84 \\
+SLIM*1SIG & energy & 0.3 & 10 & 2.672 & 0.266 & 2.903 & 0.308 & 259 & 90 \\
+SLIM*1SIG & energy & 0.3 & 17 & 2.672 & 0.266 & 2.903 & 0.308 & 259 & 90 \\
+SLIM*1SIG & energy & 0.7 & 5 & 2.956 & 0.238 & 3.264 & 0.167 & 595 & 174 \\
+SLIM*1SIG & energy & 0.7 & 10 & 2.948 & 0.059 & 3.268 & 0.221 & 555 & 50 \\
+SLIM*1SIG & energy & 0.7 & 17 & 2.975 & 0.102 & 3.268 & 0.140 & 581 & 42 \\
 \midrule
-SLIM*1SIG & instanbul & 5 & 0.012 & 0.000 & 0.015 & 0.000 & 797 & 108 \\
-SLIM*1SIG & instanbul & 17 & 0.012 & 0.000 & 0.016 & 0.001 & 973 & 186 \\
-SLIM*1SIG & instanbul & 25 & 0.012 & 0.000 & 0.016 & 0.001 & 799 & 178 \\
+SLIM*1SIG & instanbul & 0.3 & 5 & 0.012 & 0.000 & 0.015 & 0.000 & 797 & 108 \\
+SLIM*1SIG & instanbul & 0.3 & 10 & 0.012 & 0.000 & 0.016 & 0.001 & 761 & 180 \\
+SLIM*1SIG & instanbul & 0.3 & 17 & 0.012 & 0.000 & 0.016 & 0.001 & 973 & 186 \\
+SLIM*1SIG & instanbul & 0.7 & 5 & 0.013 & 0.001 & 0.017 & 0.001 & 599 & 122 \\
+SLIM*1SIG & instanbul & 0.7 & 10 & 0.013 & 0.000 & 0.016 & 0.001 & 725 & 1024 \\
+SLIM*1SIG & instanbul & 0.7 & 17 & 0.013 & 0.000 & 0.016 & 0.001 & 685 & 86 \\
 \midrule
-SLIM*1SIG & ppb & 5 & 30.232 & 1.123 & 45.469 & 4.195 & 83 & 16 \\
-SLIM*1SIG & ppb & 17 & 30.607 & 3.969 & 50.613 & 7.527 & 87 & 20 \\
-SLIM*1SIG & ppb & 25 & 30.607 & 3.969 & 50.613 & 7.527 & 87 & 20 \\
+SLIM*1SIG & ppb & 0.3 & 5 & 30.232 & 1.123 & 45.469 & 4.195 & 83 & 16 \\
+SLIM*1SIG & ppb & 0.3 & 10 & 30.607 & 3.969 & 50.613 & 7.527 & 87 & 20 \\
+SLIM*1SIG & ppb & 0.3 & 17 & 30.607 & 3.969 & 50.613 & 7.527 & 87 & 20 \\
+SLIM*1SIG & ppb & 0.7 & 5 & 30.540 & 0.817 & 55.472 & 6.775 & 67 & 8 \\
+SLIM*1SIG & ppb & 0.7 & 10 & 28.683 & 1.077 & 43.334 & 2.159 & 75 & 8 \\
+SLIM*1SIG & ppb & 0.7 & 17 & 28.683 & 2.267 & 44.056 & 2.107 & 75 & 6 \\
 \midrule
-SLIM*1SIG & resid_build_sale_price & 5 & 46.620 & 3.040 & 57.431 & 8.935 & 119 & 24 \\
-SLIM*1SIG & resid_build_sale_price & 17 & 46.620 & 7.176 & 59.038 & 8.400 & 111 & 22 \\
-SLIM*1SIG & resid_build_sale_price & 25 & 46.620 & 7.176 & 59.038 & 8.400 & 111 & 22 \\
+SLIM*1SIG & resid_build_sale_price & 0.3 & 5 & 46.620 & 3.040 & 57.431 & 8.935 & 119 & 24 \\
+SLIM*1SIG & resid_build_sale_price & 0.3 & 10 & 46.620 & 7.176 & 59.038 & 8.400 & 111 & 10 \\
+SLIM*1SIG & resid_build_sale_price & 0.3 & 17 & 46.620 & 7.176 & 59.038 & 8.400 & 111 & 22 \\
+SLIM*1SIG & resid_build_sale_price & 0.7 & 5 & 35.312 & 21.691 & 46.906 & 42.250 & 193 & 34 \\
+SLIM*1SIG & resid_build_sale_price & 0.7 & 10 & 47.082 & 12.026 & 35.847 & 12.038 & 133 & 118 \\
+SLIM*1SIG & resid_build_sale_price & 0.7 & 17 & 47.082 & 8.598 & 36.772 & 12.038 & 133 & 154 \\
 \midrule
-SLIM*1SIG & toxicity & 5 & 1845.951 & 75.892 & 2006.073 & 329.454 & 257 & 156 \\
-SLIM*1SIG & toxicity & 17 & 1779.704 & 194.030 & 1996.041 & 42.963 & 247 & 212 \\
-SLIM*1SIG & toxicity & 25 & 1815.321 & 191.407 & 2037.773 & 90.291 & 231 & 204 \\
+SLIM*1SIG & toxicity & 0.3 & 5 & 1845.951 & 75.892 & 2006.073 & 329.454 & 257 & 156 \\
+SLIM*1SIG & toxicity & 0.3 & 10 & 1824.253 & 24.904 & 1994.810 & 73.284 & 231 & 236 \\
+SLIM*1SIG & toxicity & 0.3 & 17 & 1779.704 & 194.030 & 1996.041 & 42.963 & 247 & 212 \\
+SLIM*1SIG & toxicity & 0.7 & 5 & 1847.172 & 21.136 & 1994.791 & 128.489 & 297 & 122 \\
+SLIM*1SIG & toxicity & 0.7 & 10 & 1735.575 & 92.455 & 2016.338 & 199.487 & 451 & 60 \\
+SLIM*1SIG & toxicity & 0.7 & 17 & 1707.843 & 211.162 & 2044.434 & 170.254 & 565 & 586 \\
 \midrule
-SLIM*ABS & concrete & 5 & 7.143 & 0.634 & 7.389 & 0.965 & 1170 & 197 \\
-SLIM*ABS & concrete & 17 & 20.750 & 10.593 & 19.648 & 9.549 & 1405 & 549 \\
-SLIM*ABS & concrete & 25 & 20.750 & 9.037 & 19.648 & 7.710 & 1405 & 7756 \\
+SLIM*ABS & concrete & 0.3 & 5 & 7.143 & 0.634 & 7.389 & 0.965 & 1170 & 197 \\
+SLIM*ABS & concrete & 0.3 & 10 & 21.171 & 0.626 & 19.812 & 0.470 & 1283 & 179 \\
+SLIM*ABS & concrete & 0.3 & 17 & 20.750 & 10.593 & 19.648 & 9.549 & 1405 & 549 \\
+SLIM*ABS & concrete & 0.7 & 5 & 8.869 & 2.028 & 9.165 & 2.435 & 1562 & 202 \\
+SLIM*ABS & concrete & 0.7 & 10 & 8.208 & 7.217 & 9.176 & 7.826 & 1809 & 585 \\
+SLIM*ABS & concrete & 0.7 & 17 & 8.211 & 7.547 & 8.652 & 7.884 & 2512 & 4046 \\
 \midrule
-SLIM*ABS & energy & 5 & 2.701 & 0.147 & 2.867 & 0.147 & 289 & 68 \\
-SLIM*ABS & energy & 17 & 2.633 & 0.035 & 2.964 & 0.163 & 307 & 121 \\
-SLIM*ABS & energy & 25 & 2.633 & 0.035 & 2.964 & 0.163 & 307 & 121 \\
+SLIM*ABS & energy & 0.3 & 5 & 2.701 & 0.147 & 2.867 & 0.147 & 289 & 68 \\
+SLIM*ABS & energy & 0.3 & 10 & 2.633 & 0.035 & 2.964 & 0.163 & 307 & 121 \\
+SLIM*ABS & energy & 0.3 & 17 & 2.633 & 0.035 & 2.964 & 0.163 & 307 & 121 \\
+SLIM*ABS & energy & 0.7 & 5 & 2.846 & 0.148 & 3.139 & 0.073 & 518 & 56 \\
+SLIM*ABS & energy & 0.7 & 10 & 2.824 & 0.072 & 3.085 & 0.419 & 440 & 112 \\
+SLIM*ABS & energy & 0.7 & 17 & 2.746 & 0.122 & 3.008 & 0.268 & 497 & 143 \\
 \midrule
-SLIM*ABS & instanbul & 5 & 0.013 & 0.000 & 0.015 & 0.001 & 269 & 200 \\
-SLIM*ABS & instanbul & 17 & 0.013 & 0.000 & 0.015 & 0.001 & 321 & 79 \\
-SLIM*ABS & instanbul & 25 & 0.013 & 0.000 & 0.015 & 0.001 & 321 & 79 \\
+SLIM*ABS & instanbul & 0.3 & 5 & 0.013 & 0.000 & 0.015 & 0.001 & 269 & 200 \\
+SLIM*ABS & instanbul & 0.3 & 10 & 0.013 & 0.000 & 0.015 & 0.001 & 321 & 79 \\
+SLIM*ABS & instanbul & 0.3 & 17 & 0.013 & 0.000 & 0.015 & 0.001 & 321 & 79 \\
+SLIM*ABS & instanbul & 0.7 & 5 & 0.013 & 0.000 & 0.014 & 0.001 & 358 & 138 \\
+SLIM*ABS & instanbul & 0.7 & 10 & 0.013 & 0.000 & 0.015 & 0.000 & 310 & 13 \\
+SLIM*ABS & instanbul & 0.7 & 17 & 0.013 & 0.000 & 0.015 & 0.000 & 310 & 13 \\
 \midrule
-SLIM*ABS & ppb & 5 & 28.828 & 4.562 & 57.295 & 9.711 & 412 & 130 \\
-SLIM*ABS & ppb & 17 & 29.386 & 2.476 & 57.837 & 5.580 & 412 & 47 \\
-SLIM*ABS & ppb & 25 & 29.196 & 2.476 & 63.309 & 6.516 & 412 & 47 \\
+SLIM*ABS & ppb & 0.3 & 5 & 28.828 & 4.562 & 57.295 & 9.711 & 412 & 130 \\
+SLIM*ABS & ppb & 0.3 & 10 & 30.259 & 2.476 & 63.309 & 6.516 & 412 & 47 \\
+SLIM*ABS & ppb & 0.3 & 17 & 29.386 & 2.476 & 57.837 & 5.580 & 412 & 47 \\
+SLIM*ABS & ppb & 0.7 & 5 & 26.908 & 2.901 & 47.575 & 6.387 & 1040 & 503 \\
+SLIM*ABS & ppb & 0.7 & 10 & 29.713 & 4.055 & 48.692 & 19.015 & 785 & 480 \\
+SLIM*ABS & ppb & 0.7 & 17 & 29.713 & 4.055 & 48.692 & 19.015 & 785 & 480 \\
 \midrule
-SLIM*ABS & resid_build_sale_price & 5 & 45.478 & 7.395 & 58.881 & 3.774 & 232 & 118 \\
-SLIM*ABS & resid_build_sale_price & 17 & 49.559 & 6.484 & 56.046 & 26.383 & 305 & 109 \\
-SLIM*ABS & resid_build_sale_price & 25 & 49.559 & 6.484 & 56.046 & 26.383 & 305 & 109 \\
+SLIM*ABS & resid_build_sale_price & 0.3 & 5 & 45.478 & 7.395 & 58.881 & 3.774 & 232 & 118 \\
+SLIM*ABS & resid_build_sale_price & 0.3 & 10 & 49.559 & 6.484 & 56.046 & 26.383 & 305 & 109 \\
+SLIM*ABS & resid_build_sale_price & 0.3 & 17 & 49.559 & 6.484 & 56.046 & 26.383 & 305 & 109 \\
+SLIM*ABS & resid_build_sale_price & 0.7 & 5 & 45.857 & 2.321 & 37.778 & 15.826 & 108 & 287 \\
+SLIM*ABS & resid_build_sale_price & 0.7 & 10 & 39.881 & 4.667 & 37.344 & 25.719 & 279 & 124 \\
+SLIM*ABS & resid_build_sale_price & 0.7 & 17 & 41.122 & 2.856 & 38.052 & 25.719 & 337 & 137 \\
 \midrule
-SLIM*ABS & toxicity & 5 & 1934.040 & 75.115 & 2083.186 & 295.836 & 675 & 313 \\
-SLIM*ABS & toxicity & 17 & 1934.040 & 132.041 & 2036.889 & 260.068 & 860 & 285 \\
-SLIM*ABS & toxicity & 25 & 1934.040 & 113.284 & 2073.168 & 260.068 & 860 & 271 \\
+SLIM*ABS & toxicity & 0.3 & 5 & 1934.040 & 75.115 & 2083.186 & 295.836 & 675 & 313 \\
+SLIM*ABS & toxicity & 0.3 & 10 & 1934.040 & 131.384 & 2030.334 & 275.486 & 860 & 114 \\
+SLIM*ABS & toxicity & 0.3 & 17 & 1934.040 & 132.041 & 2036.889 & 260.068 & 860 & 285 \\
+SLIM*ABS & toxicity & 0.7 & 5 & 1917.746 & 160.262 & 2029.002 & 171.546 & 1440 & 628 \\
+SLIM*ABS & toxicity & 0.7 & 10 & 1724.961 & 53.193 & 2060.649 & 52.065 & 1976 & 157 \\
+SLIM*ABS & toxicity & 0.7 & 17 & 1769.418 & 4.836 & 2048.175 & 99.316 & 1994 & 358 \\
 \midrule
-SLIM+2SIG & concrete & 5 & 12.035 & 1.881 & 12.409 & 2.070 & 11297 & 242 \\
-SLIM+2SIG & concrete & 17 & 15.487 & 5.940 & 15.577 & 1.902 & 11297 & 453 \\
-SLIM+2SIG & concrete & 25 & 16.722 & 5.571 & 16.717 & 1.460 & 11297 & 824 \\
+SLIM+2SIG & concrete & 0.3 & 5 & 12.035 & 1.881 & 12.409 & 2.070 & 11297 & 242 \\
+SLIM+2SIG & concrete & 0.3 & 10 & 15.983 & 10.592 & 15.979 & 6.743 & 11297 & 568 \\
+SLIM+2SIG & concrete & 0.3 & 17 & 15.487 & 10.592 & 15.577 & 6.743 & 11297 & 453 \\
+SLIM+2SIG & concrete & 0.7 & 5 & 13.236 & 0.712 & 13.008 & 1.051 & 7488 & 419 \\
+SLIM+2SIG & concrete & 0.7 & 10 & 12.488 & 1.327 & 11.862 & 1.554 & 8005 & 810 \\
+SLIM+2SIG & concrete & 0.7 & 17 & 12.488 & 1.219 & 11.862 & 1.870 & 8125 & 26645 \\
 \midrule
-SLIM+2SIG & energy & 5 & 2.725 & 0.418 & 3.062 & 0.244 & 2914 & 410 \\
-SLIM+2SIG & energy & 17 & 2.657 & 0.143 & 2.940 & 0.182 & 2185 & 840 \\
-SLIM+2SIG & energy & 25 & 2.731 & 0.236 & 3.069 & 0.441 & 2185 & 611 \\
+SLIM+2SIG & energy & 0.3 & 5 & 2.725 & 0.418 & 3.062 & 0.244 & 2914 & 410 \\
+SLIM+2SIG & energy & 0.3 & 10 & 2.588 & 0.253 & 2.956 & 0.335 & 2553 & 667 \\
+SLIM+2SIG & energy & 0.3 & 17 & 2.657 & 0.143 & 2.940 & 0.182 & 2185 & 840 \\
+SLIM+2SIG & energy & 0.7 & 5 & 2.844 & 0.130 & 3.302 & 0.362 & 3210 & 186 \\
+SLIM+2SIG & energy & 0.7 & 10 & 2.896 & 0.118 & 3.328 & 0.102 & 2311 & 402 \\
+SLIM+2SIG & energy & 0.7 & 17 & 2.896 & 0.118 & 3.328 & 0.102 & 2311 & 402 \\
 \midrule
-SLIM+2SIG & instanbul & 5 & 0.013 & 0.000 & 0.015 & 0.002 & 771 & 306 \\
-SLIM+2SIG & instanbul & 17 & 0.013 & 0.000 & 0.015 & 0.000 & 480 & 40 \\
-SLIM+2SIG & instanbul & 25 & 0.013 & 0.000 & 0.015 & 0.000 & 480 & 40 \\
+SLIM+2SIG & instanbul & 0.3 & 5 & 0.013 & 0.000 & 0.015 & 0.002 & 771 & 306 \\
+SLIM+2SIG & instanbul & 0.3 & 10 & 0.013 & 0.000 & 0.015 & 0.000 & 480 & 40 \\
+SLIM+2SIG & instanbul & 0.3 & 17 & 0.013 & 0.000 & 0.015 & 0.000 & 480 & 40 \\
+SLIM+2SIG & instanbul & 0.7 & 5 & 0.013 & 0.000 & 0.015 & 0.001 & 1725 & 1238 \\
+SLIM+2SIG & instanbul & 0.7 & 10 & 0.013 & 0.001 & 0.015 & 0.000 & 1462 & 1046 \\
+SLIM+2SIG & instanbul & 0.7 & 17 & 0.013 & 0.000 & 0.015 & 0.001 & 977 & 789 \\
 \midrule
-SLIM+2SIG & ppb & 5 & 19.901 & 3.228 & 34.127 & 1.641 & 4960 & 1177 \\
-SLIM+2SIG & ppb & 17 & 19.901 & 3.489 & 33.056 & 3.757 & 4960 & 920 \\
-SLIM+2SIG & ppb & 25 & 19.901 & 3.489 & 33.056 & 3.757 & 4960 & 920 \\
+SLIM+2SIG & ppb & 0.3 & 5 & 19.901 & 3.228 & 34.127 & 1.641 & 4960 & 1177 \\
+SLIM+2SIG & ppb & 0.3 & 10 & 19.901 & 3.489 & 33.056 & 3.757 & 4960 & 920 \\
+SLIM+2SIG & ppb & 0.3 & 17 & 19.901 & 3.489 & 33.056 & 3.757 & 4960 & 920 \\
+SLIM+2SIG & ppb & 0.7 & 5 & 23.644 & 1.226 & 32.958 & 3.636 & 3926 & 23 \\
+SLIM+2SIG & ppb & 0.7 & 10 & 24.039 & 5.293 & 35.248 & 0.980 & 3889 & 1714 \\
+SLIM+2SIG & ppb & 0.7 & 17 & 24.039 & 7.437 & 35.793 & 1.107 & 3889 & 2329 \\
 \midrule
-SLIM+2SIG & resid_build_sale_price & 5 & 89.797 & 12.018 & 105.286 & 30.370 & 2852 & 460 \\
-SLIM+2SIG & resid_build_sale_price & 17 & 88.348 & 6.745 & 100.092 & 30.370 & 3476 & 1046 \\
-SLIM+2SIG & resid_build_sale_price & 25 & 88.348 & 6.745 & 100.092 & 30.370 & 3476 & 1046 \\
+SLIM+2SIG & resid_build_sale_price & 0.3 & 5 & 89.797 & 12.018 & 105.286 & 30.370 & 2852 & 460 \\
+SLIM+2SIG & resid_build_sale_price & 0.3 & 10 & 88.348 & 6.745 & 100.092 & 30.370 & 3476 & 1046 \\
+SLIM+2SIG & resid_build_sale_price & 0.3 & 17 & 88.348 & 6.745 & 100.092 & 30.370 & 3476 & 1046 \\
+SLIM+2SIG & resid_build_sale_price & 0.7 & 5 & 88.872 & 37.409 & 87.484 & 53.495 & 2217 & 1185 \\
+SLIM+2SIG & resid_build_sale_price & 0.7 & 10 & 54.302 & 49.002 & 59.872 & 26.928 & 2093 & 1372 \\
+SLIM+2SIG & resid_build_sale_price & 0.7 & 17 & 54.252 & 49.190 & 60.893 & 26.614 & 2047 & 923 \\
 \midrule
-SLIM+2SIG & toxicity & 5 & 2230.405 & 131.991 & 2118.817 & 172.459 & 1594 & 577 \\
-SLIM+2SIG & toxicity & 17 & 2193.815 & 138.456 & 2104.095 & 348.876 & 1503 & 289 \\
-SLIM+2SIG & toxicity & 25 & 2173.771 & 130.137 & 2104.095 & 348.876 & 1489 & 82 \\
+SLIM+2SIG & toxicity & 0.3 & 5 & 2230.405 & 131.991 & 2118.817 & 172.459 & 1594 & 577 \\
+SLIM+2SIG & toxicity & 0.3 & 10 & 2215.343 & 130.315 & 2104.095 & 348.876 & 1503 & 309 \\
+SLIM+2SIG & toxicity & 0.3 & 17 & 2193.815 & 138.456 & 2104.095 & 348.876 & 1503 & 289 \\
+SLIM+2SIG & toxicity & 0.7 & 5 & 2165.920 & 157.823 & 2104.589 & 118.593 & 2200 & 198 \\
+SLIM+2SIG & toxicity & 0.7 & 10 & 1985.284 & 147.166 & 2055.176 & 218.030 & 2601 & 589 \\
+SLIM+2SIG & toxicity & 0.7 & 17 & 2007.210 & 203.195 & 2076.562 & 123.682 & 2177 & 394 \\
 \end{longtable}
