@@ -49,9 +49,11 @@ DATASETS = ["toxicity", "concrete", "instanbul", "ppb",
             "resid_build_sale_price", "energy"]
 
 # (column_header_label, pxo_tag_as_it_appears_in_sanitized_alg_name)
+# Baseline: from prob_xo log  → SLIM_2SIG_pxo0_0
+# Treatment: from pop_xo log  → SLIM_2SIG_pop500_iter400_pxo0_7
 CONFIGS = [
-    ("p_xo=0.0",        "pxo0_0"),
-    ("p_xo=0.7, hd=17", "pxo0_7"),
+    ("p_xo=0.0",                        "pxo0_0"),
+    ("p_xo=0.7  pop=500  iter=400",     "pop500_iter400_pxo0_7"),
 ]
 
 # (output_stem_suffix, layout, model, node_size_attr, x_attr, y_attr)

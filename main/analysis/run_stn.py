@@ -24,7 +24,11 @@ sys.path.insert(0, os.path.join(_HERE, "..", ".."))
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
-LOG_CSV    = os.path.join(_HERE, "..", "log", "results_prob_xo_12052026.csv")
+# Baseline (p_xo=0.0): from the prob_xo experiment (pop=100, n_iter=2000)
+LOG_CSV_BASELINE  = os.path.join(_HERE, "..", "log", "results_prob_xo_12052026.csv")
+# Treatment (pop=500, n_iter=400, p_xo=0.7): from the pop_xo experiment
+LOG_CSV_TREATMENT = os.path.join(_HERE, "..", "log", "results_pop_xo_15052026.csv")
+
 DATA_ROOT  = os.path.join(_HERE, "..", "log", "stn_data")
 STN_ROOT   = os.path.join(_HERE, "..", "log", "stns")
 PLOT_ROOT  = os.path.join(_HERE, "..", "log", "figs", "stns")
@@ -94,7 +98,8 @@ def _plot_benchmark(benchmark):
 if __name__ == '__main__':
     for benchmark in BENCHMARKS:
         _banner("PREP", benchmark)
-        prep_stn_data(LOG_CSV, benchmark, out_root=DATA_ROOT, nruns=NRUNS)
+        prep_stn_data(LOG_CSV_BASELINE,  benchmark, out_root=DATA_ROOT, nruns=NRUNS)
+        prep_stn_data(LOG_CSV_TREATMENT, benchmark, out_root=DATA_ROOT, nruns=NRUNS)
 
         _banner("BUILD", benchmark)
         process_folder(benchmark,

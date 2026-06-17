@@ -34,7 +34,8 @@ from generate_stn_grids import make_stn_grid, DATASETS, FIGURE_JOBS
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
-LOG_CSV    = os.path.join(_HERE, "..", "log", "results_prob_xo_12052026.csv")
+LOG_CSV_BASELINE  = os.path.join(_HERE, "..", "log", "results_prob_xo_12052026.csv")
+LOG_CSV_TREATMENT = os.path.join(_HERE, "..", "log", "results_pop_xo_15052026.csv")
 DATA_ROOT  = os.path.join(_HERE, "..", "log", "stn_data_test")
 STN_ROOT   = os.path.join(_HERE, "..", "log", "stns_test")
 OUT_ROOT   = os.path.join(_HERE, "..", "log", "latex", "stns_test")
@@ -64,10 +65,10 @@ if __name__ == '__main__':
     # ── Step 1 + 2: prep and build (sequential — shared I/O) ─────────────────
     for benchmark in DATASETS:
         _banner("PREP (test fitness)", benchmark)
-        prep_stn_data(LOG_CSV, benchmark,
-                      out_root=DATA_ROOT,
-                      nruns=NRUNS,
-                      fitness_col='test_fit')
+        prep_stn_data(LOG_CSV_BASELINE,  benchmark,
+                      out_root=DATA_ROOT, nruns=NRUNS, fitness_col='test_fit')
+        prep_stn_data(LOG_CSV_TREATMENT, benchmark,
+                      out_root=DATA_ROOT, nruns=NRUNS, fitness_col='test_fit')
 
         _banner("BUILD", benchmark)
         process_folder(benchmark,
