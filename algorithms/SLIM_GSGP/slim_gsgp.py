@@ -567,6 +567,7 @@ class SLIM_GSGP:
                         int(_no), int(_nnao), int(_nnaoc),
                         float(mae(y_test, _y_pred)),
                         float(r2(y_test, _y_pred)),
+                        float(rmse(y_test, _y_pred)),
                         log,
                     ]
 
