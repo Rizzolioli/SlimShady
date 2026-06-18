@@ -57,9 +57,10 @@ def _safe_algo_name(algo: str) -> str:
 
 def prep_stn_data(log_csv: str,
                   benchmark: str,
-                  out_root:   str = "data",
-                  nruns:      int = 10,
-                  fitness_col: str = 'train_fit'):
+                  out_root:    str = "data",
+                  nruns:       int = 10,
+                  fitness_col: str = 'train_fit',
+                  keep_algos:  list = None):
     """
     Prepare STN input CSVs for a single benchmark from a SlimShady log=8 run.
 
@@ -70,7 +71,7 @@ def prep_stn_data(log_csv: str,
     out_root    : output root folder; files are written to {out_root}/{benchmark}/
     nruns       : max seed index to include (seeds 0..nruns-1 → Run 1..nruns)
     fitness_col : column from the main log to use as Fitness in the STN
-                  ('train_fit' or 'test_fit')
+    keep_algos  : if given, only algos whose name is in this list are written
     """
     sem_csv = (log_csv[:-4] if log_csv.endswith('.csv') else log_csv) + '_sem_gen.csv'
 
@@ -99,6 +100,10 @@ def prep_stn_data(log_csv: str,
     # Only use runs with seed < nruns
     df_sem  = df_sem[df_sem['seed']  < nruns].copy()
     df_main = df_main[df_main['seed'] < nruns].copy()
+
+    if keep_algos is not None:
+        df_sem  = df_sem[ df_sem['algo'].isin(keep_algos)].copy()
+        df_main = df_main[df_main['algo'].isin(keep_algos)].copy()
 
     # ── Join fitness from main log ────────────────────────────────────────────
     # Main log has every generation; sem_gen only has elite-change generations.

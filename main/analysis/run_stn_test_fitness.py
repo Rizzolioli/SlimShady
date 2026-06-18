@@ -44,6 +44,10 @@ NRUNS      = 5
 N_CLUSTERS = 50
 N_WORKERS  = 2
 
+_STUDY_VARIANTS = ["SLIM+2SIG", "SLIM*ABS", "SLIM*1SIG"]
+_KEEP_BASELINE  = [f"{v}_pxo0.0"                for v in _STUDY_VARIANTS]
+_KEEP_TREATMENT = [f"{v}_pop500_iter400_pxo0.7" for v in _STUDY_VARIANTS]
+
 # ── HELPERS ───────────────────────────────────────────────────────────────────
 
 def _banner(step, benchmark):
@@ -66,9 +70,9 @@ if __name__ == '__main__':
     for benchmark in DATASETS:
         _banner("PREP (test fitness)", benchmark)
         prep_stn_data(LOG_CSV_BASELINE,  benchmark,
-                      out_root=DATA_ROOT, nruns=NRUNS, fitness_col='test_fit')
+                      out_root=DATA_ROOT, nruns=NRUNS, fitness_col='test_fit', keep_algos=_KEEP_BASELINE)
         prep_stn_data(LOG_CSV_TREATMENT, benchmark,
-                      out_root=DATA_ROOT, nruns=NRUNS, fitness_col='test_fit')
+                      out_root=DATA_ROOT, nruns=NRUNS, fitness_col='test_fit', keep_algos=_KEEP_TREATMENT)
 
         _banner("BUILD", benchmark)
         process_folder(benchmark,
