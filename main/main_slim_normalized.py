@@ -35,6 +35,8 @@ VARIANTS = [
     {"name": "SLIM*NORMROB", "sig": False, "two_trees": True,  "op": "mul", "norm": "normrob"},
     {"name": "SLIM+NORM12",  "sig": False, "two_trees": True,  "op": "sum", "norm": "norm12"},
     {"name": "SLIM*NORM12",  "sig": False, "two_trees": True,  "op": "mul", "norm": "norm12"},
+    {"name": "SLIM+NORMFIX", "sig": False, "two_trees": False, "op": "sum", "norm": "normfix"},
+    {"name": "SLIM*NORMFIX", "sig": False, "two_trees": False, "op": "mul", "norm": "normfix"},
 ]
 
 # Dataset-specific inflate probability
@@ -73,6 +75,7 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str,
         inflate_mutation, deflate_mutation,
         inflate_mutation_normalized, inflate_mutation_norm1,
         inflate_mutation_normrob, inflate_mutation_norm12,
+        inflate_mutation_normfix,
     )
     from algorithms.SLIM_GSGP.slim_gsgp import SLIM_GSGP
     from datasets.data_loader import load_preloaded
@@ -131,6 +134,14 @@ def run_experiment_worker(dataset, variant_idx, seed, run_id_str,
         inflate_mutator = inflate_mutation_norm12(
             FUNCTIONS=FUNCTIONS, TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
             operator=variant["op"],
+        )
+    elif norm == "normfix":
+        y_np = y_train.numpy()
+        c_val = float(np.median(y_np))
+        s_val = max(float((y_np.max() - y_np.min()) / 2), 1e-8)
+        inflate_mutator = inflate_mutation_normfix(
+            FUNCTIONS=FUNCTIONS, TERMINALS=TERMINALS, CONSTANTS=CONSTANTS,
+            operator=variant["op"], c=c_val, s=s_val,
         )
     else:
         inflate_mutator = inflate_mutation(

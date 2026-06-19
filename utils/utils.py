@@ -434,6 +434,8 @@ _NO_EXTRA = {
     'tt_delta_normrob_mul':     4,
     'tt_delta_norm12_sum':     10,
     'tt_delta_norm12_mul':     11,
+    'ot_delta_normfix_sum':     3,
+    'ot_delta_normfix_mul':     4,
 }
 
 # Non-arithmetic ops (sigmoids) contributed by each variator.
@@ -452,6 +454,8 @@ _NNAO_EXTRA = {
     'tt_delta_normrob_mul':     0,
     'tt_delta_norm12_sum':      0,
     'tt_delta_norm12_mul':      0,
+    'ot_delta_normfix_sum':     0,
+    'ot_delta_normfix_mul':     0,
 }
 
 
@@ -543,6 +547,12 @@ def _variator_to_sympy(variator, tree_exprs, ms_val):
         t = tree_exprs[0]
         normalised = 2 * (t - t_min) / t_range - 1
         term = ms * normalised
+        return term if 'sum' in name else 1 + term
+
+    if 'ot_delta_normfix' in name:
+        c_val = sp.Float(float(getattr(variator, 'c', 0.0)))
+        s_val = sp.Float(float(getattr(variator, 's', 1.0)))
+        term = ms * (tree_exprs[0] - c_val) / s_val
         return term if 'sum' in name else 1 + term
 
     # Two-tree sigmoid variants: trees were generated with logistic=True

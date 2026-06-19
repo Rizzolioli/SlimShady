@@ -361,6 +361,63 @@ def inflate_mutation_norm12(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum'):
     return inflate
 
 
+def one_tree_delta_normfix(operator='sum', c=0.0, s=1.0):
+    """NORMFIX variator: ms * (T - c) / s, with c and s frozen run-level constants."""
+    def ot_delta_normfix(tr1, ms, testing):
+        t = tr1.test_semantics if testing else tr1.train_semantics
+        step = torch.mul(ms, torch.div(torch.sub(t, c), s))
+        return step if operator == 'sum' else torch.add(1, step)
+    ot_delta_normfix.__name__ += ('_' + operator)
+    ot_delta_normfix.c = float(c)
+    ot_delta_normfix.s = float(s)
+    return ot_delta_normfix
+
+
+def inflate_mutation_normfix(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum', c=0.0, s=1.0):
+    """NORMFIX: single raw tree, step = ms*(T-c)/s with c,s fixed from y_train at run start."""
+    def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1,
+                reconstruct=True, terminals_probabilities=None):
+        random_tree1 = get_random_tree(max_depth, FUNCTIONS, TERMINALS, CONSTANTS, inputs=X, p_c=p_c,
+                                       grow_probability=grow_probability, logistic=False,
+                                       terminals_probabilities=terminals_probabilities)
+        random_trees = [random_tree1]
+
+        if X_test is not None:
+            [rt.calculate_semantics(X_test, testing=True, logistic=False) for rt in random_trees]
+
+        variator = one_tree_delta_normfix(operator=operator, c=c, s=s)
+        new_block = Tree(
+            structure=[variator, random_tree1, ms],
+            train_semantics=variator(random_tree1, ms, testing=False),
+            test_semantics=variator(random_tree1, ms, testing=True) if X_test is not None else None,
+            reconstruct=True
+        )
+
+        offs = Individual(
+            collection=[*individual.collection, new_block] if reconstruct else None,
+            train_semantics=torch.stack([*individual.train_semantics,
+                                         (new_block.train_semantics
+                                          if new_block.train_semantics.shape != torch.Size([])
+                                          else new_block.train_semantics.repeat(len(X)))]),
+            test_semantics=(torch.stack([*individual.test_semantics,
+                                          (new_block.test_semantics
+                                           if new_block.test_semantics.shape != torch.Size([])
+                                           else new_block.test_semantics.repeat(len(X_test)))])
+                             if X_test is not None else None),
+            reconstruct=reconstruct
+        )
+
+        offs.size = individual.size + 1
+        offs.nodes_collection = [*individual.nodes_collection, new_block.nodes]
+        offs.nodes_count = sum(offs.nodes_collection) + (offs.size - 1)
+        offs.depth_collection = [*individual.depth_collection, new_block.depth]
+        offs.depth = max([depth - (i - 1) if i != 0 else depth
+                          for i, depth in enumerate(offs.depth_collection)]) + (offs.size - 1)
+        return offs
+
+    return inflate
+
+
 def inflate_mutation_norm1(FUNCTIONS, TERMINALS, CONSTANTS, operator='sum'):
     """NORM1: single raw tree, min-max normalized to [-1,1] on training."""
     def inflate(individual, ms, X, max_depth=8, p_c=0.1, X_test=None, grow_probability=1,

@@ -85,6 +85,19 @@ def norm12_mul(r1, r2, ms, T=T):
     n2 = 2 * (r2 - r2.min()) / max(r2.max() - r2.min(), 1e-8) - 1
     return T * (1 + (ms / 2) * (n1 - n2))
 
+# NORMFIX: run-level fixed c (midpoint of draw interval) and s (half-range)
+# These simulate what median(y_train) and (max-min)/2 of y_train would give.
+_NORMFIX_C = (INTERVALS[1][0] + INTERVALS[1][1]) / 2.0   # 0.0 (midpoint of (-10,10))
+_NORMFIX_S = max((INTERVALS[1][1] - INTERVALS[1][0]) / 2.0, 1e-8)  # 10.0
+
+def normfix_sum(r, ms, T=T):
+    """SLIM+NORMFIX: T + ms * (r - c) / s, c and s fixed from y_train."""
+    return T + ms * (r - _NORMFIX_C) / _NORMFIX_S
+
+def normfix_mul(r, ms, T=T):
+    """SLIM*NORMFIX: T * (1 + ms * (r - c) / s), c and s fixed from y_train."""
+    return T * (1 + ms * (r - _NORMFIX_C) / _NORMFIX_S)
+
 # ---  Commented-out baselines (uncomment to include in plot) ---
 #
 # def slim_plus_2sig(r1, r2, ms, T=T):
@@ -127,6 +140,8 @@ OPERATORS = [
     ("SLIM*NORMROB", True,  normrob_mul),
     ("SLIM+NORM12",  True,  norm12_sum),
     ("SLIM*NORM12",  True,  norm12_mul),
+    ("SLIM+NORMFIX", False, normfix_sum),
+    ("SLIM*NORMFIX", False, normfix_mul),
 ]
 
 ########################################################################################################################

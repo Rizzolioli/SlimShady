@@ -32,6 +32,7 @@ from algorithms.SLIM_GSGP.operators.mutators import (
     inflate_mutation_norm1,
     inflate_mutation_normrob,
     inflate_mutation_norm12,
+    inflate_mutation_normfix,
 )
 from utils.utils import get_random_tree, compute_m_phi, protected_div
 
@@ -56,11 +57,13 @@ VARIANTS = [
     ("SLIM+2SIG",    True,  "sum", None,      "2-tree / sum"),
     ("SLIM+NORM2",   True,  "sum", "norm2",   "2-tree / sum"),
     ("SLIM+NORMROB", True,  "sum", "normrob", "2-tree / sum"),
-    ("SLIM+NORM12",  True,  "sum", "norm12",  "2-tree / sum"),
-    ("SLIM*2SIG",    True,  "mul", None,      "2-tree / mul"),
-    ("SLIM*NORM2",   True,  "mul", "norm2",   "2-tree / mul"),
-    ("SLIM*NORMROB", True,  "mul", "normrob", "2-tree / mul"),
-    ("SLIM*NORM12",  True,  "mul", "norm12",  "2-tree / mul"),
+    ("SLIM+NORM12",  True,  "sum", "norm12",   "2-tree / sum"),
+    ("SLIM*2SIG",    True,  "mul", None,       "2-tree / mul"),
+    ("SLIM*NORM2",   True,  "mul", "norm2",    "2-tree / mul"),
+    ("SLIM*NORMROB", True,  "mul", "normrob",  "2-tree / mul"),
+    ("SLIM*NORM12",  True,  "mul", "norm12",   "2-tree / mul"),
+    ("SLIM+NORMFIX", False, "sum", "normfix",  "1-tree / sum"),
+    ("SLIM*NORMFIX", False, "mul", "normfix",  "1-tree / mul"),
 ]
 
 # Display order for the comparison table
@@ -76,7 +79,7 @@ TABLE_TITLES = {
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def _build_mutator(name, two_trees, op, norm, functions, terminals, constants):
+def _build_mutator(name, two_trees, op, norm, functions, terminals, constants, y_train=None):
     sig = name.endswith("SIG")
     if norm == "norm1":
         return inflate_mutation_norm1(functions, terminals, constants, operator=op)
@@ -86,6 +89,12 @@ def _build_mutator(name, two_trees, op, norm, functions, terminals, constants):
         return inflate_mutation_normrob(functions, terminals, constants, operator=op, scale='q99')
     if norm == "norm12":
         return inflate_mutation_norm12(functions, terminals, constants, operator=op)
+    if norm == "normfix":
+        y_np = y_train.numpy() if y_train is not None else np.zeros(1)
+        c_val = float(np.median(y_np))
+        s_val = max(float((y_np.max() - y_np.min()) / 2), 1e-8)
+        return inflate_mutation_normfix(functions, terminals, constants,
+                                        operator=op, c=c_val, s=s_val)
     return inflate_mutation(functions, terminals, constants,
                             two_trees=two_trees, operator=op, sig=sig)
 
@@ -205,6 +214,7 @@ def run_study():
     np.random.seed(SEED)
 
     X_train = torch.randn(N_SAMPLES, N_FEAT)
+    y_train = torch.randn(N_SAMPLES)   # synthetic; only c,s for NORMFIX depend on it
 
     FUNCTIONS = {
         'add':      {'function': torch.add,     'arity': 2},
@@ -240,7 +250,7 @@ def run_study():
     for name, two_trees, op, norm, group in VARIANTS:
         print(f"  {name} …", flush=True)
         mutator = _build_mutator(name, two_trees, op, norm,
-                                 FUNCTIONS, TERMINALS, CONSTANTS)
+                                 FUNCTIONS, TERMINALS, CONSTANTS, y_train=y_train)
         for i, ind in enumerate(individuals):
             m_b, ell_b, no_b, nnao_b, nnaoc_b = compute_m_phi(ind, FUNCTIONS)
             offspring = mutator(ind, MS, X_train,
