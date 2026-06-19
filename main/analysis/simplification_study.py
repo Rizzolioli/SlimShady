@@ -9,6 +9,9 @@ For each SLIM variant (same list as mutation_mphi_study):
   5. Record nodes_count and M_phi before and after simplification
      (applying the analysis-side filter: if simplified is larger/worse, revert).
 
+Tasks are parallelised with ThreadPoolExecutor. Each thread may spawn an
+mp.Process for the SymPy timeout (threads are not daemonic — no restriction).
+
 Output: tables printed to stdout + CSV in main/analysis/log/
 Run from project root:
     python main/analysis/simplification_study.py
@@ -17,7 +20,9 @@ Run from project root:
 import os
 import sys
 import time
+import threading
 import multiprocessing as mp
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if _ROOT not in sys.path:
@@ -45,14 +50,15 @@ from utils.utils import (
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
-N_TREES       = 50       # individuals per variant
-INFLATE_STEPS = 10       # inflate operations applied to each individual
+N_TREES       = 50
+INFLATE_STEPS = 10
 MAX_DEPTH     = 6
 MS            = 1.0
 N_FEAT        = 5
 N_SAMPLES     = 100
-SIMP_TIMEOUT  = 30       # seconds per individual
+SIMP_TIMEOUT  = 30        # seconds per individual
 SEED          = 42
+N_WORKERS     = max(1, min(os.cpu_count() - 1, 8))
 
 LOG_DIR = os.path.join(os.path.dirname(__file__), "log")
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -101,11 +107,13 @@ def _build_mutator(name, two_trees, op, norm, functions, terminals, constants, y
 
 
 def _sympy_worker(expr_str, conn):
-    """Run in a subprocess: simplify expr_str and send result back via pipe."""
+    """Run in a subprocess: expand → cancel → simplify, send result back via pipe."""
     import sympy as sp
     try:
         expr = sp.sympify(expr_str)
-        simplified = sp.simplify(expr)
+        # expr = sp.expand(expr)    # flatten / collect like terms
+        expr = sp.cancel(expr)    # cancel common rational factors
+        simplified = sp.simplify(expr)  # final heuristic pass on reduced expr
         conn.send(('ok', str(simplified)))
     except Exception as e:
         conn.send(('error', str(e)))
@@ -133,6 +141,58 @@ def simplify_with_timeout(expr, timeout=SIMP_TIMEOUT):
             except Exception:
                 return None, False
     return None, False
+
+
+# ── Per-task worker (called by thread pool) ───────────────────────────────────
+
+def _run_task(name, group, op, base_ind, ind_idx, mutator,
+              functions, terminals, constants, X_train):
+    """Inflate base_ind INFLATE_STEPS times, then SymPy-simplify."""
+    ind = base_ind
+    for _ in range(INFLATE_STEPS):
+        ind = mutator(ind, MS, X_train,
+                      max_depth=MAX_DEPTH, p_c=0,
+                      X_test=None, reconstruct=True)
+
+    m_b, ell_b, _, _, _ = compute_m_phi(ind, functions)
+    nodes_before = ind.nodes_count
+
+    try:
+        expr_before = slim_individual_to_sympy(
+            ind, functions, terminals, constants, operator=op)
+    except Exception:
+        return {
+            'variant': name, 'group': group, 'ind_idx': ind_idx,
+            'nodes_before': nodes_before, 'ell_before': ell_b, 'm_phi_before': m_b,
+            'nodes_after': nodes_before, 'ell_after': ell_b, 'm_phi_after': m_b,
+            'simplified_ok': False, 'simp_time_s': 0.0,
+        }
+
+    t0 = time.time()
+    simplified, ok = simplify_with_timeout(expr_before, timeout=SIMP_TIMEOUT)
+    simp_time = time.time() - t0
+
+    if ok and simplified is not None:
+        m_a, ell_a, _, _, _ = sympy_m_phi(simplified)
+        ell_final   = min(ell_a, ell_b)
+        m_phi_final = max(m_a, m_b)
+    else:
+        ell_final   = ell_b
+        m_phi_final = m_b
+
+    return {
+        'variant':       name,
+        'group':         group,
+        'ind_idx':       ind_idx,
+        'nodes_before':  nodes_before,
+        'ell_before':    ell_b,
+        'm_phi_before':  m_b,
+        'nodes_after':   nodes_before - (ell_b - ell_final),
+        'ell_after':     ell_final,
+        'm_phi_after':   m_phi_final,
+        'simplified_ok': ok,
+        'simp_time_s':   round(simp_time, 2),
+    }
 
 
 # ── Main study ────────────────────────────────────────────────────────────────
@@ -171,68 +231,45 @@ def run_study():
         ind.calculate_semantics(X_train)
         base_individuals.append(ind)
 
-    records = []
+    # Build all mutators upfront (one per variant)
+    print("Building mutators …", flush=True)
+    mutators = {
+        name: _build_mutator(name, two_trees, op, norm,
+                              FUNCTIONS, TERMINALS, CONSTANTS, y_train=y_train)
+        for name, two_trees, op, norm, _ in VARIANTS
+    }
 
-    for name, two_trees, op, norm, group in VARIANTS:
-        print(f"\n  {name} …", flush=True)
-        mutator = _build_mutator(name, two_trees, op, norm,
-                                 FUNCTIONS, TERMINALS, CONSTANTS, y_train=y_train)
+    # Submit all (variant × individual) tasks to the thread pool
+    total     = len(VARIANTS) * N_TREES
+    counter   = [0]
+    lock      = threading.Lock()
+    records   = []
+    t_start   = time.time()
 
-        for i, base_ind in enumerate(base_individuals):
-            # Apply inflate INFLATE_STEPS times
-            ind = base_ind
-            for _ in range(INFLATE_STEPS):
-                ind = mutator(ind, MS, X_train,
-                              max_depth=MAX_DEPTH, p_c=0,
-                              X_test=None, reconstruct=True)
+    print(f"Submitting {total} tasks to {N_WORKERS} workers …", flush=True)
 
-            m_b, ell_b, no_b, nnao_b, _ = compute_m_phi(ind, FUNCTIONS)
-            nodes_before = ind.nodes_count
+    futures = {}
+    with ThreadPoolExecutor(max_workers=N_WORKERS) as executor:
+        for name, two_trees, op, norm, group in VARIANTS:
+            for i, base_ind in enumerate(base_individuals):
+                fut = executor.submit(
+                    _run_task,
+                    name, group, op, base_ind, i, mutators[name],
+                    FUNCTIONS, TERMINALS, CONSTANTS, X_train,
+                )
+                futures[fut] = name
 
-            # Convert to SymPy
-            try:
-                expr_before = slim_individual_to_sympy(
-                    ind, FUNCTIONS, TERMINALS, CONSTANTS, operator=op)
-            except Exception:
-                records.append({
-                    'variant': name, 'group': group, 'ind_idx': i,
-                    'nodes_before': nodes_before, 'ell_before': ell_b,
-                    'm_phi_before': m_b,
-                    'nodes_after': nodes_before, 'ell_after': ell_b,
-                    'm_phi_after': m_b, 'simplified_ok': False, 'simp_time_s': 0.0,
-                })
-                continue
-
-            t0 = time.time()
-            simplified, ok = simplify_with_timeout(expr_before, timeout=SIMP_TIMEOUT)
-            simp_time = time.time() - t0
-
-            if ok and simplified is not None:
-                m_a, ell_a, no_a, nnao_a, _ = sympy_m_phi(simplified)
-                # Analysis-side filter: revert if simplified is larger or worse
-                ell_final   = min(ell_a,   ell_b)
-                m_phi_final = max(m_a,     m_b)
-            else:
-                ell_final   = ell_b
-                m_phi_final = m_b
-
-            records.append({
-                'variant':      name,
-                'group':        group,
-                'ind_idx':      i,
-                'nodes_before': nodes_before,
-                'ell_before':   ell_b,
-                'm_phi_before': m_b,
-                'nodes_after':  nodes_before - (ell_b - ell_final),  # approx via ell delta
-                'ell_after':    ell_final,
-                'm_phi_after':  m_phi_final,
-                'simplified_ok': ok,
-                'simp_time_s':  round(simp_time, 2),
-            })
-
-            if (i + 1) % 10 == 0:
-                ok_so_far = sum(r['simplified_ok'] for r in records if r['variant'] == name)
-                print(f"    {i+1}/{N_TREES}  simp_ok={ok_so_far}", flush=True)
+        for fut in as_completed(futures):
+            rec = fut.result()
+            records.append(rec)
+            with lock:
+                counter[0] += 1
+                done = counter[0]
+            if done % 50 == 0 or done == total:
+                elapsed = time.time() - t_start
+                ok_so_far = sum(r['simplified_ok'] for r in records)
+                print(f"  {done}/{total}  simp_ok={ok_so_far}  "
+                      f"({elapsed/60:.1f} min)", flush=True)
 
     df = pd.DataFrame(records)
 
@@ -245,19 +282,20 @@ def run_study():
         sub = df[df['variant'] == name]
         ok_rate = sub['simplified_ok'].mean() * 100
         rows.append({
-            'Variant':              name,
-            'Group':                group,
-            'ell_before med(IQR)':  _fmt(sub['ell_before']),
-            'ell_after  med(IQR)':  _fmt(sub['ell_after']),
-            'Δell med':             round((sub['ell_after'] - sub['ell_before']).median(), 1),
-            'Δm_phi med':           round((sub['m_phi_after'] - sub['m_phi_before']).median(), 2),
-            'simp_ok%':             round(ok_rate, 1),
-            'simp_time med(s)':     round(sub['simp_time_s'].median(), 1),
+            'Variant':             name,
+            'Group':               group,
+            'ell_before med(IQR)': _fmt(sub['ell_before']),
+            'ell_after  med(IQR)': _fmt(sub['ell_after']),
+            'Δell med':            round((sub['ell_after'] - sub['ell_before']).median(), 1),
+            'Δm_phi med':          round((sub['m_phi_after'] - sub['m_phi_before']).median(), 2),
+            'simp_ok%':            round(ok_rate, 1),
+            'simp_time med(s)':    round(sub['simp_time_s'].median(), 1),
         })
     summary = pd.DataFrame(rows)
 
     print("\n" + "=" * 80)
-    print(f"Simplification study — {INFLATE_STEPS} inflate steps, {N_TREES} individuals/variant")
+    print(f"Simplification study — {INFLATE_STEPS} inflate steps, {N_TREES} individuals/variant, "
+          f"{N_WORKERS} workers")
     print("=" * 80)
     try:
         from tabulate import tabulate
@@ -265,13 +303,12 @@ def run_study():
     except ImportError:
         print(summary.to_string(index=False))
 
-    # Save
     raw_path     = os.path.join(LOG_DIR, "simplification_study_raw.csv")
     summary_path = os.path.join(LOG_DIR, "simplification_study_summary.csv")
     df.to_csv(raw_path, index=False)
     summary.to_csv(summary_path, index=False)
-    print(f"\nRaw data    -> {raw_path}")
-    print(f"Summary     -> {summary_path}")
+    print(f"\nRaw data -> {raw_path}")
+    print(f"Summary  -> {summary_path}")
 
 
 if __name__ == "__main__":
