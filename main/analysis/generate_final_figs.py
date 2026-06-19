@@ -6,8 +6,8 @@ main/log/latex_final/.
 
 Sections
 --------
-1. Periodic head XO  (xo_freq = None, 50, 500)  — one figure per metric
-2. Probabilistic XO  (p_xo = 0.0, 0.3, 0.7)    — one figure per metric
+1. Periodic head XO  (xo_freq = None, 50, 500)  — one figure per dataset
+2. Probabilistic XO + depth cap (hd ∈ {5,10,17}, p_xo ∈ {0.3,0.7}) — one figure per dataset
 3. SLIM*ABS test RMSE per dataset                — one figure per dataset
 4. p_xo summary table (p_xo = 0.0, 0.3, 0.7)
 5. STN comparison grids (from generate_stn_grids.py)
@@ -16,19 +16,14 @@ Output layout
 -------------
 main/log/latex_final/
   periodic_xo/
-    periodic_xo_train.{png,tex}
-    periodic_xo_test.{png,tex}
-    periodic_xo_nodes.{png,tex}
+    periodic_xo_<dataset>.{png,tex}       (6 files, one per dataset)
   prob_xo/
-    prob_xo_train.{png,tex}
-    prob_xo_test.{png,tex}
-    prob_xo_nodes.{png,tex}
-    slim_abs_test_<dataset>.{png,tex}   (6 files)
+    prob_xo_<dataset>.{png,tex}           (6 files, one per dataset)
+    slim_abs_test_<dataset>.{png,tex}     (6 files)
   tables/
     prob_xo_table.csv
-    prob_xo_table.tex
   stns/
-    <dataset>_stn_<stem>.{png,tex}      (requires pre-built pkl in main/log/stns/)
+    <dataset>_stn_<stem>.{png,tex}        (requires pre-built pkl in main/log/stns/)
 """
 
 import os
@@ -86,6 +81,31 @@ def _load_csv(path, n_iter=2000):
     return df
 
 
+def _load_depth_cap():
+    """Load depth_cap CSV with UUID-based dedup; return df with variant/p_xo/hd columns."""
+    from uuid import UUID
+    df = pd.read_csv(os.path.join(_LOG_DIR, "results_depth_cap_new.csv"),
+                     header=None).rename(columns=_COLS)
+    df["seed"]    = df["seed"].astype(int)
+    df["variant"] = df["algo"].str.extract(r"^(SLIM[+*]\w+)_pxo")
+    df["p_xo"]    = pd.to_numeric(df["algo"].str.extract(r"_pxo([0-9.]+)_")[0],
+                                   errors="coerce")
+    df["hd"]      = pd.to_numeric(df["algo"].str.extract(r"_hd(\d+)$")[0],
+                                   errors="coerce")
+    df = df[df["hd"].isin([5, 10, 17]) & df["p_xo"].isin([0.3, 0.7])].copy()
+    df["hd"]  = df["hd"].astype(int)
+    df["p_xo"] = df["p_xo"].astype(float)
+
+    # Keep only the latest batch per (algo, dataset, seed) via UUID timestamp
+    df["_uuid_t"] = df["run_id"].map(lambda r: UUID(r).time)
+    latest = (df.groupby(["algo", "dataset", "seed"])["_uuid_t"]
+                .max().reset_index().rename(columns={"_uuid_t": "_latest"}))
+    df = df.merge(latest, on=["algo", "dataset", "seed"])
+    df = df[df["_uuid_t"] == df["_latest"]].drop(columns=["_uuid_t", "_latest"])
+
+    return df[df["variant"].isin(_VARIANTS)].copy()
+
+
 def _last_gen(df):
     """Keep only the final-generation row per (algo, dataset, seed)."""
     last = (df.groupby(["algo", "dataset", "seed"])["gen"]
@@ -95,7 +115,7 @@ def _last_gen(df):
 
 
 def _stats(df):
-    """Median + IQR (Q75−Q25) over seeds for train, test, nodes_count."""
+    """Median + IQR (Q75-Q25) over seeds for train, test, nodes_count."""
     def iqr(x):
         return x.quantile(0.75) - x.quantile(0.25)
     return (df.groupby(["algo", "dataset"])
@@ -124,8 +144,8 @@ def _save_fig(fig, stem):
     plt.close(fig)
 
 
-def _plot_line(ax, fdata, metric, color, label, no_shade=False):
-    """Plot mean ± std convergence line; skip fill_between when no_shade=True."""
+def _plot_line(ax, fdata, metric, color, label, no_shade=False, linestyle="-"):
+    """Plot mean +/- std convergence line; skip fill_between when no_shade=True."""
     if fdata.empty:
         return
     pivot = fdata.pivot_table(index="gen", columns="seed", values=metric)
@@ -133,32 +153,35 @@ def _plot_line(ax, fdata, metric, color, label, no_shade=False):
         pivot = pivot.rolling(_SMOOTH, min_periods=1).mean()
     mean = pivot.mean(axis=1)
     std  = pivot.std(axis=1)
-    ax.plot(mean.index, mean.values, color=color, linewidth=1.3, label=label)
+    ax.plot(mean.index, mean.values, color=color, linewidth=1.3,
+            label=label, linestyle=linestyle)
     if not no_shade:
         ax.fill_between(mean.index, mean - std, mean + std, color=color, alpha=0.12)
-    ax.tick_params(labelsize=7)
+    ax.tick_params(labelsize=8)
     ax.grid(True, linewidth=0.4, alpha=0.5)
 
 
-def _decorate_grid(axes, variants, datasets):
-    """Dataset column headers, variant row labels, x-label on bottom row only."""
-    nrows, ncols = axes.shape
-    for ci, ds in enumerate(datasets):
-        axes[0, ci].set_title(ds.replace("_", " "), fontsize=8, fontweight="bold")
-    for ri, var in enumerate(variants):
-        axes[ri, 0].set_ylabel(var, fontsize=9, fontweight="bold")
-    for ri in range(nrows):
-        for ci in range(1, ncols):
-            axes[ri, ci].set_ylabel("")
-    for ci in range(ncols):
-        axes[nrows - 1, ci].set_xlabel("Generation", fontsize=8)
-    for ri in range(nrows - 1):
-        for ci in range(ncols):
-            axes[ri, ci].set_xlabel("")
+def _make_grid(title):
+    """Create a (n_variants x n_metrics) subplot grid for one dataset."""
+    fig, axes = plt.subplots(
+        nrows=len(_VARIANTS), ncols=len(_METRICS),
+        figsize=(14, 3.5 * len(_VARIANTS)),
+        sharex=True,
+    )
+    fig.suptitle(title, fontsize=13, fontweight="bold", y=1.005)
+    for ri, variant in enumerate(_VARIANTS):
+        axes[ri, 0].set_ylabel(variant, fontsize=9, fontweight="bold")
+    for ci, (_, metric_label, _) in enumerate(_METRICS):
+        axes[0, ci].set_title(metric_label, fontsize=10, pad=3)
+    for ci in range(len(_METRICS)):
+        axes[-1, ci].set_xlabel("Generation", fontsize=9)
+    return fig, axes
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SECTION 1 — Periodic XO  (xo_freq ∈ {None, 50, 500})
+# SECTION 1 — Periodic XO  (xo_freq in {None, 50, 500})
+# One figure per dataset; rows = variants, cols = metrics.
+# Baseline (xoNone) as black line without shading.
 # ══════════════════════════════════════════════════════════════════════════════
 
 def section_periodic_xo():
@@ -176,19 +199,18 @@ def section_periodic_xo():
     df["xo_freq"] = df["algo"].str.extract(r'_head_xo(\w+)$')
     df = df[df["variant"].isin(_VARIANTS) & df["xo_freq"].isin(FREQS)]
 
-    for metric_col, metric_label, metric_key in _METRICS:
-        fig, axes = plt.subplots(
-            len(_VARIANTS), len(_DATASETS),
-            figsize=(22, 10.5), sharex=True,
-            gridspec_kw={"hspace": 0.40, "wspace": 0.30},
-        )
-        fig.suptitle(f"Periodic head XO — {metric_label}",
-                     fontsize=12, fontweight="bold", y=1.01)
+    for dataset in _DATASETS:
+        dset = df[df["dataset"] == dataset]
+        if dset.empty:
+            print(f"  [SKIP] {dataset} - no data")
+            continue
+
+        fig, axes = _make_grid(f"Periodic head XO — {dataset.replace('_', ' ')}")
 
         for ri, variant in enumerate(_VARIANTS):
-            for ci, dataset in enumerate(_DATASETS):
-                ax  = axes[ri, ci]
-                sub = df[(df["variant"] == variant) & (df["dataset"] == dataset)]
+            sub = dset[dset["variant"] == variant]
+            for ci, (metric_col, _, _) in enumerate(_METRICS):
+                ax = axes[ri, ci]
                 for freq in FREQS:
                     _plot_line(
                         ax,
@@ -199,170 +221,118 @@ def section_periodic_xo():
                         no_shade=(freq == "None"),
                     )
 
-        _decorate_grid(axes, _VARIANTS, _DATASETS)
-
         legend_handles = [Line2D([0], [0], color=COLORS[f], linewidth=2, label=LABELS[f])
                           for f in FREQS]
-        fig.legend(handles=legend_handles, loc="lower center",
-                   ncol=len(FREQS), fontsize=9, framealpha=0.9,
-                   bbox_to_anchor=(0.5, -0.01))
-        fig.tight_layout(rect=[0, 0.04, 1, 1])
+        fig.legend(handles=legend_handles, loc="upper right", fontsize=9,
+                   framealpha=0.85, bbox_to_anchor=(1.0, 1.0))
+        fig.tight_layout()
 
-        _save_fig(fig, os.path.join(out_dir, f"periodic_xo_{metric_key}"))
+        _save_fig(fig, os.path.join(out_dir, f"periodic_xo_{dataset}"))
 
     print(f"  -> {out_dir}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SECTION 2 — Probabilistic XO  (p_xo ∈ {0.0, 0.3, 0.7})
-#           + SLIM*ABS test RMSE per dataset
+# SECTION 2 — Probabilistic XO + depth cap
+# Baseline (p_xo=0.0) from prob_xo, black no shading.
+# Treatment: depth_cap data with hd in {5,10,17}, p_xo in {0.3,0.7}.
+# Color = hd, linestyle = p_xo.  One figure per dataset.
 # ══════════════════════════════════════════════════════════════════════════════
 
 def section_prob_xo():
-    print("\n-- Probabilistic XO ---------------------------------------------")
+    print("\n-- Probabilistic XO + depth cap ---------------------------------")
     out_dir = os.path.join(_OUT, "prob_xo")
 
-    PXO    = ["0.0", "0.3", "0.7"]
-    COLORS = {"0.0": "#000000", "0.3": "#4daf4a", "0.7": "#e41a1c"}
-    LABELS = {"0.0": "p_xo=0.0 (baseline)", "0.3": "p_xo=0.3", "0.7": "p_xo=0.7"}
+    HD_COLORS  = {5: "#e41a1c", 10: "#ff7f00", 17: "#377eb8"}
+    HD_LABELS  = {5: "hd=5",    10: "hd=10",   17: "hd=17"}
+    PXO_STYLES = {0.3: "--", 0.7: "-"}
+    PXO_LABELS = {0.3: "p_xo=0.3", 0.7: "p_xo=0.7"}
 
-    df = _load_csv(os.path.join(_LOG_DIR, "results_prob_xo_12052026.csv"))
-    df["variant"] = df["algo"].str.extract(r'^(SLIM[+*]\w+)_pxo')
-    df["pxo"]     = df["algo"].str.extract(r'_pxo([0-9.]+)$')
-    df = df[df["variant"].isin(_VARIANTS) & df["pxo"].isin(PXO)]
+    # Baseline from prob_xo (p_xo=0.0)
+    db = _load_csv(os.path.join(_LOG_DIR, "results_prob_xo_12052026.csv"))
+    db["variant"] = db["algo"].str.extract(r'^(SLIM[+*]\w+)_pxo')
+    db["pxo_str"] = db["algo"].str.extract(r'_pxo([0-9.]+)$')
+    db = db[db["variant"].isin(_VARIANTS) & (db["pxo_str"] == "0.0")]
 
-    # ── 2a: one image per metric ─────────────────────────────────────────────
-    for metric_col, metric_label, metric_key in _METRICS:
-        fig, axes = plt.subplots(
-            len(_VARIANTS), len(_DATASETS),
-            figsize=(22, 10.5), sharex=True,
-            gridspec_kw={"hspace": 0.40, "wspace": 0.30},
-        )
-        fig.suptitle(f"Probabilistic head XO — {metric_label}",
-                     fontsize=12, fontweight="bold", y=1.01)
+    # Depth-cap treatment data
+    dc = _load_depth_cap()
+
+    for dataset in _DATASETS:
+        db_dset = db[db["dataset"] == dataset]
+        dc_dset = dc[dc["dataset"] == dataset]
+
+        fig, axes = _make_grid(f"Probabilistic head XO — {dataset.replace('_', ' ')}")
 
         for ri, variant in enumerate(_VARIANTS):
-            for ci, dataset in enumerate(_DATASETS):
-                ax  = axes[ri, ci]
-                sub = df[(df["variant"] == variant) & (df["dataset"] == dataset)]
-                for pxo in PXO:
-                    _plot_line(
-                        ax,
-                        sub[sub["pxo"] == pxo].sort_values(["seed", "gen"]),
-                        metric_col,
-                        color=COLORS[pxo],
-                        label=LABELS[pxo],
-                        no_shade=(pxo == "0.0"),
-                    )
+            sub_base = db_dset[db_dset["variant"] == variant]
+            sub_dc   = dc_dset[dc_dset["variant"] == variant]
 
-        _decorate_grid(axes, _VARIANTS, _DATASETS)
+            for ci, (metric_col, _, _) in enumerate(_METRICS):
+                ax = axes[ri, ci]
 
-        legend_handles = [Line2D([0], [0], color=COLORS[p], linewidth=2, label=LABELS[p])
-                          for p in PXO]
-        fig.legend(handles=legend_handles, loc="lower center",
-                   ncol=len(PXO), fontsize=9, framealpha=0.9,
-                   bbox_to_anchor=(0.5, -0.01))
-        fig.tight_layout(rect=[0, 0.04, 1, 1])
+                # Baseline: black, no shade
+                _plot_line(ax, sub_base.sort_values(["seed", "gen"]), metric_col,
+                           color="#000000", label="p_xo=0.0 (baseline)", no_shade=True)
 
-        _save_fig(fig, os.path.join(out_dir, f"prob_xo_{metric_key}"))
+                # hd / p_xo variants
+                for hd in [5, 10, 17]:
+                    for pxo in [0.3, 0.7]:
+                        fdata = sub_dc[(sub_dc["hd"] == hd) & (sub_dc["p_xo"] == pxo)]
+                        _plot_line(ax, fdata.sort_values(["seed", "gen"]), metric_col,
+                                   color=HD_COLORS[hd],
+                                   label=f"{HD_LABELS[hd]}, {PXO_LABELS[pxo]}",
+                                   linestyle=PXO_STYLES[pxo])
 
-    # ── 2b: SLIM*ABS test RMSE, one image per dataset ────────────────────────
-    print("  SLIM*ABS per-dataset test RMSE:"  )
-    sub_abs = df[df["variant"] == "SLIM*ABS"]
+        legend_elems = [
+            Line2D([0], [0], color="#000000", linewidth=2, label="p_xo=0.0 (baseline)"),
+        ]
+        for hd in [5, 10, 17]:
+            for pxo in [0.3, 0.7]:
+                legend_elems.append(
+                    Line2D([0], [0], color=HD_COLORS[hd], linestyle=PXO_STYLES[pxo],
+                           linewidth=1.5, label=f"{HD_LABELS[hd]}, {PXO_LABELS[pxo]}")
+                )
+        fig.legend(handles=legend_elems, loc="upper right", fontsize=8,
+                   framealpha=0.85, bbox_to_anchor=(1.0, 1.0))
+        fig.tight_layout()
+
+        _save_fig(fig, os.path.join(out_dir, f"prob_xo_{dataset}"))
+
+    # ── SLIM*ABS test RMSE, one single-panel image per dataset ──────────────
+    print("  SLIM*ABS per-dataset test RMSE:")
+
+    pxo_df = _load_csv(os.path.join(_LOG_DIR, "results_prob_xo_12052026.csv"))
+    pxo_df["variant"] = pxo_df["algo"].str.extract(r'^(SLIM[+*]\w+)_pxo')
+    pxo_df["pxo"]     = pxo_df["algo"].str.extract(r'_pxo([0-9.]+)$')
+    PXO    = ["0.0", "0.3", "0.7"]
+    PXO_COLORS = {"0.0": "#000000", "0.3": "#4daf4a", "0.7": "#e41a1c"}
+    PXO_L      = {"0.0": "p_xo=0.0 (baseline)", "0.3": "p_xo=0.3", "0.7": "p_xo=0.7"}
+    sub_abs = pxo_df[(pxo_df["variant"] == "SLIM*ABS") & pxo_df["pxo"].isin(PXO)]
 
     for dataset in _DATASETS:
         dset = sub_abs[sub_abs["dataset"] == dataset]
         if dset.empty:
             print(f"    [SKIP] {dataset} - no data")
             continue
-
         fig, ax = plt.subplots(figsize=(6, 4))
-        ax.set_title(f"SLIM*ABS — Test RMSE — {dataset.replace('_', ' ')}",
+        ax.set_title(f"SLIM*ABS - Test RMSE - {dataset.replace('_', ' ')}",
                      fontsize=11, fontweight="bold")
-
         for pxo in PXO:
-            _plot_line(
-                ax,
-                dset[dset["pxo"] == pxo].sort_values(["seed", "gen"]),
-                "test",
-                color=COLORS[pxo],
-                label=LABELS[pxo],
-                no_shade=(pxo == "0.0"),
-            )
-
+            _plot_line(ax, dset[dset["pxo"] == pxo].sort_values(["seed", "gen"]),
+                       "test", color=PXO_COLORS[pxo], label=PXO_L[pxo],
+                       no_shade=(pxo == "0.0"))
         ax.set_xlabel("Generation", fontsize=9)
         ax.set_ylabel("Test RMSE", fontsize=9)
         ax.legend(fontsize=9, framealpha=0.9)
         fig.tight_layout()
-
         _save_fig(fig, os.path.join(out_dir, f"slim_abs_test_{dataset.replace('_', '-')}"))
 
     print(f"  -> {out_dir}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SECTION 3 — p_xo summary table  (p_xo ∈ {0.0, 0.3, 0.7})
+# SECTION 3 — p_xo summary table  (p_xo in {0.0, 0.3, 0.7})
 # ══════════════════════════════════════════════════════════════════════════════
-
-def _fmt_cell(med, iqr, decimals=2):
-    fmt = f"{{:.{decimals}f}}"
-    return (fmt + " ({})").format(med, fmt.format(iqr))
-
-
-def _to_latex(df_stats, caption, label, config_cols):
-    n = len(config_cols)
-    metric_header = (
-        r"\multicolumn{2}{c}{Train RMSE} & "
-        r"\multicolumn{2}{c}{Test RMSE} & "
-        r"\multicolumn{2}{c}{Model Size}"
-    )
-    sub_header  = r"Med & IQR & Med & IQR & Med & IQR"
-    col_spec    = "ll" + "l" * n + "rrrrrr"
-    config_head = " & ".join(c.replace("_", " ").title() for c in config_cols)
-
-    def _header_row():
-        return (r"Dataset & Variant & " +
-                (config_head + " & " if config_head else "") +
-                metric_header + r" \\")
-
-    def _sub_row():
-        return r" & & " + (" & " * n) + sub_header + r" \\"
-
-    def _cmidrules():
-        return (
-            r"\cmidrule(lr){" + str(3 + n) + "-" + str(4 + n) + r"}"
-            r"\cmidrule(lr){" + str(5 + n) + "-" + str(6 + n) + r"}"
-            r"\cmidrule(lr){" + str(7 + n) + "-" + str(8 + n) + r"}"
-        )
-
-    lines = [
-        r"\begin{longtable}{" + col_spec + "}",
-        r"\caption{" + caption + r"} \label{" + label + r"} \\",
-        r"\toprule", _header_row(), _cmidrules(), _sub_row(),
-        r"\midrule", r"\endfirsthead",
-        r"\toprule", _header_row(), _sub_row(),
-        r"\midrule", r"\endhead",
-        r"\bottomrule", r"\endfoot",
-    ]
-
-    prev_ds = None
-    for _, row in df_stats.sort_values(["dataset", "variant"] + config_cols).iterrows():
-        if prev_ds is not None and row["dataset"] != prev_ds:
-            lines.append(r"\midrule")
-        ds = row["dataset"] if row["dataset"] != prev_ds else ""
-        prev_ds = row["dataset"]
-        cfg  = " & ".join(str(row[c]) for c in config_cols)
-        row_str = f"{ds} & {row['variant']}"
-        if cfg:
-            row_str += f" & {cfg}"
-        row_str += (f" & {_fmt_cell(row['train_med'], row['train_iqr'])}"
-                    f" & {_fmt_cell(row['test_med'],  row['test_iqr'])}"
-                    f" & {_fmt_cell(row['size_med'],  row['size_iqr'], decimals=0)} \\\\")
-        lines.append(row_str)
-
-    lines.append(r"\end{longtable}")
-    return "\n".join(lines)
-
 
 def section_table():
     print("\n-- p_xo summary table -------------------------------------------")
@@ -382,19 +352,6 @@ def section_table():
     csv_path = os.path.join(out_dir, "prob_xo_table.csv")
     stats.to_csv(csv_path, index=False, float_format="%.4f")
     print(f"  CSV  -> {csv_path}")
-
-    tex = _to_latex(
-        stats,
-        caption=(r"Probabilistic head XO (max\_depth=17): "
-                 r"median (IQR) at final generation. "
-                 r"p\_xo=0.0 is the standard SLIM-GSGP baseline."),
-        label="tab:prob_xo_final",
-        config_cols=["p_xo"],
-    )
-    tex_path = os.path.join(out_dir, "prob_xo_table.tex")
-    with open(tex_path, "w", encoding="utf-8") as fh:
-        fh.write(tex)
-    print(f"  TEX  -> {tex_path}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════

@@ -226,6 +226,14 @@ class SLIM_GSGP:
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, self.elite.get_tree_representation(), log]
 
+            elif log == 9:
+                # gen 0: no operators applied yet — emit zeros
+                add_info = [self.elite.test_fitness, self.elite.nodes_count,
+                            0, 0,   # inflate_n, inflate_improved
+                            0, 0,   # deflate_n, deflate_improved
+                            0, 0,   # xo_n,     xo_improved
+                            log]
+
             else:
 
                 add_info = [self.elite.test_fitness, self.elite.nodes_count, log]
@@ -263,6 +271,9 @@ class SLIM_GSGP:
 
             offs_pop, start = [], time.time()
 
+            if log == 9:
+                _op_log = {}   # id(offspring) -> (op_tag, parent_fitness)
+
             if log == 5:
                 elite_child_index = 0
                 elite_child_indexes = []
@@ -283,6 +294,10 @@ class SLIM_GSGP:
                     while p1 == p2:
                         p2 = self.selector(population)
                     off1, off2 = head_xo(p1, p2, X_train=X_train, X_test=X_test, reconstruct=reconstruct)
+                    if log == 9:
+                        _pfit = min(p1.fitness, p2.fitness)
+                        _op_log[id(off1)] = ('xo', _pfit)
+                        _op_log[id(off2)] = ('xo', _pfit)
                     offs_pop.append(off1)
                     if len(offs_pop) < self.pop_size:
                         offs_pop.append(off2)
@@ -299,6 +314,10 @@ class SLIM_GSGP:
                         p1, p2 = self.selector(population), self.selector(population)
 
                     off1, off2 = prob_xo(p1, p2, X_train=X_train, X_test=X_test, reconstruct=reconstruct)
+                    if log == 9:
+                        _pfit = min(p1.fitness, p2.fitness)
+                        _op_log[id(off1)] = ('xo', _pfit)
+                        _op_log[id(off2)] = ('xo', _pfit)
                     offs_pop.append(off1)
                     if len(offs_pop) < self.pop_size:
                         offs_pop.append(off2)
@@ -328,6 +347,7 @@ class SLIM_GSGP:
                                                   )
                                 off1.nodes_collection, off1.nodes_count, off1.depth_collection, off1.depth, off1.size = \
                                 p1.nodes_collection, p1.nodes_count, p1.depth_collection, p1.depth, p1.size
+                                # copy_parent: not counted as an operator application
                             # otherwise, we choose the other operator
                             else:
                                 # obtaining the random mutation step
@@ -340,9 +360,13 @@ class SLIM_GSGP:
                                                             p_c=self.pi_init["p_c"],
                                                             X_test=X_test,
                                                             reconstruct = reconstruct)
+                                if log == 9:
+                                    _op_log[id(off1)] = ('inflate', p1.fitness)
 
                         else:
                             off1 = self.deflate_mutator(p1, reconstruct = reconstruct)
+                            if log == 9:
+                                _op_log[id(off1)] = ('deflate', p1.fitness)
 
                     else:
                         # if inflate mutation, pick a random individual with no restrictions
@@ -364,8 +388,11 @@ class SLIM_GSGP:
                                                   )
                                 off1.nodes_collection, off1.nodes_count, off1.depth_collection, off1.depth, off1.size = \
                                 p1.nodes_collection, p1.nodes_count, p1.depth_collection, p1.depth, p1.size
+                                # copy_parent: not counted as an operator application
                             else:
                                 off1 = self.deflate_mutator(p1, reconstruct = reconstruct)
+                                if log == 9:
+                                    _op_log[id(off1)] = ('deflate', p1.fitness)
 
                         else:
 
@@ -378,9 +405,13 @@ class SLIM_GSGP:
                                                         X_test = X_test,
                                                         reconstruct = reconstruct,
                                                         terminals_probabilities = terminals_probabilities)
+                            if log == 9:
+                                _op_log[id(off1)] = ('inflate', p1.fitness)
 
                         # checking if after inflation the offspring isnt valid:
                         if max_depth is not None and off1.depth > max_depth:
+                            if log == 9:
+                                _inflate_id = id(off1)   # id of the invalid inflate result
                             if self.copy_parent:
                                 off1 = Individual(collection=p1.collection if reconstruct else None,
                                                   train_semantics=p1.train_semantics,
@@ -389,8 +420,13 @@ class SLIM_GSGP:
                                                   )
                                 off1.nodes_collection, off1.nodes_count, off1.depth_collection, off1.depth, off1.size = \
                                 p1.nodes_collection, p1.nodes_count, p1.depth_collection, p1.depth, p1.size
+                                if log == 9:
+                                    _op_log.pop(_inflate_id, None)  # copy replaces inflate; not counted
                             else:
                                 off1 = self.deflate_mutator(p1, reconstruct = reconstruct)
+                                if log == 9:
+                                    _op_log.pop(_inflate_id, None)  # discard inflate, replace with deflate
+                                    _op_log[id(off1)] = ('deflate', p1.fitness)
 
                     offs_pop.append(off1)
 
@@ -414,6 +450,17 @@ class SLIM_GSGP:
                 for ind in offs_pop]
 
             offs_pop.evaluate(ffunction, y=y_train, operator=self.operator)
+
+            if log == 9:
+                _op_counts = {'inflate': [0, 0], 'deflate': [0, 0], 'xo': [0, 0]}
+                for ind in offs_pop.population:
+                    entry = _op_log.get(id(ind))
+                    if entry:
+                        tag, parent_fit = entry
+                        _op_counts[tag][0] += 1
+                        if ind.fitness < parent_fit:
+                            _op_counts[tag][1] += 1
+
             population = offs_pop
 
             self.population = population
@@ -561,6 +608,15 @@ class SLIM_GSGP:
                             run_info=run_info,
                             seed=self.seed,
                         )
+
+                elif log == 9:
+                    add_info = [
+                        self.elite.test_fitness, self.elite.nodes_count,
+                        _op_counts['inflate'][0], _op_counts['inflate'][1],
+                        _op_counts['deflate'][0], _op_counts['deflate'][1],
+                        _op_counts['xo'][0],      _op_counts['xo'][1],
+                        log
+                    ]
 
                 else:
 
