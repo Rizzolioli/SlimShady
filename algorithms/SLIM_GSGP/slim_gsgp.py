@@ -59,6 +59,7 @@ class SLIM_GSGP:
               coefficient_terminal_prob = 0,
               head_xo_freq = None,
               max_head_depth = None,
+              p_xo_schedule = None,  # callable(it, n_iter) -> float; overrides self.p_xo each gen
               ):
 
 
@@ -271,6 +272,8 @@ class SLIM_GSGP:
 
             offs_pop, start = [], time.time()
 
+            _cur_p_xo = p_xo_schedule(it, n_iter) if p_xo_schedule is not None else self.p_xo
+
             if log == 9:
                 _op_log = {}   # id(offspring) -> (op_tag, parent_fitness)
 
@@ -304,7 +307,7 @@ class SLIM_GSGP:
                     continue
 
                 # choosing between crossover and mutation
-                if random.random() < self.p_xo:
+                if random.random() < _cur_p_xo:
 
                     # if crossover selecting two parents
                     p1, p2 = self.selector(population), self.selector(population)
@@ -617,6 +620,21 @@ class SLIM_GSGP:
                         _op_counts['xo'][0],      _op_counts['xo'][1],
                         log
                     ]
+                    if self.elite is not _prev_elite and log_path is not None:
+                        op_fn = torch.sum if self.operator == 'sum' else torch.prod
+                        elite_train_out = op_fn(self.elite.train_semantics, dim=0)
+                        elite_test_out  = op_fn(self.elite.test_semantics, dim=0) \
+                                          if self.elite.test_semantics is not None else None
+                        sem_gen_path = (log_path[:-4] if log_path.endswith('.csv') else log_path) + '_sem_gen.csv'
+                        logger_sem_gen(
+                            sem_gen_path, it,
+                            self.elite.get_tree_representation(),
+                            " ".join(str(float(v)) for v in elite_train_out.tolist()),
+                            " ".join(str(float(v)) for v in elite_test_out.tolist())
+                                if elite_test_out is not None else "None",
+                            run_info=run_info,
+                            seed=self.seed,
+                        )
 
                 else:
 

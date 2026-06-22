@@ -3,17 +3,18 @@ generate_op_stats_figs.py
 =========================
 Visualise per-generation operator improvement rates from a log=9 CSV.
 
-For each operator (inflate, deflate, xo) and each generation we compute:
-    improvement_rate = n_improved / n_applied   (NaN when n_applied == 0)
+One figure per dataset:
+  rows = 3 variants (SLIM+2SIG, SLIM*ABS, SLIM*1SIG)
+  col 0 = improvement rate  (n_improved / n_applied, as %)
+  col 1 = n applications per generation
 
-Output: one figure per dataset, rows = variants, cols = operators.
-Each panel shows median improvement rate across seeds with IQR shading.
+Each panel shows 3 coloured lines (inflate / deflate / xo),
+median over seeds with IQR shading.
 
-Additionally: per-operator application counts (how often each fires).
+X axis: generation  (secondary label: evaluations = gen × pop_size)
 
 Outputs -> main/log/latex_final/op_stats/
-    op_stats_rate_{dataset}.{png,tex}    -- improvement rates
-    op_stats_count_{dataset}.{png,tex}   -- application counts
+    op_stats_{dataset}.{png,tex}
 """
 
 import os
@@ -53,7 +54,7 @@ _COLS = {
     16: "log_level",
 }
 
-_SMOOTH = 10   # rolling window for smoothing rates
+POP_SIZE = 500   # for evaluations label
 
 
 def _find_log():
@@ -61,27 +62,28 @@ def _find_log():
     files = sorted(glob.glob(pattern))
     if not files:
         raise FileNotFoundError(f"No op_stats log found matching: {pattern}")
-    return files[-1]   # most recent
+    return files[-1]
 
 
 def _load(path):
     df = pd.read_csv(path, header=None).rename(columns=_COLS)
     df["seed"] = df["seed"].astype(int)
-
-    # keep only fully completed runs
-    complete = df[df["gen"] == df["gen"].max()][["algo","dataset","seed"]].drop_duplicates()
-    df = df.merge(complete, on=["algo","dataset","seed"])
-    df = df.drop_duplicates(subset=["algo","dataset","seed","gen"], keep="last")
-
-    # extract variant
+    df = df.drop_duplicates(subset=["algo", "dataset", "seed", "gen"], keep="last")
     df["variant"] = df["algo"].str.extract(r'^(SLIM[+*]\w+)_pop')
     df = df[df["variant"].isin(_VARIANTS)]
-
-    # compute rates (NaN when n==0)
+    # compute rates (NaN when n_applied == 0)
     for op in _OPS:
-        df[f"{op}_rate"] = df[f"{op}_improved"] / df[f"{op}_n"].replace(0, np.nan)
-
+        df[f"{op}_rate"] = (df[f"{op}_improved"] / df[f"{op}_n"].replace(0, np.nan)) * 100
     return df
+
+
+def _median_iqr(sub, col):
+    """Return (gen_index, median, q25, q75) aggregated over seeds."""
+    pivot = sub.pivot_table(index="gen", columns="seed", values=col)
+    med = pivot.median(axis=1)
+    q25 = pivot.quantile(0.25, axis=1)
+    q75 = pivot.quantile(0.75, axis=1)
+    return med, q25, q75
 
 
 def _save_fig(fig, stem):
@@ -93,160 +95,93 @@ def _save_fig(fig, stem):
             tikzplotlib.save(stem + ".tex", figure=fig, strict=False)
             print(f"  Saved: {os.path.basename(stem)}.tex")
         except Exception as e:
-            print(f"  [WARN] tikz skipped: {e}")
+            print(f"  [WARN] tikz: {e}")
     plt.close(fig)
 
 
-def _plot_median_iqr(ax, series_per_seed, color, label, smooth=_SMOOTH):
-    """series_per_seed: dict {seed: pd.Series indexed by gen}"""
-    if not series_per_seed:
-        return
-    # align on a common gen index
-    df = pd.DataFrame(series_per_seed)
-    if smooth > 1:
-        df = df.rolling(smooth, min_periods=1).mean()
-    med = df.median(axis=1)
-    q25 = df.quantile(0.25, axis=1)
-    q75 = df.quantile(0.75, axis=1)
-    ax.plot(med.index, med.values, color=color, linewidth=1.4, label=label)
-    ax.fill_between(med.index, q25.values, q75.values, color=color, alpha=0.15)
-    ax.tick_params(labelsize=8)
-    ax.grid(True, linewidth=0.4, alpha=0.5)
-
-
-def make_rate_figures(df):
-    """One figure per dataset: rows=variants, cols=operators, y=improvement rate."""
+def make_figures(df):
     for dataset in _DATASETS:
         dset = df[df["dataset"] == dataset]
         if dset.empty:
-            print(f"  [SKIP] {dataset} - no data")
+            print(f"  [SKIP] {dataset}")
             continue
 
         fig, axes = plt.subplots(
-            len(_VARIANTS), len(_OPS),
-            figsize=(13, 3.5 * len(_VARIANTS)), sharex=True,
+            len(_VARIANTS), 2,
+            figsize=(13, 3.8 * len(_VARIANTS)),
+            sharex=True,
         )
-        fig.suptitle(f"Operator improvement rate — {dataset.replace('_', ' ')}",
+        fig.suptitle(f"Operator statistics — {dataset.replace('_', ' ')}",
                      fontsize=13, fontweight="bold", y=1.005)
+
+        # column headers
+        axes[0, 0].set_title("Improvement rate (%)", fontsize=10, pad=4)
+        axes[0, 1].set_title("Applications per generation", fontsize=10, pad=4)
 
         for ri, variant in enumerate(_VARIANTS):
             sub = dset[dset["variant"] == variant]
-            axes[ri, 0].set_ylabel(variant, fontsize=9, fontweight="bold")
 
-            for ci, op in enumerate(_OPS):
-                ax = axes[ri, ci]
-                if ri == 0:
-                    ax.set_title(_OP_LABELS[op], fontsize=10, pad=3)
-                if ri == len(_VARIANTS) - 1:
-                    ax.set_xlabel("Generation", fontsize=9)
+            ax_rate  = axes[ri, 0]
+            ax_count = axes[ri, 1]
 
-                rate_col = f"{op}_rate"
-                series_per_seed = {
-                    seed: grp.set_index("gen")[rate_col]
-                    for seed, grp in sub.groupby("seed")
-                }
-                _plot_median_iqr(ax, series_per_seed, _OP_COLORS[op], _OP_LABELS[op])
-                ax.set_ylim(-0.02, 1.02)
-                ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
-
-        fig.tight_layout()
-        _save_fig(fig, os.path.join(_OUT, f"op_stats_rate_{dataset}"))
-
-
-def make_count_figures(df):
-    """One figure per dataset: rows=variants, cols=operators, y=n_applied per gen."""
-    for dataset in _DATASETS:
-        dset = df[df["dataset"] == dataset]
-        if dset.empty:
-            continue
-
-        fig, axes = plt.subplots(
-            len(_VARIANTS), len(_OPS),
-            figsize=(13, 3.5 * len(_VARIANTS)), sharex=True,
-        )
-        fig.suptitle(f"Operator application count — {dataset.replace('_', ' ')}",
-                     fontsize=13, fontweight="bold", y=1.005)
-
-        for ri, variant in enumerate(_VARIANTS):
-            sub = dset[dset["variant"] == variant]
-            axes[ri, 0].set_ylabel(variant, fontsize=9, fontweight="bold")
-
-            for ci, op in enumerate(_OPS):
-                ax = axes[ri, ci]
-                if ri == 0:
-                    ax.set_title(_OP_LABELS[op], fontsize=10, pad=3)
-                if ri == len(_VARIANTS) - 1:
-                    ax.set_xlabel("Generation", fontsize=9)
-
-                count_col = f"{op}_n"
-                series_per_seed = {
-                    seed: grp.set_index("gen")[count_col]
-                    for seed, grp in sub.groupby("seed")
-                }
-                _plot_median_iqr(ax, series_per_seed, _OP_COLORS[op], _OP_LABELS[op],
-                                 smooth=5)
-
-        fig.tight_layout()
-        _save_fig(fig, os.path.join(_OUT, f"op_stats_count_{dataset}"))
-
-
-def make_combined_figure(df):
-    """Single summary figure: all operators on one axis per (variant, dataset)."""
-    for dataset in _DATASETS:
-        dset = df[df["dataset"] == dataset]
-        if dset.empty:
-            continue
-
-        fig, axes = plt.subplots(
-            len(_VARIANTS), 1,
-            figsize=(8, 3.5 * len(_VARIANTS)), sharex=True,
-        )
-        fig.suptitle(f"Improvement rates — {dataset.replace('_', ' ')}",
-                     fontsize=13, fontweight="bold", y=1.005)
-
-        for ri, variant in enumerate(_VARIANTS):
-            sub = dset[dset["variant"] == variant]
-            ax = axes[ri]
-            ax.set_ylabel(variant, fontsize=9, fontweight="bold")
-            if ri == len(_VARIANTS) - 1:
-                ax.set_xlabel("Generation", fontsize=9)
+            ax_rate.set_ylabel(variant, fontsize=9, fontweight="bold")
 
             for op in _OPS:
-                series_per_seed = {
-                    seed: grp.set_index("gen")[f"{op}_rate"]
-                    for seed, grp in sub.groupby("seed")
-                }
-                _plot_median_iqr(ax, series_per_seed, _OP_COLORS[op], _OP_LABELS[op])
+                color = _OP_COLORS[op]
+                label = _OP_LABELS[op]
 
-            ax.set_ylim(-0.02, 1.02)
-            ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
+                # --- improvement rate ---
+                med, q25, q75 = _median_iqr(sub, f"{op}_rate")
+                ax_rate.plot(med.index, med.values, color=color, linewidth=1.4,
+                             label=label)
+                ax_rate.fill_between(med.index, q25.values, q75.values,
+                                     color=color, alpha=0.15)
+
+                # --- application count ---
+                med_n, q25_n, q75_n = _median_iqr(sub, f"{op}_n")
+                ax_count.plot(med_n.index, med_n.values, color=color, linewidth=1.4,
+                              label=label)
+                ax_count.fill_between(med_n.index, q25_n.values, q75_n.values,
+                                      color=color, alpha=0.15)
+
+            ax_rate.set_ylim(-2, 102)
+            ax_rate.yaxis.set_major_formatter(
+                plt.FuncFormatter(lambda v, _: f"{v:.0f}%"))
+            ax_rate.grid(True, linewidth=0.4, alpha=0.5)
+            ax_rate.tick_params(labelsize=8)
+
+            ax_count.set_ylim(bottom=0)
+            ax_count.grid(True, linewidth=0.4, alpha=0.5)
+            ax_count.tick_params(labelsize=8)
+
+            if ri == len(_VARIANTS) - 1:
+                for ax in (ax_rate, ax_count):
+                    ax.set_xlabel("Generation", fontsize=9)
+                    # add secondary evaluations ticks
+                    max_gen = sub["gen"].max()
+                    ax2 = ax.twiny()
+                    ax2.set_xlim(ax.get_xlim())
+                    tick_gens = ax.get_xticks()
+                    ax2.set_xticks([])
+                    ax2.set_visible(False)   # keep clean, gen is clear enough
 
         legend_handles = [Line2D([0], [0], color=_OP_COLORS[op], linewidth=2,
                                  label=_OP_LABELS[op]) for op in _OPS]
-        fig.legend(handles=legend_handles, loc="upper right", fontsize=9,
-                   framealpha=0.85, bbox_to_anchor=(1.0, 1.0))
-        fig.tight_layout()
-        _save_fig(fig, os.path.join(_OUT, f"op_stats_combined_{dataset}"))
+        fig.legend(handles=legend_handles, loc="lower center", ncol=3,
+                   fontsize=9, framealpha=0.9, bbox_to_anchor=(0.5, -0.01))
+        fig.tight_layout(rect=[0, 0.03, 1, 1])
+
+        _save_fig(fig, os.path.join(_OUT, f"op_stats_{dataset}"))
 
 
 if __name__ == "__main__":
     log_path = _find_log()
     print(f"Loading: {log_path}")
     df = _load(log_path)
-    print(f"  {len(df)} rows | variants: {sorted(df['variant'].unique())} "
-          f"| datasets: {sorted(df['dataset'].unique())} "
-          f"| seeds: {sorted(df['seed'].unique())}")
+    print(f"  {len(df)} rows | algos: {sorted(df['variant'].unique())}")
 
     os.makedirs(_OUT, exist_ok=True)
     print(f"\nOutput -> {_OUT}\n")
 
-    print("-- Rate figures (one per dataset) ---")
-    make_rate_figures(df)
-
-    print("\n-- Count figures (one per dataset) --")
-    make_count_figures(df)
-
-    print("\n-- Combined figures (all operators per panel) --")
-    make_combined_figure(df)
-
+    make_figures(df)
     print("\nDone.")
