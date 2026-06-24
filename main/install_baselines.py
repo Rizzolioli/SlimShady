@@ -355,6 +355,20 @@ def build_gpgomea(clone_dir=None):
     if install_dir:
         print(f"  Found Python package at: {install_dir}")
 
+    # ── patch src/CMakeLists.txt: make R binding optional ────────────────────
+    # The Python binding (gpgomea_python) is defined before the R block, so
+    # cmake configure succeeds and produces the .so we need even without R.
+    src_cmake = os.path.join(repo_path, "src", "CMakeLists.txt")
+    if os.path.exists(src_cmake):
+        with open(src_cmake, "r") as _f:
+            _txt = _f.read()
+        _old = 'message(FATAL_ERROR "R executable not found in PATH; cannot build R binding.")'
+        _new = 'message(STATUS "R not found — skipping R binding (Python binding already defined).")'
+        if _old in _txt:
+            with open(src_cmake, "w") as _f:
+                _f.write(_txt.replace(_old, _new))
+            print("  Patched src/CMakeLists.txt: R binding made optional.")
+
     # ── step 1: cmake (always — pip install alone produces a pure-Python wheel
     #            with no compiled extension, causing ImportError at runtime) ───
     cmake_ok, built_exts = _cmake_compile(repo_path)
