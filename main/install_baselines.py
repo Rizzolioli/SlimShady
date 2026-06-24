@@ -355,19 +355,54 @@ def build_gpgomea(clone_dir=None):
     if install_dir:
         print(f"  Found Python package at: {install_dir}")
 
-    # ── patch src/CMakeLists.txt: make R binding optional ────────────────────
-    # The Python binding (gpgomea_python) is defined before the R block, so
-    # cmake configure succeeds and produces the .so we need even without R.
+    # ── patch CMakeLists.txt (root): fix OpenMP flags for AppleClang ─────────
+    # add_compile_options(${OpenMP_CXX_FLAGS}) passes "-Xclang -fopenmp" as a
+    # single argument; AppleClang rejects it.  separate_arguments() splits it
+    # into two args ("-Xclang" and "-fopenmp") as the compiler expects.
+    root_cmake = os.path.join(repo_path, "CMakeLists.txt")
+    if os.path.exists(root_cmake):
+        with open(root_cmake, "r") as _f:
+            _txt = _f.read()
+        _old = "add_compile_options(${OpenMP_CXX_FLAGS})"
+        _new = ('separate_arguments(OpenMP_CXX_FLAGS_LIST NATIVE_COMMAND "${OpenMP_CXX_FLAGS}")\n'
+                "add_compile_options(${OpenMP_CXX_FLAGS_LIST})")
+        if _old in _txt:
+            with open(root_cmake, "w") as _f:
+                _f.write(_txt.replace(_old, _new))
+            print("  Patched CMakeLists.txt: OpenMP flags split for AppleClang.")
+
+    # ── patch src/CMakeLists.txt ──────────────────────────────────────────────
+    # 1. R binding: make it optional (Python binding is defined before R block).
+    # 2. GPGOMEA_LINK_LIBS: remove raw ${OpenMP_CXX_FLAGS} string; use the
+    #    proper cmake OpenMP::OpenMP_CXX target in target_link_libraries instead.
     src_cmake = os.path.join(repo_path, "src", "CMakeLists.txt")
     if os.path.exists(src_cmake):
         with open(src_cmake, "r") as _f:
             _txt = _f.read()
-        _old = 'message(FATAL_ERROR "R executable not found in PATH; cannot build R binding.")'
-        _new = 'message(STATUS "R not found — skipping R binding (Python binding already defined).")'
-        if _old in _txt:
+
+        _patches = [
+            # R binding: FATAL_ERROR → STATUS
+            ('message(FATAL_ERROR "R executable not found in PATH; cannot build R binding.")',
+             'message(STATUS "R not found — skipping R binding (Python binding already defined).")'),
+            # Remove OpenMP raw flags from GPGOMEA_LINK_LIBS
+            ("set(GPGOMEA_LINK_LIBS ${ARMADILLO_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${OpenMP_CXX_FLAGS})",
+             "set(GPGOMEA_LINK_LIBS ${ARMADILLO_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})"),
+            # Link Python target with proper OpenMP cmake target
+            ("target_link_libraries(gpgomea_python ${GPGOMEA_LINK_LIBS})",
+             "target_link_libraries(gpgomea_python ${GPGOMEA_LINK_LIBS} OpenMP::OpenMP_CXX)"),
+            # Link main executable with proper OpenMP cmake target
+            ("target_link_libraries(main ${GPGOMEA_LINK_LIBS})",
+             "target_link_libraries(main ${GPGOMEA_LINK_LIBS} OpenMP::OpenMP_CXX)"),
+        ]
+        changed = False
+        for _old, _new in _patches:
+            if _old in _txt:
+                _txt = _txt.replace(_old, _new)
+                changed = True
+        if changed:
             with open(src_cmake, "w") as _f:
-                _f.write(_txt.replace(_old, _new))
-            print("  Patched src/CMakeLists.txt: R binding made optional.")
+                _f.write(_txt)
+            print("  Patched src/CMakeLists.txt: R optional + OpenMP fixed.")
 
     # ── step 1: cmake (always — pip install alone produces a pure-Python wheel
     #            with no compiled extension, causing ImportError at runtime) ───
