@@ -300,6 +300,36 @@ def build_gpgomea(clone_dir=None):
             print("       conda install -c conda-forge armadillo")
             print("       # or: brew install armadillo")
 
+    # Boost (system/filesystem/program_options + Boost.Python + Boost.NumPy)
+    boost_header = os.path.join(conda_prefix, "include", "boost") if conda_prefix else ""
+    if not (boost_header and os.path.exists(boost_header)):
+        print("  Boost not found — installing …")
+        boost_installed = False
+
+        for pkg_mgr in filter(None, [shutil.which("mamba"), shutil.which("conda")]):
+            if conda_prefix:
+                print(f"  {os.path.basename(pkg_mgr)} install -c conda-forge boost …")
+                r = subprocess.run(
+                    [pkg_mgr, "install", "-c", "conda-forge", "boost", "-y"],
+                    capture_output=False)
+                if r.returncode == 0 and os.path.exists(boost_header):
+                    boost_installed = True
+                    break
+                print(f"  {os.path.basename(pkg_mgr)} failed — trying next option …")
+
+        if not boost_installed:
+            brew = shutil.which("brew")
+            if brew:
+                print("  brew install boost boost-python3 …")
+                r = subprocess.run(["brew", "install", "boost", "boost-python3"],
+                                   capture_output=False)
+                boost_installed = r.returncode == 0
+
+        if not boost_installed:
+            print("  !! Could not auto-install Boost. Install manually:")
+            print("       conda install -c conda-forge boost")
+            print("       # or: brew install boost boost-python3")
+
     # ── clone ──────────────────────────────────────────────────────────────────
     if clone_dir is None:
         clone_dir = os.path.join(os.path.expanduser("~"), ".gpgomea_src")
