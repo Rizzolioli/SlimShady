@@ -178,25 +178,35 @@ def _pysr_to_sympy(estimator):
 
 def _gpgomea_to_sympy(estimator):
     import sympy as sp
-    try:
-        model_str = estimator.get_model()
-        return sp.sympify(model_str)
-    except Exception:
+    for getter in ("get_model", "get_model_string"):
         try:
-            return sp.sympify(str(estimator))
+            model_str = getattr(estimator, getter)()
+            return sp.sympify(model_str)
         except Exception:
-            return None
+            pass
+    try:
+        return sp.sympify(str(estimator))
+    except Exception:
+        return None
 
 
-# ── Baseline factories ─────────────────────────────────────────────────────────
-# Each factory returns (algo_name, make_fn, sympy_fn)
-#   make_fn(seed)              -> unfitted estimator
-#   sympy_fn(estimator, X_tr)  -> SymPy expr | None
+# ── Baseline construction ──────────────────────────────────────────────────────
+# Module-level functions so multiprocessing.Pool can pickle task arguments.
+# Inner functions / lambdas cannot be pickled → never pass them to pool workers.
 
-def _register_gplearn():
-    from gplearn.genetic import SymbolicRegressor
+_ALGO_META = {
+    # algo_key: (display_name, pip_package)
+    "gplearn":   ("GPLearn",  "gplearn"),
+    "pyoperon":  ("Operon",   "pyoperon"),
+    "pygpgomea": ("GP-GOMEA", "pyGPGOMEA"),
+    "pysr":      ("PySR",     "pysr"),
+}
 
-    def make(seed):
+
+def _make_estimator(algo_key, seed):
+    """Construct an unfitted estimator for the given algo_key and seed."""
+    if algo_key == "gplearn":
+        from gplearn.genetic import SymbolicRegressor
         return SymbolicRegressor(
             population_size=POP_SIZE,
             generations=N_GENS,
@@ -212,17 +222,8 @@ def _register_gplearn():
             n_jobs=1,
             verbose=0,
         )
-
-    def sympy_fn(est, X_tr):
-        return _gplearn_to_sympy(est, X_tr.shape[1])
-
-    return ("GPLearn", make, sympy_fn)
-
-
-def _register_operon():
-    from pyoperon.sklearn import SymbolicRegressor as OperonSR
-
-    def make(seed):
+    if algo_key == "pyoperon":
+        from pyoperon.sklearn import SymbolicRegressor as OperonSR
         return OperonSR(
             allowed_symbols="add,sub,mul,div,square,sqrt,log,exp",
             population_size=POP_SIZE,
@@ -231,14 +232,8 @@ def _register_operon():
             n_threads=1,
             random_state=seed,
         )
-
-    return ("Operon", make, lambda est, X: _operon_to_sympy(est))
-
-
-def _register_gpgomea():
-    from pyGPGOMEA import GPGOMEARegressor
-
-    def make(seed):
+    if algo_key == "pygpgomea":
+        from pyGPGOMEA import GPGOMEARegressor
         return GPGOMEARegressor(
             gomea=True,
             ims="5_1",
@@ -246,14 +241,8 @@ def _register_gpgomea():
             seed=seed,
             verbose=False,
         )
-
-    return ("GP-GOMEA", make, lambda est, X: _gpgomea_to_sympy(est))
-
-
-def _register_pysr():
-    from pysr import PySRRegressor
-
-    def make(seed):
+    if algo_key == "pysr":
+        from pysr import PySRRegressor
         return PySRRegressor(
             niterations=N_GENS,
             populations=POP_SIZE,
@@ -265,25 +254,37 @@ def _register_pysr():
             procs=0,
             multithreading=False,
         )
+    raise ValueError(f"Unknown algo_key: {algo_key!r}")
 
-    return ("PySR", make, lambda est, X: _pysr_to_sympy(est))
 
-
-_FACTORIES = [
-    ("gplearn",   _register_gplearn),
-    ("pyoperon",  _register_operon),
-    ("pygpgomea", _register_gpgomea),
-    ("pysr",      _register_pysr),
-]
+def _to_sympy_expr(algo_key, estimator, X_tr):
+    """Extract a SymPy expression from a fitted estimator."""
+    if algo_key == "gplearn":
+        return _gplearn_to_sympy(estimator, X_tr.shape[1])
+    if algo_key == "pyoperon":
+        return _operon_to_sympy(estimator)
+    if algo_key == "pygpgomea":
+        return _gpgomea_to_sympy(estimator)
+    if algo_key == "pysr":
+        return _pysr_to_sympy(estimator)
+    return None
 
 
 def _discover_baselines():
     available = []
-    for lib, factory_fn in _FACTORIES:
+    for algo_key, (algo_name, lib) in _ALGO_META.items():
         try:
-            reg = factory_fn()
-            available.append(reg)
-            print(f"  [OK]  {reg[0]}")
+            # import-only check — do not construct (PySR triggers Julia init)
+            if algo_key == "gplearn":
+                from gplearn.genetic import SymbolicRegressor      # noqa: F401
+            elif algo_key == "pyoperon":
+                from pyoperon.sklearn import SymbolicRegressor     # noqa: F401
+            elif algo_key == "pygpgomea":
+                from pyGPGOMEA import GPGOMEARegressor             # noqa: F401
+            elif algo_key == "pysr":
+                from pysr import PySRRegressor                     # noqa: F401
+            available.append((algo_key, algo_name))
+            print(f"  [OK]  {algo_name}")
         except ImportError:
             print(f"  [--]  {lib}  (not installed — run: python main/install_baselines.py)")
         except Exception as e:
@@ -293,7 +294,7 @@ def _discover_baselines():
 
 # ── Per-task worker ────────────────────────────────────────────────────────────
 
-def _run_one(algo_name, make_fn, sympy_fn, dataset, seed, log_path, lock):
+def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
     import numpy as np
     from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
     from datasets.data_loader import load_preloaded
@@ -308,7 +309,7 @@ def _run_one(algo_name, make_fn, sympy_fn, dataset, seed, log_path, lock):
         X_te = X_te.numpy().astype(np.float64)
         y_te = y_te.numpy().astype(np.float64)
 
-        estimator = make_fn(seed)
+        estimator = _make_estimator(algo_key, seed)
         t0        = time.time()
         estimator.fit(X_tr, y_tr)
         runtime   = time.time() - t0
@@ -321,9 +322,9 @@ def _run_one(algo_name, make_fn, sympy_fn, dataset, seed, log_path, lock):
         # ── M_phi before simplification ───────────────────────────────────────
         if algo_name == "GPLearn":
             m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = _gplearn_m_phi(estimator)
-            expr = sympy_fn(estimator, X_tr)
+            expr = _to_sympy_expr(algo_key, estimator, X_tr)
         else:
-            expr = sympy_fn(estimator, X_tr)
+            expr = _to_sympy_expr(algo_key, estimator, X_tr)
             if expr is not None:
                 m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = _sympy_m_phi(expr)
             else:
@@ -395,11 +396,11 @@ if __name__ == "__main__":
             csv.writer(f).writerow(_HEADER)
 
     tasks = [
-        (name, make_fn, sympy_fn, dataset, seed)
-        for name, make_fn, sympy_fn in baselines
+        (algo_key, algo_name, dataset, seed)
+        for algo_key, algo_name in baselines
         for dataset in DATASETS
         for seed    in range(N_RUNS)
-        if (name, dataset, seed) not in completed
+        if (algo_name, dataset, seed) not in completed
     ]
     total   = len(tasks)
     skipped = len(baselines) * len(DATASETS) * N_RUNS - total
@@ -411,8 +412,8 @@ if __name__ == "__main__":
 
     manager    = multiprocessing.Manager()
     lock       = manager.Lock()
-    pool_tasks = [(n, mf, sf, ds, sd, log_path, lock)
-                  for n, mf, sf, ds, sd in tasks]
+    pool_tasks = [(ak, an, ds, sd, log_path, lock)
+                  for ak, an, ds, sd in tasks]
 
     t0 = time.time()
     done_n = 0

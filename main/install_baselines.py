@@ -158,15 +158,8 @@ def _cmake_build_gpgomea(repo_path):
     r = subprocess.run(
         ["cmake", "..",
          f"-DPYTHON_EXECUTABLE={sys.executable}",
-         "-DCMAKE_BUILD_TYPE=Release",
-         "-DBUILD_PYTHON_BINDINGS=ON"],
+         "-DCMAKE_BUILD_TYPE=Release"],
         cwd=build_dir)
-    if r.returncode != 0:
-        r = subprocess.run(
-            ["cmake", "..",
-             f"-DPYTHON_EXECUTABLE={sys.executable}",
-             "-DCMAKE_BUILD_TYPE=Release"],
-            cwd=build_dir)
     if r.returncode != 0:
         print("  !! cmake configure failed.")
         _print_gpgomea_manual_hint(repo_path)
