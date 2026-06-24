@@ -5,9 +5,8 @@ Run once before main_baselines.py:
     python main/install_baselines.py
 
 PySR note: requires Julia. If Julia is not on PATH, this script will attempt
-to install it automatically via `juliaup` (Windows/Linux/macOS installer).
-After Julia is available, `pysr` calls `PySRRegressor().julia_project` on first
-use which downloads the Julia packages — this takes a few minutes once.
+to install it automatically. After Julia is available, PySR downloads its
+Julia packages on the first run (~5 min, once only).
 """
 
 import subprocess
@@ -19,19 +18,13 @@ def pip(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", *packages])
 
 
-def run(cmd, **kwargs):
-    return subprocess.run(cmd, **kwargs)
-
-
 PACKAGES = [
-    # package name(s)   description
-    (["gplearn"],        "GPLearn — sklearn-compatible tree GP            (pip)"),
-    (["pyoperon"],       "Operon  — high-performance GP                  (pip)"),
-    (["pysr"],           "PySR    — Julia-backed symbolic regression      (pip + Julia)"),
+    # (pip_name,    import_name,   description)
+    ("gplearn",    "gplearn",     "GPLearn — sklearn-compatible tree GP"),
+    ("pyoperon",   "pyoperon",    "Operon  — high-performance GP"),
+    ("pysr",       "pysr",        "PySR    — Julia-backed symbolic regression  (+Julia)"),
     # GP-GOMEA: no PyPI wheel — requires manual C++ build from source
     #   https://github.com/marcovirgolin/GP-GOMEA
-    # ITEA: no PyPI wheel on Windows — install from source if needed
-    #   https://github.com/GuilhermeAldeia/ITEA
 ]
 
 
@@ -42,88 +35,109 @@ def install_julia_if_needed():
         return True
 
     print("  Julia not found. Attempting to install via juliaup …")
+
     if sys.platform == "win32":
-        # winget is the simplest path on Windows
         winget = shutil.which("winget")
         if winget:
-            r = run(["winget", "install", "--id", "Julialang.Juliaup", "-e", "--silent"],
-                    capture_output=True)
+            r = subprocess.run(
+                ["winget", "install", "--id", "Julialang.Juliaup", "-e", "--silent"],
+                capture_output=True)
             if r.returncode == 0:
-                print("  Julia installed via winget. Restart your shell to put julia on PATH.")
-                return True
-        # fallback: direct installer
-        print("  winget not found. Download and run the Julia installer manually:")
-        print("    https://julialang.org/downloads/")
+                print("  Julia installed via winget. Open a new terminal and re-run this script.")
+                return False   # PATH update requires new shell
+        print("  Install Julia manually from: https://julialang.org/downloads/")
         return False
-    else:
-        # Linux / macOS
-        r = run(["curl", "-fsSL", "https://install.julialang.org"], capture_output=True, text=True)
+
+    else:  # macOS / Linux
+        # juliaup non-interactive installer
+        r = subprocess.run(
+            ["curl", "-fsSL", "https://install.julialang.org"],
+            capture_output=True, text=True)
         if r.returncode == 0:
-            r2 = run(["sh", "-c", r.stdout], capture_output=True)
+            r2 = subprocess.run(
+                ["sh", "-s", "--", "--yes"],
+                input=r.stdout, text=True, capture_output=True)
             if r2.returncode == 0:
-                print("  Julia installed. You may need to restart your shell.")
+                # juliaup adds to ~/.bashrc / ~/.zshrc; try sourcing PATH update
+                julia_bin = shutil.which("julia") or \
+                    subprocess.run(["bash", "-lc", "which julia"],
+                                   capture_output=True, text=True).stdout.strip()
+                if julia_bin:
+                    print(f"  Julia installed at {julia_bin}")
+                    return True
+                print("  Julia installed. Open a new terminal and re-run this script.")
+                return False
+
+        # macOS homebrew fallback
+        brew = shutil.which("brew")
+        if brew:
+            print("  Trying: brew install julia …")
+            r = subprocess.run(["brew", "install", "julia"], capture_output=True)
+            if r.returncode == 0 and shutil.which("julia"):
+                print("  Julia installed via Homebrew.")
                 return True
-        print("  Could not auto-install Julia. Install manually: https://julialang.org/downloads/")
+
+        print("  Could not auto-install Julia.")
+        print("  Install manually: https://julialang.org/downloads/")
         return False
 
 
 def init_pysr_julia():
-    """
-    Run PySR's Julia environment setup (downloads Julia packages).
-    Only needed once; safe to re-run.
-    """
-    print("  Initialising PySR Julia environment (may take a few minutes on first run) …")
+    """Trigger PySR's one-time Julia package download."""
+    print("  Initialising PySR Julia environment (may take ~5 min on first run) …")
     try:
         from pysr import PySRRegressor
-        PySRRegressor(verbosity=0).julia_project   # triggers Julia package installation
+        # instantiating with niterations=1 triggers Julia setup without a real fit
+        reg = PySRRegressor(niterations=1, verbosity=0)
+        # access the julia_project attribute to trigger environment setup
+        _ = reg.julia_project
         print("  PySR Julia environment ready.")
     except Exception as e:
-        print(f"  PySR Julia init failed: {e}")
-        print("  You can initialise manually with:")
-        print("    python -c \"from pysr import PySRRegressor; PySRRegressor()\"")
+        print(f"  PySR Julia init: {e}")
+        print("  If Julia is freshly installed, open a new terminal and run:")
+        print("    python -c \"from pysr import PySRRegressor; PySRRegressor(niterations=1, verbosity=0)\"")
 
 
 if __name__ == "__main__":
     results = {}
 
-    for pkgs, desc in PACKAGES:
+    for pip_name, import_name, desc in PACKAGES:
         print(f"\n{'─'*60}")
         print(f"Installing: {desc}")
-        print(f"  pip install {' '.join(pkgs)}")
+        print(f"  pip install {pip_name}")
         try:
-            pip(*pkgs)
-            results[pkgs[0]] = "OK"
+            pip(pip_name)
+            results[pip_name] = "OK"
         except subprocess.CalledProcessError as e:
-            results[pkgs[0]] = f"FAILED ({e})"
+            results[pip_name] = f"FAILED ({e})"
             print(f"  !! Failed: {e}")
 
-    # PySR needs Julia
+    # Julia setup for PySR
     print(f"\n{'─'*60}")
     print("Setting up Julia for PySR …")
     if results.get("pysr") == "OK":
-        julia_ok = install_julia_if_needed()
-        if julia_ok:
+        if install_julia_if_needed():
             init_pysr_julia()
     else:
-        print("  Skipping Julia setup (pysr not installed).")
+        print("  Skipping (pysr not installed).")
 
-    # Summary
+    # ── Summary ───────────────────────────────────────────────────────────────
     print(f"\n{'='*60}")
     print("Installation summary:")
-    for pkg, status in results.items():
+    for pip_name, _, _ in PACKAGES:
+        status = results.get(pip_name, "SKIPPED")
         mark = "✓" if status == "OK" else "✗"
-        print(f"  {mark}  {pkg:20s}  {status}")
+        print(f"  {mark}  {pip_name:20s}  {status}")
 
-    print("\nVerifying imports …")
-    for lib, import_name in [
-        ("gplearn",        "gplearn"),
-        ("operon-sklearn", "operon"),
-        ("pygpgomea",      "pygpgomea"),
-        ("pysr",           "pysr"),
-        ("itea-sklearn",   "itea"),
-    ]:
+    print()
+    print("Verifying imports …")
+    for pip_name, import_name, _ in PACKAGES:
         try:
             __import__(import_name)
-            print(f"  OK  {lib}")
-        except ImportError:
-            print(f"  --  {lib}  (not importable)")
+            print(f"  OK  {pip_name} (import {import_name})")
+        except ImportError as e:
+            print(f"  --  {pip_name}  ({e})")
+
+    print()
+    print("Not on PyPI (build from source if needed):")
+    print("  GP-GOMEA  https://github.com/marcovirgolin/GP-GOMEA")
