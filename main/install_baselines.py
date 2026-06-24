@@ -104,12 +104,32 @@ def build_gpgomea(clone_dir=None):
     """
     print("\nBuilding GP-GOMEA from source …")
 
-    # ── check prerequisites ────────────────────────────────────────────────────
+    # ── auto-install cmake if missing ─────────────────────────────────────────
+    if not shutil.which("cmake"):
+        print("  cmake not found — attempting auto-install …")
+        installed = False
+        conda = shutil.which("conda")
+        if conda:
+            print("  conda install -c conda-forge cmake …")
+            r = subprocess.run([conda, "install", "-c", "conda-forge", "cmake", "-y"],
+                               capture_output=False)
+            installed = r.returncode == 0 and shutil.which("cmake")
+        if not installed:
+            brew = shutil.which("brew")
+            if brew:
+                print("  brew install cmake …")
+                r = subprocess.run(["brew", "install", "cmake"], capture_output=False)
+                installed = r.returncode == 0 and shutil.which("cmake")
+        if not installed:
+            print("  !! cmake install failed. Run manually:")
+            print("       conda install -c conda-forge cmake")
+            print("       # or: brew install cmake")
+            return False
+
+    # ── check remaining prerequisites ─────────────────────────────────────────
     missing = []
     if not shutil.which("git"):
-        missing.append("git")
-    if not shutil.which("cmake"):
-        missing.append("cmake  (brew install cmake  /  conda install cmake)")
+        missing.append("git  (brew install git  /  conda install git)")
     for cc in ("g++", "clang++", "c++"):
         if shutil.which(cc):
             break
