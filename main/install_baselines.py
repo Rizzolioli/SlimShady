@@ -210,6 +210,7 @@ def _print_gpgomea_manual_hint(repo_path):
     print(f"    mkdir -p _pybuild && cd _pybuild")
     print(f"    cmake .. -DPYTHON_EXECUTABLE={sys.executable} \\")
     print(f"             -DCMAKE_BUILD_TYPE=Release \\")
+    print(f"             -DBUILD_R_BINDING=OFF \\")
     print(f"             -DCMAKE_PREFIX_PATH={conda_prefix}")
     print(f"    cmake --build . -j$(nproc)")
     print("  macOS: make sure Xcode CLT is installed:  xcode-select --install")
