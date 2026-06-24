@@ -1,0 +1,870 @@
+  610 |     BOOST_HASH_SPECIALIZE(char)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<char, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<signed char, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:611:5: note: in instantiation of template class 'boost::hash_detail::hash_base<signed char>' requested here
+  611 |     BOOST_HASH_SPECIALIZE(signed char)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<signed char, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<unsigned char, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:612:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned char>' requested here
+  612 |     BOOST_HASH_SPECIALIZE(unsigned char)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned char, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<wchar_t, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:614:5: note: in instantiation of template class 'boost::hash_detail::hash_base<wchar_t>' requested here
+  614 |     BOOST_HASH_SPECIALIZE(wchar_t)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<wchar_t, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<char16_t, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:617:5: note: in instantiation of template class 'boost::hash_detail::hash_base<char16_t>' requested here
+  617 |     BOOST_HASH_SPECIALIZE(char16_t)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<char16_t, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<char32_t, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:620:5: note: in instantiation of template class 'boost::hash_detail::hash_base<char32_t>' requested here
+  620 |     BOOST_HASH_SPECIALIZE(char32_t)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<char32_t, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<short, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:622:5: note: in instantiation of template class 'boost::hash_detail::hash_base<short>' requested here
+  622 |     BOOST_HASH_SPECIALIZE(short)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<short, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<unsigned short, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:623:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned short>' requested here
+  623 |     BOOST_HASH_SPECIALIZE(unsigned short)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned short, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<int, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:624:5: note: in instantiation of template class 'boost::hash_detail::hash_base<int>' requested here
+  624 |     BOOST_HASH_SPECIALIZE(int)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<int, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<unsigned int, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:625:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned int>' requested here
+  625 |     BOOST_HASH_SPECIALIZE(unsigned int)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned int, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:626:5: note: in instantiation of template class 'boost::hash_detail::hash_base<long>' requested here
+  626 |     BOOST_HASH_SPECIALIZE(long)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<unsigned long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:627:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned long>' requested here
+  627 |     BOOST_HASH_SPECIALIZE(unsigned long)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<float, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:629:5: note: in instantiation of template class 'boost::hash_detail::hash_base<float>' requested here
+  629 |     BOOST_HASH_SPECIALIZE(float)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<float, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<double, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:630:5: note: in instantiation of template class 'boost::hash_detail::hash_base<double>' requested here
+  630 |     BOOST_HASH_SPECIALIZE(double)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<double, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<long double, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:631:5: note: in instantiation of template class 'boost::hash_detail::hash_base<long double>' requested here
+  631 |     BOOST_HASH_SPECIALIZE(long double)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<long double, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<std::string, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:633:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::string>' requested here
+  633 |     BOOST_HASH_SPECIALIZE_REF(std::string)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:591:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  591 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::string, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<std::wstring, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:635:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::wstring>' requested here
+  635 |     BOOST_HASH_SPECIALIZE_REF(std::wstring)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:591:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  591 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::wstring, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<std::u16string, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:638:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::u16string>' requested here
+  638 |     BOOST_HASH_SPECIALIZE_REF(std::basic_string<char16_t>)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:591:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  591 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::u16string, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<std::u32string, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:641:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::u32string>' requested here
+  641 |     BOOST_HASH_SPECIALIZE_REF(std::basic_string<char32_t>)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:591:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  591 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::u32string, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<long long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:658:5: note: in instantiation of template class 'boost::hash_detail::hash_base<long long>' requested here
+  658 |     BOOST_HASH_SPECIALIZE(boost::long_long_type)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<long long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<unsigned long long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:659:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned long long>' requested here
+  659 |     BOOST_HASH_SPECIALIZE(boost::ulong_long_type)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned long long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<__int128, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:663:5: note: in instantiation of template class 'boost::hash_detail::hash_base<__int128>' requested here
+  663 |     BOOST_HASH_SPECIALIZE(boost::int128_type)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<__int128, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<unsigned __int128, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:664:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned __int128>' requested here
+  664 |     BOOST_HASH_SPECIALIZE(boost::uint128_type)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned __int128, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<std::type_index, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:679:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::type_index>' requested here
+  679 |     BOOST_HASH_SPECIALIZE(std::type_index)
+      |     ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:581:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  581 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::type_index, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args_fwd.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/handle.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/cast.hpp:9:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/detail/type_traits.hpp:33:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/type_traits/has_trivial_copy.hpp:34:4: warning: builtin __has_trivial_copy is deprecated; use __is_trivially_copyable instead [-Wdeprecated-builtins]
+   34 |    BOOST_HAS_TRIVIAL_COPY(T) BOOST_TT_TRIVIAL_CONSTRUCT_FIX
+      |    ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/type_traits/intrinsics.hpp:190:41: note: expanded from macro 'BOOST_HAS_TRIVIAL_COPY'
+  190 | #     define BOOST_HAS_TRIVIAL_COPY(T) (__has_trivial_copy(T) && !is_reference<T>::value)
+      |                                         ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args_fwd.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/handle.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/errors.hpp:13:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function0.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/detail/maybe_include.hpp:15:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_template.hpp:13:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/detail/prologue.hpp:15:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/throw_exception.hpp:24:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/assert/source_location.hpp:75:14: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+   75 |         std::sprintf( buffer, ":%ld", static_cast<long>( line() ) );
+      |              ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/sys/cdefs.h:227:48: note: expanded from macro '__deprecated_msg'
+  227 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args_fwd.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/handle.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/errors.hpp:13:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function0.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/detail/maybe_include.hpp:15:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_template.hpp:13:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/detail/prologue.hpp:15:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/throw_exception.hpp:24:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/assert/source_location.hpp:80:18: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+   80 |             std::sprintf( buffer, ":%ld", static_cast<long>( column() ) );
+      |                  ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/sys/cdefs.h:227:48: note: expanded from macro '__deprecated_msg'
+  227 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args_fwd.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/handle.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/errors.hpp:13:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function0.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/detail/maybe_include.hpp:15:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_template.hpp:13:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/detail/prologue.hpp:17:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_base.hpp:23:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/type_traits/has_trivial_destructor.hpp:30:86: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+   30 | template <typename T> struct has_trivial_destructor : public integral_constant<bool, BOOST_HAS_TRIVIAL_DESTRUCTOR(T)>{};
+      |                                                                                      ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/type_traits/intrinsics.hpp:196:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_DESTRUCTOR'
+  196 | #     define BOOST_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T)  && is_destructible<T>::value)
+      |                                               ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:17:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/call_method.hpp:32:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/preprocessor/iteration/detail/iter/forward1.hpp:1343:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/preprocessor/iteration/detail/iter/limits/forward1_256.hpp:14:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/python/call_method.hpp:61:9: warning: 'PyEval_CallMethod' is deprecated [-Wdeprecated-declarations]
+   61 |         PyEval_CallMethod(
+      |         ^
+/Users/davide/opt/anaconda3/envs/slim/include/python3.10/ceval.h:28:1: note: 'PyEval_CallMethod' has been explicitly marked deprecated here
+   28 | Py_DEPRECATED(3.9) PyAPI_FUNC(PyObject *) PyEval_CallMethod(
+      | ^
+/Users/davide/opt/anaconda3/envs/slim/include/python3.10/pyport.h:513:54: note: expanded from macro 'Py_DEPRECATED'
+  513 | #define Py_DEPRECATED(VERSION_UNUSED) __attribute__((__deprecated__))
+      |                                                      ^
+36 warnings generated.
+[ 71%] Built target gpgomea_variation
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:49:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/operators.hpp:19:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast.hpp:32:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast/try_lexical_convert.hpp:44:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast/detail/converter_lexical.hpp:54:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast/detail/converter_lexical_streams.hpp:285:21: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  285 |                     sprintf(begin,
+      |                     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/sys/cdefs.h:227:48: note: expanded from macro '__deprecated_msg'
+  227 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:49:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/operators.hpp:19:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast.hpp:32:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast/try_lexical_convert.hpp:44:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast/detail/converter_lexical.hpp:54:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast/detail/converter_lexical_streams.hpp:297:21: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  297 |                     sprintf(begin,
+      |                     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/sys/cdefs.h:227:48: note: expanded from macro '__deprecated_msg'
+  227 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:49:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/operators.hpp:19:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast.hpp:32:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast/try_lexical_convert.hpp:44:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast/detail/converter_lexical.hpp:54:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/lexical_cast/detail/converter_lexical_streams.hpp:310:21: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  310 |                     sprintf(begin,
+      |                     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/sys/cdefs.h:227:48: note: expanded from macro '__deprecated_msg'
+  227 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:24:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/functional/hash.hpp:6:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:132:33: warning: 'unary_function<const std::error_category *, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  132 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:692:18: note: in instantiation of template class 'boost::hash_detail::hash_base<const std::error_category *>' requested here
+  692 |         : public boost::hash_detail::hash_base<T*>
+      |                  ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:420:24: note: in instantiation of template class 'boost::hash<const std::error_category *>' requested here
+  420 |         boost::hash<T> hasher;
+      |                        ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/container_hash/hash.hpp:551:9: note: in instantiation of function template specialization 'boost::hash_combine<const std::error_category *>' requested here
+  551 |         hash_combine(seed, &v.category());
+      |         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<const std::error_category *, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args_fwd.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/handle.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/cast.hpp:9:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/detail/type_traits.hpp:33:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/type_traits/has_trivial_copy.hpp:34:4: warning: builtin __has_trivial_copy is deprecated; use __is_trivially_copyable instead [-Wdeprecated-builtins]
+   34 |    BOOST_HAS_TRIVIAL_COPY(T) BOOST_TT_TRIVIAL_CONSTRUCT_FIX
+      |    ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/type_traits/intrinsics.hpp:190:41: note: expanded from macro 'BOOST_HAS_TRIVIAL_COPY'
+  190 | #     define BOOST_HAS_TRIVIAL_COPY(T) (__has_trivial_copy(T) && !is_reference<T>::value)
+      |                                         ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/type_traits/has_trivial_copy.hpp:57:65: note: in instantiation of template class 'boost::has_trivial_copy<boost::reference_wrapper<void (*)()>>' requested here
+   57 | template <class T> struct has_trivial_copy_constructor : public has_trivial_copy<T>{};
+      |                                                                 ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_template.hpp:945:20: note: in instantiation of template class 'boost::has_trivial_copy_constructor<boost::reference_wrapper<void (*)()>>' requested here
+  945 |         if (boost::has_trivial_copy_constructor<Functor>::value &&
+      |                    ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_template.hpp:720:13: note: in instantiation of function template specialization 'boost::function0<void>::assign_to<boost::reference_wrapper<void (*)()>>' requested here
+  720 |       this->assign_to(f);
+      |             ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/python/errors.hpp:29:34: note: in instantiation of function template specialization 'boost::function0<void>::function0<boost::reference_wrapper<void (*)()>>' requested here
+   29 |     return handle_exception_impl(function0<void>(boost::ref(f)));
+      |                                  ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/python/errors.hpp:36:5: note: in instantiation of function template specialization 'boost::python::handle_exception<void (*)()>' requested here
+   36 |     handle_exception(detail::rethrow);
+      |     ^
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/_pybuild/src/Utils/ub_gpgomea_utils.cpp:2:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Utils/KDTree.cpp:7:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/KDTree.h:20:
+In file included from /Users/davide/.gpgomea_src/GP-GOMEA/src/Include/GPGOMEA/Utils/Utils.h:27:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/args_fwd.hpp:10:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/handle.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/python/errors.hpp:13:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function0.hpp:11:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/detail/maybe_include.hpp:15:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_template.hpp:13:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/detail/prologue.hpp:17:
+In file included from /Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_base.hpp:23:
+/Users/davide/opt/anaconda3/envs/slim/include/boost/type_traits/has_trivial_destructor.hpp:30:86: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+   30 | template <typename T> struct has_trivial_destructor : public integral_constant<bool, BOOST_HAS_TRIVIAL_DESTRUCTOR(T)>{};
+      |                                                                                      ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/type_traits/intrinsics.hpp:196:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_DESTRUCTOR'
+  196 | #     define BOOST_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T)  && is_destructible<T>::value)
+      |                                               ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_template.hpp:946:20: note: in instantiation of template class 'boost::has_trivial_destructor<boost::reference_wrapper<void (*)()>>' requested here
+  946 |             boost::has_trivial_destructor<Functor>::value &&
+      |                    ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/function/function_template.hpp:720:13: note: in instantiation of function template specialization 'boost::function0<void>::assign_to<boost::reference_wrapper<void (*)()>>' requested here
+  720 |       this->assign_to(f);
+      |             ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/python/errors.hpp:29:34: note: in instantiation of function template specialization 'boost::function0<void>::function0<boost::reference_wrapper<void (*)()>>' requested here
+   29 |     return handle_exception_impl(function0<void>(boost::ref(f)));
+      |                                  ^
+/Users/davide/opt/anaconda3/envs/slim/include/boost/python/errors.hpp:36:5: note: in instantiation of function template specialization 'boost::python::handle_exception<void (*)()>' requested here
+   36 |     handle_exception(detail::rethrow);
+      |     ^
+36 warnings generated.
+[ 71%] Built target gpgomea_runhandling
+36 warnings generated.
+[ 71%] Built target gpgomea_fitness
+36 warnings generated.
+[ 71%] Built target gpgomea_semantics
+36 warnings generated.
+[ 71%] Built target gpgomea_gomea
+37 warnings generated.
+[ 71%] Built target gpgomea_evolution
+36 warnings generated.
+[ 71%] Built target gpgomea_utils
+[ 85%] Building CXX object src/CMakeFiles/main.dir/main.cpp.o
+[ 85%] Building CXX object src/CMakeFiles/gpgomea_python.dir/gpgomea_python.cpp.o
+/Users/davide/.gpgomea_src/GP-GOMEA/src/gpgomea_python.cpp:52:21: warning: variable length arrays in C++ are a Clang extension [-Wvla-cxx-extension]
+   52 |         char * argv[argc];
+      |                     ^~~~
+/Users/davide/.gpgomea_src/GP-GOMEA/src/gpgomea_python.cpp:52:21: note: read of non-const variable 'argc' is not allowed in a constant expression
+/Users/davide/.gpgomea_src/GP-GOMEA/src/gpgomea_python.cpp:51:16: note: declared here
+   51 |         size_t argc = argv_v.size();
+      |                ^
+/Users/davide/.gpgomea_src/GP-GOMEA/src/gpgomea_python.cpp:285:32: warning: 'auto_ptr<pyGPGOMEA>' is deprecated [-Wdeprecated-declarations]
+  285 |     py::class_<pyGPGOMEA, std::auto_ptr<pyGPGOMEA> >("GPGOMEA", py::init<std::string>())
+      |                                ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__memory/auto_ptr.h:29:28: note: 'auto_ptr<pyGPGOMEA>' has been explicitly marked deprecated here
+   29 | class _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 auto_ptr {
+      |                            ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:725:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  725 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config:710:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  710 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+[ 92%] Linking CXX executable main
+[ 92%] Built target main
+2 warnings generated.
+[100%] Linking CXX shared module libgpgomea_python.so
+[100%] Built target gpgomea_python
+  pip install . (Python wrapper) …
+Processing /Users/davide/.gpgomea_src/GP-GOMEA/pythonpkg
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Requirement already satisfied: scikit-learn in /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages (from pyGPGOMEA==1.6.7) (1.4.2)
+Requirement already satisfied: sympy in /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages (from pyGPGOMEA==1.6.7) (1.13.3)
+Requirement already satisfied: numpy>=1.19.5 in /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages (from scikit-learn->pyGPGOMEA==1.6.7) (1.26.4)
+Requirement already satisfied: scipy>=1.6.0 in /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages (from scikit-learn->pyGPGOMEA==1.6.7) (1.13.1)
+Requirement already satisfied: joblib>=1.2.0 in /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages (from scikit-learn->pyGPGOMEA==1.6.7) (1.4.2)
+Requirement already satisfied: threadpoolctl>=2.0.0 in /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages (from scikit-learn->pyGPGOMEA==1.6.7) (3.5.0)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages (from sympy->pyGPGOMEA==1.6.7) (1.3.0)
+Building wheels for collected packages: pyGPGOMEA
+  Building wheel for pyGPGOMEA (setup.py): started
+  Building wheel for pyGPGOMEA (setup.py): finished with status 'done'
+  Created wheel for pyGPGOMEA: filename=pyGPGOMEA-1.6.7-py3-none-any.whl size=2596 sha256=5d08dd0aa7926bca1fca48390ee8055b8882b4bbed50d9fe94df0b0949e001ba
+  Stored in directory: /private/var/folders/79/rkpjjyzn2bzdbzs086nnynlc0000gp/T/pip-ephem-wheel-cache-my4qlzhb/wheels/05/4b/8a/3437d35d2fa55f2cad3327e35198be8255005aa11879983251
+Successfully built pyGPGOMEA
+Installing collected packages: pyGPGOMEA
+  Attempting uninstall: pyGPGOMEA
+    Found existing installation: pyGPGOMEA 1.6.7
+    Uninstalling pyGPGOMEA-1.6.7:
+      Successfully uninstalled pyGPGOMEA-1.6.7
+Successfully installed pyGPGOMEA-1.6.7
+  Copied libgpgomea_python.so → /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages/pyGPGOMEA
+  !! pyGPGOMEA not importable after build.
+  Extensions placed in: /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages/pyGPGOMEA
+  Check that the .so name matches what __init__.py imports.
+  Hint: ls /Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages/pyGPGOMEA
+
+============================================================
+Installation summary:
+  ✓  gplearn               OK
+  ✓  pyoperon              OK
+  ✓  pysr                  OK
+  ✓  tomli                 OK
+  ✗  pygpgomea             FAILED (see above)
+
+Verifying imports …
+  OK  gplearn (import gplearn)
+  OK  pyoperon (import pyoperon)
+  OK  pysr (import pysr)
+  OK  tomli (import tomli)
+  --  pygpgomea  (not importable)
+
+Process finished with exit code 0
