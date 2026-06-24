@@ -170,6 +170,7 @@ def _cmake_compile(repo_path):
         "cmake", "..",
         f"-DPYTHON_EXECUTABLE={sys.executable}",
         "-DCMAKE_BUILD_TYPE=Release",
+        "-DBUILD_R_BINDING=OFF",   # we only need the Python binding; R not required
     ]
     if prefix_path:
         cmake_cmd.append(f"-DCMAKE_PREFIX_PATH={prefix_path}")
@@ -204,7 +205,7 @@ def _cmake_compile(repo_path):
 def _print_gpgomea_manual_hint(repo_path):
     conda_prefix = os.environ.get("CONDA_PREFIX", "$CONDA_PREFIX")
     print("  Manual build:")
-    print(f"    conda install -c conda-forge armadillo   # if not already installed")
+    print(f"    conda install -c conda-forge armadillo boost   # C++ deps")
     print(f"    cd {repo_path}")
     print(f"    mkdir -p _pybuild && cd _pybuild")
     print(f"    cmake .. -DPYTHON_EXECUTABLE={sys.executable} \\")
