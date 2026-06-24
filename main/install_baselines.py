@@ -95,6 +95,85 @@ def fix_pyoperon_macos():
 
 # ── GP-GOMEA source build ──────────────────────────────────────────────────────
 
+def _find_python_package_root(repo_path, depth=3):
+    """Walk repo_path up to `depth` levels deep and return the first directory
+    that contains setup.py or pyproject.toml."""
+    for root, dirs, files in os.walk(repo_path):
+        # prune hidden dirs and keep depth bounded
+        dirs[:] = sorted(d for d in dirs if not d.startswith("."))
+        level = root.replace(repo_path, "").count(os.sep)
+        if level >= depth:
+            dirs.clear()
+            continue
+        if "setup.py" in files or "pyproject.toml" in files:
+            return root
+    return None
+
+
+def _cmake_build_gpgomea(repo_path):
+    """
+    Fallback: build GP-GOMEA via CMake, then copy the resulting .so/.pyd into
+    site-packages so `import pygpgomea` works.
+    """
+    import glob as _glob
+
+    build_dir = os.path.join(repo_path, "_pybuild")
+    os.makedirs(build_dir, exist_ok=True)
+
+    print("  cmake configure …")
+    r = subprocess.run(
+        ["cmake", "..",
+         f"-DPYTHON_EXECUTABLE={sys.executable}",
+         "-DCMAKE_BUILD_TYPE=Release",
+         "-DBUILD_PYTHON_BINDINGS=ON"],
+        cwd=build_dir)
+    if r.returncode != 0:
+        # try without the extra flag — some repos don't use it
+        r = subprocess.run(
+            ["cmake", "..",
+             f"-DPYTHON_EXECUTABLE={sys.executable}",
+             "-DCMAKE_BUILD_TYPE=Release"],
+            cwd=build_dir)
+    if r.returncode != 0:
+        print("  !! cmake configure failed.")
+        _print_gpgomea_manual_hint(repo_path)
+        return False
+
+    cpu = os.cpu_count() or 2
+    print(f"  cmake build (j={cpu}) …")
+    r = subprocess.run(["cmake", "--build", ".", f"-j{cpu}"], cwd=build_dir)
+    if r.returncode != 0:
+        print("  !! cmake build failed.")
+        _print_gpgomea_manual_hint(repo_path)
+        return False
+
+    # locate the compiled extension and drop it into site-packages
+    exts = _glob.glob(os.path.join(build_dir, "**", "pygpgomea*.so"),   recursive=True) + \
+           _glob.glob(os.path.join(build_dir, "**", "pygpgomea*.pyd"),  recursive=True) + \
+           _glob.glob(os.path.join(build_dir, "**", "gpgomea*.so"),     recursive=True)
+    if not exts:
+        print("  !! Build succeeded but no pygpgomea extension found.")
+        print(f"  Check: {build_dir}")
+        return False
+
+    import site as _site
+    sp = _site.getsitepackages()[0]
+    for ext in exts:
+        dest = os.path.join(sp, os.path.basename(ext))
+        shutil.copy2(ext, dest)
+        print(f"  Installed: {os.path.basename(ext)} → {sp}")
+    return True
+
+
+def _print_gpgomea_manual_hint(repo_path):
+    print("  Manual build:")
+    print(f"    cd {repo_path}")
+    print(f"    mkdir _pybuild && cd _pybuild")
+    print(f"    cmake .. -DPYTHON_EXECUTABLE={sys.executable} -DCMAKE_BUILD_TYPE=Release")
+    print(f"    cmake --build . -j$(nproc)")
+    print("  macOS: make sure Xcode CLT is installed:  xcode-select --install")
+
+
 def build_gpgomea(clone_dir=None):
     """
     Clone and build GP-GOMEA from https://github.com/marcovirgolin/GP-GOMEA.
@@ -168,20 +247,21 @@ def build_gpgomea(clone_dir=None):
             print("  !! Clone failed. Check network / git config.")
             return False
 
-    # ── build & install ───────────────────────────────────────────────────────
-    print("  Running: pip install .  (this compiles C++, may take 2–5 min) …")
-    r = subprocess.run(
-        [sys.executable, "-m", "pip", "install", "."],
-        cwd=repo_path)
-    if r.returncode != 0:
-        print("  !! Build failed.")
-        print("  Common fixes:")
-        print("    macOS: xcode-select --install  (Xcode command-line tools)")
-        print("    Linux: sudo apt install g++ cmake  (or equivalent)")
-        return False
+    # ── locate install root (setup.py / pyproject.toml may be in a subdir) ───
+    install_dir = _find_python_package_root(repo_path, depth=3)
 
-    print("  GP-GOMEA built and installed.")
-    return True
+    if install_dir:
+        print(f"  Found Python package at: {install_dir}")
+        print("  Running: pip install .  (this compiles C++, may take 2–5 min) …")
+        r = subprocess.run([sys.executable, "-m", "pip", "install", "."],
+                           cwd=install_dir)
+        if r.returncode == 0:
+            print("  GP-GOMEA built and installed.")
+            return True
+        print("  !! pip install failed — trying cmake fallback …")
+
+    # ── cmake fallback ────────────────────────────────────────────────────────
+    return _cmake_build_gpgomea(repo_path)
 
 
 # ── Julia / PySR setup ────────────────────────────────────────────────────────
