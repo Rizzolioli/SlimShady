@@ -151,6 +151,10 @@ def _cmake_compile(repo_path):
     import glob as _glob
 
     build_dir = os.path.join(repo_path, "_pybuild")
+    # wipe stale cmake cache so a failed previous configure doesn't poison this run
+    cmake_cache = os.path.join(build_dir, "CMakeCache.txt")
+    if os.path.exists(cmake_cache):
+        os.remove(cmake_cache)
     os.makedirs(build_dir, exist_ok=True)
 
     # determine prefix path so cmake FindArmadillo / FindPython can locate headers
