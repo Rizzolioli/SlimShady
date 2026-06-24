@@ -153,12 +153,25 @@ def _cmake_compile(repo_path):
     build_dir = os.path.join(repo_path, "_pybuild")
     os.makedirs(build_dir, exist_ok=True)
 
+    # determine prefix path so cmake FindArmadillo / FindPython can locate headers
+    prefix_path = os.environ.get("CONDA_PREFIX", "")
+    if not prefix_path:
+        brew = shutil.which("brew")
+        if brew:
+            r0 = subprocess.run(["brew", "--prefix"], capture_output=True, text=True)
+            if r0.returncode == 0:
+                prefix_path = r0.stdout.strip()
+
+    cmake_cmd = [
+        "cmake", "..",
+        f"-DPYTHON_EXECUTABLE={sys.executable}",
+        "-DCMAKE_BUILD_TYPE=Release",
+    ]
+    if prefix_path:
+        cmake_cmd.append(f"-DCMAKE_PREFIX_PATH={prefix_path}")
+
     print("  cmake configure …")
-    r = subprocess.run(
-        ["cmake", "..",
-         f"-DPYTHON_EXECUTABLE={sys.executable}",
-         "-DCMAKE_BUILD_TYPE=Release"],
-        cwd=build_dir)
+    r = subprocess.run(cmake_cmd, cwd=build_dir)
     if r.returncode != 0:
         print("  !! cmake configure failed.")
         _print_gpgomea_manual_hint(repo_path)
@@ -185,10 +198,14 @@ def _cmake_compile(repo_path):
 
 
 def _print_gpgomea_manual_hint(repo_path):
+    conda_prefix = os.environ.get("CONDA_PREFIX", "$CONDA_PREFIX")
     print("  Manual build:")
+    print(f"    conda install -c conda-forge armadillo   # if not already installed")
     print(f"    cd {repo_path}")
-    print(f"    mkdir _pybuild && cd _pybuild")
-    print(f"    cmake .. -DPYTHON_EXECUTABLE={sys.executable} -DCMAKE_BUILD_TYPE=Release")
+    print(f"    mkdir -p _pybuild && cd _pybuild")
+    print(f"    cmake .. -DPYTHON_EXECUTABLE={sys.executable} \\")
+    print(f"             -DCMAKE_BUILD_TYPE=Release \\")
+    print(f"             -DCMAKE_PREFIX_PATH={conda_prefix}")
     print(f"    cmake --build . -j$(nproc)")
     print("  macOS: make sure Xcode CLT is installed:  xcode-select --install")
 
@@ -247,6 +264,26 @@ def build_gpgomea(clone_dir=None):
     except ImportError:
         print("  Installing pybind11 (Python package) …")
         pip("pybind11")
+
+    # Armadillo (C++ linear algebra — required by GP-GOMEA's CMakeLists.txt)
+    conda_prefix = os.environ.get("CONDA_PREFIX", "")
+    arma_header  = os.path.join(conda_prefix, "include", "armadillo") if conda_prefix else ""
+    if not (arma_header and os.path.exists(arma_header)):
+        print("  Armadillo not found — installing …")
+        conda = shutil.which("conda")
+        if conda and conda_prefix:
+            print("  conda install -c conda-forge armadillo …")
+            subprocess.run([conda, "install", "-c", "conda-forge", "armadillo", "-y"],
+                           capture_output=False)
+        else:
+            brew = shutil.which("brew")
+            if brew:
+                print("  brew install armadillo …")
+                subprocess.run(["brew", "install", "armadillo"], capture_output=False)
+            else:
+                print("  !! Cannot auto-install Armadillo.")
+                print("     conda install -c conda-forge armadillo")
+                print("     # or: brew install armadillo")
 
     # ── clone ──────────────────────────────────────────────────────────────────
     if clone_dir is None:
