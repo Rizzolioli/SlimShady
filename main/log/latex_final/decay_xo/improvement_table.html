@@ -1,0 +1,43 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+body{font-family:Arial,sans-serif;font-size:13px;padding:20px;background:#fafafa}
+table{border-collapse:collapse;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+th{background:#2c3e50;color:white;padding:8px 14px;font-size:13px}
+td{padding:6px 14px;border:1px solid #d0d0d0;text-align:center}
+.ds{font-weight:bold;font-size:13px;color:#2c3e50;background:#f0f4f8;
+    vertical-align:middle;text-align:left;border-right:2px solid #aaa}
+.var{text-align:left;padding-left:10px;font-size:12px;color:#333;
+    background:#f8f9fa}
+caption{caption-side:top;font-size:14px;font-weight:bold;
+        margin-bottom:8px;color:#333}
+</style></head><body>
+<table>
+<caption>Improvement ratio at gen 400: cosine&sup2; decay vs fixed p<sub>xo</sub>=0.70<br>
+<small style="font-weight:normal">
+(decay &minus; fixed) / fixed &nbsp;|&nbsp;
+<span style="color:#1a7a3c">&#9646; negative = decay improves</span> &nbsp;
+<span style="color:#d4580a">&#9646; positive = decay worsens</span> &nbsp;
+<b>&#9733;</b> = Mann-Whitney p &lt; 0.05</small></caption>
+<tr>
+  <th>Dataset</th><th>Variant</th>
+  <th>Test RMSE ratio</th><th>Model size ratio</th>
+</tr>
+<tr><td rowspan="3" class="ds">Toxicity</td><td class="var">SLIM+2SIG</td><td style="background:#83b794;color:#1a1a1a;font-weight:normal">-0.043</td><td style="background:#9fc7ab;color:#1a1a1a;font-weight:normal">-0.108</td></tr>
+<tr><td class="var">SLIM*ABS</td><td style="background:#ebaf86;color:#1a1a1a;font-weight:normal">+0.029</td><td style="background:#599f71;color:#1a1a1a;font-weight:normal">-0.517</td></tr>
+<tr><td class="var">SLIM*1SIG</td><td style="background:#e69d6c;color:#1a1a1a;font-weight:normal">+0.053</td><td style="background:#e69d6b;color:#1a1a1a;font-weight:normal">+0.307</td></tr>
+<tr><td rowspan="3" class="ds">Concrete</td><td class="var">SLIM+2SIG</td><td style="background:#f3cbad;color:#1a1a1a;font-weight:normal">+0.005</td><td style="background:#e8a475;color:#1a1a1a;font-weight:normal">+0.250</td></tr>
+<tr><td class="var">SLIM*ABS</td><td style="background:#6dab82;color:#1a1a1a;font-weight:normal">-0.066</td><td style="background:#ebae85;color:#1a1a1a;font-weight:normal">+0.174</td></tr>
+<tr><td class="var">SLIM*1SIG</td><td style="background:#f0c3a2;color:#1a1a1a;font-weight:normal">+0.010</td><td style="background:#3c8e58;color:white;font-weight:normal">-0.759</td></tr>
+<tr><td rowspan="3" class="ds">Istanbul</td><td class="var">SLIM+2SIG</td><td style="background:#edb58f;color:#1a1a1a;font-weight:normal">+0.023</td><td style="background:#2a844a;color:white;font-weight:normal">-0.915</td></tr>
+<tr><td class="var">SLIM*ABS</td><td style="background:#a2c9ae;color:#1a1a1a;font-weight:normal">-0.017</td><td style="background:#78b18b;color:#1a1a1a;font-weight:normal">-0.300</td></tr>
+<tr><td class="var">SLIM*1SIG</td><td style="background:#e9a97d;color:#1a1a1a;font-weight:normal">+0.037</td><td style="background:#d4580a;color:#1a1a1a;font-weight:normal">+1.080</td></tr>
+<tr><td rowspan="3" class="ds">PPB</td><td class="var">SLIM+2SIG</td><td style="background:#449360;color:#1a1a1a;font-weight:normal">-0.120</td><td style="background:#dc7837;color:#1a1a1a;font-weight:normal">+0.672</td></tr>
+<tr><td class="var">SLIM*ABS</td><td style="background:#519a6a;color:#1a1a1a;font-weight:normal">-0.103</td><td style="background:#bcd9c4;color:#1a1a1a;font-weight:normal">-0.018</td></tr>
+<tr><td class="var">SLIM*1SIG</td><td style="background:#eeba96;color:#1a1a1a;font-weight:normal">+0.018</td><td style="background:#9bc5a8;color:#1a1a1a;font-weight:normal">-0.121</td></tr>
+<tr><td rowspan="3" class="ds">Resid. Build</td><td class="var">SLIM+2SIG</td><td style="background:#b8d6c0;color:#1a1a1a;font-weight:normal">-0.005</td><td style="background:#de7f42;color:#1a1a1a;font-weight:normal">+0.585</td></tr>
+<tr><td class="var">SLIM*ABS</td><td style="background:#1a7a3c;color:white;font-weight:normal">-0.190</td><td style="background:#74af87;color:#1a1a1a;font-weight:normal">-0.329</td></tr>
+<tr><td class="var">SLIM*1SIG</td><td style="background:#92c0a1;color:#1a1a1a;font-weight:normal">-0.028</td><td style="background:#67a77d;color:#1a1a1a;font-weight:normal">-0.413</td></tr>
+<tr><td rowspan="3" class="ds">Energy</td><td class="var">SLIM+2SIG</td><td style="background:#72ad85;color:#1a1a1a;font-weight:bold">-0.060 &#9733;</td><td style="background:#d8661e;color:#1a1a1a;font-weight:bold">+0.893 &#9733;</td></tr>
+<tr><td class="var">SLIM*ABS</td><td style="background:#accfb7;color:#1a1a1a;font-weight:normal">-0.010</td><td style="background:#6dab82;color:#1a1a1a;font-weight:normal">-0.376</td></tr>
+<tr><td class="var">SLIM*1SIG</td><td style="background:#78b18b;color:#1a1a1a;font-weight:normal">-0.053</td><td style="background:#6dab82;color:#1a1a1a;font-weight:bold">-0.374 &#9733;</td></tr>
+</table></body></html>
