@@ -112,10 +112,12 @@ def _find_python_package_root(repo_path, depth=3):
 
 def _cmake_build_gpgomea(repo_path):
     """
-    Fallback: build GP-GOMEA via CMake, then copy the resulting .so/.pyd into
-    site-packages so `import pygpgomea` works.
+    Fallback: build GP-GOMEA via CMake, then make the resulting .so importable.
+    Strategy:
+      1. copy the .so into the active env's platlib (sysconfig, most reliable)
+      2. if import still fails, write a .pth file pointing at the build dir
     """
-    import glob as _glob
+    import glob as _glob, sysconfig
 
     build_dir = os.path.join(repo_path, "_pybuild")
     os.makedirs(build_dir, exist_ok=True)
@@ -128,7 +130,6 @@ def _cmake_build_gpgomea(repo_path):
          "-DBUILD_PYTHON_BINDINGS=ON"],
         cwd=build_dir)
     if r.returncode != 0:
-        # try without the extra flag — some repos don't use it
         r = subprocess.run(
             ["cmake", "..",
              f"-DPYTHON_EXECUTABLE={sys.executable}",
@@ -147,22 +148,55 @@ def _cmake_build_gpgomea(repo_path):
         _print_gpgomea_manual_hint(repo_path)
         return False
 
-    # locate the compiled extension and drop it into site-packages
-    exts = _glob.glob(os.path.join(build_dir, "**", "pygpgomea*.so"),   recursive=True) + \
-           _glob.glob(os.path.join(build_dir, "**", "pygpgomea*.pyd"),  recursive=True) + \
-           _glob.glob(os.path.join(build_dir, "**", "gpgomea*.so"),     recursive=True)
+    # locate ALL compiled extensions (any name containing "gomea")
+    exts = _glob.glob(os.path.join(build_dir, "**", "*gomea*.so"),  recursive=True) + \
+           _glob.glob(os.path.join(build_dir, "**", "*gomea*.pyd"), recursive=True)
     if not exts:
-        print("  !! Build succeeded but no pygpgomea extension found.")
-        print(f"  Check: {build_dir}")
+        print("  !! Build succeeded but no *gomea* extension found.")
+        print(f"  Contents of build dir:")
+        for root, _, files in os.walk(build_dir):
+            for f in files:
+                if f.endswith((".so", ".pyd", ".dylib")):
+                    print(f"    {os.path.join(root, f)}")
         return False
 
-    import site as _site
-    sp = _site.getsitepackages()[0]
+    # use sysconfig platlib — matches the active conda / venv env
+    platlib = sysconfig.get_path("platlib")
     for ext in exts:
-        dest = os.path.join(sp, os.path.basename(ext))
+        dest = os.path.join(platlib, os.path.basename(ext))
         shutil.copy2(ext, dest)
-        print(f"  Installed: {os.path.basename(ext)} → {sp}")
-    return True
+        print(f"  Copied: {os.path.basename(ext)} → {platlib}")
+
+    # verify import
+    try:
+        import importlib
+        importlib.import_module("pygpgomea")
+        print("  import pygpgomea  OK")
+        return True
+    except ImportError:
+        pass
+
+    # last resort: write a .pth file so Python always finds the build dir
+    pth = os.path.join(platlib, "gpgomea_build.pth")
+    # find the directory that actually contains the .so files
+    so_dirs = {os.path.dirname(e) for e in exts}
+    with open(pth, "w") as f:
+        for d in so_dirs:
+            f.write(d + "\n")
+    print(f"  Wrote .pth file: {pth}")
+    print(f"  Paths added: {so_dirs}")
+
+    try:
+        importlib.invalidate_caches()
+        importlib.import_module("pygpgomea")
+        print("  import pygpgomea  OK (via .pth)")
+        return True
+    except ImportError as e:
+        print(f"  !! Still not importable: {e}")
+        print("  The module might be named differently. Check:")
+        for ext in exts:
+            print(f"    {os.path.basename(ext)}")
+        return False
 
 
 def _print_gpgomea_manual_hint(repo_path):
