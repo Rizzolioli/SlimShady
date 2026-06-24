@@ -232,9 +232,18 @@ def _register_operon():
 
 
 def _register_gpgomea():
-    # GP-GOMEA has no PyPI wheel; requires manual C++ build from:
-    #   https://github.com/marcovirgolin/GP-GOMEA
-    from pygpgomea import GPGOMEARegressor
+    # GP-GOMEA installed as 'pyGPGOMEA' (distribution name varies by version)
+    _mod = None
+    for _name in ("pygpgomea", "pyGPGOMEA", "gpgomea"):
+        try:
+            import importlib as _il
+            _mod = _il.import_module(_name)
+            break
+        except ImportError:
+            pass
+    if _mod is None:
+        raise ImportError("pygpgomea / pyGPGOMEA not found — run: python main/install_baselines.py")
+    GPGOMEARegressor = _mod.GPGOMEARegressor
 
     def make(seed):
         return GPGOMEARegressor(

@@ -414,9 +414,23 @@ if __name__ == "__main__":
     print()
     print("Verifying imports …")
     for pip_name, import_name, _ in all_items:
-        try:
-            __import__(import_name)
-            print(f"  OK  {pip_name} (import {import_name})")
-        except ImportError as e:
-            short = str(e).split("\n")[0]
-            print(f"  --  {pip_name}  ({short})")
+        # GP-GOMEA's distribution is 'pyGPGOMEA'; try case variants
+        candidates = [import_name] if pip_name != "pygpgomea" else \
+                     ["pygpgomea", "pyGPGOMEA", "gpgomea"]
+        found = None
+        for cand in candidates:
+            try:
+                __import__(cand)
+                found = cand
+                break
+            except ImportError:
+                pass
+        if found:
+            print(f"  OK  {pip_name} (import {found})")
+        else:
+            # try to get a useful error from the primary name
+            try:
+                __import__(import_name)
+            except ImportError as e:
+                short = str(e).split("\n")[0]
+                print(f"  --  {pip_name}  ({short})")
