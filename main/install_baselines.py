@@ -22,6 +22,38 @@ def pip(*packages):
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", *packages])
 
 
+def _verify_import(pip_name, fallback_import_name):
+    """
+    Try to import a package. For packages whose pip name differs from the
+    Python module name (e.g. pyGPGOMEA), discover the real module name from
+    the distribution's top_level.txt metadata, then fall back to guessing.
+    Returns the importable name on success, None on failure.
+    """
+    import importlib.metadata as _im, importlib as _il
+
+    # 1. look up the real module name from installed metadata
+    dist_candidates = [pip_name, pip_name.lower(), pip_name.upper(),
+                       "pyGPGOMEA", "pygpgomea"]
+    top_levels = []
+    for dist_name in dict.fromkeys(dist_candidates):   # deduplicate, keep order
+        try:
+            text = _im.distribution(dist_name).read_text("top_level.txt")
+            if text:
+                top_levels = [m.strip() for m in text.splitlines() if m.strip()]
+                break
+        except Exception:
+            pass
+
+    # 2. try metadata-discovered names first, then the fallback name
+    for name in dict.fromkeys(top_levels + [fallback_import_name]):
+        try:
+            _il.import_module(name)
+            return name
+        except ImportError:
+            pass
+    return None
+
+
 PACKAGES = [
     # (pip_name,  import_name,  description)
     ("gplearn",   "gplearn",    "GPLearn — sklearn-compatible tree GP"),
@@ -405,7 +437,7 @@ if __name__ == "__main__":
     print(f"\n{'='*60}")
     print("Installation summary:")
     all_items = [(p, i, d) for p, i, d in PACKAGES] + \
-                [("pygpgomea", "pygpgomea", "GP-GOMEA — linkage-learning GP (source build)")]
+                [("pygpgomea", "pyGPGOMEA", "GP-GOMEA — linkage-learning GP (source build)")]
     for pip_name, _, desc in all_items:
         status = results.get(pip_name, "SKIPPED")
         mark = "✓" if status == "OK" else "✗"
@@ -414,23 +446,8 @@ if __name__ == "__main__":
     print()
     print("Verifying imports …")
     for pip_name, import_name, _ in all_items:
-        # GP-GOMEA's distribution is 'pyGPGOMEA'; try case variants
-        candidates = [import_name] if pip_name != "pygpgomea" else \
-                     ["pygpgomea", "pyGPGOMEA", "gpgomea"]
-        found = None
-        for cand in candidates:
-            try:
-                __import__(cand)
-                found = cand
-                break
-            except ImportError:
-                pass
+        found = _verify_import(pip_name, import_name)
         if found:
             print(f"  OK  {pip_name} (import {found})")
         else:
-            # try to get a useful error from the primary name
-            try:
-                __import__(import_name)
-            except ImportError as e:
-                short = str(e).split("\n")[0]
-                print(f"  --  {pip_name}  ({short})")
+            print(f"  --  {pip_name}  (not importable)")

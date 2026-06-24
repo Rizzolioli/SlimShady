@@ -179,9 +179,13 @@ def _pysr_to_sympy(estimator):
 def _gpgomea_to_sympy(estimator):
     import sympy as sp
     try:
-        return sp.sympify(str(estimator))
+        model_str = estimator.get_model()
+        return sp.sympify(model_str)
     except Exception:
-        return None
+        try:
+            return sp.sympify(str(estimator))
+        except Exception:
+            return None
 
 
 # ── Baseline factories ─────────────────────────────────────────────────────────
@@ -232,24 +236,14 @@ def _register_operon():
 
 
 def _register_gpgomea():
-    # GP-GOMEA installed as 'pyGPGOMEA' (distribution name varies by version)
-    _mod = None
-    for _name in ("pygpgomea", "pyGPGOMEA", "gpgomea"):
-        try:
-            import importlib as _il
-            _mod = _il.import_module(_name)
-            break
-        except ImportError:
-            pass
-    if _mod is None:
-        raise ImportError("pygpgomea / pyGPGOMEA not found — run: python main/install_baselines.py")
-    GPGOMEARegressor = _mod.GPGOMEARegressor
+    from pyGPGOMEA import GPGOMEARegressor
 
     def make(seed):
         return GPGOMEARegressor(
-            budget=POP_SIZE * N_GENS,
-            use_ims=True,
-            random_state=seed,
+            gomea=True,
+            ims="5_1",
+            generations=N_GENS,
+            seed=seed,
             verbose=False,
         )
 
