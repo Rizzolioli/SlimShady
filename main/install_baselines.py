@@ -7,8 +7,12 @@ Run once before main_baselines.py:
 PySR note: requires Julia. If Julia is not on PATH, this script will attempt
 to install it automatically. After Julia is available, PySR downloads its
 Julia packages on the first run (~5 min, once only).
+
+GP-GOMEA note: no PyPI wheel. This script clones and builds it from source.
+Requires: git, cmake ≥ 3.14, C++17 compiler (Xcode CLT on macOS, gcc/g++ on Linux).
 """
 
+import os
 import subprocess
 import sys
 import shutil
@@ -19,14 +23,148 @@ def pip(*packages):
 
 
 PACKAGES = [
-    # (pip_name,    import_name,   description)
-    ("gplearn",    "gplearn",     "GPLearn — sklearn-compatible tree GP"),
-    ("pyoperon",   "pyoperon",    "Operon  — high-performance GP"),
-    ("pysr",       "pysr",        "PySR    — Julia-backed symbolic regression  (+Julia)"),
-    # GP-GOMEA: no PyPI wheel — requires manual C++ build from source
-    #   https://github.com/marcovirgolin/GP-GOMEA
+    # (pip_name,  import_name,  description)
+    ("gplearn",   "gplearn",    "GPLearn — sklearn-compatible tree GP"),
+    ("pyoperon",  "pyoperon",   "Operon  — high-performance GP"),
+    ("pysr",      "pysr",       "PySR    — Julia-backed symbolic regression  (+Julia)"),
+    ("tomli",     "tomli",      "tomli   — TOML parser (needed by juliacall/juliapkg)"),
 ]
 
+
+# ── pyoperon macOS libzstd fix ─────────────────────────────────────────────────
+
+def fix_pyoperon_macos():
+    """
+    pyoperon wheels are linked against a CI build path for libzstd.
+    On macOS, the library must live inside the active conda env.
+    Fix: conda install zstd, or brew install zstd + symlink.
+    """
+    if sys.platform != "darwin":
+        return
+
+    try:
+        import pyoperon  # noqa: F401
+        return   # already importable — nothing to do
+    except ImportError:
+        pass
+
+    conda_prefix = os.environ.get("CONDA_PREFIX", "")
+    target = os.path.join(conda_prefix, "lib", "libzstd.1.dylib") if conda_prefix else ""
+
+    # 1) conda install zstd
+    if conda_prefix and not os.path.exists(target):
+        conda = shutil.which("conda")
+        if conda:
+            print("  [macOS] libzstd missing — installing via conda …")
+            r = subprocess.run(
+                [conda, "install", "-c", "conda-forge", "zstd", "-y"],
+                capture_output=False)
+            if r.returncode == 0 and os.path.exists(target):
+                print("  libzstd installed via conda.")
+                return
+
+    # 2) brew install zstd + symlink into conda env (or system lib)
+    brew = shutil.which("brew")
+    if brew:
+        # find brew's libzstd
+        r = subprocess.run(
+            ["brew", "--prefix", "zstd"], capture_output=True, text=True)
+        if r.returncode != 0:
+            print("  [macOS] zstd not in brew — installing …")
+            subprocess.run(["brew", "install", "zstd"])
+            r = subprocess.run(
+                ["brew", "--prefix", "zstd"], capture_output=True, text=True)
+
+        if r.returncode == 0:
+            brew_lib = os.path.join(r.stdout.strip(), "lib", "libzstd.1.dylib")
+            if os.path.exists(brew_lib):
+                if conda_prefix and target and not os.path.exists(target):
+                    os.symlink(brew_lib, target)
+                    print(f"  libzstd symlinked: {brew_lib} → {target}")
+                    return
+                # fall back: set DYLD_LIBRARY_PATH hint
+                brew_lib_dir = os.path.dirname(brew_lib)
+                print(f"\n  NOTE: libzstd found at {brew_lib_dir}")
+                print("  If pyoperon still fails to import, run:")
+                print(f"    export DYLD_LIBRARY_PATH={brew_lib_dir}:$DYLD_LIBRARY_PATH")
+                return
+
+    print("  [macOS] Could not auto-fix libzstd.")
+    print("  Try: conda install -c conda-forge zstd")
+
+
+# ── GP-GOMEA source build ──────────────────────────────────────────────────────
+
+def build_gpgomea(clone_dir=None):
+    """
+    Clone and build GP-GOMEA from https://github.com/marcovirgolin/GP-GOMEA.
+
+    Prerequisites checked automatically: git, cmake, C++ compiler, pybind11.
+    The package is installed into the current Python environment via pip install .
+    """
+    print("\nBuilding GP-GOMEA from source …")
+
+    # ── check prerequisites ────────────────────────────────────────────────────
+    missing = []
+    if not shutil.which("git"):
+        missing.append("git")
+    if not shutil.which("cmake"):
+        missing.append("cmake  (brew install cmake  /  conda install cmake)")
+    for cc in ("g++", "clang++", "c++"):
+        if shutil.which(cc):
+            break
+    else:
+        missing.append("C++17 compiler  (Xcode CLT: xcode-select --install)")
+
+    if missing:
+        print("  !! Missing prerequisites:")
+        for m in missing:
+            print(f"       {m}")
+        print("  GP-GOMEA build skipped.")
+        return False
+
+    # pybind11 must be a Python package (not just the system headers)
+    try:
+        import pybind11  # noqa: F401
+    except ImportError:
+        print("  Installing pybind11 (Python package) …")
+        pip("pybind11")
+
+    # ── clone ──────────────────────────────────────────────────────────────────
+    if clone_dir is None:
+        clone_dir = os.path.join(os.path.expanduser("~"), ".gpgomea_src")
+    repo_url  = "https://github.com/marcovirgolin/GP-GOMEA.git"
+    repo_path = os.path.join(clone_dir, "GP-GOMEA")
+    os.makedirs(clone_dir, exist_ok=True)
+
+    if os.path.exists(repo_path):
+        print(f"  Repo exists at {repo_path} — pulling latest …")
+        subprocess.run(["git", "-C", repo_path, "pull", "--quiet"], check=False)
+    else:
+        print(f"  Cloning {repo_url} → {repo_path} …")
+        r = subprocess.run(
+            ["git", "clone", "--depth=1", "--quiet", repo_url, repo_path])
+        if r.returncode != 0:
+            print("  !! Clone failed. Check network / git config.")
+            return False
+
+    # ── build & install ───────────────────────────────────────────────────────
+    print("  Running: pip install .  (this compiles C++, may take 2–5 min) …")
+    r = subprocess.run(
+        [sys.executable, "-m", "pip", "install", "."],
+        cwd=repo_path)
+    if r.returncode != 0:
+        print("  !! Build failed.")
+        print("  Common fixes:")
+        print("    macOS: xcode-select --install  (Xcode command-line tools)")
+        print("    Linux: sudo apt install g++ cmake  (or equivalent)")
+        return False
+
+    print("  GP-GOMEA built and installed.")
+    return True
+
+
+# ── Julia / PySR setup ────────────────────────────────────────────────────────
 
 def install_julia_if_needed():
     """Install Julia via juliaup if not already on PATH."""
@@ -44,12 +182,11 @@ def install_julia_if_needed():
                 capture_output=True)
             if r.returncode == 0:
                 print("  Julia installed via winget. Open a new terminal and re-run this script.")
-                return False   # PATH update requires new shell
+                return False
         print("  Install Julia manually from: https://julialang.org/downloads/")
         return False
 
-    else:  # macOS / Linux
-        # juliaup non-interactive installer
+    else:   # macOS / Linux — juliaup non-interactive installer
         r = subprocess.run(
             ["curl", "-fsSL", "https://install.julialang.org"],
             capture_output=True, text=True)
@@ -58,17 +195,17 @@ def install_julia_if_needed():
                 ["sh", "-s", "--", "--yes"],
                 input=r.stdout, text=True, capture_output=True)
             if r2.returncode == 0:
-                # juliaup adds to ~/.bashrc / ~/.zshrc; try sourcing PATH update
                 julia_bin = shutil.which("julia") or \
-                    subprocess.run(["bash", "-lc", "which julia"],
-                                   capture_output=True, text=True).stdout.strip()
+                    subprocess.run(
+                        ["bash", "-lc", "which julia"],
+                        capture_output=True, text=True).stdout.strip()
                 if julia_bin:
                     print(f"  Julia installed at {julia_bin}")
                     return True
                 print("  Julia installed. Open a new terminal and re-run this script.")
                 return False
 
-        # macOS homebrew fallback
+        # macOS Homebrew fallback
         brew = shutil.which("brew")
         if brew:
             print("  Trying: brew install julia …")
@@ -86,21 +223,21 @@ def init_pysr_julia():
     """Trigger PySR's one-time Julia package download."""
     print("  Initialising PySR Julia environment (may take ~5 min on first run) …")
     try:
-        from pysr import PySRRegressor
-        # instantiating with niterations=1 triggers Julia setup without a real fit
-        reg = PySRRegressor(niterations=1, verbosity=0)
-        # access the julia_project attribute to trigger environment setup
-        _ = reg.julia_project
+        import juliapkg
+        juliapkg.resolve()
         print("  PySR Julia environment ready.")
     except Exception as e:
         print(f"  PySR Julia init: {e}")
         print("  If Julia is freshly installed, open a new terminal and run:")
-        print("    python -c \"from pysr import PySRRegressor; PySRRegressor(niterations=1, verbosity=0)\"")
+        print("    python -c \"import juliapkg; juliapkg.resolve()\"")
 
+
+# ── Main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     results = {}
 
+    # 1. pip packages
     for pip_name, import_name, desc in PACKAGES:
         print(f"\n{'─'*60}")
         print(f"Installing: {desc}")
@@ -112,7 +249,12 @@ if __name__ == "__main__":
             results[pip_name] = f"FAILED ({e})"
             print(f"  !! Failed: {e}")
 
-    # Julia setup for PySR
+    # 2. pyoperon macOS libzstd fix
+    print(f"\n{'─'*60}")
+    print("Checking pyoperon shared-library linkage (macOS) …")
+    fix_pyoperon_macos()
+
+    # 3. Julia / PySR
     print(f"\n{'─'*60}")
     print("Setting up Julia for PySR …")
     if results.get("pysr") == "OK":
@@ -121,23 +263,26 @@ if __name__ == "__main__":
     else:
         print("  Skipping (pysr not installed).")
 
-    # ── Summary ───────────────────────────────────────────────────────────────
+    # 4. GP-GOMEA from source
+    print(f"\n{'─'*60}")
+    results["pygpgomea"] = "OK" if build_gpgomea() else "FAILED (see above)"
+
+    # ── Summary ──────────────────────────────────────────────────────────────
     print(f"\n{'='*60}")
     print("Installation summary:")
-    for pip_name, _, _ in PACKAGES:
+    all_items = [(p, i, d) for p, i, d in PACKAGES] + \
+                [("pygpgomea", "pygpgomea", "GP-GOMEA — linkage-learning GP (source build)")]
+    for pip_name, _, desc in all_items:
         status = results.get(pip_name, "SKIPPED")
         mark = "✓" if status == "OK" else "✗"
         print(f"  {mark}  {pip_name:20s}  {status}")
 
     print()
     print("Verifying imports …")
-    for pip_name, import_name, _ in PACKAGES:
+    for pip_name, import_name, _ in all_items:
         try:
             __import__(import_name)
             print(f"  OK  {pip_name} (import {import_name})")
         except ImportError as e:
-            print(f"  --  {pip_name}  ({e})")
-
-    print()
-    print("Not on PyPI (build from source if needed):")
-    print("  GP-GOMEA  https://github.com/marcovirgolin/GP-GOMEA")
+            short = str(e).split("\n")[0]
+            print(f"  --  {pip_name}  ({short})")

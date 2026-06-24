@@ -6,8 +6,7 @@ Baselines (install with: python main/install_baselines.py)
   gplearn      sklearn-compatible tree GP          pip install gplearn
   pyoperon     Operon — high-performance GP        pip install pyoperon
   pysr         PySR / SymbolicRegression.jl        pip install pysr  (+Julia)
-  pygpgomea    GP-GOMEA (linkage-learning GP)       build from source (no PyPI wheel)
-  itea         ITEA (Interaction-Transformation EA) build from source (no PyPI wheel)
+  pygpgomea    GP-GOMEA (linkage-learning GP)       build from source (install_baselines.py)
 
 Execution budget: pop=100 × 2000 generations = 200 000 evaluations (matches SLIM-GSGP).
 Train/test splits: same pre-split tensors as main_slim_normalized.py.
@@ -177,14 +176,6 @@ def _pysr_to_sympy(estimator):
         return None
 
 
-def _itea_to_sympy(estimator):
-    import sympy as sp
-    try:
-        return sp.sympify(str(estimator))
-    except Exception:
-        return None
-
-
 def _gpgomea_to_sympy(estimator):
     import sympy as sp
     try:
@@ -275,28 +266,11 @@ def _register_pysr():
     return ("PySR", make, lambda est, X: _pysr_to_sympy(est))
 
 
-def _register_itea():
-    # ITEA has no PyPI wheel; install from source:
-    #   https://github.com/GuilhermeAldeia/ITEA
-    from itea.regression import ITEA_regressor
-
-    def make(seed):
-        return ITEA_regressor(
-            gens=N_GENS,
-            popsize=POP_SIZE,
-            random_state=seed,
-            verbose=False,
-        )
-
-    return ("ITEA", make, lambda est, X: _itea_to_sympy(est))
-
-
 _FACTORIES = [
     ("gplearn",   _register_gplearn),
-    ("operon",    _register_operon),
+    ("pyoperon",  _register_operon),
     ("pygpgomea", _register_gpgomea),
     ("pysr",      _register_pysr),
-    ("itea",      _register_itea),
 ]
 
 
