@@ -274,20 +274,31 @@ def build_gpgomea(clone_dir=None):
     arma_header  = os.path.join(conda_prefix, "include", "armadillo") if conda_prefix else ""
     if not (arma_header and os.path.exists(arma_header)):
         print("  Armadillo not found — installing …")
-        conda = shutil.which("conda")
-        if conda and conda_prefix:
-            print("  conda install -c conda-forge armadillo …")
-            subprocess.run([conda, "install", "-c", "conda-forge", "armadillo", "-y"],
-                           capture_output=False)
-        else:
+        arma_installed = False
+
+        # prefer mamba (faster solver), fall back to conda, then brew
+        for pkg_mgr in filter(None, [shutil.which("mamba"), shutil.which("conda")]):
+            if conda_prefix:
+                print(f"  {os.path.basename(pkg_mgr)} install -c conda-forge armadillo …")
+                r = subprocess.run(
+                    [pkg_mgr, "install", "-c", "conda-forge", "armadillo", "-y"],
+                    capture_output=False)
+                if r.returncode == 0 and os.path.exists(arma_header):
+                    arma_installed = True
+                    break
+                print(f"  {os.path.basename(pkg_mgr)} failed — trying next option …")
+
+        if not arma_installed:
             brew = shutil.which("brew")
             if brew:
                 print("  brew install armadillo …")
-                subprocess.run(["brew", "install", "armadillo"], capture_output=False)
-            else:
-                print("  !! Cannot auto-install Armadillo.")
-                print("     conda install -c conda-forge armadillo")
-                print("     # or: brew install armadillo")
+                r = subprocess.run(["brew", "install", "armadillo"], capture_output=False)
+                arma_installed = r.returncode == 0
+
+        if not arma_installed:
+            print("  !! Could not auto-install Armadillo. Install manually:")
+            print("       conda install -c conda-forge armadillo")
+            print("       # or: brew install armadillo")
 
     # ── clone ──────────────────────────────────────────────────────────────────
     if clone_dir is None:
