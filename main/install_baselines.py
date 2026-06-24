@@ -142,14 +142,13 @@ def _find_python_package_root(repo_path, depth=3):
     return None
 
 
-def _cmake_build_gpgomea(repo_path):
+def _cmake_compile(repo_path):
     """
-    Fallback: build GP-GOMEA via CMake, then make the resulting .so importable.
-    Strategy:
-      1. copy the .so into the active env's platlib (sysconfig, most reliable)
-      2. if import still fails, write a .pth file pointing at the build dir
+    Run cmake configure + build from repo_path.
+    Returns (success: bool, ext_paths: list[str]).
+    ext_paths contains all .so/.pyd files produced in the build directory.
     """
-    import glob as _glob, sysconfig
+    import glob as _glob
 
     build_dir = os.path.join(repo_path, "_pybuild")
     os.makedirs(build_dir, exist_ok=True)
@@ -163,7 +162,7 @@ def _cmake_build_gpgomea(repo_path):
     if r.returncode != 0:
         print("  !! cmake configure failed.")
         _print_gpgomea_manual_hint(repo_path)
-        return False
+        return False, []
 
     cpu = os.cpu_count() or 2
     print(f"  cmake build (j={cpu}) …")
@@ -171,57 +170,18 @@ def _cmake_build_gpgomea(repo_path):
     if r.returncode != 0:
         print("  !! cmake build failed.")
         _print_gpgomea_manual_hint(repo_path)
-        return False
+        return False, []
 
-    # locate ALL compiled extensions (any name containing "gomea")
-    exts = _glob.glob(os.path.join(build_dir, "**", "*gomea*.so"),  recursive=True) + \
-           _glob.glob(os.path.join(build_dir, "**", "*gomea*.pyd"), recursive=True)
+    exts = (_glob.glob(os.path.join(build_dir, "**", "*.so"),  recursive=True) +
+            _glob.glob(os.path.join(build_dir, "**", "*.pyd"), recursive=True))
     if not exts:
-        print("  !! Build succeeded but no *gomea* extension found.")
-        print(f"  Contents of build dir:")
+        print("  !! cmake succeeded but no .so/.pyd found in build dir.")
+        print("  Build dir contents:")
         for root, _, files in os.walk(build_dir):
             for f in files:
                 if f.endswith((".so", ".pyd", ".dylib")):
                     print(f"    {os.path.join(root, f)}")
-        return False
-
-    # use sysconfig platlib — matches the active conda / venv env
-    platlib = sysconfig.get_path("platlib")
-    for ext in exts:
-        dest = os.path.join(platlib, os.path.basename(ext))
-        shutil.copy2(ext, dest)
-        print(f"  Copied: {os.path.basename(ext)} → {platlib}")
-
-    # verify import
-    try:
-        import importlib
-        importlib.import_module("pygpgomea")
-        print("  import pygpgomea  OK")
-        return True
-    except ImportError:
-        pass
-
-    # last resort: write a .pth file so Python always finds the build dir
-    pth = os.path.join(platlib, "gpgomea_build.pth")
-    # find the directory that actually contains the .so files
-    so_dirs = {os.path.dirname(e) for e in exts}
-    with open(pth, "w") as f:
-        for d in so_dirs:
-            f.write(d + "\n")
-    print(f"  Wrote .pth file: {pth}")
-    print(f"  Paths added: {so_dirs}")
-
-    try:
-        importlib.invalidate_caches()
-        importlib.import_module("pygpgomea")
-        print("  import pygpgomea  OK (via .pth)")
-        return True
-    except ImportError as e:
-        print(f"  !! Still not importable: {e}")
-        print("  The module might be named differently. Check:")
-        for ext in exts:
-            print(f"    {os.path.basename(ext)}")
-        return False
+    return True, exts
 
 
 def _print_gpgomea_manual_hint(repo_path):
@@ -308,19 +268,53 @@ def build_gpgomea(clone_dir=None):
 
     # ── locate install root (setup.py / pyproject.toml may be in a subdir) ───
     install_dir = _find_python_package_root(repo_path, depth=3)
-
     if install_dir:
         print(f"  Found Python package at: {install_dir}")
-        print("  Running: pip install .  (this compiles C++, may take 2–5 min) …")
-        r = subprocess.run([sys.executable, "-m", "pip", "install", "."],
-                           cwd=install_dir)
-        if r.returncode == 0:
-            print("  GP-GOMEA built and installed.")
-            return True
-        print("  !! pip install failed — trying cmake fallback …")
 
-    # ── cmake fallback ────────────────────────────────────────────────────────
-    return _cmake_build_gpgomea(repo_path)
+    # ── step 1: cmake (always — pip install alone produces a pure-Python wheel
+    #            with no compiled extension, causing ImportError at runtime) ───
+    cmake_ok, built_exts = _cmake_compile(repo_path)
+    if not cmake_ok:
+        return False
+
+    # ── step 2: pip install (installs the Python wrapper into site-packages) ──
+    if install_dir:
+        print("  pip install . (Python wrapper) …")
+        subprocess.run([sys.executable, "-m", "pip", "install", "."],
+                       cwd=install_dir)
+
+    # ── step 3: copy compiled extensions into the installed package dir ───────
+    # pyGPGOMEA/__init__.py uses relative imports, so the .so must live
+    # alongside the Python files in site-packages/pyGPGOMEA/, not at top level.
+    import sysconfig
+    platlib = sysconfig.get_path("platlib")
+    if built_exts:
+        pkg_dir  = os.path.join(platlib, "pyGPGOMEA")
+        dest_dir = pkg_dir if os.path.isdir(pkg_dir) else platlib
+        for ext in built_exts:
+            dest = os.path.join(dest_dir, os.path.basename(ext))
+            shutil.copy2(ext, dest)
+            print(f"  Copied {os.path.basename(ext)} → {dest_dir}")
+    else:
+        print("  !! cmake produced no extensions — see build output above.")
+        return False
+
+    # ── step 4: verify import ─────────────────────────────────────────────────
+    import importlib
+    importlib.invalidate_caches()
+    for mod_name in ("pyGPGOMEA", "pygpgomea"):
+        try:
+            importlib.import_module(mod_name)
+            print(f"  import {mod_name}  OK")
+            return True
+        except ImportError:
+            pass
+
+    print("  !! pyGPGOMEA not importable after build.")
+    print(f"  Extensions placed in: {dest_dir}")
+    print("  Check that the .so name matches what __init__.py imports.")
+    print(f"  Hint: ls {dest_dir}")
+    return False
 
 
 # ── Julia / PySR setup ────────────────────────────────────────────────────────
