@@ -24,12 +24,14 @@ def run(cmd, **kwargs):
 
 
 PACKAGES = [
-    # package name(s)            description
-    (["gplearn"],                 "GPLearn — sklearn-compatible tree GP"),
-    (["operon-sklearn"],          "Operon — high-performance GP"),
-    (["pygpgomea"],               "GP-GOMEA — linkage-learning GP"),
-    (["pysr"],                    "PySR — Julia-backed symbolic regression"),
-    (["itea-sklearn"],            "ITEA — Interaction-Transformation EA"),
+    # package name(s)   description
+    (["gplearn"],        "GPLearn — sklearn-compatible tree GP            (pip)"),
+    (["pyoperon"],       "Operon  — high-performance GP                  (pip)"),
+    (["pysr"],           "PySR    — Julia-backed symbolic regression      (pip + Julia)"),
+    # GP-GOMEA: no PyPI wheel — requires manual C++ build from source
+    #   https://github.com/marcovirgolin/GP-GOMEA
+    # ITEA: no PyPI wheel on Windows — install from source if needed
+    #   https://github.com/GuilhermeAldeia/ITEA
 ]
 
 

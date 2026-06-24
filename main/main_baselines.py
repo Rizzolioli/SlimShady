@@ -4,10 +4,10 @@ main_baselines.py — GP baseline runners for comparison with SLIM-GSGP.
 Baselines (install with: python main/install_baselines.py)
 ---------
   gplearn      sklearn-compatible tree GP          pip install gplearn
-  operon       state-of-the-art GP                 pip install operon-sklearn
-  pygpgomea    GP-GOMEA (linkage-learning GP)       pip install pygpgomea
+  pyoperon     Operon — high-performance GP        pip install pyoperon
   pysr         PySR / SymbolicRegression.jl        pip install pysr  (+Julia)
-  itea         ITEA (Interaction-Transformation EA) pip install itea-sklearn
+  pygpgomea    GP-GOMEA (linkage-learning GP)       build from source (no PyPI wheel)
+  itea         ITEA (Interaction-Transformation EA) build from source (no PyPI wheel)
 
 Execution budget: pop=100 × 2000 generations = 200 000 evaluations (matches SLIM-GSGP).
 Train/test splits: same pre-split tensors as main_slim_normalized.py.
@@ -156,9 +156,15 @@ def _gplearn_m_phi(estimator):
 
 
 def _operon_to_sympy(estimator):
-    import sympy as sp
+    """
+    pyoperon API: get_model_string(model) → infix string using X0, X1, ...
+    Map to lowercase x0, x1, ... to match project convention.
+    """
+    import sympy as sp, re
     try:
-        expr_str = estimator.get_model_string(precision=16)
+        expr_str = estimator.get_model_string(estimator.model_)
+        # X0 → x0, X1 → x1, etc.
+        expr_str = re.sub(r'\bX(\d+)\b', r'x\1', expr_str)
         return sp.sympify(expr_str)
     except Exception:
         return None
@@ -219,22 +225,24 @@ def _register_gplearn():
 
 
 def _register_operon():
-    from operon.sklearn import SymbolicRegressor as OperonSR
+    from pyoperon.sklearn import SymbolicRegressor as OperonSR
 
     def make(seed):
         return OperonSR(
-            allowed_symbols="add,sub,mul,div,square,cube,sqrt,cbrt,log,exp",
+            allowed_symbols="add,sub,mul,div,square,sqrt,log,exp",
             population_size=POP_SIZE,
-            max_generations=N_GENS,
+            generations=N_GENS,
             max_evaluations=POP_SIZE * N_GENS,
-            random_state=seed,
             n_threads=1,
+            random_state=seed,
         )
 
     return ("Operon", make, lambda est, X: _operon_to_sympy(est))
 
 
 def _register_gpgomea():
+    # GP-GOMEA has no PyPI wheel; requires manual C++ build from:
+    #   https://github.com/marcovirgolin/GP-GOMEA
     from pygpgomea import GPGOMEARegressor
 
     def make(seed):
@@ -268,6 +276,8 @@ def _register_pysr():
 
 
 def _register_itea():
+    # ITEA has no PyPI wheel; install from source:
+    #   https://github.com/GuilhermeAldeia/ITEA
     from itea.regression import ITEA_regressor
 
     def make(seed):
