@@ -44,9 +44,9 @@ import numpy as np
 # ── Configuration ──────────────────────────────────────────────────────────────
 DATASETS       = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
 N_RUNS         = 30
-N_WORKERS      = max(1, min(os.cpu_count() - 1, 8))
-POP_SIZE       = 100
-N_GENS         = 2000
+N_WORKERS      = max(1, min(os.cpu_count() - 1, 10))
+POP_SIZE       = 200
+N_GENS         = 100
 SIMP_TIMEOUT_S = 20     # per-model simplification timeout (thread-based)
 
 _LOG_NAME = "results_baselines.csv"
@@ -62,9 +62,35 @@ _HEADER   = [
 
 # ── SymPy utilities ────────────────────────────────────────────────────────────
 
+def _sympy_ell_no(expr):
+    if expr.is_Atom:
+        return 1, 0
+    n_args = len(expr.args)
+    if n_args == 0:
+        return 1, 0
+    child_ells, child_nos = zip(*[_sympy_ell_no(a) for a in expr.args])
+    s_ell = sum(child_ells)
+    s_no  = sum(child_nos)
+    if n_args == 1:
+        return 1 + s_ell, 1 + s_no
+    ops_here = n_args - 1
+    return ops_here + s_ell, ops_here + s_no
+
+
+def _sympy_nnao(expr):
+    import sympy as sp
+    if expr.is_Atom:
+        return 0
+    is_nnao = 1 if expr.func is sp.exp else 0
+    return is_nnao + sum(_sympy_nnao(a) for a in expr.args)
+
+
 def _sympy_m_phi(expr):
-    from utils.utils import sympy_m_phi
-    return sympy_m_phi(expr)    # (m_phi, ell, no, nnao, nnaoc)
+    ell, no = _sympy_ell_no(expr)
+    nnao    = _sympy_nnao(expr)
+    nnaoc   = 1 if nnao > 0 else 0
+    m_phi   = 79.1 - 0.2 * ell - 0.5 * no - 3.4 * nnao - 4.5 * nnaoc
+    return m_phi, ell, no, nnao, nnaoc
 
 
 def _simplify_thread(expr, timeout=SIMP_TIMEOUT_S):
@@ -225,10 +251,11 @@ def _make_estimator(algo_key, seed):
     if algo_key == "pyoperon":
         from pyoperon.sklearn import SymbolicRegressor as OperonSR
         return OperonSR(
-            allowed_symbols="add,sub,mul,div,square,sqrt,log,exp",
+            allowed_symbols="add,sub,mul,div,square,sqrt,log,exp,constant,variable",
             population_size=POP_SIZE,
             generations=N_GENS,
             max_evaluations=POP_SIZE * N_GENS,
+            max_time=120,
             n_threads=1,
             random_state=seed,
         )
@@ -245,7 +272,7 @@ def _make_estimator(algo_key, seed):
         from pysr import PySRRegressor
         return PySRRegressor(
             niterations=N_GENS,
-            populations=POP_SIZE,
+            populations=15,         # number of island populations (not individuals)
             binary_operators=["+", "-", "*", "/"],
             unary_operators=[],
             verbosity=0,
@@ -296,18 +323,27 @@ def _discover_baselines():
 
 def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
     import numpy as np
+    import pandas as pd
     from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
-    from datasets.data_loader import load_preloaded
 
+    print(f"  START  {algo_name:<10s}  {dataset:<25s}  seed={seed}", flush=True)
     _EMPTY = [""] * (len(_HEADER) - 3)   # placeholders for all metric columns
 
     try:
-        X_tr, y_tr = load_preloaded(dataset, seed=seed + 1, training=True,  X_y=True)
-        X_te, y_te = load_preloaded(dataset, seed=seed + 1, training=False, X_y=True)
-        X_tr = X_tr.numpy().astype(np.float64)
-        y_tr = y_tr.numpy().astype(np.float64)
-        X_te = X_te.numpy().astype(np.float64)
-        y_te = y_te.numpy().astype(np.float64)
+        # Load pre-split CSVs directly to avoid importing torch (which requires
+        # NumPy 1.x C extensions incompatible with NumPy 2.x in worker processes).
+        _data_dir = os.path.join(_ROOT, "datasets", "pre_loaded_data")
+        _s = seed + 1
+        _df_tr = pd.read_csv(
+            os.path.join(_data_dir, f"TRAINING_{_s}_{dataset.upper()}.txt"),
+            sep=" ", header=None).iloc[:, :-1]
+        _df_te = pd.read_csv(
+            os.path.join(_data_dir, f"TEST_{_s}_{dataset.upper()}.txt"),
+            sep=" ", header=None).iloc[:, :-1]
+        X_tr = _df_tr.values[:, :-1].astype(np.float64)
+        y_tr = _df_tr.values[:,  -1].astype(np.float64)
+        X_te = _df_te.values[:, :-1].astype(np.float64)
+        y_te = _df_te.values[:,  -1].astype(np.float64)
 
         estimator = _make_estimator(algo_key, seed)
         t0        = time.time()
@@ -358,9 +394,10 @@ def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
             round(runtime, 2),
         ]
 
+        print(f"  DONE   {algo_name:<10s}  {dataset:<25s}  seed={seed}  rmse={rmse:.4f}  {runtime:.0f}s", flush=True)
     except Exception as e:
         row = [algo_name, dataset, seed] + _EMPTY
-        print(f"  ERROR {algo_name} {dataset} seed={seed}: {e}")
+        print(f"  ERROR  {algo_name:<10s}  {dataset:<25s}  seed={seed}: {e}", flush=True)
 
     with lock:
         with open(log_path, "a", newline="") as f:
@@ -385,9 +422,10 @@ if __name__ == "__main__":
     completed = set()
     if os.path.exists(log_path):
         try:
-            done = pd.read_csv(log_path, usecols=["algo", "dataset", "seed"])
+            done = pd.read_csv(log_path, usecols=["algo", "dataset", "seed", "test_rmse"])
             for _, r in done.iterrows():
-                completed.add((str(r["algo"]), str(r["dataset"]), int(r["seed"])))
+                if pd.notna(r["test_rmse"]) and str(r["test_rmse"]).strip() != "":
+                    completed.add((str(r["algo"]), str(r["dataset"]), int(r["seed"])))
         except Exception:
             pass
 

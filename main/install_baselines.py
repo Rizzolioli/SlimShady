@@ -425,9 +425,15 @@ def build_gpgomea(clone_dir=None):
         pkg_dir  = os.path.join(platlib, "pyGPGOMEA")
         dest_dir = pkg_dir if os.path.isdir(pkg_dir) else platlib
         for ext in built_exts:
-            dest = os.path.join(dest_dir, os.path.basename(ext))
+            src_name = os.path.basename(ext)
+            # GPGOMEARegressor.py does `from gpgomea import GPGOMEA` after
+            # inserting site-packages/pyGPGOMEA/ into sys.path, so the .so
+            # must be importable as 'gpgomea'.  cmake names it
+            # 'libgpgomea_python.so' — rename on copy.
+            dest_name = "gpgomea.so" if src_name.lower().endswith(".so") else src_name
+            dest = os.path.join(dest_dir, dest_name)
             shutil.copy2(ext, dest)
-            print(f"  Copied {os.path.basename(ext)} → {dest_dir}")
+            print(f"  Copied {src_name} → {dest_dir}/{dest_name}")
     else:
         print("  !! cmake produced no extensions — see build output above.")
         return False
@@ -440,12 +446,14 @@ def build_gpgomea(clone_dir=None):
             importlib.import_module(mod_name)
             print(f"  import {mod_name}  OK")
             return True
-        except ImportError:
-            pass
+        except ImportError as e:
+            print(f"  import {mod_name} failed: {e}")
 
     print("  !! pyGPGOMEA not importable after build.")
     print(f"  Extensions placed in: {dest_dir}")
-    print("  Check that the .so name matches what __init__.py imports.")
+    print("  Quick debug on Mac:")
+    print(f"    python -c \"import sys; sys.path.insert(0,'{dest_dir}'); import gpgomea; print(gpgomea)\"")
+    print(f"    ls {dest_dir}")
     print(f"  Hint: ls {dest_dir}")
     return False
 
