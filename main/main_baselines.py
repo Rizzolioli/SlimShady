@@ -255,7 +255,6 @@ def _make_estimator(algo_key, seed):
             population_size=POP_SIZE,
             generations=N_GENS,
             max_evaluations=POP_SIZE * N_GENS,
-            max_time=120,
             n_threads=1,
             random_state=seed,
         )
@@ -266,7 +265,6 @@ def _make_estimator(algo_key, seed):
             ims="5_1",
             generations=N_GENS,
             seed=seed,
-            verbose=False,
         )
     if algo_key == "pysr":
         from pysr import PySRRegressor
