@@ -270,14 +270,13 @@ def _make_estimator(algo_key, seed):
         from pysr import PySRRegressor
         return PySRRegressor(
             niterations=N_GENS,
-            populations=15,         # number of island populations (not individuals)
+            populations=1,
+            parallelism="serial",
             binary_operators=["+", "-", "*", "/"],
             unary_operators=[],
             verbosity=0,
             random_state=seed,
             deterministic=True,
-            procs=0,
-            multithreading=False,
         )
     raise ValueError(f"Unknown algo_key: {algo_key!r}")
 
