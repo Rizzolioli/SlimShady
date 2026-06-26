@@ -868,3 +868,16 @@ Verifying imports …
   --  pygpgomea  (not importable)
 
 Process finished with exit code 0
+
+ERROR  GP-GOMEA    energy                     seed=14: __init__() should return None, not 'NoneType'
+Exception ignored in: <function GPGOMEARegressor.__del__ at 0x1652e17e0>
+Traceback (most recent call last):
+  File "/Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages/pyGPGOMEA/GPGOMEARegressor.py", line 43, in __del__
+    del self._ea
+AttributeError: _ea
+Exception ignored in: <function GPGOMEARegressor.__del__ at 0x1652e17e0>
+Traceback (most recent call last):
+  File "/Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages/pyGPGOMEA/GPGOMEARegressor.py", line 43, in __del__
+    del self._ea
+AttributeError: _ea
+  START  GP-GOMEA    
