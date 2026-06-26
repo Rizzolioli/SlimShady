@@ -251,7 +251,7 @@ def _make_estimator(algo_key, seed):
     if algo_key == "pyoperon":
         from pyoperon.sklearn import SymbolicRegressor as OperonSR
         return OperonSR(
-            allowed_symbols="add,sub,mul,div,square,sqrt,log,exp,constant,variable",
+            allowed_symbols="add,sub,mul,div,square,sqrtabs,logabs,exp,constant,variable",
             population_size=POP_SIZE,
             generations=N_GENS,
             max_evaluations=POP_SIZE * N_GENS,
