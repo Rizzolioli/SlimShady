@@ -261,8 +261,6 @@ def _make_estimator(algo_key, seed):
     if algo_key == "pygpgomea":
         from pyGPGOMEA import GPGOMEARegressor
         return GPGOMEARegressor(
-            gomea=True,
-            ims="5_1",
             generations=N_GENS,
             seed=seed,
         )
