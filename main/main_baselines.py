@@ -347,7 +347,8 @@ def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
         estimator.fit(X_tr, y_tr)
         runtime   = time.time() - t0
 
-        y_pred = estimator.predict(X_te)
+        y_pred = np.asarray(estimator.predict(X_te), dtype=np.float64)
+        y_pred = np.where(np.isfinite(y_pred), y_pred, np.nanmedian(y_tr))
         rmse   = float(np.sqrt(mean_squared_error(y_te, y_pred)))
         mae    = float(mean_absolute_error(y_te, y_pred))
         r2     = float(r2_score(y_te, y_pred))
