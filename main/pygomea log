@@ -880,4 +880,9 @@ Traceback (most recent call last):
   File "/Users/davide/opt/anaconda3/envs/slim/lib/python3.10/site-packages/pyGPGOMEA/GPGOMEARegressor.py", line 43, in __del__
     del self._ea
 AttributeError: _ea
-  START  GP-GOMEA    
+  START  GP-GOMEA
+
+    ERROR  Operon      toxicity                   seed=27: Input contains NaN.
+  START  Operon      ppb                        seed=25
+  ERROR  Operon      ppb                        seed=25: Input contains infinity or a value too large for dtype('float32').
+  START  Operon      resid_build_sale_price     seed=20

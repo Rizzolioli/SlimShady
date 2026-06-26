@@ -18,3 +18,4 @@ utils/results_analyser.ipynb
 *.pdf
 *.pyc
 *.pkl
+*.bak
