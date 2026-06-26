@@ -447,11 +447,22 @@ if __name__ == "__main__":
 
     manager    = multiprocessing.Manager()
     lock       = manager.Lock()
-    pool_tasks = [(ak, an, ds, sd, log_path, lock)
-                  for ak, an, ds, sd in tasks]
+
+    # GP-GOMEA's C++ Boost.Python bindings crash when initialized inside a
+    # daemon Pool worker. Run those tasks sequentially in the main process.
+    gomea_tasks = [(ak, an, ds, sd, log_path, lock)
+                   for ak, an, ds, sd in tasks if ak == "pygpgomea"]
+    pool_tasks  = [(ak, an, ds, sd, log_path, lock)
+                   for ak, an, ds, sd in tasks if ak != "pygpgomea"]
 
     t0 = time.time()
     done_n = 0
+
+    for args in gomea_tasks:
+        _run_one(*args)
+        done_n += 1
+        if done_n % 10 == 0 or done_n == total:
+            print(f"  {done_n}/{total}  ({(time.time()-t0)/60:.1f} min)")
 
     with multiprocessing.Pool(processes=N_WORKERS) as pool:
         for _ in pool.starmap(_run_one, pool_tasks):
