@@ -259,6 +259,32 @@ def _make_estimator(algo_key, seed):
             random_state=seed,
         )
     if algo_key == "pygpgomea":
+        # Boost.Python bug (< 1.79): GPGOMEA.__init__ returns NoneType instead of
+        # None, causing Python's slot_tp_init to raise TypeError even though the
+        # C++ constructor ran successfully.  Fix: subclass GPGOMEA and call the
+        # parent __init__ directly — direct method calls skip slot_tp_init's
+        # return-value check, so the C++ object is stored and no error is raised.
+        try:
+            import pyGPGOMEA as _pgpkg, os as _os
+            _gp_dir = _os.path.dirname(_pgpkg.__file__)
+            if _gp_dir not in sys.path:
+                sys.path.insert(0, _gp_dir)
+            import gpgomea as _gpmod
+
+            if not getattr(_gpmod, "_init_patched", False):
+                _Orig = _gpmod.GPGOMEA
+
+                class _FixedGPGOMEA(_Orig):
+                    def __init__(self):
+                        # Direct call bypasses slot_tp_init's NoneType-return check.
+                        # The C++ constructor runs and stores the holder in self.
+                        _Orig.__init__(self)
+
+                _gpmod.GPGOMEA = _FixedGPGOMEA
+                _gpmod._init_patched = True
+        except Exception as _pe:
+            print(f"  [warn] gpgomea patch failed: {_pe}", flush=True)
+
         from pyGPGOMEA import GPGOMEARegressor
         return GPGOMEARegressor(
             time=120,
