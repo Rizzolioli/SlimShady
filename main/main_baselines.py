@@ -222,10 +222,10 @@ def _gpgomea_to_sympy(estimator):
 
 _ALGO_META = {
     # algo_key: (display_name, pip_package)
-    "gplearn":   ("GPLearn",  "gplearn"),
-    "pyoperon":  ("Operon",   "pyoperon"),
+    # "gplearn":   ("GPLearn",  "gplearn"),
+    # "pyoperon":  ("Operon",   "pyoperon"),
     "pygpgomea": ("GP-GOMEA", "pyGPGOMEA"),
-    "pysr":      ("PySR",     "pysr"),
+    # "pysr":      ("PySR",     "pysr"),
 }
 
 
