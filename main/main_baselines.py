@@ -259,11 +259,16 @@ def _make_estimator(algo_key, seed):
             random_state=seed,
         )
     if algo_key == "pygpgomea":
-        # Boost.Python bug (< 1.79): GPGOMEA.__init__ returns NoneType instead of
-        # None, causing Python's slot_tp_init to raise TypeError even though the
-        # C++ constructor ran successfully.  Fix: subclass GPGOMEA and call the
-        # parent __init__ directly — direct method calls skip slot_tp_init's
-        # return-value check, so the C++ object is stored and no error is raised.
+        # Boost.Python < 1.79 bug on Python 3.10+: GPGOMEA.__init__ returns
+        # NoneType instead of None, so slot_tp_init raises TypeError even though
+        # the C++ ctor already ran.
+        #
+        # Two-part fix needed:
+        #  1. Subclass GPGOMEA with a __init__ that catches the spurious TypeError.
+        #  2. GPGOMEARegressor.py binds 'GPGOMEA' at MODULE IMPORT TIME via
+        #     "from gpgomea import GPGOMEA".  That binding is captured before we
+        #     can patch gpgomea.GPGOMEA, so we must also overwrite the name in the
+        #     GPGOMEARegressor module's own __dict__.
         try:
             import pyGPGOMEA as _pgpkg, os as _os
             _gp_dir = _os.path.dirname(_pgpkg.__file__)
@@ -275,19 +280,25 @@ def _make_estimator(algo_key, seed):
                 _Orig = _gpmod.GPGOMEA
 
                 class _FixedGPGOMEA(_Orig):
-                    def __init__(self):
-                        # _Orig.__init__ goes through slot_tp_init, which calls the
-                        # Boost.Python __init__ (C++ ctor runs + holder stored in self),
-                        # then detects the NoneType return value and raises TypeError.
-                        # We catch it: the C++ holder is already in self at that point.
+                    def __init__(self, *args, **kwargs):
+                        # Boost.Python stores the C++ holder BEFORE slot_tp_init
+                        # detects the NoneType return and raises TypeError.
+                        # Catching that specific error leaves self fully initialised.
                         try:
-                            _Orig.__init__(self)
+                            _Orig.__init__(self, *args, **kwargs)
                         except TypeError as _e:
                             if "should return None" not in str(_e):
-                                raise  # real error — propagate
+                                raise
 
                 _gpmod.GPGOMEA = _FixedGPGOMEA
                 _gpmod._init_patched = True
+
+            # Overwrite the module-level 'GPGOMEA' binding that was captured at
+            # import time by GPGOMEARegressor.py's "from gpgomea import GPGOMEA".
+            import importlib as _il
+            _reg_mod = _il.import_module("pyGPGOMEA.GPGOMEARegressor")
+            if hasattr(_reg_mod, "GPGOMEA"):
+                _reg_mod.GPGOMEA = _gpmod.GPGOMEA
         except Exception as _pe:
             print(f"  [warn] gpgomea patch failed: {_pe}", flush=True)
 
