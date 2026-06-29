@@ -174,6 +174,16 @@ def _cmake_compile(repo_path):
     ]
     if prefix_path:
         cmake_cmd.append(f"-DCMAKE_PREFIX_PATH={prefix_path}")
+        # Embed RPATH so libboost_python / libomp are found at runtime without
+        # needing DYLD_LIBRARY_PATH / LD_LIBRARY_PATH.
+        lib_path = os.path.join(prefix_path, "lib")
+        cmake_cmd += [
+            f"-DCMAKE_INSTALL_RPATH={lib_path}",
+            "-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON",
+            "-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON",
+        ]
+        if sys.platform == "darwin":
+            cmake_cmd.append("-DCMAKE_MACOSX_RPATH=ON")
 
     print("  cmake configure …")
     r = subprocess.run(cmake_cmd, cwd=build_dir)

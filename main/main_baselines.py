@@ -261,10 +261,9 @@ def _make_estimator(algo_key, seed):
     if algo_key == "pygpgomea":
         from pyGPGOMEA import GPGOMEARegressor
         return GPGOMEARegressor(
-            time=120,
-            generations=-1,
+            budget=POP_SIZE * N_GENS,
             seed=seed,
-            parallel=0,
+            parallel=False,
         )
     if algo_key == "pysr":
         from pysr import PySRRegressor
@@ -450,7 +449,26 @@ if __name__ == "__main__":
     lock       = manager.Lock()
 
     # GP-GOMEA's C++ Boost.Python bindings crash when initialized inside a
-    # daemon Pool worker. Run those tasks sequentially in the main process.
+    # daemon Pool worker. Run each task in its own fresh non-daemonic Process
+    # so the dynamic linker loads libboost_python cleanly every time.
+    # We also set DYLD_LIBRARY_PATH (Mac) / LD_LIBRARY_PATH (Linux) so the
+    # compiled .so finds the conda Boost/OpenMP libraries via RPATH fallback.
+    if sys.platform == "darwin":
+        _conda_lib = os.path.join(os.environ.get("CONDA_PREFIX", ""), "lib")
+        if _conda_lib and os.path.isdir(_conda_lib):
+            _prev = os.environ.get("DYLD_LIBRARY_PATH", "")
+            if _conda_lib not in _prev:
+                os.environ["DYLD_LIBRARY_PATH"] = (
+                    _conda_lib + (":" + _prev if _prev else ""))
+    elif sys.platform.startswith("linux"):
+        _conda_lib = os.path.join(os.environ.get("CONDA_PREFIX", ""), "lib")
+        if _conda_lib and os.path.isdir(_conda_lib):
+            _prev = os.environ.get("LD_LIBRARY_PATH", "")
+            if _conda_lib not in _prev:
+                os.environ["LD_LIBRARY_PATH"] = (
+                    _conda_lib + (":" + _prev if _prev else ""))
+    os.environ.setdefault("OMP_NUM_THREADS", "1")
+
     gomea_tasks = [(ak, an, ds, sd, log_path, lock)
                    for ak, an, ds, sd in tasks if ak == "pygpgomea"]
     pool_tasks  = [(ak, an, ds, sd, log_path, lock)
@@ -460,7 +478,14 @@ if __name__ == "__main__":
     done_n = 0
 
     for args in gomea_tasks:
-        _run_one(*args)
+        # Non-daemonic Process: gets a fresh Python interpreter + clean
+        # dynamic-library state, inheriting the env vars set above.
+        p = multiprocessing.Process(target=_run_one, args=args)
+        p.start()
+        p.join(timeout=360)   # 6-minute hard cap per seed
+        if p.is_alive():
+            p.terminate()
+            p.join()
         done_n += 1
         if done_n % 10 == 0 or done_n == total:
             print(f"  {done_n}/{total}  ({(time.time()-t0)/60:.1f} min)")
