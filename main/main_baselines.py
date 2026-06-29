@@ -261,9 +261,10 @@ def _make_estimator(algo_key, seed):
     if algo_key == "pygpgomea":
         from pyGPGOMEA import GPGOMEARegressor
         return GPGOMEARegressor(
-            budget=POP_SIZE * N_GENS,
+            time=120,
+            generations=-1,
             seed=seed,
-            parallel=False,
+            parallel=0,
         )
     if algo_key == "pysr":
         from pysr import PySRRegressor

@@ -313,16 +313,37 @@ def build_gpgomea(clone_dir=None):
             print("       # or: brew install armadillo")
 
     # Boost (system/filesystem/program_options + Boost.Python + Boost.NumPy)
+    # Require >= 1.79: earlier versions have a Boost.Python bug where __init__
+    # returns a non-None value on Python 3.10+, causing TypeError at runtime.
+    _BOOST_MIN = "1.79"
     boost_header = os.path.join(conda_prefix, "include", "boost") if conda_prefix else ""
-    if not (boost_header and os.path.exists(boost_header)):
-        print("  Boost not found — installing …")
+    boost_version_ok = False
+    if boost_header and os.path.exists(boost_header):
+        # check version from boost/version.hpp
+        version_hpp = os.path.join(conda_prefix, "include", "boost", "version.hpp")
+        try:
+            with open(version_hpp) as _vf:
+                for _line in _vf:
+                    if "BOOST_LIB_VERSION" in _line:
+                        # format: "1_82"
+                        _ver = _line.split('"')[1].replace("_", ".")
+                        from packaging.version import Version
+                        boost_version_ok = Version(_ver) >= Version(_BOOST_MIN)
+                        break
+        except Exception:
+            boost_version_ok = True   # can't check; assume ok
+
+    if not boost_header or not os.path.exists(boost_header) or not boost_version_ok:
+        _reason = "not found" if not os.path.exists(boost_header or "") else f"< {_BOOST_MIN}"
+        print(f"  Boost {_reason} — installing boost>={_BOOST_MIN} …")
         boost_installed = False
 
         for pkg_mgr in filter(None, [shutil.which("mamba"), shutil.which("conda")]):
             if conda_prefix:
-                print(f"  {os.path.basename(pkg_mgr)} install -c conda-forge boost …")
+                _spec = f"boost>={_BOOST_MIN}"
+                print(f"  {os.path.basename(pkg_mgr)} install -c conda-forge '{_spec}' …")
                 r = subprocess.run(
-                    [pkg_mgr, "install", "-c", "conda-forge", "boost", "-y"],
+                    [pkg_mgr, "install", "-c", "conda-forge", _spec, "-y"],
                     capture_output=False)
                 if r.returncode == 0 and os.path.exists(boost_header):
                     boost_installed = True
@@ -339,7 +360,7 @@ def build_gpgomea(clone_dir=None):
 
         if not boost_installed:
             print("  !! Could not auto-install Boost. Install manually:")
-            print("       conda install -c conda-forge boost")
+            print(f"       conda install -c conda-forge 'boost>={_BOOST_MIN}'")
             print("       # or: brew install boost boost-python3")
 
     # ── clone ──────────────────────────────────────────────────────────────────
