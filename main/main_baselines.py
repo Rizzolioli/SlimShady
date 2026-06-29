@@ -276,9 +276,15 @@ def _make_estimator(algo_key, seed):
 
                 class _FixedGPGOMEA(_Orig):
                     def __init__(self):
-                        # Direct call bypasses slot_tp_init's NoneType-return check.
-                        # The C++ constructor runs and stores the holder in self.
-                        _Orig.__init__(self)
+                        # _Orig.__init__ goes through slot_tp_init, which calls the
+                        # Boost.Python __init__ (C++ ctor runs + holder stored in self),
+                        # then detects the NoneType return value and raises TypeError.
+                        # We catch it: the C++ holder is already in self at that point.
+                        try:
+                            _Orig.__init__(self)
+                        except TypeError as _e:
+                            if "should return None" not in str(_e):
+                                raise  # real error — propagate
 
                 _gpmod.GPGOMEA = _FixedGPGOMEA
                 _gpmod._init_patched = True
