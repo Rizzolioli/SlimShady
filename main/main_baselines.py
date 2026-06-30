@@ -324,15 +324,13 @@ def _make_estimator(algo_key, seed):
         )
     if algo_key == "pygpgomea":
         # Boost.Python < 1.79 bug on Python 3.10+: GPGOMEA.__init__ returns
-        # NoneType instead of None, so slot_tp_init raises TypeError even though
-        # the C++ ctor already ran.
+        # NoneType instead of None, so CPython's slot_tp_init raises TypeError
+        # even though the C++ constructor already ran and stored the object.
         #
-        # IMPORTANT: a Python subclass of GPGOMEA breaks Boost.Python's C++ pointer
-        # extraction, so C++ methods like get_model() raise "error return without
-        # exception set".  We therefore use a FACTORY CALLABLE instead of subclassing:
-        # the factory creates a real gpgomea.GPGOMEA instance via __new__ + direct
-        # __init__, catches the spurious TypeError, and returns the properly
-        # initialised object.  Boost.Python can then extract the C++ pointer cleanly.
+        # Fix: use ctypes to patch the tp_init slot of gpgomea.GPGOMEA in-place.
+        # This keeps the class identity intact so isinstance checks and all
+        # Boost.Python method dispatch continue to work normally — no subclassing,
+        # no factory object replacing the class.
         try:
             import pyGPGOMEA as _pgpkg, os as _os
             _gp_dir = _os.path.dirname(_pgpkg.__file__)
@@ -341,53 +339,60 @@ def _make_estimator(algo_key, seed):
             import gpgomea as _gpmod
 
             if not getattr(_gpmod, "_init_patched", False):
-                _Orig = _gpmod.GPGOMEA
+                import ctypes as _ct
 
-                class _GPGOMEAFactory:
-                    """Callable stored as gpgomea.GPGOMEA, returns real C++ instances.
+                # initproc: int (*)(PyObject *self, PyObject *args, PyObject *kwds)
+                _INITPROC = _ct.CFUNCTYPE(
+                    _ct.c_int, _ct.py_object, _ct.py_object, _ct.py_object)
 
-                    Two Boost.Python < 1.79 bugs are fixed here:
+                # tp_init offset in PyTypeObject (Python 3.x, 64-bit):
+                # ob_refcnt(8) ob_type(8) ob_size(8) tp_name(8) tp_basicsize(8)
+                # tp_itemsize(8) tp_dealloc(8) tp_vectorcall_offset(8)
+                # tp_getattr(8) tp_setattr(8) tp_as_async(8) tp_repr(8)
+                # tp_as_number(8) tp_as_sequence(8) tp_as_mapping(8) tp_hash(8)
+                # tp_call(8) tp_str(8) tp_getattro(8) tp_setattro(8)
+                # tp_as_buffer(8) tp_flags(8) tp_doc(8) tp_traverse(8)
+                # tp_clear(8) tp_richcompare(8) tp_weaklistoffset(8)
+                # tp_iter(8) tp_iternext(8) tp_methods(8) tp_members(8)
+                # tp_getset(8) tp_base(8) tp_dict(8) tp_descr_get(8)
+                # tp_descr_set(8) tp_dictoffset(8)  → total 288 bytes
+                # tp_init @ 296
+                _TP_INIT_OFFSET = 296
+                _type_addr = id(_gpmod.GPGOMEA)
+                _orig_ptr = _ct.c_void_p.from_address(
+                    _type_addr + _TP_INIT_OFFSET).value
+                if not _orig_ptr:
+                    raise RuntimeError(
+                        "gpgomea.GPGOMEA tp_init is NULL — wrong offset?")
+                _orig_fn = _INITPROC(_orig_ptr)
 
-                    1. __init__ NoneType bug: GPGOMEA.__init__ returns NoneType
-                       instead of None, so slot_tp_init raises TypeError even
-                       though the C++ ctor already ran successfully.  We bypass
-                       type.__call__ entirely via __new__ + __init__ and swallow
-                       that specific TypeError.
+                _capi = _ct.pythonapi
+                _capi.PyErr_Occurred.restype  = _ct.c_void_p
+                _capi.PyErr_Occurred.argtypes = []
+                _capi.PyErr_Clear.restype     = None
+                _capi.PyErr_Clear.argtypes    = []
+                _TypeError_addr = id(TypeError)
 
-                    2. isinstance TypeError → SystemError: Boost.Python method
-                       wrappers call isinstance(self, gpgomea.GPGOMEA) before
-                       dispatching to C++.  After we store this factory *instance*
-                       (not a type) as gpgomea.GPGOMEA, Python's isinstance raises
-                       TypeError ("arg 2 must be a type"); Boost.Python clears that
-                       error and returns NULL, giving SystemError on every C++ call.
-                       __instancecheck__ defined here is found by Python at
-                       type(factory_instance).__instancecheck__, making
-                       isinstance(real_ea, factory) return True so dispatch works.
-                    """
+                @_INITPROC
+                def _patched_init(self_obj, args_obj, kwds_obj):
+                    ret = _orig_fn(self_obj, args_obj, kwds_obj)
+                    if ret < 0:
+                        # Boost.Python < 1.79: slot_tp_init raises TypeError
+                        # because __init__ returned NoneType instead of None.
+                        # The C++ object was already constructed; clear this
+                        # specific error and report success.
+                        if _capi.PyErr_Occurred() == _TypeError_addr:
+                            _capi.PyErr_Clear()
+                            return 0
+                    return ret
 
-                    def __instancecheck__(self, instance):
-                        # isinstance(x, gpgomea.GPGOMEA) where gpgomea.GPGOMEA is
-                        # this factory instance: return True for real GPGOMEA objects.
-                        return type(instance) is _Orig
-
-                    def __call__(self, *args, **kwargs):
-                        obj = _Orig.__new__(_Orig)
-                        try:
-                            _Orig.__init__(obj, *args, **kwargs)
-                        except TypeError as _e:
-                            if "should return None" not in str(_e):
-                                raise
-                        return obj
-
-                _gpmod.GPGOMEA = _GPGOMEAFactory()
+                # Keep callback alive (ctypes GCs it if unreferenced)
+                _gpmod._patched_tp_init = _patched_init
+                # Overwrite tp_init in the type object
+                _ct.c_void_p.from_address(_type_addr + _TP_INIT_OFFSET).value = (
+                    _ct.cast(_patched_init, _ct.c_void_p).value)
                 _gpmod._init_patched = True
 
-            # Overwrite the module-level 'GPGOMEA' binding captured at import time
-            # by GPGOMEARegressor.py's "from gpgomea import GPGOMEA".
-            import importlib as _il
-            _reg_mod = _il.import_module("pyGPGOMEA.GPGOMEARegressor")
-            if hasattr(_reg_mod, "GPGOMEA"):
-                _reg_mod.GPGOMEA = _gpmod.GPGOMEA
         except Exception as _pe:
             print(f"  [warn] gpgomea patch failed: {_pe}", flush=True)
 
