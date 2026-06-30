@@ -205,24 +205,33 @@ def _pysr_to_sympy(estimator):
 def _gpgomea_model_str(estimator):
     """Return the GP-GOMEA best-model string, or None if unavailable."""
     ea = getattr(estimator, "_ea", None)
-    print(f"  [diag] _ea type={type(ea).__name__}  ea={repr(ea)[:80]}", flush=True)
-    for obj in (ea, estimator):
+    print(f"  [diag] _ea type={type(ea).__name__}", flush=True)
+
+    # Probe all methods to distinguish int-return (C++ ptr ok) vs str-return (conversion bug)
+    for obj_label, obj in [("_ea", ea), ("estimator", estimator)]:
         if obj is None:
             continue
-        for method in ("get_model", "get_model_string"):
+        for method in ("get_n_nodes", "get_evaluations",
+                        "get_model", "get_model_string", "get_progress_log"):
             fn = getattr(obj, method, None)
             if fn is None:
-                print(f"  [diag] {type(obj).__name__}.{method} not found", flush=True)
                 continue
             try:
                 val = fn()
-                print(f"  [diag] {type(obj).__name__}.{method}() -> {type(val).__name__}: {repr(val)[:200]}", flush=True)
-                if isinstance(val, bytes):
-                    val = val.decode()
-                if val and isinstance(val, str):
-                    return val
+                val_repr = repr(val)[:300] if not isinstance(val, str) else repr(val[:300])
+                print(f"  [diag] {obj_label}.{method}() -> {type(val).__name__}: {val_repr}", flush=True)
+                if method in ("get_model", "get_model_string"):
+                    if isinstance(val, bytes):
+                        val = val.decode()
+                    if val and isinstance(val, str):
+                        return val
+                if method == "get_progress_log" and isinstance(val, str) and val.strip():
+                    # Return last non-empty line as a possible model representation
+                    lines = [l.strip() for l in val.splitlines() if l.strip()]
+                    if lines:
+                        print(f"  [diag] last log line: {lines[-1][:200]}", flush=True)
             except Exception as _e:
-                print(f"  [diag] {type(obj).__name__}.{method}() raised: {_e}", flush=True)
+                print(f"  [diag] {obj_label}.{method}() raised {type(_e).__name__}: {_e}", flush=True)
     return None
 
 
