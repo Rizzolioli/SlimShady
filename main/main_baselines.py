@@ -205,65 +205,119 @@ def _pysr_to_sympy(estimator):
 def _gpgomea_model_str(estimator):
     """Return the GP-GOMEA best-model string, or None if unavailable."""
     ea = getattr(estimator, "_ea", None)
-    print(f"  [diag] _ea type={type(ea).__name__}", flush=True)
-
-    # Probe all methods to distinguish int-return (C++ ptr ok) vs str-return (conversion bug)
-    for obj_label, obj in [("_ea", ea), ("estimator", estimator)]:
+    for obj, label in [(estimator, "estimator"), (ea, "_ea")]:
         if obj is None:
             continue
-        for method in ("get_n_nodes", "get_evaluations",
-                        "get_model", "get_model_string", "get_progress_log"):
-            fn = getattr(obj, method, None)
+        for method_name in ("get_model", "get_model_string"):
+            fn = getattr(obj, method_name, None)
             if fn is None:
                 continue
             try:
                 val = fn()
-                val_repr = repr(val)[:300] if not isinstance(val, str) else repr(val[:300])
-                print(f"  [diag] {obj_label}.{method}() -> {type(val).__name__}: {val_repr}", flush=True)
-                if method in ("get_model", "get_model_string"):
-                    if isinstance(val, bytes):
-                        val = val.decode()
-                    if val and isinstance(val, str):
-                        return val
-                if method == "get_progress_log" and isinstance(val, str) and val.strip():
-                    # Return last non-empty line as a possible model representation
-                    lines = [l.strip() for l in val.splitlines() if l.strip()]
-                    if lines:
-                        print(f"  [diag] last log line: {lines[-1][:200]}", flush=True)
-            except Exception as _e:
-                print(f"  [diag] {obj_label}.{method}() raised {type(_e).__name__}: {_e}", flush=True)
+                if isinstance(val, bytes):
+                    val = val.decode()
+                if isinstance(val, str) and val.strip():
+                    return val.strip()
+            except Exception as exc:
+                print(f"  [gpgomea] {label}.{method_name}() raised {type(exc).__name__}: {exc}",
+                      flush=True)
     return None
 
 
 def _gpgomea_mphi(estimator):
     """
     Compute M_phi for a fitted GPGOMEARegressor by counting nodes in the
-    model string.  This avoids SymPy entirely (GP-GOMEA uses non-standard
-    prefix notation that SymPy cannot parse).
+    model string.  Falls back to get_n_nodes() for ell when no string available.
     """
     import re
     model_str = _gpgomea_model_str(estimator)
-    if not model_str:
-        return np.nan, np.nan, np.nan, np.nan, np.nan
+    if model_str:
+        _ARITH     = {"sum", "add", "mul", "sub", "div", "pdiv", "+", "-", "*", "/"}
+        _NON_ARITH = {"sqrt", "psqrt", "plog", "log", "log2", "log10",
+                      "exp", "sin", "cos", "abs", "sigmoid", "psin", "pcos"}
+        tokens   = re.findall(r'[A-Za-z_][A-Za-z0-9_]*|[+\-*/]', model_str)
+        no       = sum(1 for t in tokens if t.lower() in _ARITH)
+        nnao     = sum(1 for t in tokens if t.lower() in _NON_ARITH)
+        nnaoc    = 1 if nnao > 0 else 0
+        n_vars   = len(re.findall(r'\b[Xx]\d+\b', model_str))
+        n_consts = len(re.findall(
+            r'(?<![A-Za-z_])\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?(?![A-Za-z_])',
+            model_str))
+        ell   = no + nnao + n_vars + n_consts
+        m_phi = 79.1 - 0.2 * ell - 0.5 * no - 3.4 * nnao - 4.5 * nnaoc
+        return m_phi, ell, no, nnao, nnaoc
 
-    # Arithmetic operators (lower-cased for matching)
-    _ARITH    = {"sum", "add", "mul", "sub", "div", "pdiv", "+", "-", "*", "/"}
-    # Non-arithmetic operators
-    _NON_ARITH = {"sqrt", "psqrt", "plog", "log", "log2", "log10",
-                  "exp", "sin", "cos", "abs", "sigmoid", "psin", "pcos"}
+    # Fallback: use get_n_nodes() for ell only
+    ea = getattr(estimator, "_ea", None)
+    if ea is not None:
+        try:
+            n = ea.get_n_nodes()
+            if isinstance(n, int) and n > 0:
+                return np.nan, n, np.nan, np.nan, np.nan
+        except Exception:
+            pass
+    return np.nan, np.nan, np.nan, np.nan, np.nan
 
-    tokens = re.findall(r'[A-Za-z_][A-Za-z0-9_]*|[+\-*/]', model_str)
-    no    = sum(1 for t in tokens if t.lower() in _ARITH)
-    nnao  = sum(1 for t in tokens if t.lower() in _NON_ARITH)
-    nnaoc = 1 if nnao > 0 else 0
 
-    n_vars   = len(re.findall(r'\b[Xx]\d+\b', model_str))
-    n_consts = len(re.findall(
-        r'(?<![A-Za-z_])\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?(?![A-Za-z_])',
-        model_str))
-    ell   = no + nnao + n_vars + n_consts
-    m_phi = 79.1 - 0.2 * ell - 0.5 * no - 3.4 * nnao - 4.5 * nnaoc
-    return m_phi, ell, no, nnao, nnaoc
+def _parse_gpgomea_lisp(model_str):
+    """
+    Parse GP-GOMEA's Lisp-prefix notation — e.g. (+ X0 (* X1 2.5)) — into SymPy.
+    Returns None if parsing fails.
+    """
+    import sympy as sp, re
+    tokens = re.findall(r'\(|\)|[^\s()]+', model_str)
+    idx = [0]
+
+    _BIN = {
+        '+': lambda a, b: a + b, 'add': lambda a, b: a + b,
+        '-': lambda a, b: a - b, 'sub': lambda a, b: a - b,
+        '*': lambda a, b: a * b, 'mul': lambda a, b: a * b,
+        '/': lambda a, b: a / b, 'div': lambda a, b: a / b,
+        'pdiv': lambda a, b: a / b,
+    }
+    _UN = {
+        'sqrt':   lambda a: sp.sqrt(sp.Abs(a)),
+        'psqrt':  lambda a: sp.sqrt(sp.Abs(a)),
+        'log':    lambda a: sp.log(sp.Abs(a)),
+        'plog':   lambda a: sp.log(sp.Abs(a)),
+        'ln':     lambda a: sp.log(sp.Abs(a)),
+        'exp':    sp.exp,
+        'sin':    sp.sin,  'psin': sp.sin,
+        'cos':    sp.cos,  'pcos': sp.cos,
+        'abs':    sp.Abs,
+        'neg':    lambda a: -a,
+        'square': lambda a: a ** 2,
+    }
+
+    def _parse():
+        if idx[0] >= len(tokens):
+            raise ValueError("EOF")
+        tok = tokens[idx[0]]; idx[0] += 1
+        if tok != '(':
+            m = re.match(r'^[Xx](\d+)$', tok)
+            if m:
+                return sp.Symbol(f'x{m.group(1)}')
+            return sp.Float(tok)
+        op = tokens[idx[0]]; idx[0] += 1
+        args = []
+        while idx[0] < len(tokens) and tokens[idx[0]] != ')':
+            args.append(_parse())
+        if idx[0] < len(tokens):
+            idx[0] += 1
+        op_l = op.lower()
+        if op_l in _BIN and len(args) == 2:
+            return _BIN[op_l](*args)
+        if op_l in _UN and len(args) == 1:
+            return _UN[op_l](*args)
+        if op_l == 'sum':
+            return sum(args)
+        raise ValueError(f"Unknown: {op!r}/{len(args)} args")
+
+    try:
+        expr = _parse()
+        return expr if idx[0] == len(tokens) else None
+    except Exception:
+        return None
 
 
 def _gpgomea_to_sympy(estimator):
@@ -272,12 +326,14 @@ def _gpgomea_to_sympy(estimator):
     model_str = _gpgomea_model_str(estimator)
     if not model_str:
         return None
-    # Normalise variable names: X0 → x0
     model_str = re.sub(r'\bX(\d+)\b', r'x\1', model_str)
+    # First try SymPy sympify (works for infix / simple expressions)
     try:
         return sp.sympify(model_str)
     except Exception:
-        return None
+        pass
+    # Fall back to custom Lisp-prefix parser
+    return _parse_gpgomea_lisp(model_str)
 
 
 # ── Baseline construction ──────────────────────────────────────────────────────
@@ -485,8 +541,6 @@ def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
         t0        = time.time()
         estimator.fit(X_tr, y_tr)
         runtime   = time.time() - t0
-        if algo_name == "GP-GOMEA":
-            print(f"  [diag] fit() took {runtime:.1f}s  _ea type={type(getattr(estimator,'_ea',None)).__name__}", flush=True)
 
         y_pred = np.asarray(estimator.predict(X_te), dtype=np.float64)
         y_pred = np.where(np.isfinite(y_pred), y_pred, np.nanmedian(y_tr))
@@ -502,10 +556,6 @@ def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
             # Count nodes directly from the C++ model string; SymPy parsing
             # attempted additionally for the simplification step.
             m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = _gpgomea_mphi(estimator)
-            if np.isnan(m_phi_b):
-                raise RuntimeError(
-                    "M_phi unavailable: _ea.get_model() returned nothing — "
-                    "check that the GP-GOMEA C++ object exposes get_model()")
             expr = _to_sympy_expr(algo_key, estimator, X_tr)
             if expr is not None:
                 # If SymPy did parse, prefer its counts (more accurate)
@@ -577,14 +627,14 @@ if __name__ == "__main__":
         try:
             done = pd.read_csv(log_path,
                                usecols=["algo", "dataset", "seed",
-                                        "test_rmse", "m_phi_before"])
+                                        "test_rmse", "ell_before"])
             for _, r in done.iterrows():
                 has_rmse = pd.notna(r["test_rmse"]) and str(r["test_rmse"]).strip() != ""
-                has_mphi = pd.notna(r["m_phi_before"]) and str(r["m_phi_before"]).strip() != ""
+                has_ell  = pd.notna(r["ell_before"])  and str(r["ell_before"]).strip()  != ""
                 if not has_rmse:
                     continue
-                # GP-GOMEA rows are only complete when M_phi was also recorded.
-                if str(r["algo"]) == "GP-GOMEA" and not has_mphi:
+                # GP-GOMEA: require at least ell_before (from token-count or get_n_nodes).
+                if str(r["algo"]) == "GP-GOMEA" and not has_ell:
                     continue
                 completed.add((str(r["algo"]), str(r["dataset"]), int(r["seed"])))
         except Exception:
@@ -641,18 +691,41 @@ if __name__ == "__main__":
     t0 = time.time()
     done_n = 0
 
+    # Non-daemonic Processes for GP-GOMEA (Boost.Python needs a fresh interpreter).
+    # Run up to N_WORKERS concurrently; hard-cap each seed at 6 minutes.
+    _SEED_TIMEOUT = 360
+    running = []   # list of (process, start_time)
+
+    def _reap(running, done_n):
+        still = []
+        for proc, t_start in running:
+            if proc.is_alive():
+                if time.time() - t_start > _SEED_TIMEOUT:
+                    proc.terminate()
+                    proc.join()
+                    done_n += 1
+                    if done_n % 10 == 0 or done_n == total:
+                        print(f"  {done_n}/{total}  ({(time.time()-t0)/60:.1f} min)")
+                else:
+                    still.append((proc, t_start))
+            else:
+                proc.join()
+                done_n += 1
+                if done_n % 10 == 0 or done_n == total:
+                    print(f"  {done_n}/{total}  ({(time.time()-t0)/60:.1f} min)")
+        return still, done_n
+
     for args in gomea_tasks:
-        # Non-daemonic Process: gets a fresh Python interpreter + clean
-        # dynamic-library state, inheriting the env vars set above.
+        while len(running) >= N_WORKERS:
+            time.sleep(0.5)
+            running, done_n = _reap(running, done_n)
         p = multiprocessing.Process(target=_run_one, args=args)
         p.start()
-        p.join(timeout=360)   # 6-minute hard cap per seed
-        if p.is_alive():
-            p.terminate()
-            p.join()
-        done_n += 1
-        if done_n % 10 == 0 or done_n == total:
-            print(f"  {done_n}/{total}  ({(time.time()-t0)/60:.1f} min)")
+        running.append((p, time.time()))
+
+    while running:
+        time.sleep(0.5)
+        running, done_n = _reap(running, done_n)
 
     with multiprocessing.Pool(processes=N_WORKERS) as pool:
         for _ in pool.starmap(_run_one, pool_tasks):
