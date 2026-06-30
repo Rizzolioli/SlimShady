@@ -205,18 +205,24 @@ def _pysr_to_sympy(estimator):
 def _gpgomea_model_str(estimator):
     """Return the GP-GOMEA best-model string, or None if unavailable."""
     ea = getattr(estimator, "_ea", None)
+    print(f"  [diag] _ea type={type(ea).__name__}  ea={repr(ea)[:80]}", flush=True)
     for obj in (ea, estimator):
         if obj is None:
             continue
         for method in ("get_model", "get_model_string"):
+            fn = getattr(obj, method, None)
+            if fn is None:
+                print(f"  [diag] {type(obj).__name__}.{method} not found", flush=True)
+                continue
             try:
-                val = getattr(obj, method)()
+                val = fn()
+                print(f"  [diag] {type(obj).__name__}.{method}() -> {type(val).__name__}: {repr(val)[:200]}", flush=True)
                 if isinstance(val, bytes):
                     val = val.decode()
                 if val and isinstance(val, str):
                     return val
-            except Exception:
-                pass
+            except Exception as _e:
+                print(f"  [diag] {type(obj).__name__}.{method}() raised: {_e}", flush=True)
     return None
 
 
@@ -440,6 +446,8 @@ def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
         t0        = time.time()
         estimator.fit(X_tr, y_tr)
         runtime   = time.time() - t0
+        if algo_name == "GP-GOMEA":
+            print(f"  [diag] fit() took {runtime:.1f}s  _ea type={type(getattr(estimator,'_ea',None)).__name__}", flush=True)
 
         y_pred = np.asarray(estimator.predict(X_te), dtype=np.float64)
         y_pred = np.where(np.isfinite(y_pred), y_pred, np.nanmedian(y_tr))
