@@ -204,8 +204,6 @@ def _pysr_to_sympy(estimator):
 
 def _gpgomea_model_str(estimator):
     """Return the GP-GOMEA best-model string, or None if unavailable."""
-    # The model lives in the C++ _ea object.  Try several method names that
-    # different GP-GOMEA versions expose.
     ea = getattr(estimator, "_ea", None)
     for obj in (ea, estimator):
         if obj is None:
@@ -218,6 +216,10 @@ def _gpgomea_model_str(estimator):
                     return val
             except Exception:
                 pass
+    # Nothing found — print available attributes so we can fix the method name.
+    if ea is not None:
+        public = [m for m in dir(ea) if not m.startswith("__")]
+        print(f"  [debug] _ea type={type(ea).__name__}  attrs={public}", flush=True)
     return None
 
 

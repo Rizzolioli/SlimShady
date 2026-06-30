@@ -38,6 +38,8 @@ BASELINE_CSV = os.path.join(_LOG, "results_baselines.csv")
 SLIM_CSV     = os.path.join(_LOG, "results_normalized_simplification.csv")
 OUT_PANEL    = os.path.join(_FIGS, "baselines_scatter_panel.png")
 OUT_AGG      = os.path.join(_FIGS, "baselines_scatter_agg.png")
+OUT_PANEL_R2 = os.path.join(_FIGS, "baselines_scatter_panel_r2.png")
+OUT_AGG_R2   = os.path.join(_FIGS, "baselines_scatter_agg_r2.png")
 
 ALL_SLIM = ["SLIM+2SIG","SLIM*2SIG","SLIM+1SIG","SLIM*1SIG",
             "SLIM+ABS","SLIM*ABS","SLIM+NORM1","SLIM*NORM1","SLIM+NORM2","SLIM*NORM2"]
@@ -52,7 +54,6 @@ ROLE_STYLES = {
 BASELINE_STYLES = {
     "GPLearn": dict(label="GPLearn", color="#d62728", marker="D"),
     "Operon":  dict(label="Operon",  color="#9467bd", marker="P"),
-    "PySR":    dict(label="PySR",    color="#8c564b", marker="X"),
 }
 BASELINE_KEYS = list(BASELINE_STYLES)
 
@@ -272,3 +273,192 @@ ax2.legend(handles=handles2, fontsize=8.5, loc="best")
 plt.savefig(OUT_AGG, dpi=150, bbox_inches="tight")
 plt.close()
 print(f"Saved: {OUT_AGG}")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# R² SCATTER PLOTS  (no normalisation needed — higher is better)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── build R² medians ──────────────────────────────────────────────────────────
+r2_cols = ["algo", "dataset", "seed", "test_r2", "m_phi_after"]
+
+slim_r2 = slim_raw[["algo", "dataset", "seed", "test_r2", "m_phi_after"]].copy()
+bl_r2   = bl_raw  [["algo", "dataset", "seed", "test_r2", "m_phi_after"]].copy()
+
+combined_r2 = pd.concat([slim_r2, bl_r2], ignore_index=True)
+combined_r2 = combined_r2[combined_r2["dataset"].isin(DATASETS)]
+
+med_r2 = (combined_r2
+          .groupby(["algo", "dataset"])
+          .agg(m_phi=("m_phi_after", "median"),
+               r2=("test_r2", "median"))
+          .reset_index())
+med_r2["neg_mphi"] = -med_r2["m_phi"]
+
+# GP-GOMEA R² (no M_phi)
+gp_gomea_r2 = (gp_gomea_raw
+               .groupby("dataset")["test_r2"]
+               .median()
+               .reindex(DATASETS))
+
+# ── pick roles per dataset using R² ───────────────────────────────────────────
+ROLE_STYLES_R2 = {
+    "best_r2":   dict(label="Best R²",        color="#1f77b4", marker="o"),
+    "best_mphi": dict(label="Best M$_\\phi$", color="#2ca02c", marker="s"),
+    "middle":    dict(label="Middle",          color="#ff7f0e", marker="^"),
+}
+
+def pick_roles_r2(ds):
+    sub = med_r2[(med_r2["algo"].isin(ALL_SLIM)) & (med_r2["dataset"] == ds)].copy()
+    sub["r2_rank"]   = sub["r2"].rank(ascending=False)   # rank 1 = highest R²
+    sub["mphi_rank"] = sub["m_phi"].rank(ascending=False)
+    sub["avg_rank"]  = (sub["r2_rank"] + sub["mphi_rank"]) / 2
+
+    best_r2   = sub.loc[sub["r2_rank"].idxmin()]
+    best_mphi = sub.loc[sub["mphi_rank"].idxmin()]
+    rest      = sub[~sub["algo"].isin({best_r2["algo"], best_mphi["algo"]})]
+    middle    = rest.loc[rest["avg_rank"].idxmin()]
+    return {"best_r2": best_r2, "best_mphi": best_mphi, "middle": middle}
+
+roles_r2_by_ds = {ds: pick_roles_r2(ds) for ds in DATASETS}
+
+# ── PANEL PLOT (R²) ───────────────────────────────────────────────────────────
+fig, axes = plt.subplots(2, 3, figsize=(14, 8.5), constrained_layout=True)
+axes = axes.flatten()
+
+for i, ds in enumerate(DATASETS):
+    ax    = axes[i]
+    roles = roles_r2_by_ds[ds]
+
+    # GP-GOMEA horizontal reference line
+    gp_y = gp_gomea_r2.get(ds, np.nan)
+    if not np.isnan(gp_y):
+        ax.axhline(gp_y, color=GPGOMEA_COLOR, linestyle="--",
+                   linewidth=1.4, zorder=2, alpha=0.85)
+        ax.annotate("GP-GOMEA", xy=(1, gp_y), xycoords=("axes fraction", "data"),
+                    xytext=(-4, 3), textcoords="offset points",
+                    fontsize=6.5, color=GPGOMEA_COLOR, ha="right", va="bottom")
+
+    for role, row in roles.items():
+        st = ROLE_STYLES_R2[role]
+        ax.scatter(row["m_phi"], row["r2"],
+                   color=st["color"], marker=st["marker"],
+                   s=110, linewidths=0.8, edgecolors="k", zorder=4)
+        ax.annotate(row["algo"],
+                    xy=(row["m_phi"], row["r2"]),
+                    xytext=(4, 3), textcoords="offset points",
+                    fontsize=6.5, color=st["color"])
+
+    for _, row in med_r2[(med_r2["algo"].isin(BASELINE_KEYS)) &
+                         (med_r2["dataset"] == ds)].iterrows():
+        st = BASELINE_STYLES[row["algo"]]
+        ax.scatter(row["m_phi"], row["r2"],
+                   color=st["color"], marker=st["marker"],
+                   s=90, linewidths=0.7, edgecolors="k", zorder=3)
+
+    r = roles
+    subtitle = (f"R²: {r['best_r2']['algo']}  |  "
+                f"Mφ: {r['best_mphi']['algo']}  |  "
+                f"mid: {r['middle']['algo']}")
+    ax.set_title(f"{DS_LABELS[ds]}\n{subtitle}", fontsize=8, fontweight="bold")
+    ax.set_xlabel("M$_\\phi$  (higher = more interpretable)", fontsize=8)
+    ax.set_ylabel("Test R²  (higher = better)", fontsize=8)
+    ax.tick_params(labelsize=7)
+
+slim_handles_r2 = [
+    plt.Line2D([0],[0], marker=ROLE_STYLES_R2[r]["marker"],
+               color=ROLE_STYLES_R2[r]["color"], linestyle="None",
+               markersize=8, markeredgecolor="k", markeredgewidth=0.5,
+               label=f"SLIM – {ROLE_STYLES_R2[r]['label']}")
+    for r in ROLE_STYLES_R2
+]
+bl_handles_r2 = [
+    plt.Line2D([0],[0], marker=BASELINE_STYLES[a]["marker"],
+               color=BASELINE_STYLES[a]["color"], linestyle="None",
+               markersize=8, markeredgecolor="k", markeredgewidth=0.5,
+               label=a)
+    for a in BASELINE_KEYS
+]
+gp_handle_r2 = [plt.Line2D([0],[0], color=GPGOMEA_COLOR, linestyle="--",
+                            linewidth=1.5, label="GP-GOMEA (M$_\\phi$ N/A)")]
+fig.legend(handles=slim_handles_r2 + bl_handles_r2 + gp_handle_r2,
+           loc="lower center", ncol=7,
+           fontsize=8.5, frameon=True, bbox_to_anchor=(0.5, -0.04))
+fig.suptitle("M$_\\phi$ vs Test R² — medians over 30 seeds  (both axes: higher = better)",
+             fontsize=10)
+plt.savefig(OUT_PANEL_R2, dpi=150, bbox_inches="tight")
+plt.close()
+print(f"Saved: {OUT_PANEL_R2}")
+
+# ── AGGREGATE PLOT (R²) ───────────────────────────────────────────────────────
+agg_r2_rows = []
+for ds, roles in roles_r2_by_ds.items():
+    for role, row in roles.items():
+        agg_r2_rows.append({"role": role, "m_phi": row["m_phi"], "r2": row["r2"]})
+agg_slim_r2 = (pd.DataFrame(agg_r2_rows)
+               .groupby("role")
+               .agg(m_phi=("m_phi", "median"),
+                    r2=("r2", "median"))
+               .reset_index())
+
+bl_agg_r2 = (med_r2[med_r2["algo"].isin(BASELINE_KEYS)]
+             .groupby("algo")
+             .agg(m_phi=("m_phi", "median"),
+                  r2=("r2", "median"))
+             .reset_index())
+
+gp_gomea_agg_r2 = gp_gomea_r2.median()
+
+fig3, ax3 = plt.subplots(figsize=(7, 5), constrained_layout=True)
+
+ax3.axhline(gp_gomea_agg_r2, color=GPGOMEA_COLOR, linestyle="--",
+            linewidth=1.5, zorder=2, alpha=0.85)
+ax3.annotate("GP-GOMEA\n(M$_\\phi$ N/A)",
+             xy=(1, gp_gomea_agg_r2), xycoords=("axes fraction", "data"),
+             xytext=(-6, 4), textcoords="offset points",
+             fontsize=8, color=GPGOMEA_COLOR, ha="right", va="bottom")
+
+for _, row in agg_slim_r2.iterrows():
+    st = ROLE_STYLES_R2[row["role"]]
+    ax3.scatter(row["m_phi"], row["r2"],
+                color=st["color"], marker=st["marker"],
+                s=130, linewidths=0.8, edgecolors="k", zorder=4)
+    ax3.annotate(f"SLIM\n({st['label']})",
+                 xy=(row["m_phi"], row["r2"]),
+                 xytext=(6, 4), textcoords="offset points",
+                 fontsize=8, color=st["color"])
+
+for _, row in bl_agg_r2.iterrows():
+    st = BASELINE_STYLES[row["algo"]]
+    ax3.scatter(row["m_phi"], row["r2"],
+                color=st["color"], marker=st["marker"],
+                s=120, linewidths=0.8, edgecolors="k", zorder=3)
+    ax3.annotate(st["label"],
+                 xy=(row["m_phi"], row["r2"]),
+                 xytext=(6, 4), textcoords="offset points",
+                 fontsize=8, color=st["color"])
+
+ax3.set_xlabel("M$_\\phi$  (higher = more interpretable)", fontsize=10)
+ax3.set_ylabel("Test R²  (higher = better)", fontsize=9)
+ax3.set_title("M$_\\phi$ vs R² — medians across 6 datasets × 30 seeds  (both axes: higher = better)",
+              fontsize=10)
+ax3.tick_params(labelsize=8)
+
+handles3 = [
+    plt.Line2D([0],[0], marker=ROLE_STYLES_R2[r]["marker"],
+               color=ROLE_STYLES_R2[r]["color"], linestyle="None",
+               markersize=9, markeredgecolor="k", markeredgewidth=0.5,
+               label=f"SLIM – {ROLE_STYLES_R2[r]['label']}")
+    for r in ROLE_STYLES_R2
+] + [
+    plt.Line2D([0],[0], marker=BASELINE_STYLES[a]["marker"],
+               color=BASELINE_STYLES[a]["color"], linestyle="None",
+               markersize=9, markeredgecolor="k", markeredgewidth=0.5,
+               label=a)
+    for a in BASELINE_KEYS
+] + [plt.Line2D([0],[0], color=GPGOMEA_COLOR, linestyle="--",
+                linewidth=1.5, label="GP-GOMEA (M$_\\phi$ N/A)")]
+ax3.legend(handles=handles3, fontsize=8.5, loc="best")
+
+plt.savefig(OUT_AGG_R2, dpi=150, bbox_inches="tight")
+plt.close()
+print(f"Saved: {OUT_AGG_R2}")
