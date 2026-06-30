@@ -343,10 +343,21 @@ def _make_estimator(algo_key, seed):
             if not getattr(_gpmod, "_init_patched", False):
                 _Orig = _gpmod.GPGOMEA
 
-                class _GPGOMEAFactory:
-                    """Callable that returns real gpgomea.GPGOMEA instances.
-                    Replaces the class so that GPGOMEA(hp_string) still works
-                    while bypassing the Boost.Python NoneType __init__ bug."""
+                class _FactoryMeta(type):
+                    # Boost.Python method wrappers call isinstance(self, gpgomea.GPGOMEA)
+                    # before dispatching to C++.  After we replace gpgomea.GPGOMEA with
+                    # our factory *instance* (not a type), isinstance raises TypeError
+                    # because arg-2 is not a type.  Boost.Python then clears the error
+                    # and returns NULL → SystemError on every method call.
+                    # __instancecheck__ on the factory's metaclass intercepts that call
+                    # and returns True for real gpgomea.GPGOMEA objects.
+                    def __instancecheck__(cls, instance):
+                        return type(instance) is _Orig
+
+                class _GPGOMEAFactory(metaclass=_FactoryMeta):
+                    """Callable that returns real gpgomea.GPGOMEA instances,
+                    bypassing the Boost.Python < 1.79 bug where __init__ raises
+                    TypeError because it returns NoneType instead of None."""
                     def __call__(self, *args, **kwargs):
                         obj = _Orig.__new__(_Orig)
                         try:
