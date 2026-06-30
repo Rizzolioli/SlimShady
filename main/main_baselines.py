@@ -342,8 +342,10 @@ def _make_estimator(algo_key, seed):
                 import ctypes as _ct
 
                 # initproc: int (*)(PyObject *self, PyObject *args, PyObject *kwds)
+                # Use c_void_p (not py_object) so that kwds=NULL from C is
+                # received as 0/None rather than raising ValueError: PyObject is NULL.
                 _INITPROC = _ct.CFUNCTYPE(
-                    _ct.c_int, _ct.py_object, _ct.py_object, _ct.py_object)
+                    _ct.c_int, _ct.c_void_p, _ct.c_void_p, _ct.c_void_p)
 
                 # tp_init offset in PyTypeObject (Python 3.x, 64-bit):
                 # ob_refcnt(8) ob_type(8) ob_size(8) tp_name(8) tp_basicsize(8)
