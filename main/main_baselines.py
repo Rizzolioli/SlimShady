@@ -343,21 +343,33 @@ def _make_estimator(algo_key, seed):
             if not getattr(_gpmod, "_init_patched", False):
                 _Orig = _gpmod.GPGOMEA
 
-                class _FactoryMeta(type):
-                    # Boost.Python method wrappers call isinstance(self, gpgomea.GPGOMEA)
-                    # before dispatching to C++.  After we replace gpgomea.GPGOMEA with
-                    # our factory *instance* (not a type), isinstance raises TypeError
-                    # because arg-2 is not a type.  Boost.Python then clears the error
-                    # and returns NULL → SystemError on every method call.
-                    # __instancecheck__ on the factory's metaclass intercepts that call
-                    # and returns True for real gpgomea.GPGOMEA objects.
-                    def __instancecheck__(cls, instance):
+                class _GPGOMEAFactory:
+                    """Callable stored as gpgomea.GPGOMEA, returns real C++ instances.
+
+                    Two Boost.Python < 1.79 bugs are fixed here:
+
+                    1. __init__ NoneType bug: GPGOMEA.__init__ returns NoneType
+                       instead of None, so slot_tp_init raises TypeError even
+                       though the C++ ctor already ran successfully.  We bypass
+                       type.__call__ entirely via __new__ + __init__ and swallow
+                       that specific TypeError.
+
+                    2. isinstance TypeError → SystemError: Boost.Python method
+                       wrappers call isinstance(self, gpgomea.GPGOMEA) before
+                       dispatching to C++.  After we store this factory *instance*
+                       (not a type) as gpgomea.GPGOMEA, Python's isinstance raises
+                       TypeError ("arg 2 must be a type"); Boost.Python clears that
+                       error and returns NULL, giving SystemError on every C++ call.
+                       __instancecheck__ defined here is found by Python at
+                       type(factory_instance).__instancecheck__, making
+                       isinstance(real_ea, factory) return True so dispatch works.
+                    """
+
+                    def __instancecheck__(self, instance):
+                        # isinstance(x, gpgomea.GPGOMEA) where gpgomea.GPGOMEA is
+                        # this factory instance: return True for real GPGOMEA objects.
                         return type(instance) is _Orig
 
-                class _GPGOMEAFactory(metaclass=_FactoryMeta):
-                    """Callable that returns real gpgomea.GPGOMEA instances,
-                    bypassing the Boost.Python < 1.79 bug where __init__ raises
-                    TypeError because it returns NoneType instead of None."""
                     def __call__(self, *args, **kwargs):
                         obj = _Orig.__new__(_Orig)
                         try:
