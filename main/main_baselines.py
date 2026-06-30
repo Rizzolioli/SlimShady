@@ -202,16 +202,66 @@ def _pysr_to_sympy(estimator):
         return None
 
 
+def _gpgomea_model_str(estimator):
+    """Return the GP-GOMEA best-model string, or None if unavailable."""
+    # The model lives in the C++ _ea object.  Try several method names that
+    # different GP-GOMEA versions expose.
+    ea = getattr(estimator, "_ea", None)
+    for obj in (ea, estimator):
+        if obj is None:
+            continue
+        for method in ("get_model", "get_model_string", "get_best",
+                       "get_best_model", "get_solution"):
+            try:
+                val = getattr(obj, method)()
+                if val and isinstance(val, str):
+                    return val
+            except Exception:
+                pass
+    return None
+
+
+def _gpgomea_mphi(estimator):
+    """
+    Compute M_phi for a fitted GPGOMEARegressor by counting nodes in the
+    model string.  This avoids SymPy entirely (GP-GOMEA uses non-standard
+    prefix notation that SymPy cannot parse).
+    """
+    import re
+    model_str = _gpgomea_model_str(estimator)
+    if not model_str:
+        return np.nan, np.nan, np.nan, np.nan, np.nan
+
+    # Arithmetic operators (lower-cased for matching)
+    _ARITH    = {"sum", "add", "mul", "sub", "div", "pdiv", "+", "-", "*", "/"}
+    # Non-arithmetic operators
+    _NON_ARITH = {"sqrt", "psqrt", "plog", "log", "log2", "log10",
+                  "exp", "sin", "cos", "abs", "sigmoid", "psin", "pcos"}
+
+    tokens = re.findall(r'[A-Za-z_][A-Za-z0-9_]*|[+\-*/]', model_str)
+    no    = sum(1 for t in tokens if t.lower() in _ARITH)
+    nnao  = sum(1 for t in tokens if t.lower() in _NON_ARITH)
+    nnaoc = 1 if nnao > 0 else 0
+
+    n_vars   = len(re.findall(r'\b[Xx]\d+\b', model_str))
+    n_consts = len(re.findall(
+        r'(?<![A-Za-z_])\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?(?![A-Za-z_])',
+        model_str))
+    ell   = no + nnao + n_vars + n_consts
+    m_phi = 79.1 - 0.2 * ell - 0.5 * no - 3.4 * nnao - 4.5 * nnaoc
+    return m_phi, ell, no, nnao, nnaoc
+
+
 def _gpgomea_to_sympy(estimator):
-    import sympy as sp
-    for getter in ("get_model", "get_model_string"):
-        try:
-            model_str = getattr(estimator, getter)()
-            return sp.sympify(model_str)
-        except Exception:
-            pass
+    """Try to convert the GP-GOMEA model string to a SymPy expression."""
+    import sympy as sp, re
+    model_str = _gpgomea_model_str(estimator)
+    if not model_str:
+        return None
+    # Normalise variable names: X0 → x0
+    model_str = re.sub(r'\bX(\d+)\b', r'x\1', model_str)
     try:
-        return sp.sympify(str(estimator))
+        return sp.sympify(model_str)
     except Exception:
         return None
 
@@ -400,6 +450,20 @@ def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
         if algo_name == "GPLearn":
             m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = _gplearn_m_phi(estimator)
             expr = _to_sympy_expr(algo_key, estimator, X_tr)
+        elif algo_name == "GP-GOMEA":
+            # Count nodes directly from the C++ model string; SymPy parsing
+            # attempted additionally for the simplification step.
+            m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = _gpgomea_mphi(estimator)
+            if np.isnan(m_phi_b):
+                raise RuntimeError(
+                    "M_phi unavailable: _ea.get_model() returned nothing — "
+                    "check that the GP-GOMEA C++ object exposes get_model()")
+            expr = _to_sympy_expr(algo_key, estimator, X_tr)
+            if expr is not None:
+                # If SymPy did parse, prefer its counts (more accurate)
+                mp, el, no_, nn, nnc = _sympy_m_phi(expr)
+                if not np.isnan(mp):
+                    m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = mp, el, no_, nn, nnc
         else:
             expr = _to_sympy_expr(algo_key, estimator, X_tr)
             if expr is not None:
@@ -463,10 +527,18 @@ if __name__ == "__main__":
     completed = set()
     if os.path.exists(log_path):
         try:
-            done = pd.read_csv(log_path, usecols=["algo", "dataset", "seed", "test_rmse"])
+            done = pd.read_csv(log_path,
+                               usecols=["algo", "dataset", "seed",
+                                        "test_rmse", "m_phi_before"])
             for _, r in done.iterrows():
-                if pd.notna(r["test_rmse"]) and str(r["test_rmse"]).strip() != "":
-                    completed.add((str(r["algo"]), str(r["dataset"]), int(r["seed"])))
+                has_rmse = pd.notna(r["test_rmse"]) and str(r["test_rmse"]).strip() != ""
+                has_mphi = pd.notna(r["m_phi_before"]) and str(r["m_phi_before"]).strip() != ""
+                if not has_rmse:
+                    continue
+                # GP-GOMEA rows are only complete when M_phi was also recorded.
+                if str(r["algo"]) == "GP-GOMEA" and not has_mphi:
+                    continue
+                completed.add((str(r["algo"]), str(r["dataset"]), int(r["seed"])))
         except Exception:
             pass
 

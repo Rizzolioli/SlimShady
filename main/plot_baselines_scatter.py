@@ -14,6 +14,9 @@ Per dataset, three SLIM variants are selected:
   - middle     : best average rank on (RMSE rank + M_phi rank),
                  excluding the two already selected above
 
+GP-GOMEA is included as a horizontal dashed line (RMSE only) because M_phi
+was not extracted from its C++ expression tree during the run.
+
 Run from project root:
     python main/plot_baselines_scatter.py
 """
@@ -39,19 +42,22 @@ OUT_AGG      = os.path.join(_FIGS, "baselines_scatter_agg.png")
 ALL_SLIM = ["SLIM+2SIG","SLIM*2SIG","SLIM+1SIG","SLIM*1SIG",
             "SLIM+ABS","SLIM*ABS","SLIM+NORM1","SLIM*NORM1","SLIM+NORM2","SLIM*NORM2"]
 
-# role → visual style
 ROLE_STYLES = {
-    "best_rmse": dict(label="Best RMSE",  color="#1f77b4", marker="o"),
-    "best_mphi": dict(label="Best M$_\\phi$", color="#2ca02c", marker="s"),
-    "middle":    dict(label="Middle",     color="#ff7f0e", marker="^"),
+    "best_rmse": dict(label="Best RMSE",       color="#1f77b4", marker="o"),
+    "best_mphi": dict(label="Best M$_\\phi$",  color="#2ca02c", marker="s"),
+    "middle":    dict(label="Middle",           color="#ff7f0e", marker="^"),
 }
 
+# baselines with M_phi (scatter points)
 BASELINE_STYLES = {
     "GPLearn": dict(label="GPLearn", color="#d62728", marker="D"),
     "Operon":  dict(label="Operon",  color="#9467bd", marker="P"),
     "PySR":    dict(label="PySR",    color="#8c564b", marker="X"),
 }
 BASELINE_KEYS = list(BASELINE_STYLES)
+
+# GP-GOMEA: RMSE available, M_phi not — shown as horizontal reference line
+GPGOMEA_COLOR = "#17becf"
 
 DATASETS = ["concrete", "energy", "instanbul", "ppb", "resid_build_sale_price", "toxicity"]
 DS_LABELS = {
@@ -71,11 +77,13 @@ slim_raw["m_phi_after"] = slim_raw[["m_phi_after", "m_phi_before"]].max(axis=1)
 
 # ── load baselines ─────────────────────────────────────────────────────────────
 bl_raw = pd.read_csv(BASELINE_CSV)
-bl_raw = bl_raw[bl_raw["algo"].isin(BASELINE_KEYS)].copy()
 bl_raw = bl_raw.dropna(subset=["test_rmse"])
 bl_raw["m_phi_after"] = bl_raw[["m_phi_after", "m_phi_before"]].max(axis=1)
 
-# ── combine & normalise ────────────────────────────────────────────────────────
+gp_gomea_raw = bl_raw[bl_raw["algo"] == "GP-GOMEA"].copy()
+bl_raw       = bl_raw[bl_raw["algo"].isin(BASELINE_KEYS)].copy()
+
+# ── combine scatter-eligible data & normalise ──────────────────────────────────
 cols = ["algo", "dataset", "seed", "test_rmse", "m_phi_after"]
 combined = pd.concat([slim_raw[cols], bl_raw[cols]], ignore_index=True)
 combined = combined[combined["dataset"].isin(DATASETS)]
@@ -83,6 +91,10 @@ combined = combined[combined["dataset"].isin(DATASETS)]
 ref = (combined[combined["algo"] == "GPLearn"]
        .groupby("dataset")["test_rmse"].median())
 combined["rmse_norm"] = combined["test_rmse"] / combined["dataset"].map(ref)
+
+# normalise GP-GOMEA with the same per-dataset reference
+gp_gomea_raw = gp_gomea_raw[gp_gomea_raw["dataset"].isin(DATASETS)].copy()
+gp_gomea_raw["rmse_norm"] = gp_gomea_raw["test_rmse"] / gp_gomea_raw["dataset"].map(ref)
 
 # ── median per (algo, dataset) ─────────────────────────────────────────────────
 med = (combined
@@ -92,11 +104,16 @@ med = (combined
        .reset_index())
 med["neg_mphi"] = -med["m_phi"]
 
+gp_gomea_med = (gp_gomea_raw
+                .groupby("dataset")["rmse_norm"]
+                .median()
+                .reindex(DATASETS))
+
 # ── pick three SLIM roles per dataset ─────────────────────────────────────────
 def pick_roles(ds):
     sub = med[(med["algo"].isin(ALL_SLIM)) & (med["dataset"] == ds)].copy()
     sub["rmse_rank"] = sub["rmse_norm"].rank()
-    sub["mphi_rank"] = sub["m_phi"].rank(ascending=False)  # higher M_phi = rank 1
+    sub["mphi_rank"] = sub["m_phi"].rank(ascending=False)
     sub["avg_rank"]  = (sub["rmse_rank"] + sub["mphi_rank"]) / 2
 
     best_rmse = sub.loc[sub["rmse_rank"].idxmin()]
@@ -112,8 +129,17 @@ fig, axes = plt.subplots(2, 3, figsize=(14, 8.5), constrained_layout=True)
 axes = axes.flatten()
 
 for i, ds in enumerate(DATASETS):
-    ax     = axes[i]
-    roles  = roles_by_ds[ds]
+    ax    = axes[i]
+    roles = roles_by_ds[ds]
+
+    # GP-GOMEA: horizontal dashed line (RMSE only, no M_phi position)
+    gp_y = gp_gomea_med.get(ds, np.nan)
+    if not np.isnan(gp_y):
+        ax.axhline(gp_y, color=GPGOMEA_COLOR, linestyle="--",
+                   linewidth=1.4, zorder=2, alpha=0.85)
+        ax.annotate("GP-GOMEA", xy=(1, gp_y), xycoords=("axes fraction", "data"),
+                    xytext=(-4, 3), textcoords="offset points",
+                    fontsize=6.5, color=GPGOMEA_COLOR, ha="right", va="bottom")
 
     # three SLIM points
     for role, row in roles.items():
@@ -126,7 +152,7 @@ for i, ds in enumerate(DATASETS):
                     xytext=(4, 3), textcoords="offset points",
                     fontsize=6.5, color=st["color"])
 
-    # baselines
+    # baselines with M_phi
     for _, row in med[(med["algo"].isin(BASELINE_KEYS)) &
                       (med["dataset"] == ds)].iterrows():
         st = BASELINE_STYLES[row["algo"]]
@@ -134,7 +160,6 @@ for i, ds in enumerate(DATASETS):
                    color=st["color"], marker=st["marker"],
                    s=90, linewidths=0.7, edgecolors="k", zorder=3)
 
-    # subtitle: name each selected variant
     r = roles
     subtitle = (f"RMSE: {r['best_rmse']['algo']}  |  "
                 f"Mφ: {r['best_mphi']['algo']}  |  "
@@ -159,7 +184,10 @@ bl_handles = [
                label=a)
     for a in BASELINE_KEYS
 ]
-fig.legend(handles=slim_handles + bl_handles, loc="lower center", ncol=6,
+gp_handle = [plt.Line2D([0],[0], color=GPGOMEA_COLOR, linestyle="--",
+                         linewidth=1.5, label="GP-GOMEA (M$_\\phi$ N/A)")]
+fig.legend(handles=slim_handles + bl_handles + gp_handle,
+           loc="lower center", ncol=7,
            fontsize=8.5, frameon=True, bbox_to_anchor=(0.5, -0.04))
 
 fig.suptitle("−M$_\\phi$ vs Normalised Test RMSE — medians over 30 seeds\n"
@@ -169,7 +197,7 @@ plt.savefig(OUT_PANEL, dpi=150, bbox_inches="tight")
 plt.close()
 print(f"Saved: {OUT_PANEL}")
 
-# ── AGGREGATE PLOT: median of each role across datasets ───────────────────────
+# ── AGGREGATE PLOT ─────────────────────────────────────────────────────────────
 agg_rows = []
 for ds, roles in roles_by_ds.items():
     for role, row in roles.items():
@@ -187,7 +215,17 @@ bl_agg = (med[med["algo"].isin(BASELINE_KEYS)]
                rmse_norm=("rmse_norm","median"))
           .reset_index())
 
+gp_gomea_agg_rmse = gp_gomea_med.median()
+
 fig2, ax2 = plt.subplots(figsize=(7, 5), constrained_layout=True)
+
+# GP-GOMEA horizontal reference line
+ax2.axhline(gp_gomea_agg_rmse, color=GPGOMEA_COLOR, linestyle="--",
+            linewidth=1.5, zorder=2, alpha=0.85)
+ax2.annotate("GP-GOMEA\n(M$_\\phi$ N/A)",
+             xy=(1, gp_gomea_agg_rmse), xycoords=("axes fraction", "data"),
+             xytext=(-6, 4), textcoords="offset points",
+             fontsize=8, color=GPGOMEA_COLOR, ha="right", va="bottom")
 
 for _, row in agg_slim.iterrows():
     st = ROLE_STYLES[row["role"]]
@@ -227,7 +265,8 @@ handles2 = [
                markersize=9, markeredgecolor="k", markeredgewidth=0.5,
                label=a)
     for a in BASELINE_KEYS
-]
+] + [plt.Line2D([0],[0], color=GPGOMEA_COLOR, linestyle="--",
+                linewidth=1.5, label="GP-GOMEA (M$_\\phi$ N/A)")]
 ax2.legend(handles=handles2, fontsize=8.5, loc="best")
 
 plt.savefig(OUT_AGG, dpi=150, bbox_inches="tight")
