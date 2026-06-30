@@ -208,17 +208,15 @@ def _gpgomea_model_str(estimator):
     for obj in (ea, estimator):
         if obj is None:
             continue
-        for method in ("get_model", "get_model_string", "get_best",
-                       "get_best_model", "get_solution"):
+        for method in ("get_model", "get_model_string"):
             try:
                 val = getattr(obj, method)()
-                print(f"  [debug] {method}() -> type={type(val).__name__} repr={repr(val)[:120]}", flush=True)
                 if isinstance(val, bytes):
                     val = val.decode()
                 if val and isinstance(val, str):
                     return val
-            except Exception as _de:
-                print(f"  [debug] {method}() raised: {_de}", flush=True)
+            except Exception:
+                pass
     return None
 
 
@@ -314,12 +312,12 @@ def _make_estimator(algo_key, seed):
         # NoneType instead of None, so slot_tp_init raises TypeError even though
         # the C++ ctor already ran.
         #
-        # Two-part fix needed:
-        #  1. Subclass GPGOMEA with a __init__ that catches the spurious TypeError.
-        #  2. GPGOMEARegressor.py binds 'GPGOMEA' at MODULE IMPORT TIME via
-        #     "from gpgomea import GPGOMEA".  That binding is captured before we
-        #     can patch gpgomea.GPGOMEA, so we must also overwrite the name in the
-        #     GPGOMEARegressor module's own __dict__.
+        # IMPORTANT: a Python subclass of GPGOMEA breaks Boost.Python's C++ pointer
+        # extraction, so C++ methods like get_model() raise "error return without
+        # exception set".  We therefore use a FACTORY CALLABLE instead of subclassing:
+        # the factory creates a real gpgomea.GPGOMEA instance via __new__ + direct
+        # __init__, catches the spurious TypeError, and returns the properly
+        # initialised object.  Boost.Python can then extract the C++ pointer cleanly.
         try:
             import pyGPGOMEA as _pgpkg, os as _os
             _gp_dir = _os.path.dirname(_pgpkg.__file__)
@@ -330,22 +328,24 @@ def _make_estimator(algo_key, seed):
             if not getattr(_gpmod, "_init_patched", False):
                 _Orig = _gpmod.GPGOMEA
 
-                class _FixedGPGOMEA(_Orig):
-                    def __init__(self, *args, **kwargs):
-                        # Boost.Python stores the C++ holder BEFORE slot_tp_init
-                        # detects the NoneType return and raises TypeError.
-                        # Catching that specific error leaves self fully initialised.
+                class _GPGOMEAFactory:
+                    """Callable that returns real gpgomea.GPGOMEA instances.
+                    Replaces the class so that GPGOMEA(hp_string) still works
+                    while bypassing the Boost.Python NoneType __init__ bug."""
+                    def __call__(self, *args, **kwargs):
+                        obj = _Orig.__new__(_Orig)
                         try:
-                            _Orig.__init__(self, *args, **kwargs)
+                            _Orig.__init__(obj, *args, **kwargs)
                         except TypeError as _e:
                             if "should return None" not in str(_e):
                                 raise
+                        return obj
 
-                _gpmod.GPGOMEA = _FixedGPGOMEA
+                _gpmod.GPGOMEA = _GPGOMEAFactory()
                 _gpmod._init_patched = True
 
-            # Overwrite the module-level 'GPGOMEA' binding that was captured at
-            # import time by GPGOMEARegressor.py's "from gpgomea import GPGOMEA".
+            # Overwrite the module-level 'GPGOMEA' binding captured at import time
+            # by GPGOMEARegressor.py's "from gpgomea import GPGOMEA".
             import importlib as _il
             _reg_mod = _il.import_module("pyGPGOMEA.GPGOMEARegressor")
             if hasattr(_reg_mod, "GPGOMEA"):
