@@ -212,14 +212,13 @@ def _gpgomea_model_str(estimator):
                        "get_best_model", "get_solution"):
             try:
                 val = getattr(obj, method)()
+                print(f"  [debug] {method}() -> type={type(val).__name__} repr={repr(val)[:120]}", flush=True)
+                if isinstance(val, bytes):
+                    val = val.decode()
                 if val and isinstance(val, str):
                     return val
-            except Exception:
-                pass
-    # Nothing found — print available attributes so we can fix the method name.
-    if ea is not None:
-        public = [m for m in dir(ea) if not m.startswith("__")]
-        print(f"  [debug] _ea type={type(ea).__name__}  attrs={public}", flush=True)
+            except Exception as _de:
+                print(f"  [debug] {method}() raised: {_de}", flush=True)
     return None
 
 
