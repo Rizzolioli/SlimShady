@@ -19,3 +19,4 @@ utils/results_analyser.ipynb
 *.pyc
 .idea/workspace.xml
 *.pkl
+main/log/results_baselines.csv.bak
