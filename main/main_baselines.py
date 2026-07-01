@@ -204,6 +204,14 @@ def _pysr_to_sympy(estimator):
 
 def _gpgomea_model_str(estimator):
     """Return the GP-GOMEA best-model string, or None if unavailable."""
+    # Primary: model string captured from C-level stdout during fit().
+    # Boost.Python's std::string→Python converter is broken in some builds
+    # (get_model() raises SystemError), so we parse Terminate()'s output instead.
+    captured = getattr(estimator, "_captured_model_str", None)
+    if captured and captured.strip():
+        return captured.strip()
+    # Fallback: try get_model() in case the Boost.Python build supports it.
+    import traceback
     ea = getattr(estimator, "_ea", None)
     for obj, label in [(estimator, "estimator"), (ea, "_ea")]:
         if obj is None:
@@ -216,11 +224,18 @@ def _gpgomea_model_str(estimator):
                 val = fn()
                 if isinstance(val, bytes):
                     val = val.decode()
-                if isinstance(val, str) and val.strip():
-                    return val.strip()
+                if not isinstance(val, str):
+                    try:
+                        val = str(val)
+                    except Exception:
+                        continue
+                s = val.strip()
+                if s and s.lower() not in ("none", "null", ""):
+                    return s
             except Exception as exc:
                 print(f"  [gpgomea] {label}.{method_name}() raised {type(exc).__name__}: {exc}",
                       flush=True)
+                traceback.print_exc()
     return None
 
 
@@ -228,21 +243,35 @@ def _gpgomea_mphi(estimator):
     """
     Compute M_phi for a fitted GPGOMEARegressor by counting nodes in the
     model string.  Falls back to get_n_nodes() for ell when no string available.
+
+    GP-GOMEA uses compound operator tokens: 'p/' (protected div) written as
+    infix inside expressions like (X1p/X2), and function calls like plog(X0),
+    sqrt(X0).  Normalise these before tokenising to avoid miscounting.
     """
     import re
     model_str = _gpgomea_model_str(estimator)
     if model_str:
-        _ARITH     = {"sum", "add", "mul", "sub", "div", "pdiv", "+", "-", "*", "/"}
+        # Normalise compound GP-GOMEA operators so the tokeniser handles them:
+        #   p/  → pdiv  (appears as "X1p/X2" in infix; replace before X→x subs)
+        #   aq0.1 → aq01 , aq → aq  (analytic quotient variants — count as arith)
+        #   ^2 → square  (square operator written as postfix)
+        norm = re.sub(r'p/',   ' pdiv ',   model_str)
+        norm = re.sub(r'aq0\.1', ' aq01 ', norm)
+        norm = re.sub(r'\^2',  ' square ', norm)
+
+        _ARITH     = {"sum", "add", "mul", "sub", "div", "pdiv",
+                      "aq", "aq01", "+", "-", "*", "/"}
         _NON_ARITH = {"sqrt", "psqrt", "plog", "log", "log2", "log10",
-                      "exp", "sin", "cos", "abs", "sigmoid", "psin", "pcos"}
-        tokens   = re.findall(r'[A-Za-z_][A-Za-z0-9_]*|[+\-*/]', model_str)
+                      "exp", "sin", "cos", "abs", "sigmoid", "psin", "pcos",
+                      "square"}
+        tokens   = re.findall(r'[A-Za-z_][A-Za-z0-9_]*|[+\-*/]', norm)
         no       = sum(1 for t in tokens if t.lower() in _ARITH)
         nnao     = sum(1 for t in tokens if t.lower() in _NON_ARITH)
         nnaoc    = 1 if nnao > 0 else 0
-        n_vars   = len(re.findall(r'\b[Xx]\d+\b', model_str))
+        n_vars   = len(re.findall(r'\b[Xx]\d+\b', norm))
         n_consts = len(re.findall(
             r'(?<![A-Za-z_])\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?(?![A-Za-z_])',
-            model_str))
+            norm))
         ell   = no + nnao + n_vars + n_consts
         m_phi = 79.1 - 0.2 * ell - 0.5 * no - 3.4 * nnao - 4.5 * nnaoc
         return m_phi, ell, no, nnao, nnaoc
@@ -251,8 +280,8 @@ def _gpgomea_mphi(estimator):
     ea = getattr(estimator, "_ea", None)
     if ea is not None:
         try:
-            n = ea.get_n_nodes()
-            if isinstance(n, int) and n > 0:
+            n = int(ea.get_n_nodes())   # Boost.Python may return size_t, not int
+            if n > 0:
                 return np.nan, n, np.nan, np.nan, np.nan
         except Exception:
             pass
@@ -326,13 +355,25 @@ def _gpgomea_to_sympy(estimator):
     model_str = _gpgomea_model_str(estimator)
     if not model_str:
         return None
-    model_str = re.sub(r'\bX(\d+)\b', r'x\1', model_str)
-    # First try SymPy sympify (works for infix / simple expressions)
+
+    # Normalise GP-GOMEA infix operators BEFORE variable substitution so that
+    # compound tokens like "X1p/X2" become "X1/X2" and not "x1p/x2".
+    s = model_str
+    s = s.replace('p/', '/')      # protected division: (X1p/X2) → (X1/X2)
+    s = s.replace('^', '**')     # square: (X0)^2 → (X0)**2
+    s = re.sub(r'\bX(\d+)\b', r'x\1', s)   # X0 → x0 etc.
+
+    # Collect variable symbols referenced in the expression
+    n_vars = max((int(m) for m in re.findall(r'x(\d+)', s)), default=-1) + 1
+    local_dict = {f'x{i}': sp.Symbol(f'x{i}') for i in range(max(n_vars, 20))}
+    # Protected log: plog(x) = log(|x|)
+    local_dict['plog'] = lambda x: sp.log(sp.Abs(x))
+
     try:
-        return sp.sympify(model_str)
+        return sp.sympify(s, locals=local_dict)
     except Exception:
         pass
-    # Fall back to custom Lisp-prefix parser
+    # Fall back to custom Lisp-prefix parser (handles prefix notation if any)
     return _parse_gpgomea_lisp(model_str)
 
 
@@ -379,88 +420,57 @@ def _make_estimator(algo_key, seed):
             random_state=seed,
         )
     if algo_key == "pygpgomea":
-        # Boost.Python < 1.79 bug on Python 3.10+: GPGOMEA.__init__ returns
-        # NoneType instead of None, so CPython's slot_tp_init raises TypeError
-        # even though the C++ constructor already ran and stored the object.
+        # Boost.Python < 1.79 bug: calling GPGOMEA(hp_string) normally goes
+        # through CPython's type_call → slot_tp_init, which raises TypeError
+        # because Boost.Python's tp_init wrapper returns NoneType instead of None.
+        # A ctypes patch to bypass this releases the GIL inside the C-level
+        # tp_init callback, which causes a SIGSEGV when np::initialize() runs.
         #
-        # Fix: use ctypes to patch the tp_init slot of gpgomea.GPGOMEA in-place.
-        # This keeps the class identity intact so isinstance checks and all
-        # Boost.Python method dispatch continue to work normally — no subclassing,
-        # no factory object replacing the class.
+        # Clean fix: bypass type_call entirely with __new__ + explicit __init__.
+        #   • GPGOMEA.__new__(GPGOMEA)   — allocates the Python object
+        #   • GPGOMEA.__init__(obj, hp)  — calls the Python-level __init__ dict
+        #     entry (NOT slot_tp_init), which runs the C++ constructor without
+        #     the return-type check → no TypeError, no GIL release, no SIGSEGV.
+        #
+        # We also set silent=False so Terminate()'s model expression is printed
+        # to fd 1, which _run_one captures to get the model string (get_model()
+        # raises SystemError due to a separate Boost.Python std::string bug).
         try:
-            import pyGPGOMEA as _pgpkg, os as _os
-            _gp_dir = _os.path.dirname(_pgpkg.__file__)
+            import pyGPGOMEA as _pgpkg
+            _gp_dir = os.path.dirname(_pgpkg.__file__)
             if _gp_dir not in sys.path:
                 sys.path.insert(0, _gp_dir)
             import gpgomea as _gpmod
-
-            if not getattr(_gpmod, "_init_patched", False):
-                import ctypes as _ct
-
-                # initproc: int (*)(PyObject *self, PyObject *args, PyObject *kwds)
-                # Use c_void_p (not py_object) so that kwds=NULL from C is
-                # received as 0/None rather than raising ValueError: PyObject is NULL.
-                _INITPROC = _ct.CFUNCTYPE(
-                    _ct.c_int, _ct.c_void_p, _ct.c_void_p, _ct.c_void_p)
-
-                # tp_init offset in PyTypeObject (Python 3.x, 64-bit):
-                # ob_refcnt(8) ob_type(8) ob_size(8) tp_name(8) tp_basicsize(8)
-                # tp_itemsize(8) tp_dealloc(8) tp_vectorcall_offset(8)
-                # tp_getattr(8) tp_setattr(8) tp_as_async(8) tp_repr(8)
-                # tp_as_number(8) tp_as_sequence(8) tp_as_mapping(8) tp_hash(8)
-                # tp_call(8) tp_str(8) tp_getattro(8) tp_setattro(8)
-                # tp_as_buffer(8) tp_flags(8) tp_doc(8) tp_traverse(8)
-                # tp_clear(8) tp_richcompare(8) tp_weaklistoffset(8)
-                # tp_iter(8) tp_iternext(8) tp_methods(8) tp_members(8)
-                # tp_getset(8) tp_base(8) tp_dict(8) tp_descr_get(8)
-                # tp_descr_set(8) tp_dictoffset(8)  → total 288 bytes
-                # tp_init @ 296
-                _TP_INIT_OFFSET = 296
-                _type_addr = id(_gpmod.GPGOMEA)
-                _orig_ptr = _ct.c_void_p.from_address(
-                    _type_addr + _TP_INIT_OFFSET).value
-                if not _orig_ptr:
-                    raise RuntimeError(
-                        "gpgomea.GPGOMEA tp_init is NULL — wrong offset?")
-                _orig_fn = _INITPROC(_orig_ptr)
-
-                _capi = _ct.pythonapi
-                _capi.PyErr_Occurred.restype  = _ct.c_void_p
-                _capi.PyErr_Occurred.argtypes = []
-                _capi.PyErr_Clear.restype     = None
-                _capi.PyErr_Clear.argtypes    = []
-                _TypeError_addr = id(TypeError)
-
-                @_INITPROC
-                def _patched_init(self_obj, args_obj, kwds_obj):
-                    ret = _orig_fn(self_obj, args_obj, kwds_obj)
-                    if ret < 0:
-                        # Boost.Python < 1.79: slot_tp_init raises TypeError
-                        # because __init__ returned NoneType instead of None.
-                        # The C++ object was already constructed; clear this
-                        # specific error and report success.
-                        if _capi.PyErr_Occurred() == _TypeError_addr:
-                            _capi.PyErr_Clear()
-                            return 0
-                    return ret
-
-                # Keep callback alive (ctypes GCs it if unreferenced)
-                _gpmod._patched_tp_init = _patched_init
-                # Overwrite tp_init in the type object
-                _ct.c_void_p.from_address(_type_addr + _TP_INIT_OFFSET).value = (
-                    _ct.cast(_patched_init, _ct.c_void_p).value)
-                _gpmod._init_patched = True
-
+            from pyGPGOMEA.GPGOMEARegressor import GPGOMEARegressor
         except Exception as _pe:
-            print(f"  [warn] gpgomea patch failed: {_pe}", flush=True)
+            raise RuntimeError(f"gpgomea import failed: {_pe}") from _pe
 
-        from pyGPGOMEA import GPGOMEARegressor
-        return GPGOMEARegressor(
-            time=120,
-            generations=-1,
-            seed=seed,
-            parallel=0,
-        )
+        _reg = GPGOMEARegressor.__new__(GPGOMEARegressor)
+        for _k, _v in dict(
+                time=120, generations=-1, evaluations=-1,
+                prob="symbreg", multiobj=False, linearscaling=True,
+                functions="+_*_-_p/_sqrt_plog", erc=True,
+                classweights=False, gomea=True, gomfos="LT",
+                subcross=0.5, submut=0.5, reproduction=0.0,
+                sblibtype=False, sbrdo=0.0, sbagx=0.0,
+                unifdepthvar=True, tournament=4, elitism=0,
+                ims="5_1", syntuniqinit=1000, popsize=500,
+                initmaxtreeheight=4, inittype=False,
+                maxtreeheight=17, maxsize=1000,
+                validation=False, coeffmut=False,
+                gomcoeffmutstrat=False, batchsize=False,
+                seed=seed, parallel=0, caching=False,
+                silent=False,   # stdout kept open so fit() output is capturable
+                logtofile=False,
+        ).items():
+            setattr(_reg, _k, _v)
+        _hp = _reg._build_hyperparameters_string()
+        _reg._ea = _gpmod.GPGOMEA.__new__(_gpmod.GPGOMEA)
+        try:
+            _gpmod.GPGOMEA.__init__(_reg._ea, _hp)
+        except TypeError:
+            pass  # Boost.Python bug: C++ constructor ran OK; ignore spurious error
+        return _reg
     if algo_key == "pysr":
         from pysr import PySRRegressor
         return PySRRegressor(
@@ -538,9 +548,60 @@ def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
         y_te = _df_te.values[:,  -1].astype(np.float64)
 
         estimator = _make_estimator(algo_key, seed)
-        t0        = time.time()
-        estimator.fit(X_tr, y_tr)
-        runtime   = time.time() - t0
+        if algo_key == "pygpgomea":
+            # GP-GOMEA's get_model() raises SystemError (Boost.Python std::string
+            # bug).  Redirect fd 1 to a temp file so we can parse the model
+            # expression that Terminate() prints: "Best solution found:\t<expr>".
+            import tempfile as _tf
+            _tmp_fd, _tmp_path = _tf.mkstemp(suffix=".txt", prefix="gpgomea_")
+            try:
+                _saved_fd1 = os.dup(1)
+                os.dup2(_tmp_fd, 1)
+                os.close(_tmp_fd)
+                try:
+                    t0      = time.time()
+                    estimator.fit(X_tr, y_tr)
+                    runtime = time.time() - t0
+                    # Flush C stdio (synced with C++ cout by default) while
+                    # fd 1 still points to the temp file, so Terminate()'s
+                    # buffered output lands in the capture file, not the terminal.
+                    import ctypes as _ct2
+                    _ct2.CDLL(None).fflush(0)   # fflush(NULL)
+                finally:
+                    os.dup2(_saved_fd1, 1)
+                    os.close(_saved_fd1)
+                with open(_tmp_path, "r", errors="replace") as _gp_f:
+                    _gp_out = _gp_f.read()
+            finally:
+                try:
+                    os.unlink(_tmp_path)
+                except OSError:
+                    pass
+            # Parse "Best solution found:\t<expr>" and linear scaling coefficients.
+            _model_expr = None
+            _lin_a = _lin_b = None
+            for _ln in _gp_out.splitlines():
+                if _model_expr is None and _ln.startswith("Best solution found:\t"):
+                    _model_expr = _ln.split("\t", 1)[1].strip()
+                elif _ln.startswith("Linear scaling coefficients:"):
+                    for _tok in _ln.split("\t"):
+                        if _tok.startswith("a="):
+                            try: _lin_a = float(_tok[2:])
+                            except ValueError: pass
+                        elif _tok.startswith("b="):
+                            try: _lin_b = float(_tok[2:])
+                            except ValueError: pass
+            if _model_expr is not None:
+                if _lin_a is not None and _lin_b is not None:
+                    # Reproduce get_model() format: std::to_string uses %.6f
+                    _model_expr = f"{_lin_a:.6f}+{_lin_b:.6f}*({_model_expr})"
+                estimator._captured_model_str = _model_expr
+            else:
+                estimator._captured_model_str = None
+        else:
+            t0      = time.time()
+            estimator.fit(X_tr, y_tr)
+            runtime = time.time() - t0
 
         y_pred = np.asarray(estimator.predict(X_te), dtype=np.float64)
         y_pred = np.where(np.isfinite(y_pred), y_pred, np.nanmedian(y_tr))
@@ -551,17 +612,18 @@ def _run_one(algo_key, algo_name, dataset, seed, log_path, lock):
         # ── M_phi before simplification ───────────────────────────────────────
         if algo_name == "GPLearn":
             m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = _gplearn_m_phi(estimator)
+
             expr = _to_sympy_expr(algo_key, estimator, X_tr)
         elif algo_name == "GP-GOMEA":
-            # Count nodes directly from the C++ model string; SymPy parsing
-            # attempted additionally for the simplification step.
+            # Token-based M_phi from the C++ model string (handles GP-GOMEA's
+            # specific operators: p/, plog, sqrt, ^2).  SymPy is attempted only
+            # for the simplification step; its node counts are NOT used to
+            # override the token counts because _sympy_nnao only detects 'exp'.
             m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = _gpgomea_mphi(estimator)
-            expr = _to_sympy_expr(algo_key, estimator, X_tr)
-            if expr is not None:
-                # If SymPy did parse, prefer its counts (more accurate)
-                mp, el, no_, nn, nnc = _sympy_m_phi(expr)
-                if not np.isnan(mp):
-                    m_phi_b, ell_b, no_b, nnao_b, nnaoc_b = mp, el, no_, nn, nnc
+            try:
+                expr = _to_sympy_expr(algo_key, estimator, X_tr)
+            except Exception:
+                expr = None
         else:
             expr = _to_sympy_expr(algo_key, estimator, X_tr)
             if expr is not None:
@@ -622,23 +684,48 @@ if __name__ == "__main__":
     log_path = os.path.join(log_dir, _LOG_NAME)
 
     import pandas as pd
+    import shutil
     completed = set()
     if os.path.exists(log_path):
         try:
-            done = pd.read_csv(log_path,
-                               usecols=["algo", "dataset", "seed",
-                                        "test_rmse", "ell_before"])
-            for _, r in done.iterrows():
+            df_done = pd.read_csv(log_path)
+            # Drop rows where RMSE is missing (crashed/empty runs).
+            has_rmse_mask = (
+                df_done["test_rmse"].notna() &
+                (df_done["test_rmse"].astype(str).str.strip() != "")
+            )
+            n_empty = int((~has_rmse_mask).sum())
+            df_done = df_done[has_rmse_mask].copy()
+            # Among rows with RMSE, prefer the copy that also has m_phi_before.
+            has_mphi_rank = (
+                df_done["m_phi_before"].notna() &
+                (df_done["m_phi_before"].astype(str).str.strip() != "")
+            ).astype(int)
+            df_done["_rank"] = has_mphi_rank
+            df_done = (df_done
+                .sort_values("_rank")
+                .drop_duplicates(subset=["algo", "dataset", "seed"], keep="last")
+                .drop(columns=["_rank"])
+            )
+            n_dup = int(has_rmse_mask.sum()) - len(df_done)
+            if n_empty > 0 or n_dup > 0:
+                shutil.copy(log_path, log_path + ".bak")
+                df_done.to_csv(log_path, index=False)
+                print(f"  CSV cleaned: removed {n_empty} empty rows, "
+                      f"{n_dup} duplicate rows  (backup → {os.path.basename(log_path)}.bak)")
+            for _, r in df_done.iterrows():
                 has_rmse = pd.notna(r["test_rmse"]) and str(r["test_rmse"]).strip() != ""
-                has_ell  = pd.notna(r["ell_before"])  and str(r["ell_before"]).strip()  != ""
                 if not has_rmse:
                     continue
-                # GP-GOMEA: require at least ell_before (from token-count or get_n_nodes).
-                if str(r["algo"]) == "GP-GOMEA" and not has_ell:
-                    continue
+                # GP-GOMEA: re-run if m_phi_before was never computed.
+                if str(r["algo"]) == "GP-GOMEA":
+                    has_mphi = (pd.notna(r.get("m_phi_before", float("nan"))) and
+                                str(r.get("m_phi_before", "")).strip() != "")
+                    if not has_mphi:
+                        continue
                 completed.add((str(r["algo"]), str(r["dataset"]), int(r["seed"])))
-        except Exception:
-            pass
+        except Exception as exc:
+            print(f"  Warning: could not read CSV ({exc}); starting fresh.")
 
     if not os.path.exists(log_path) or os.path.getsize(log_path) == 0:
         with open(log_path, "w", newline="") as f:
@@ -694,23 +781,28 @@ if __name__ == "__main__":
     # Non-daemonic Processes for GP-GOMEA (Boost.Python needs a fresh interpreter).
     # Run up to N_WORKERS concurrently; hard-cap each seed at 6 minutes.
     _SEED_TIMEOUT = 360
-    running = []   # list of (process, start_time)
+    running = []   # list of (process, start_time, (algo_name, dataset, seed))
 
     def _reap(running, done_n):
         still = []
-        for proc, t_start in running:
+        for proc, t_start, meta in running:
+            an, ds, sd = meta
             if proc.is_alive():
                 if time.time() - t_start > _SEED_TIMEOUT:
                     proc.terminate()
                     proc.join()
                     done_n += 1
+                    print(f"  TIMEOUT {an:<10s}  {ds:<25s}  seed={sd}", flush=True)
                     if done_n % 10 == 0 or done_n == total:
                         print(f"  {done_n}/{total}  ({(time.time()-t0)/60:.1f} min)")
                 else:
-                    still.append((proc, t_start))
+                    still.append((proc, t_start, meta))
             else:
                 proc.join()
                 done_n += 1
+                if proc.exitcode != 0:
+                    print(f"  CRASH  {an:<10s}  {ds:<25s}  seed={sd}  "
+                          f"exitcode={proc.exitcode}", flush=True)
                 if done_n % 10 == 0 or done_n == total:
                     print(f"  {done_n}/{total}  ({(time.time()-t0)/60:.1f} min)")
         return still, done_n
@@ -721,7 +813,8 @@ if __name__ == "__main__":
             running, done_n = _reap(running, done_n)
         p = multiprocessing.Process(target=_run_one, args=args)
         p.start()
-        running.append((p, time.time()))
+        ak, an, ds, sd, _lp, _lk = args
+        running.append((p, time.time(), (an, ds, sd)))
 
     while running:
         time.sleep(0.5)
