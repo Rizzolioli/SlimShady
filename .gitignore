@@ -17,3 +17,5 @@ utils/results_analyser.ipynb
 *.zip
 *.pdf
 *.pyc
+main/outputs/20260625_173542_HLMDlv/checkpoint.pkl
+*.pkl
