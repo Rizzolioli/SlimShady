@@ -17,6 +17,7 @@ invocation, so evolution runs never recompute the latent space. Stages can
 also be run separately:
 
   python main/main_tabgpgo.py prepare   # phases 1-3 only (fill the cache)
+  python main/main_tabgpgo.py eval-ae   # a-priori AE reconstruction check (no evolution)
   python main/main_tabgpgo.py evolve    # phases 4-5 (reusing the cache)
   python main/main_tabgpgo.py           # everything
 
@@ -89,18 +90,12 @@ def prepare(cfg, verbose=True):
     # -- stage 2: autoencoder + latent tokens -----------------------------------
     def _train_ae():
         model = train_autoencoder(X_train, cfg, verbose=verbose)
-        return model.encoder.state_dict()
+        return model.state_dict()
 
-    encoder_state = _cached(cfg, "encoder.pt", _train_ae, verbose, "autoencoder")
+    ae_state = _cached(cfg, "autoencoder.pt", _train_ae, verbose, "autoencoder")
     ae = MLPAutoencoder(cfg.max_features, cfg.ae_hidden, cfg.latent_dim).to(device)
-    ae.encoder.load_state_dict(encoder_state)
+    ae.load_state_dict(ae_state)
     ae.eval().requires_grad_(False)
-    if verbose:
-        print(f"AE reconstruction MSE  synthetic(train): "
-              f"{reconstruction_mse(ae, X_train[:20000]):.5f}")
-        for name, d in val_sets.items():
-            print(f"AE reconstruction MSE  {name}: "
-                  f"{reconstruction_mse(ae, d['X'].to(device)):.5f}")
 
     T_train = _cached(cfg, "T_train.pt", lambda: encode(ae, X_train),
                       verbose, "training latent tokens").to(device)
@@ -131,10 +126,27 @@ def prepare(cfg, verbose=True):
         print(f"pool semantics: {tuple(pool_train.shape)} "
               f"({gb:.2f} GB, {time.time() - t0:.1f}s, recomputed each start)")
 
-    return {"ae": ae, "T_train": T_train, "y_target": y_target,
+    return {"ae": ae, "X_train": X_train, "T_train": T_train, "y_target": y_target,
             "registry": registry, "pool_train": pool_train,
             "val_pools": val_pools, "val_targets": val_targets,
             "val_sets": val_sets, "TERMINALS": TERMINALS}
+
+
+def evaluate_autoencoder(cfg, ctx, verbose=True):
+    """A-priori sanity check of the trained encoder/decoder, run once before
+    evolution (not on every prepare()/evolve() call): full-model (encoder+
+    decoder) reconstruction MSE on the synthetic training data and on every
+    real validation set, so a synthetic-trained AE that fails to generalize
+    to real data is caught before it's used to build latent tokens.
+    """
+    ae = ctx["ae"]
+    out = {"synthetic(train)": reconstruction_mse(ae, ctx["X_train"][:20000])}
+    for name, d in ctx["val_sets"].items():
+        out[name] = reconstruction_mse(ae, d["X"].to(ae.encoder[0].weight.device))
+    if verbose:
+        for name, mse in out.items():
+            print(f"AE reconstruction MSE  {name}: {mse:.5f}")
+    return out
 
 
 def evolve(cfg, ctx, verbose=1):
@@ -180,9 +192,11 @@ if __name__ == "__main__":
     config = TabGPGOConfig()
     if stage == "prepare":
         prepare(config)
+    elif stage == "eval-ae":
+        evaluate_autoencoder(config, prepare(config))
     elif stage == "evolve":
         evolve(config, prepare(config))
     elif stage == "all":
         run_experiment(config)
     else:
-        sys.exit(f"unknown stage '{stage}' (use: prepare | evolve | all)")
+        sys.exit(f"unknown stage '{stage}' (use: prepare | eval-ae | evolve | all)")

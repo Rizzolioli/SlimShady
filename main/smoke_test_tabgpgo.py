@@ -20,7 +20,7 @@ import torch
 
 from datasets.data_loader import load_merged_data
 from evaluators.fitness_functions import rmse
-from main_tabgpgo import prepare, run_experiment
+from main_tabgpgo import evaluate_autoencoder, evolve, prepare
 from tabgpgo.config import TabGPGOConfig
 from tabgpgo.inference import load_run, make_predictor
 from tabgpgo.prior import generate_datasets
@@ -48,8 +48,15 @@ for backend in ("simple_scm", "tabpfn_v1"):
         assert y.std() > 1e-8
 print("prior backends OK")
 
-# --- full pipeline, all six variants ------------------------------------------
-ctx, elites, run_id = run_experiment(cfg, verbose=1)
+# --- a-priori AE check, decoupled from the evolution run -----------------------
+ctx = prepare(cfg, verbose=1)
+ae_mse = evaluate_autoencoder(cfg, ctx, verbose=1)
+assert set(ae_mse) == {"synthetic(train)", *cfg.val_datasets}
+assert all(v >= 0 and v == v for v in ae_mse.values()), ae_mse  # finite, non-negative
+print("a-priori AE reconstruction check OK")
+
+# --- full pipeline, all six variants (reuses the same prepared artifacts) ------
+elites, run_id = evolve(cfg, ctx, verbose=1)
 
 assert ctx["T_train"].shape == (20 * 100, cfg.latent_dim)
 assert ctx["T_train"].device.type == cfg.get_device().type
@@ -62,7 +69,7 @@ for (algo, seed), elite in elites.items():
 print("pipeline shapes/fitness OK")
 
 # --- artifact cache: second prepare() must reuse, not recompute ----------------
-for fname in ("synthetic_pool.pt", "val_sets.pkl", "encoder.pt",
+for fname in ("synthetic_pool.pt", "val_sets.pkl", "autoencoder.pt",
               "T_train.pt", "T_val.pt", "registry.pkl"):
     assert os.path.exists(os.path.join(cfg.artifacts_dir, fname)), fname
 t0 = time.time()
