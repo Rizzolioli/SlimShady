@@ -12,31 +12,39 @@ import torch
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# SLIM variant naming convention shared with main/main_slim.py:
-# a variant is (sig, two_trees, operator).
+# A variant is (wrapper, operator). wrapper selects the mutation function
+# used to build each new block: "abs" | "sig1" | "sig2" (fixed for the whole
+# run) or "mix" (chosen uniformly at random, independently, for every new
+# block). operator selects how blocks aggregate onto the head: "sum" | "mul"
+# (fixed) or "mix" (chosen uniformly at random per block, sum vs mul). The
+# *MIX variants keep the wrapper (or operator) that was actually drawn on
+# each Block, so heterogeneous individuals remain fully reconstructable.
+WRAPPERS = ("abs", "sig1", "sig2")
+OPERATORS = ("sum", "mul")
+
 VARIANTS = [
-    (True,  True,  "sum"),   # SLIM+2SIG
-    (True,  True,  "mul"),   # SLIM*2SIG
-    (True,  False, "sum"),   # SLIM+1SIG
-    (True,  False, "mul"),   # SLIM*1SIG
-    (False, False, "sum"),   # SLIM+ABS
-    (False, False, "mul"),   # SLIM*ABS
+    ("sig2", "sum"),   # SLIM+2SIG
+    ("sig2", "mul"),   # SLIM*2SIG
+    ("sig1", "sum"),   # SLIM+1SIG
+    ("sig1", "mul"),   # SLIM*1SIG
+    ("abs",  "sum"),   # SLIM+ABS
+    ("abs",  "mul"),   # SLIM*ABS
+    ("mix",  "sum"),   # SLIM+MIX: wrapper uniform per block, sum-only aggregation
+    ("mix",  "mul"),   # SLIM*MIX: wrapper uniform per block, mul-only aggregation
+    ("mix",  "mix"),   # SLIM~MIX: wrapper AND aggregation both uniform per block
 ]
 
 ALGO_NAMES = {
-    (True,  True,  "sum"): "SLIM+2SIG",
-    (True,  True,  "mul"): "SLIM*2SIG",
-    (True,  False, "sum"): "SLIM+1SIG",
-    (True,  False, "mul"): "SLIM*1SIG",
-    (False, False, "sum"): "SLIM+ABS",
-    (False, False, "mul"): "SLIM*ABS",
+    ("sig2", "sum"): "SLIM+2SIG",
+    ("sig2", "mul"): "SLIM*2SIG",
+    ("sig1", "sum"): "SLIM+1SIG",
+    ("sig1", "mul"): "SLIM*1SIG",
+    ("abs",  "sum"): "SLIM+ABS",
+    ("abs",  "mul"): "SLIM*ABS",
+    ("mix",  "sum"): "SLIM+MIX",
+    ("mix",  "mul"): "SLIM*MIX",
+    ("mix",  "mix"): "SLIM~MIX",
 }
-
-# Wrapper identifier stored inside each mutation block: derived from (sig, two_trees).
-def wrapper_name(sig, two_trees):
-    if two_trees:
-        return "sig2"
-    return "sig1" if sig else "abs"
 
 
 @dataclass

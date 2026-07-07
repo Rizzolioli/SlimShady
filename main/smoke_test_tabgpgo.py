@@ -93,7 +93,7 @@ assert len(run_dirs) == len(cfg.variants)
 run_dir = os.path.join(cfg.run_dir_base, run_dirs[0])
 os.remove(os.path.join(run_dir, "registry.pkl"))
 loaded_cfg, model, registry, elite, wrapper, operator = load_run(run_dir)
-predict = make_predictor(elite, registry, model, loaded_cfg, wrapper, operator)
+predict = make_predictor(elite, registry, model, loaded_cfg)
 
 X_raw, y_raw = load_merged_data("energy", X_y=True)
 preds = predict(X_raw.float())

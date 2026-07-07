@@ -15,7 +15,8 @@ import torch
 
 from .autoencoder import MLPAutoencoder, encode
 from .config import TabGPGOConfig
-from .evolution import Block, PoolIndividual, individual_semantics
+from .evolution import (Block, PoolIndividual, individual_semantics,
+                        individual_semantics_sequential)
 from .preprocessing import standardize_scale_pad, zscore
 from .tree_pool import BOUND, evaluate_structure, make_terminals
 
@@ -46,27 +47,43 @@ def structure_to_str(structure):
     return structure
 
 
-def _block_to_str(block, wrapper, operator, registry):
+def _block_to_str(block, registry):
     t1 = structure_to_str(registry[block.idx1]["structure"])
     ms = f"{block.ms:.6g}"
-    if wrapper == "abs":
+    if block.wrapper == "abs":
         delta = f"{ms}*(1 - 2/(1 + abs({t1})))"
-    elif wrapper == "sig1":
+    elif block.wrapper == "sig1":
         delta = f"{ms}*(2*sigmoid({t1}) - 1)"
     else:  # sig2
         t2 = structure_to_str(registry[block.idx2]["structure"])
         delta = f"{ms}*(sigmoid({t1}) - sigmoid({t2}))"
-    return f"(1 + {delta})" if operator == "mul" else delta
+    return f"(1 + {delta})" if block.operator == "mul" else delta
 
 
-def reconstruct_expression(ind, registry, wrapper, operator):
-    """Full symbolic equation of an individual over latent tokens z0..z511."""
-    parts = [structure_to_str(registry[ind.head_idx]["structure"])]
-    parts += [_block_to_str(b, wrapper, operator, registry) for b in ind.blocks]
-    return (" + " if operator == "sum" else " * ").join(parts)
+def reconstruct_expression(ind, registry):
+    """Full symbolic equation of an individual over latent tokens z0..z511.
+
+    Blocks that all share one operator (the six fixed variants, and *MIX
+    variants with a fixed aggregation) get the flat "a + b + c" / "a * b * c"
+    form. A genuinely mixed sum/mul sequence (SLIM~MIX) folds left-to-right
+    with explicit parens, since sum and mul mutations don't commute.
+    """
+    head_str = structure_to_str(registry[ind.head_idx]["structure"])
+    if not ind.blocks:
+        return head_str
+    operators = {b.operator for b in ind.blocks}
+    if len(operators) == 1:
+        operator = next(iter(operators))
+        parts = [head_str] + [_block_to_str(b, registry) for b in ind.blocks]
+        return (" + " if operator == "sum" else " * ").join(parts)
+    expr = head_str
+    for b in ind.blocks:
+        term = _block_to_str(b, registry)
+        expr = f"({expr}) + {term}" if b.operator == "sum" else f"({expr}) * {term}"
+    return expr
 
 
-def semantics_from_tokens(ind, wrapper, operator, T, registry, TERMINALS):
+def semantics_from_tokens(ind, T, registry, TERMINALS):
     """Evaluate an individual directly on latent tokens (no pool lookup)."""
     def sem(idx):
         out = evaluate_structure(registry[idx]["structure"], T, TERMINALS)
@@ -77,25 +94,33 @@ def semantics_from_tokens(ind, wrapper, operator, T, registry, TERMINALS):
     agg = sem(ind.head_idx)
     for b in ind.blocks:
         tr1 = sem(b.idx1)
-        if wrapper == "sig2":
+        if b.wrapper == "sig2":
             delta = b.ms * (torch.sigmoid(tr1) - torch.sigmoid(sem(b.idx2)))
-        elif wrapper == "sig1":
+        elif b.wrapper == "sig1":
             delta = b.ms * (2 * torch.sigmoid(tr1) - 1)
         else:
             delta = b.ms * (1 - 2 / (1 + torch.abs(tr1)))
-        if operator == "mul":
+        if b.operator == "mul":
             agg = agg * (1 + delta)
         else:
             agg = agg + delta
     return torch.clamp(agg, -BOUND, BOUND)
 
 
-def verify_inference(ind, wrapper, operator, pool, T, registry, TERMINALS,
-                     atol=None):
-    """Assert pool-path and token-path semantics agree on the same rows."""
-    from_pool = individual_semantics(ind, wrapper, operator, pool)
-    from_tokens = semantics_from_tokens(ind, wrapper, operator, T,
-                                        registry, TERMINALS)
+def verify_inference(ind, pool, T, registry, TERMINALS, atol=None):
+    """Assert pool-path and token-path semantics agree on the same rows.
+
+    Uses the batched path when every block shares one wrapper/operator (the
+    fitness-eval path homogeneous variants actually ran on), and the
+    sequential fold otherwise (SLIM*MIX/SLIM+MIX/SLIM~MIX, or a head-only
+    individual with no blocks).
+    """
+    if ind.blocks and len({(b.wrapper, b.operator) for b in ind.blocks}) == 1:
+        wrapper, operator = ind.blocks[0].wrapper, ind.blocks[0].operator
+        from_pool = individual_semantics(ind, wrapper, operator, pool)
+    else:
+        from_pool = individual_semantics_sequential(ind, pool)
+    from_tokens = semantics_from_tokens(ind, T, registry, TERMINALS)
     atol = atol if atol is not None else (1e-1 if pool.dtype == torch.float16 else 1e-3)
     if not torch.allclose(from_pool, from_tokens, atol=atol, rtol=1e-3):
         diff = (from_pool - from_tokens).abs().max().item()
@@ -104,8 +129,7 @@ def verify_inference(ind, wrapper, operator, pool, T, registry, TERMINALS,
     return True
 
 
-def make_predictor(ind, registry, model, cfg, wrapper, operator,
-                   reducer_meta=None):
+def make_predictor(ind, registry, model, cfg, reducer_meta=None):
     """Standalone predictor for raw unseen data.
 
     predict(X_raw): z-scores/scales/pads X_raw using its own statistics (or a
@@ -131,8 +155,7 @@ def make_predictor(ind, registry, model, cfg, wrapper, operator,
         X100, _, _ = standardize_scale_pad(X, torch.zeros(X.shape[0]),
                                            cfg.max_features)
         T = encode(model, X100.to(device))
-        return semantics_from_tokens(ind, wrapper, operator, T,
-                                     registry, TERMINALS)
+        return semantics_from_tokens(ind, T, registry, TERMINALS)
 
     return predict
 
@@ -148,7 +171,9 @@ def save_run(run_dir, cfg, model, registry, ind, wrapper, operator,
     elite.json is self-contained: it stores the RESOLVED tree structures of
     the head and every block (not just pool indices), so inference only needs
     elite.json + encoder.pt + config.json. registry.pkl (the full pool) is
-    kept for reproducibility.
+    kept for reproducibility. `wrapper`/`operator` here are the variant-level
+    selectors (possibly "mix"), kept only as a human-readable label -- each
+    block already carries the wrapper/operator it actually drew.
     """
     os.makedirs(run_dir, exist_ok=True)
     torch.save(model.encoder.state_dict(), os.path.join(run_dir, "encoder.pt"))
@@ -156,7 +181,8 @@ def save_run(run_dir, cfg, model, registry, ind, wrapper, operator,
         pickle.dump(registry, fh)
     elite = {"algo": algo, "wrapper": wrapper, "operator": operator,
              "seed": seed, "head_idx": ind.head_idx,
-             "blocks": [[b.idx1, b.idx2, b.ms] for b in ind.blocks],
+             "blocks": [[b.idx1, b.idx2, b.ms, b.wrapper, b.operator]
+                       for b in ind.blocks],
              "head_structure": _to_jsonable(registry[ind.head_idx]["structure"]),
              "block_structures": [
                  [_to_jsonable(registry[b.idx1]["structure"]),
@@ -198,6 +224,6 @@ def load_run(run_dir, device="cpu"):
         if b[1] is not None:
             registry[b[1]] = {"structure": _from_jsonable(s2)}
     ind = PoolIndividual(e["head_idx"],
-                         [Block(b[0], b[1], b[2]) for b in e["blocks"]],
+                         [Block(b[0], b[1], b[2], b[3], b[4]) for b in e["blocks"]],
                          fitness=e["fitness"], nodes_count=e["nodes_count"])
     return cfg, model, registry, ind, e["wrapper"], e["operator"]

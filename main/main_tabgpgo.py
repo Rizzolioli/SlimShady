@@ -40,7 +40,7 @@ import torch
 
 from tabgpgo.autoencoder import (MLPAutoencoder, encode, reconstruction_stats,
                                  train_autoencoder)
-from tabgpgo.config import ALGO_NAMES, TabGPGOConfig, wrapper_name
+from tabgpgo.config import ALGO_NAMES, TabGPGOConfig
 from tabgpgo.evolution import TensorSLIM
 from tabgpgo.inference import (reconstruct_expression, save_run,
                                verify_inference)
@@ -164,9 +164,8 @@ def evolve(cfg, ctx, verbose=1):
     unique_run_id = uuid.uuid1()
     elites = {}
     for variant in cfg.variants:
-        sig, two_trees, operator = variant
+        wrapper, operator = variant
         algo = ALGO_NAMES[variant]
-        wrapper = wrapper_name(sig, two_trees)
         for seed in range(cfg.n_runs):
             optimizer = TensorSLIM(cfg, variant, ctx["registry"],
                                    ctx["pool_train"], ctx["y_target"],
@@ -175,10 +174,9 @@ def evolve(cfg, ctx, verbose=1):
                 run_info=[algo, unique_run_id, "synthetic_prior"],
                 log_path=cfg.log_path, verbose=verbose)
 
-            verify_inference(elite, wrapper, operator, ctx["pool_train"],
-                             ctx["T_train"], ctx["registry"], ctx["TERMINALS"])
-            expression = reconstruct_expression(elite, ctx["registry"],
-                                                wrapper, operator)
+            verify_inference(elite, ctx["pool_train"], ctx["T_train"],
+                             ctx["registry"], ctx["TERMINALS"])
+            expression = reconstruct_expression(elite, ctx["registry"])
             run_dir = os.path.join(cfg.run_dir_base,
                                    f"{unique_run_id}_{algo.replace('*', 'x')}_{seed}")
             save_run(run_dir, cfg, ctx["ae"], ctx["registry"], elite,

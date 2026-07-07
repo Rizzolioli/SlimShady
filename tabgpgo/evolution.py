@@ -26,7 +26,7 @@ import torch
 from evaluators.fitness_functions import rmse
 from utils.logger import logger
 
-from .config import ALGO_NAMES, wrapper_name
+from .config import ALGO_NAMES, OPERATORS, WRAPPERS
 from .tree_pool import BOUND
 
 # Per-block node/depth overhead of each wrapper, matching the intent of
@@ -45,6 +45,8 @@ class Block:
     idx1: int
     idx2: int | None   # only used by sig2
     ms: float
+    wrapper: str       # "abs" | "sig1" | "sig2" -- this block's own mutation function
+    operator: str      # "sum" | "mul" -- this block's own aggregation operator
 
 
 @dataclass
@@ -79,7 +81,11 @@ def block_deltas(blocks, wrapper, operator, pool):
 
 
 def individual_semantics(ind, wrapper, operator, pool):
-    """Aggregate semantics of an individual on the rows of `pool`."""
+    """Aggregate semantics of an individual on the rows of `pool`.
+
+    Fast batched path: valid only when every block shares the same wrapper
+    and operator (true by construction for the six fixed-variant runs).
+    """
     agg = pool[ind.head_idx].float()
     if ind.blocks:
         deltas = block_deltas(ind.blocks, wrapper, operator, pool)
@@ -90,17 +96,41 @@ def individual_semantics(ind, wrapper, operator, pool):
     return torch.clamp(agg, -BOUND, BOUND)
 
 
+def individual_semantics_sequential(ind, pool):
+    """Aggregate semantics folding blocks in order, each using its own
+    wrapper/operator (Block.wrapper / Block.operator).
+
+    Needed whenever blocks can be heterogeneous (the *MIX variants): sum and
+    mul mutations don't commute with each other, so the fold must respect
+    insertion order, unlike the homogeneous batched path above. Also usable
+    as a reference implementation for any variant (homogeneous chains give
+    the same result either way, since a single operator's blocks do commute).
+    """
+    agg = pool[ind.head_idx].float()
+    for b in ind.blocks:
+        tr1 = pool[b.idx1].float()
+        if b.wrapper == "sig2":
+            delta = b.ms * (torch.sigmoid(tr1) - torch.sigmoid(pool[b.idx2].float()))
+        elif b.wrapper == "sig1":
+            delta = b.ms * (2 * torch.sigmoid(tr1) - 1)
+        else:  # abs
+            delta = b.ms * (1 - 2 / (1 + torch.abs(tr1)))
+        agg = agg * (1 + delta) if b.operator == "mul" else agg + delta
+    return torch.clamp(agg, -BOUND, BOUND)
+
+
 class TensorSLIM:
     """Tensor-pool SLIM-GSGP optimizer for one variant and one seed."""
 
     def __init__(self, cfg, variant, registry, pool_train, y_target,
                  val_pools, val_targets, seed):
-        sig, two_trees, operator = variant
+        wrapper, operator = variant
         self.cfg = cfg
         self.variant = variant
         self.algo = ALGO_NAMES[variant]
-        self.wrapper = wrapper_name(sig, two_trees)
-        self.operator = operator
+        self.wrapper = wrapper          # "abs" | "sig1" | "sig2" | "mix"
+        self.operator = operator        # "sum" | "mul" | "mix"
+        self.mixed = wrapper == "mix" or operator == "mix"
         self.registry = registry
         self.pool_train = pool_train        # (pool_size, n_train)
         self.y_target = y_target            # (n_train,)
@@ -114,15 +144,17 @@ class TensorSLIM:
     # -- helpers -----------------------------------------------------------
 
     def _evaluate(self, ind):
-        sem = individual_semantics(ind, self.wrapper, self.operator, self.pool_train)
+        if self.mixed:
+            sem = individual_semantics_sequential(ind, self.pool_train)
+        else:
+            sem = individual_semantics(ind, self.wrapper, self.operator, self.pool_train)
         ind.fitness = float(rmse(self.y_target, sem))
         ind.nodes_count = self._nodes_count(ind)
 
     def _nodes_count(self, ind):
         nodes = self.registry[ind.head_idx]["nodes"]
-        overhead = WRAPPER_NODES[(self.wrapper, self.operator)]
         for b in ind.blocks:
-            nodes += self.registry[b.idx1]["nodes"] + overhead
+            nodes += self.registry[b.idx1]["nodes"] + WRAPPER_NODES[(b.wrapper, b.operator)]
             if b.idx2 is not None:
                 nodes += self.registry[b.idx2]["nodes"]
         return nodes + len(ind.blocks)   # size-1 linkage operators
@@ -135,10 +167,11 @@ class TensorSLIM:
         return min(population, key=lambda i: (i.fitness, i.nodes_count))
 
     def _inflate(self, parent):
-        idx2 = (random.randrange(self.cfg.pool_size)
-                if self.wrapper == "sig2" else None)
-        block = Block(idx1=random.randrange(self.cfg.pool_size),
-                      idx2=idx2, ms=self.ms_fn())
+        wrapper = random.choice(WRAPPERS) if self.wrapper == "mix" else self.wrapper
+        operator = random.choice(OPERATORS) if self.operator == "mix" else self.operator
+        idx2 = random.randrange(self.cfg.pool_size) if wrapper == "sig2" else None
+        block = Block(idx1=random.randrange(self.cfg.pool_size), idx2=idx2,
+                      ms=self.ms_fn(), wrapper=wrapper, operator=operator)
         return PoolIndividual(parent.head_idx, [*parent.blocks, block])
 
     def _deflate(self, parent):
@@ -152,8 +185,11 @@ class TensorSLIM:
         """Elite RMSE on each validation dataset -> list in cfg order."""
         out = []
         for name in self.cfg.val_datasets:
-            sem = individual_semantics(self.elite, self.wrapper,
-                                       self.operator, self.val_pools[name])
+            pool = self.val_pools[name]
+            if self.mixed:
+                sem = individual_semantics_sequential(self.elite, pool)
+            else:
+                sem = individual_semantics(self.elite, self.wrapper, self.operator, pool)
             out.append(float(rmse(self.val_targets[name], sem)))
         return out
 
