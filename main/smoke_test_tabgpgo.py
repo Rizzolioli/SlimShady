@@ -2,9 +2,10 @@
 End-to-end CPU smoke test for the TabGPGO pipeline.
 
 Runs the whole pipeline (both prior backends' generation, preprocessing,
-autoencoder, tree pool, all six SLIM variants, inference equivalence,
-artifact-cache reuse, persistence round-trip, standalone prediction) at tiny
-sizes with hard assertions. Must finish in minutes on a CPU-only machine.
+autoencoder, tree pool, all SLIM variants x ms_hi sweep run concurrently,
+inference equivalence, artifact-cache reuse, persistence round-trip,
+standalone prediction) at tiny sizes with hard assertions. Must finish in
+minutes on a CPU-only machine.
 
 Usage:  python main/smoke_test_tabgpgo.py
 """
@@ -57,7 +58,7 @@ for name, s in ae_stats.items():
     assert s["r2"] == s["r2"], (name, s)  # finite (can be negative if the AE fails to generalize)
 print("a-priori AE reconstruction check OK")
 
-# --- full pipeline, all six variants (reuses the same prepared artifacts) ------
+# --- full pipeline: variants x ms_hi sweep, concurrent (reuses prepared artifacts) --
 elites, run_id = evolve(cfg, ctx, verbose=1)
 
 assert ctx["T_train"].shape == (20 * 100, cfg.latent_dim)
@@ -65,7 +66,7 @@ assert ctx["T_train"].device.type == cfg.get_device().type
 assert ctx["pool_train"].shape == (cfg.pool_size, 20 * 100)
 # ppb (628 feats) must be reduced column-wise to exactly max_features comps
 assert ctx["val_sets"]["ppb"]["meta"]["k"] == cfg.max_features
-assert len(elites) == len(cfg.variants) * cfg.n_runs
+assert len(elites) == len(cfg.variants) * len(cfg.ms_hi_values) * cfg.n_runs
 for (algo, seed), elite in elites.items():
     assert torch.isfinite(torch.tensor(elite.fitness)), f"{algo}: bad fitness"
 print("pipeline shapes/fitness OK")
@@ -82,25 +83,34 @@ print(f"artifact cache reuse OK ({time.time() - t0:.1f}s)")
 # --- CSV: one row per generation (incl. gen 0) per run -------------------------
 with open(cfg.log_path) as fh:
     n_rows_csv = sum(1 for _ in fh)
-expected = len(cfg.variants) * cfg.n_runs * (cfg.n_gens + 1)
+expected = len(cfg.variants) * len(cfg.ms_hi_values) * cfg.n_runs * (cfg.n_gens + 1)
 assert n_rows_csv == expected, f"CSV rows {n_rows_csv} != {expected}"
 print("CSV logging OK")
 
 # --- persistence round-trip + standalone predictor -----------------------------
 # inference must work WITHOUT registry.pkl (elite.json is self-contained)
 run_dirs = sorted(os.listdir(cfg.run_dir_base))
-assert len(run_dirs) == len(cfg.variants)
+assert len(run_dirs) == len(cfg.variants) * len(cfg.ms_hi_values) * cfg.n_runs
 run_dir = os.path.join(cfg.run_dir_base, run_dirs[0])
 os.remove(os.path.join(run_dir, "registry.pkl"))
 loaded_cfg, model, registry, elite, wrapper, operator = load_run(run_dir)
-predict = make_predictor(elite, registry, model, loaded_cfg)
+predict_scaled = make_predictor(elite, registry, model, loaded_cfg)
+y_stats = ctx["val_sets"]["energy"]["meta"]["y_stats"]
+predict_raw = make_predictor(elite, registry, model, loaded_cfg, y_stats=y_stats)
 
 X_raw, y_raw = load_merged_data("energy", X_y=True)
-preds = predict(X_raw.float())
-assert preds.shape == (X_raw.shape[0],) and torch.isfinite(preds).all()
-y_std = (y_raw.float() - y_raw.float().mean()) / y_raw.float().std()
-print(f"standalone predict on energy: rmse vs z-scored y = "
-      f"{float(rmse(y_std, preds)):.4f}")
+X_raw, y_raw = X_raw.float(), y_raw.float()
+preds_scaled = predict_scaled(X_raw)
+preds_raw = predict_raw(X_raw)
+assert preds_scaled.shape == (X_raw.shape[0],) and torch.isfinite(preds_scaled).all()
+assert preds_raw.shape == (X_raw.shape[0],) and torch.isfinite(preds_raw).all()
+mean, std = y_stats
+y_scaled = (y_raw - mean.squeeze()) / std.squeeze()
+# raw-unit inversion must round-trip exactly against the scaled prediction
+assert torch.allclose(preds_raw, preds_scaled * std.squeeze() + mean.squeeze(), atol=1e-4)
+print(f"standalone predict on energy: rmse (scaled) = "
+      f"{float(rmse(y_scaled, preds_scaled)):.4f}  "
+      f"rmse (raw units) = {float(rmse(y_raw, preds_raw)):.4f}")
 print("persistence + inference OK (registry.pkl not needed)")
 
 shutil.rmtree(tmp_dir, ignore_errors=True)

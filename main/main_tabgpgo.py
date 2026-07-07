@@ -8,7 +8,8 @@ Pipeline (all knobs in tabgpgo/config.py):
   2. train the MLP autoencoder on pooled X, freeze the encoder, produce
      static 512-dim latent tokens for training and validation data
   3. generate the base-tree pool and precompute its raw semantics on all tokens
-  4. evolve every SLIM variant over the pool (validation RMSE tracked per gen)
+  4. evolve every (SLIM variant, ms_hi) combination over the pool, running
+     cfg.max_workers of them concurrently (validation RMSE/R^2 tracked per gen)
   5. verify inference equivalence, save artifacts per run
 
 The expensive phase 1-3 products (synthetic data, encoder weights, latent
@@ -21,16 +22,26 @@ also be run separately:
   python main/main_tabgpgo.py evolve    # phases 4-5 (reusing the cache)
   python main/main_tabgpgo.py           # everything
 
+Phase 4 sweeps cfg.variants x cfg.ms_hi_values x range(cfg.n_runs); each
+combination gets its own algo label ("SLIM+ABS_ms10") and run directory.
+
 CSV columns of main/log/tabgpgo_results.csv:
   [algo, run_id, dataset, seed, generation, elite_train_rmse, time_s,
-   population_nodes, val_<d>_rmse (for each d in cfg.val_datasets order),
-   elite_size, elite_nodes]
+   population_nodes,
+   val_<d>_rmse_scaled, val_<d>_rmse_raw, val_<d>_r2 (per d in
+   cfg.val_datasets order -- "scaled" is in the z-scored target space the
+   model was evolved in; "raw" inverts the elite's prediction and the target
+   back with that dataset's own y_stats, comparable to other methods; R^2
+   is affine-invariant, so it's identical whether computed scaled or raw --
+   the one metric directly comparable across differently-scaled datasets),
+   elite_size, elite_nodes, elite_train_r2]
 """
 import os
 import pickle
 import sys
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -40,7 +51,7 @@ import torch
 
 from tabgpgo.autoencoder import (MLPAutoencoder, encode, reconstruction_stats,
                                  train_autoencoder)
-from tabgpgo.config import ALGO_NAMES, TabGPGOConfig
+from tabgpgo.config import TabGPGOConfig
 from tabgpgo.evolution import TensorSLIM
 from tabgpgo.inference import (reconstruct_expression, save_run,
                                verify_inference)
@@ -105,6 +116,7 @@ def prepare(cfg, verbose=True):
         verbose, "validation latent tokens")
     T_val = {name: T.to(device) for name, T in T_val.items()}
     val_targets = {name: d["y"].to(device) for name, d in val_sets.items()}
+    val_y_stats = {name: d["meta"]["y_stats"] for name, d in val_sets.items()}
 
     # -- stage 3: tree pool -------------------------------------------------------
     TERMINALS = make_terminals(cfg.latent_dim)
@@ -129,7 +141,7 @@ def prepare(cfg, verbose=True):
     return {"ae": ae, "X_train": X_train, "T_train": T_train, "y_target": y_target,
             "registry": registry, "pool_train": pool_train,
             "val_pools": val_pools, "val_targets": val_targets,
-            "val_sets": val_sets, "TERMINALS": TERMINALS}
+            "val_y_stats": val_y_stats, "val_sets": val_sets, "TERMINALS": TERMINALS}
 
 
 def evaluate_autoencoder(cfg, ctx, verbose=True):
@@ -158,33 +170,51 @@ def evaluate_autoencoder(cfg, ctx, verbose=True):
     return out
 
 
+def _run_one(cfg, variant, ms_hi, seed, ctx, unique_run_id, verbose):
+    """One (variant, ms_hi, seed) run: evolve, verify, persist. Runs safely
+    from a worker thread (TensorSLIM uses its own RNG instance, and CSV
+    writes are lock-protected in evolution.py)."""
+    wrapper, operator = variant
+    optimizer = TensorSLIM(cfg, variant, ctx["registry"], ctx["pool_train"],
+                           ctx["y_target"], ctx["val_pools"], ctx["val_targets"],
+                           ctx["val_y_stats"], seed, ms_hi=ms_hi)
+    elite = optimizer.solve(
+        run_info=[optimizer.algo, unique_run_id, "synthetic_prior"],
+        log_path=cfg.log_path, verbose=verbose)
+
+    verify_inference(elite, ctx["pool_train"], ctx["T_train"],
+                     ctx["registry"], ctx["TERMINALS"])
+    expression = reconstruct_expression(elite, ctx["registry"])
+    tag = optimizer.algo.replace("*", "x").replace("~", "t")
+    run_dir = os.path.join(cfg.run_dir_base, f"{unique_run_id}_{tag}_{seed}")
+    save_run(run_dir, cfg, ctx["ae"], ctx["registry"], elite,
+             wrapper, operator, optimizer.algo, seed, expression)
+    if verbose:
+        print(f"[{optimizer.algo} seed {seed}] done: train_rmse="
+              f"{elite.fitness:.4f} size={elite.size} -> {run_dir}")
+    return (optimizer.algo, seed), elite
+
+
 def evolve(cfg, ctx, verbose=1):
-    """Phases 4-5: variant sweep over prepared artifacts."""
+    """Phases 4-5: (variant, ms_hi, seed) sweep over prepared artifacts,
+    run concurrently across cfg.max_workers threads. Safe because all shared
+    state (pool_train, registry, val_pools, ...) is read-only after
+    prepare(), and each TensorSLIM/its logging use their own RNG/a shared
+    lock respectively (see tabgpgo/evolution.py)."""
     os.makedirs(os.path.dirname(cfg.log_path), exist_ok=True)
     unique_run_id = uuid.uuid1()
+    jobs = [(variant, ms_hi, seed)
+           for variant in cfg.variants
+           for ms_hi in cfg.ms_hi_values
+           for seed in range(cfg.n_runs)]
     elites = {}
-    for variant in cfg.variants:
-        wrapper, operator = variant
-        algo = ALGO_NAMES[variant]
-        for seed in range(cfg.n_runs):
-            optimizer = TensorSLIM(cfg, variant, ctx["registry"],
-                                   ctx["pool_train"], ctx["y_target"],
-                                   ctx["val_pools"], ctx["val_targets"], seed)
-            elite = optimizer.solve(
-                run_info=[algo, unique_run_id, "synthetic_prior"],
-                log_path=cfg.log_path, verbose=verbose)
-
-            verify_inference(elite, ctx["pool_train"], ctx["T_train"],
-                             ctx["registry"], ctx["TERMINALS"])
-            expression = reconstruct_expression(elite, ctx["registry"])
-            run_dir = os.path.join(cfg.run_dir_base,
-                                   f"{unique_run_id}_{algo.replace('*', 'x')}_{seed}")
-            save_run(run_dir, cfg, ctx["ae"], ctx["registry"], elite,
-                     wrapper, operator, algo, seed, expression)
-            elites[(algo, seed)] = elite
-            if verbose:
-                print(f"[{algo} seed {seed}] done: train_rmse="
-                      f"{elite.fitness:.4f} size={elite.size} -> {run_dir}")
+    with ThreadPoolExecutor(max_workers=cfg.max_workers) as pool:
+        futures = [pool.submit(_run_one, cfg, variant, ms_hi, seed, ctx,
+                               unique_run_id, verbose)
+                  for variant, ms_hi, seed in jobs]
+        for future in futures:
+            key, elite = future.result()
+            elites[key] = elite
     return elites, unique_run_id
 
 

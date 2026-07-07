@@ -84,11 +84,13 @@ class TabGPGOConfig:
     n_gens: int = 2000
     p_inflate: float = 0.5
     ms_lo: float = 0.0
-    ms_hi: float = 1.0
+    ms_hi: float = 1.0                  # default/fallback, overridden per run by ms_hi_values
+    ms_hi_values: tuple = (1.0, 10.0, 100.0)   # mutation-step upper-bound sweep
     tournament_size: int = 2
     n_elites: int = 1
     n_runs: int = 1                     # seeds per variant
     variants: tuple = tuple(VARIANTS)
+    max_workers: int = 4                # concurrent (variant, ms_hi, seed) runs in evolve()
 
     # --- paths / artifact caching -------------------------------------------------
     log_path: str = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_results.csv")

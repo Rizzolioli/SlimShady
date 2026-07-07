@@ -17,17 +17,21 @@ mul-operator variants use 1 + delta; blocks aggregate with sum or prod and the
 result is clamped to +-1e12 like Individual.evaluate.
 """
 import random
+import threading
 import time
 from dataclasses import dataclass, field
 
-import numpy as np
 import torch
 
-from evaluators.fitness_functions import rmse
+from evaluators.fitness_functions import r2, rmse
 from utils.logger import logger
 
 from .config import ALGO_NAMES, OPERATORS, WRAPPERS
 from .tree_pool import BOUND
+
+# CSV writes happen from every concurrently-running TensorSLIM (see
+# main_tabgpgo.py's thread-pooled evolve()); guard the shared log file.
+_LOG_LOCK = threading.Lock()
 
 # Per-block node/depth overhead of each wrapper, matching the intent of
 # nested_nodes_calculator / nested_depth_calculator in
@@ -120,14 +124,22 @@ def individual_semantics_sequential(ind, pool):
 
 
 class TensorSLIM:
-    """Tensor-pool SLIM-GSGP optimizer for one variant and one seed."""
+    """Tensor-pool SLIM-GSGP optimizer for one variant and one seed.
+
+    Uses an instance-local `random.Random` (not the global `random` module)
+    so multiple TensorSLIM runs can execute concurrently (see
+    main_tabgpgo.py's thread-pooled evolve()) without clobbering each other's
+    RNG state -- seeding the global module would make concurrent runs
+    non-reproducible and mutually corrupting.
+    """
 
     def __init__(self, cfg, variant, registry, pool_train, y_target,
-                 val_pools, val_targets, seed):
+                 val_pools, val_targets, val_y_stats, seed, ms_hi=None):
         wrapper, operator = variant
         self.cfg = cfg
         self.variant = variant
-        self.algo = ALGO_NAMES[variant]
+        self.ms_hi = cfg.ms_hi if ms_hi is None else ms_hi
+        self.algo = f"{ALGO_NAMES[variant]}_ms{self.ms_hi:g}"
         self.wrapper = wrapper          # "abs" | "sig1" | "sig2" | "mix"
         self.operator = operator        # "sum" | "mul" | "mix"
         self.mixed = wrapper == "mix" or operator == "mix"
@@ -135,19 +147,23 @@ class TensorSLIM:
         self.pool_train = pool_train        # (pool_size, n_train)
         self.y_target = y_target            # (n_train,)
         self.val_pools = val_pools          # {name: (pool_size, n_val)}
-        self.val_targets = val_targets      # {name: (n_val,)}
+        self.val_targets = val_targets      # {name: (n_val,)} -- z-scored
+        self.val_y_stats = val_y_stats      # {name: (y_mean, y_std)} -- to invert to raw units
         self.seed = seed
-        self.ms_fn = lambda: random.uniform(cfg.ms_lo, cfg.ms_hi)
+        self.rng = random.Random(seed)
+        self.ms_fn = lambda: self.rng.uniform(cfg.ms_lo, self.ms_hi)
         self.p_deflate = 1 - cfg.p_inflate
         self.elite = None
 
     # -- helpers -----------------------------------------------------------
 
-    def _evaluate(self, ind):
+    def _semantics(self, ind, pool):
         if self.mixed:
-            sem = individual_semantics_sequential(ind, self.pool_train)
-        else:
-            sem = individual_semantics(ind, self.wrapper, self.operator, self.pool_train)
+            return individual_semantics_sequential(ind, pool)
+        return individual_semantics(ind, self.wrapper, self.operator, pool)
+
+    def _evaluate(self, ind):
+        sem = self._semantics(ind, self.pool_train)
         ind.fitness = float(rmse(self.y_target, sem))
         ind.nodes_count = self._nodes_count(ind)
 
@@ -160,49 +176,57 @@ class TensorSLIM:
         return nodes + len(ind.blocks)   # size-1 linkage operators
 
     def _tournament(self, population):
-        contestants = random.sample(population, self.cfg.tournament_size)
+        contestants = self.rng.sample(population, self.cfg.tournament_size)
         return min(contestants, key=lambda i: i.fitness)
 
     def _best(self, population):
         return min(population, key=lambda i: (i.fitness, i.nodes_count))
 
     def _inflate(self, parent):
-        wrapper = random.choice(WRAPPERS) if self.wrapper == "mix" else self.wrapper
-        operator = random.choice(OPERATORS) if self.operator == "mix" else self.operator
-        idx2 = random.randrange(self.cfg.pool_size) if wrapper == "sig2" else None
-        block = Block(idx1=random.randrange(self.cfg.pool_size), idx2=idx2,
+        wrapper = self.rng.choice(WRAPPERS) if self.wrapper == "mix" else self.wrapper
+        operator = self.rng.choice(OPERATORS) if self.operator == "mix" else self.operator
+        idx2 = self.rng.randrange(self.cfg.pool_size) if wrapper == "sig2" else None
+        block = Block(idx1=self.rng.randrange(self.cfg.pool_size), idx2=idx2,
                       ms=self.ms_fn(), wrapper=wrapper, operator=operator)
         return PoolIndividual(parent.head_idx, [*parent.blocks, block])
 
     def _deflate(self, parent):
         if not parent.blocks:   # cannot deflate: copy parent (copy_parent=True)
             return PoolIndividual(parent.head_idx, list(parent.blocks))
-        point = random.randrange(len(parent.blocks))
+        point = self.rng.randrange(len(parent.blocks))
         return PoolIndividual(parent.head_idx,
                               [b for i, b in enumerate(parent.blocks) if i != point])
 
-    def elite_val_rmse(self):
-        """Elite RMSE on each validation dataset -> list in cfg order."""
-        out = []
+    def elite_val_metrics(self):
+        """Elite RMSE (scaled + raw units) and R^2 on each validation dataset.
+
+        "Scaled" is RMSE in the z-scored target space the model was evolved
+        in. "Raw" inverts both the prediction and the target with that
+        dataset's own y_stats (mean, std), so it's directly comparable to
+        other methods reporting error in the dataset's native units. R^2 is
+        reported separately because it's affine-invariant (identical whether
+        computed on scaled or raw values), so it's the one metric directly
+        comparable *across* datasets regardless of their scale.
+        Returns (scaled, raw, r2), each a list in cfg.val_datasets order.
+        """
+        scaled, raw, r2s = [], [], []
         for name in self.cfg.val_datasets:
-            pool = self.val_pools[name]
-            if self.mixed:
-                sem = individual_semantics_sequential(self.elite, pool)
-            else:
-                sem = individual_semantics(self.elite, self.wrapper, self.operator, pool)
-            out.append(float(rmse(self.val_targets[name], sem)))
-        return out
+            sem = self._semantics(self.elite, self.val_pools[name])
+            y = self.val_targets[name]
+            scaled.append(float(rmse(y, sem)))
+            r2s.append(float(r2(y, sem)))
+            mean, std = self.val_y_stats[name]
+            mean, std = mean.to(sem.device).squeeze(), std.to(sem.device).squeeze()
+            raw.append(float(rmse(y * std + mean, sem * std + mean)))
+        return scaled, raw, r2s
 
     # -- main loop ----------------------------------------------------------
 
     def solve(self, run_info, log_path, verbose=1):
         cfg = self.cfg
-        random.seed(self.seed)
-        np.random.seed(self.seed)
-        torch.manual_seed(self.seed)
 
         start = time.time()
-        population = [PoolIndividual(random.randrange(cfg.pool_size))
+        population = [PoolIndividual(self.rng.randrange(cfg.pool_size))
                       for _ in range(cfg.pop_size)]
         for ind in population:
             self._evaluate(ind)
@@ -215,7 +239,7 @@ class TensorSLIM:
                                key=lambda i: (i.fitness, i.nodes_count))[:cfg.n_elites]
             while len(offspring) < cfg.pop_size:
                 parent = self._tournament(population)
-                if random.random() < self.p_deflate:
+                if self.rng.random() < self.p_deflate:
                     child = self._deflate(parent)
                 else:
                     child = self._inflate(parent)
@@ -227,18 +251,23 @@ class TensorSLIM:
         return self.elite
 
     def _log(self, gen, elapsed, population, run_info, log_path, verbose):
-        val_rmses = self.elite_val_rmse()
+        scaled, raw, r2s = self.elite_val_metrics()
+        train_r2 = float(r2(self.y_target, self._semantics(self.elite, self.pool_train)))
         total_nodes = sum(i.nodes_count for i in population)
         # CSV columns: [algo, run_id, dataset, seed, generation,
         #               elite_train_rmse, time, population_nodes,
-        #               val_{d}_rmse (cfg.val_datasets order),
-        #               elite_size, elite_nodes]
-        logger(log_path, gen, self.elite.fitness, elapsed, float(total_nodes),
-               additional_infos=[*val_rmses, self.elite.size, self.elite.nodes_count],
-               run_info=run_info, seed=self.seed)
+        #               val_{d}_rmse_scaled, val_{d}_rmse_raw, val_{d}_r2
+        #               (cfg.val_datasets order), elite_size, elite_nodes,
+        #               elite_train_r2]
+        val_cols = [v for triple in zip(scaled, raw, r2s) for v in triple]
+        with _LOG_LOCK:
+            logger(log_path, gen, self.elite.fitness, elapsed, float(total_nodes),
+                   additional_infos=[*val_cols, self.elite.size,
+                                     self.elite.nodes_count, train_r2],
+                   run_info=run_info, seed=self.seed)
         if verbose:
-            val_str = " ".join(f"{name}={val_rmses[i]:.3f}"
+            val_str = " ".join(f"{name}={scaled[i]:.3f}/{raw[i]:.3f}/R2={r2s[i]:.3f}"
                                for i, name in enumerate(self.cfg.val_datasets))
             print(f"  [{self.algo} seed {self.seed}] gen {gen}/{self.cfg.n_gens} "
-                  f"train_rmse={self.elite.fitness:.4f} size={self.elite.size} "
-                  f"| val: {val_str} | {elapsed:.2f}s")
+                  f"train_rmse={self.elite.fitness:.4f} train_R2={train_r2:.3f} "
+                  f"size={self.elite.size} | val(scaled/raw/R2): {val_str} | {elapsed:.2f}s")

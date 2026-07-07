@@ -129,13 +129,20 @@ def verify_inference(ind, pool, T, registry, TERMINALS, atol=None):
     return True
 
 
-def make_predictor(ind, registry, model, cfg, reducer_meta=None):
+def make_predictor(ind, registry, model, cfg, reducer_meta=None, y_stats=None):
     """Standalone predictor for raw unseen data.
 
     predict(X_raw): z-scores/scales/pads X_raw using its own statistics (or a
     fitted reducer for >max_features data), encodes it with the frozen
     encoder, and evaluates the symbolic equation. Predictions live in the
-    z-scored target space the model was evolved in.
+    z-scored target space the model was evolved in, UNLESS `y_stats`
+    (a dataset's own (y_mean, y_std), e.g. from
+    ctx["val_sets"][name]["meta"]["y_stats"]) is supplied, in which case
+    predictions are inverted back to that dataset's raw target units. This
+    only applies to datasets whose y_stats you already have (i.e. one of the
+    registered validation datasets) -- it can't recover the scale of a
+    genuinely unlabeled dataset, since y_stats is derived from that
+    dataset's own y.
     """
     TERMINALS = make_terminals(cfg.latent_dim)
     device = cfg.get_device()
@@ -155,7 +162,12 @@ def make_predictor(ind, registry, model, cfg, reducer_meta=None):
         X100, _, _ = standardize_scale_pad(X, torch.zeros(X.shape[0]),
                                            cfg.max_features)
         T = encode(model, X100.to(device))
-        return semantics_from_tokens(ind, T, registry, TERMINALS)
+        sem = semantics_from_tokens(ind, T, registry, TERMINALS)
+        if y_stats is not None:
+            mean, std = y_stats
+            mean, std = mean.to(sem.device).squeeze(), std.to(sem.device).squeeze()
+            sem = sem * std + mean
+        return sem
 
     return predict
 

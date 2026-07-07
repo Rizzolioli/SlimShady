@@ -8,6 +8,12 @@ def rmse(y_true, y_pred):
 def mse(y_true, y_pred):
     return torch.mean(torch.pow(torch.sub(y_true, y_pred), 2), len(y_pred.shape)-1)
 
+def r2(y_true, y_pred):
+    dim = len(y_true.shape) - 1
+    ss_res = torch.sum(torch.pow(torch.sub(y_true, y_pred), 2), dim)
+    ss_tot = torch.sum(torch.pow(torch.sub(y_true, torch.mean(y_true, dim, keepdim=True)), 2), dim)
+    return 1 - ss_res / ss_tot
+
 def mae(y_true, y_pred):
     return torch.mean(torch.abs(torch.sub(y_true, y_pred)), len(y_pred.shape)-1)
 
