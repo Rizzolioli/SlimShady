@@ -81,7 +81,7 @@ class TabGPGOConfig:
 
     # --- evolution (Phase 4) ----------------------------------------------------
     pop_size: int = 100
-    n_gens: int = 200
+    n_gens: int = 2000
     p_inflate: float = 0.5
     ms_lo: float = 0.0
     ms_hi: float = 1.0
