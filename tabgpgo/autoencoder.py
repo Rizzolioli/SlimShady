@@ -47,8 +47,16 @@ def train_autoencoder(X_train, cfg, verbose=True):
 
 
 @torch.no_grad()
-def reconstruction_mse(model, X):
-    return nn.functional.mse_loss(model(X), X).item()
+def reconstruction_stats(model, X):
+    """Full-model (encoder+decoder) reconstruction MSE and R^2 (fraction of
+    X's overall variance explained), so datasets preprocessed at different
+    scales (zero-padded low-feature-count vs PCA/RF-reduced) are comparable.
+    """
+    recon = model(X)
+    mse = nn.functional.mse_loss(recon, X).item()
+    var = X.var(unbiased=False).item()
+    r2 = 1.0 - mse / var if var > 0 else float("nan")
+    return mse, r2
 
 
 @torch.no_grad()

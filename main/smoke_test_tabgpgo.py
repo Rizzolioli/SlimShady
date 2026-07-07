@@ -50,9 +50,11 @@ print("prior backends OK")
 
 # --- a-priori AE check, decoupled from the evolution run -----------------------
 ctx = prepare(cfg, verbose=1)
-ae_mse = evaluate_autoencoder(cfg, ctx, verbose=1)
-assert set(ae_mse) == {"synthetic(train)", *cfg.val_datasets}
-assert all(v >= 0 and v == v for v in ae_mse.values()), ae_mse  # finite, non-negative
+ae_stats = evaluate_autoencoder(cfg, ctx, verbose=1)
+assert set(ae_stats) == {"synthetic(train)", *cfg.val_datasets}
+for name, s in ae_stats.items():
+    assert s["mse"] >= 0 and s["mse"] == s["mse"], (name, s)  # finite, non-negative
+    assert s["r2"] == s["r2"], (name, s)  # finite (can be negative if the AE fails to generalize)
 print("a-priori AE reconstruction check OK")
 
 # --- full pipeline, all six variants (reuses the same prepared artifacts) ------

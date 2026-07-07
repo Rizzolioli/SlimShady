@@ -38,7 +38,7 @@ import random
 
 import torch
 
-from tabgpgo.autoencoder import (MLPAutoencoder, encode, reconstruction_mse,
+from tabgpgo.autoencoder import (MLPAutoencoder, encode, reconstruction_stats,
                                  train_autoencoder)
 from tabgpgo.config import ALGO_NAMES, TabGPGOConfig, wrapper_name
 from tabgpgo.evolution import TensorSLIM
@@ -135,17 +135,26 @@ def prepare(cfg, verbose=True):
 def evaluate_autoencoder(cfg, ctx, verbose=True):
     """A-priori sanity check of the trained encoder/decoder, run once before
     evolution (not on every prepare()/evolve() call): full-model (encoder+
-    decoder) reconstruction MSE on the synthetic training data and on every
-    real validation set, so a synthetic-trained AE that fails to generalize
-    to real data is caught before it's used to build latent tokens.
+    decoder) reconstruction MSE and R^2 on the synthetic training data and on
+    every real validation set, so a synthetic-trained AE that fails to
+    generalize to real data is caught before it's used to build latent
+    tokens. R^2 (fraction of variance explained) is reported alongside raw
+    MSE because datasets preprocessed via zero-padding (low feature count,
+    100/k-scaled) and via PCA/RF reduction (>100 features) sit on very
+    different raw scales and aren't comparable on MSE alone.
     """
     ae = ctx["ae"]
-    out = {"synthetic(train)": reconstruction_mse(ae, ctx["X_train"][:20000])}
+    device = ae.encoder[0].weight.device
+    out = {}
+    mse, r2 = reconstruction_stats(ae, ctx["X_train"][:20000])
+    out["synthetic(train)"] = {"mse": mse, "r2": r2}
     for name, d in ctx["val_sets"].items():
-        out[name] = reconstruction_mse(ae, d["X"].to(ae.encoder[0].weight.device))
+        mse, r2 = reconstruction_stats(ae, d["X"].to(device))
+        out[name] = {"mse": mse, "r2": r2}
     if verbose:
-        for name, mse in out.items():
-            print(f"AE reconstruction MSE  {name}: {mse:.5f}")
+        for name, stats in out.items():
+            print(f"AE reconstruction  {name}: "
+                  f"MSE={stats['mse']:.5f}  R2={stats['r2']:.4f}")
     return out
 
 
