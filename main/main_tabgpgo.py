@@ -170,14 +170,15 @@ def evaluate_autoencoder(cfg, ctx, verbose=True):
     return out
 
 
-def _run_one(cfg, variant, ms_hi, seed, ctx, unique_run_id, verbose):
-    """One (variant, ms_hi, seed) run: evolve, verify, persist. Runs safely
-    from a worker thread (TensorSLIM uses its own RNG instance, and CSV
-    writes are lock-protected in evolution.py)."""
+def _run_one(cfg, variant, ms_spec, seed, ctx, unique_run_id, verbose):
+    """One (variant, ms_spec, seed) run: evolve, verify, persist. ms_spec is
+    either a float (uniform-random ms up to that bound) or "oms" (regularized
+    Optimal Mutation Step). Runs safely from a worker thread (TensorSLIM uses
+    its own RNG instance, and CSV writes are lock-protected in evolution.py)."""
     wrapper, operator = variant
     optimizer = TensorSLIM(cfg, variant, ctx["registry"], ctx["pool_train"],
                            ctx["y_target"], ctx["val_pools"], ctx["val_targets"],
-                           ctx["val_y_stats"], seed, ms_hi=ms_hi)
+                           ctx["val_y_stats"], seed, ms_spec=ms_spec)
     elite = optimizer.solve(
         run_info=[optimizer.algo, unique_run_id, "synthetic_prior"],
         log_path=cfg.log_path, verbose=verbose)
@@ -196,22 +197,24 @@ def _run_one(cfg, variant, ms_hi, seed, ctx, unique_run_id, verbose):
 
 
 def evolve(cfg, ctx, verbose=1):
-    """Phases 4-5: (variant, ms_hi, seed) sweep over prepared artifacts,
-    run concurrently across cfg.max_workers threads. Safe because all shared
-    state (pool_train, registry, val_pools, ...) is read-only after
-    prepare(), and each TensorSLIM/its logging use their own RNG/a shared
-    lock respectively (see tabgpgo/evolution.py)."""
+    """Phases 4-5: (variant, ms_spec, seed) sweep over prepared artifacts,
+    run concurrently across cfg.max_workers threads. ms_spec ranges over
+    cfg.ms_hi_values (floats for uniform-random ms, or "oms" for the
+    regularized Optimal Mutation Step). Safe because all shared state
+    (pool_train, registry, val_pools, ...) is read-only after prepare(), and
+    each TensorSLIM/its logging use their own RNG/a shared lock respectively
+    (see tabgpgo/evolution.py)."""
     os.makedirs(os.path.dirname(cfg.log_path), exist_ok=True)
     unique_run_id = uuid.uuid1()
-    jobs = [(variant, ms_hi, seed)
+    jobs = [(variant, ms_spec, seed)
            for variant in cfg.variants
-           for ms_hi in cfg.ms_hi_values
+           for ms_spec in cfg.ms_hi_values
            for seed in range(cfg.n_runs)]
     elites = {}
     with ThreadPoolExecutor(max_workers=cfg.max_workers) as pool:
-        futures = [pool.submit(_run_one, cfg, variant, ms_hi, seed, ctx,
+        futures = [pool.submit(_run_one, cfg, variant, ms_spec, seed, ctx,
                                unique_run_id, verbose)
-                  for variant, ms_hi, seed in jobs]
+                  for variant, ms_spec, seed in jobs]
         for future in futures:
             key, elite = future.result()
             elites[key] = elite

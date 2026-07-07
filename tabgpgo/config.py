@@ -80,12 +80,18 @@ class TabGPGOConfig:
     p_c: float = 0.0                    # probability of constants in random trees
 
     # --- evolution (Phase 4) ----------------------------------------------------
-    pop_size: int = 200
-    n_gens: int = 2000
+    pop_size: int = 100
+    n_gens: int = 1000
     p_inflate: float = 0.5
     ms_lo: float = 0.0
     ms_hi: float = 1.0                  # default/fallback, overridden per run by ms_hi_values
-    ms_hi_values: tuple = (1.0, 10.0, 100.0)   # mutation-step upper-bound sweep
+    # Mutation-step strategy sweep: a float means "sample ms ~ U(ms_lo, that
+    # value)" per mutation event (unchanged behaviour); the literal "oms"
+    # means use the regularized Optimal Mutation Step (see TensorSLIM.
+    # _optimal_ms) instead of random sampling.
+    ms_hi_values: tuple = (1.0, 10.0, 100.0, "oms")
+    oms_bound: float = 1.0              # msl: OMS result clipped to [-oms_bound, oms_bound]
+    oms_eps: float = 1e-4               # ms_eps: |OMS| below this cancels the mutation (ms=0)
     tournament_size: int = 2
     n_elites: int = 1
     n_runs: int = 1                     # seeds per variant

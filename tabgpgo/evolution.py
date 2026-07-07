@@ -15,6 +15,11 @@ the pool stores RAW tree semantics):
     sig2:  ms * (sigmoid(TR1) - sigmoid(TR2))
 mul-operator variants use 1 + delta; blocks aggregate with sum or prod and the
 result is clamped to +-1e12 like Individual.evaluate.
+
+ms is either sampled ~ U(ms_lo, ms_hi) or, when cfg.ms_hi_values includes
+"oms", computed via the regularized Optimal Mutation Step (least-squares
+closed form for the given random tree's un-scaled wrapper output, clipped and
+zero-snapped -- see TensorSLIM._optimal_ms).
 """
 import random
 import threading
@@ -25,6 +30,7 @@ import torch
 
 from evaluators.fitness_functions import r2, rmse
 from utils.logger import logger
+from utils.utils import protected_div
 
 from .config import ALGO_NAMES, OPERATORS, WRAPPERS
 from .tree_pool import BOUND
@@ -84,6 +90,18 @@ def block_deltas(blocks, wrapper, operator, pool):
     return delta
 
 
+def wrapper_output(wrapper, tr1, tr2=None):
+    """The un-scaled wrapper term sR (i.e. the delta formulas without the
+    `ms *` factor): abs/sig1/sig2 applied to raw pool semantics. Shared by
+    the OMS calculation (which solves for the optimal ms given this term)
+    and the delta functions above (which just multiply it by ms)."""
+    if wrapper == "sig2":
+        return torch.sigmoid(tr1) - torch.sigmoid(tr2)
+    if wrapper == "sig1":
+        return 2 * torch.sigmoid(tr1) - 1
+    return 1 - 2 / (1 + torch.abs(tr1))   # abs
+
+
 def individual_semantics(ind, wrapper, operator, pool):
     """Aggregate semantics of an individual on the rows of `pool`.
 
@@ -134,12 +152,14 @@ class TensorSLIM:
     """
 
     def __init__(self, cfg, variant, registry, pool_train, y_target,
-                 val_pools, val_targets, val_y_stats, seed, ms_hi=None):
+                 val_pools, val_targets, val_y_stats, seed, ms_spec=None):
         wrapper, operator = variant
         self.cfg = cfg
         self.variant = variant
-        self.ms_hi = cfg.ms_hi if ms_hi is None else ms_hi
-        self.algo = f"{ALGO_NAMES[variant]}_ms{self.ms_hi:g}"
+        ms_spec = cfg.ms_hi if ms_spec is None else ms_spec
+        self.use_oms = ms_spec == "oms"
+        self.ms_hi = cfg.oms_bound if self.use_oms else ms_spec
+        self.algo = f"{ALGO_NAMES[variant]}_{'oms' if self.use_oms else f'ms{self.ms_hi:g}'}"
         self.wrapper = wrapper          # "abs" | "sig1" | "sig2" | "mix"
         self.operator = operator        # "sum" | "mul" | "mix"
         self.mixed = wrapper == "mix" or operator == "mix"
@@ -182,12 +202,40 @@ class TensorSLIM:
     def _best(self, population):
         return min(population, key=lambda i: (i.fitness, i.nodes_count))
 
+    def _optimal_ms(self, parent, wrapper, operator, idx1, idx2):
+        """Regularized Optimal Mutation Step (OMS/ROMS).
+
+        Solve, in the least-squares sense, for the ms that would make this
+        specific (randomly-chosen) new block land closest to the target:
+        sum:  t = s + ms*sR        => ms* = <sR, t-s> / <sR, sR>
+        mul:  t = s*(1 + ms*sR)    => ms* = <sR, t/s-1> / <sR, sR>
+        (s = parent's current train semantics, sR = this block's un-scaled
+        wrapper output, t = train target.) Regularized per the paper: clipped
+        to +-cfg.oms_bound, and snapped to 0 (mutation cancelled) if the
+        unclipped optimum is smaller in magnitude than cfg.oms_eps.
+        """
+        s = self._semantics(parent, self.pool_train)
+        tr1 = self.pool_train[idx1].float()
+        tr2 = self.pool_train[idx2].float() if idx2 is not None else None
+        sR = wrapper_output(wrapper, tr1, tr2)
+        residual = (self.y_target - s if operator == "sum"
+                   else protected_div(self.y_target, s) - 1)
+        denom = float(torch.dot(sR, sR))
+        if denom < 1e-12:
+            return 0.0
+        ms = float(torch.dot(sR, residual)) / denom
+        if abs(ms) < self.cfg.oms_eps:
+            return 0.0
+        return max(-self.cfg.oms_bound, min(self.cfg.oms_bound, ms))
+
     def _inflate(self, parent):
         wrapper = self.rng.choice(WRAPPERS) if self.wrapper == "mix" else self.wrapper
         operator = self.rng.choice(OPERATORS) if self.operator == "mix" else self.operator
+        idx1 = self.rng.randrange(self.cfg.pool_size)
         idx2 = self.rng.randrange(self.cfg.pool_size) if wrapper == "sig2" else None
-        block = Block(idx1=self.rng.randrange(self.cfg.pool_size), idx2=idx2,
-                      ms=self.ms_fn(), wrapper=wrapper, operator=operator)
+        ms = (self._optimal_ms(parent, wrapper, operator, idx1, idx2)
+             if self.use_oms else self.ms_fn())
+        block = Block(idx1=idx1, idx2=idx2, ms=ms, wrapper=wrapper, operator=operator)
         return PoolIndividual(parent.head_idx, [*parent.blocks, block])
 
     def _deflate(self, parent):
