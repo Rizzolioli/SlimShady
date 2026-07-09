@@ -1,0 +1,53 @@
+{
+  "algo": "SLIM~MIX_ms10",
+  "wrapper": "mix",
+  "operator": "mix",
+  "seed": 0,
+  "head_idx": 4515,
+  "blocks": [
+    [
+      1092,
+      null,
+      0.9900524005766165,
+      "sig1",
+      "mul"
+    ],
+    [
+      464,
+      3112,
+      0.5344386016745195,
+      "sig2",
+      "mul"
+    ]
+  ],
+  "head_structure": [
+    "subtract",
+    "z479",
+    "z324"
+  ],
+  "block_structures": [
+    [
+      [
+        "subtract",
+        "z278",
+        "z192"
+      ],
+      null
+    ],
+    [
+      [
+        "add",
+        "z422",
+        "z220"
+      ],
+      [
+        "subtract",
+        "z96",
+        "z445"
+      ]
+    ]
+  ],
+  "fitness": 1.0083039999008179,
+  "nodes_count": 29,
+  "expression": "(z479 - z324) * (1 + 0.990052*(2*sigmoid((z278 - z192)) - 1)) * (1 + 0.534439*(sigmoid((z422 + z220)) - sigmoid((z96 - z445))))"
+}

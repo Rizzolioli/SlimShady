@@ -1,0 +1,38 @@
+{
+  "algo": "SLIM*2SIG_ms100",
+  "wrapper": "sig2",
+  "operator": "mul",
+  "seed": 0,
+  "head_idx": 4515,
+  "blocks": [
+    [
+      4358,
+      2044,
+      1.3845124378640161,
+      "sig2",
+      "mul"
+    ]
+  ],
+  "head_structure": [
+    "subtract",
+    "z479",
+    "z324"
+  ],
+  "block_structures": [
+    [
+      [
+        "add",
+        "z115",
+        "z87"
+      ],
+      [
+        "subtract",
+        "z48",
+        "z62"
+      ]
+    ]
+  ],
+  "fitness": 1.2148754596710205,
+  "nodes_count": 16,
+  "expression": "(z479 - z324) * (1 + 1.38451*(sigmoid((z115 + z87)) - sigmoid((z48 - z62))))"
+}

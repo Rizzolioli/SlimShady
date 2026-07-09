@@ -1,0 +1,72 @@
+{
+  "algo": "SLIM*1SIG_ms100",
+  "wrapper": "sig1",
+  "operator": "mul",
+  "seed": 0,
+  "head_idx": 4515,
+  "blocks": [
+    [
+      2478,
+      null,
+      1.299419690664405,
+      "sig1",
+      "mul"
+    ],
+    [
+      1024,
+      null,
+      1.3221827581208156,
+      "sig1",
+      "mul"
+    ],
+    [
+      2491,
+      null,
+      0.7042958422084022,
+      "sig1",
+      "mul"
+    ]
+  ],
+  "head_structure": [
+    "subtract",
+    "z479",
+    "z324"
+  ],
+  "block_structures": [
+    [
+      [
+        "add",
+        "z243",
+        "z414"
+      ],
+      null
+    ],
+    [
+      [
+        "multiply",
+        "z504",
+        "z155"
+      ],
+      null
+    ],
+    [
+      [
+        "add",
+        [
+          "add",
+          "z495",
+          "z274"
+        ],
+        [
+          "subtract",
+          "z489",
+          "z134"
+        ]
+      ],
+      null
+    ]
+  ],
+  "fitness": 1.01207435131073,
+  "nodes_count": 46,
+  "expression": "(z479 - z324) * (1 + 1.29942*(2*sigmoid((z243 + z414)) - 1)) * (1 + 1.32218*(2*sigmoid((z504 * z155)) - 1)) * (1 + 0.704296*(2*sigmoid(((z495 + z274) + (z489 - z134))) - 1))"
+}

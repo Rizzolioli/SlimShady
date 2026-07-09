@@ -1,0 +1,57 @@
+{
+  "algo": "SLIM+2SIG_ms100",
+  "wrapper": "sig2",
+  "operator": "sum",
+  "seed": 0,
+  "head_idx": 4515,
+  "blocks": [
+    [
+      3884,
+      412,
+      0.22309805664232352,
+      "sig2",
+      "sum"
+    ],
+    [
+      1640,
+      1474,
+      0.21293152096711898,
+      "sig2",
+      "sum"
+    ]
+  ],
+  "head_structure": [
+    "subtract",
+    "z479",
+    "z324"
+  ],
+  "block_structures": [
+    [
+      [
+        "add",
+        "z249",
+        "z163"
+      ],
+      [
+        "subtract",
+        "z229",
+        "z237"
+      ]
+    ],
+    [
+      [
+        "multiply",
+        "z292",
+        "z287"
+      ],
+      [
+        "add",
+        "z83",
+        "z224"
+      ]
+    ]
+  ],
+  "fitness": 1.535667061805725,
+  "nodes_count": 25,
+  "expression": "(z479 - z324) + 0.223098*(sigmoid((z249 + z163)) - sigmoid((z229 - z237))) + 0.212932*(sigmoid((z292 * z287)) - sigmoid((z83 + z224)))"
+}

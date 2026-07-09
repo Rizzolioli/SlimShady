@@ -1,0 +1,77 @@
+{
+  "algo": "SLIM~MIX_ms100",
+  "wrapper": "mix",
+  "operator": "mix",
+  "seed": 0,
+  "head_idx": 4515,
+  "blocks": [
+    [
+      830,
+      null,
+      0.9627428392259829,
+      "sig1",
+      "mul"
+    ],
+    [
+      1102,
+      2177,
+      0.49213984170602965,
+      "sig2",
+      "mul"
+    ]
+  ],
+  "head_structure": [
+    "subtract",
+    "z479",
+    "z324"
+  ],
+  "block_structures": [
+    [
+      [
+        "subtract",
+        "z8",
+        "z328"
+      ],
+      null
+    ],
+    [
+      [
+        "add",
+        "z447",
+        "z198"
+      ],
+      [
+        "divide",
+        [
+          "multiply",
+          [
+            "subtract",
+            "z370",
+            "z126"
+          ],
+          [
+            "subtract",
+            "z135",
+            "z360"
+          ]
+        ],
+        [
+          "multiply",
+          [
+            "multiply",
+            "z215",
+            "z89"
+          ],
+          [
+            "subtract",
+            "z436",
+            "z398"
+          ]
+        ]
+      ]
+    ]
+  ],
+  "fitness": 1.1088663339614868,
+  "nodes_count": 41,
+  "expression": "(z479 - z324) * (1 + 0.962743*(2*sigmoid((z8 - z328)) - 1)) * (1 + 0.49214*(sigmoid((z447 + z198)) - sigmoid((((z370 - z126) * (z135 - z360)) / ((z215 * z89) * (z436 - z398))))))"
+}

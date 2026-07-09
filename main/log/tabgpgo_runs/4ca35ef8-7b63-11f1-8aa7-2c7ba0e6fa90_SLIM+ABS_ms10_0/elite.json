@@ -1,0 +1,34 @@
+{
+  "algo": "SLIM+ABS_ms10",
+  "wrapper": "abs",
+  "operator": "sum",
+  "seed": 0,
+  "head_idx": 4515,
+  "blocks": [
+    [
+      1004,
+      null,
+      0.6292927055757691,
+      "abs",
+      "sum"
+    ]
+  ],
+  "head_structure": [
+    "subtract",
+    "z479",
+    "z324"
+  ],
+  "block_structures": [
+    [
+      [
+        "divide",
+        "z396",
+        "z111"
+      ],
+      null
+    ]
+  ],
+  "fitness": 1.5269004106521606,
+  "nodes_count": 16,
+  "expression": "(z479 - z324) + 0.629293*(1 - 2/(1 + abs((z396 / z111))))"
+}
