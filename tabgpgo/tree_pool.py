@@ -56,27 +56,36 @@ def evaluate_structure(structure, T, TERMINALS):
     return CONSTANTS[structure](None)
 
 
+def generate_ramped_structures(n, init_depth, p_c, TERMINALS):
+    """Generate n random tree structures (ramped, half grow/full).
+
+    Returns a registry: list of {"structure", "nodes", "depth"} dicts.
+    Uses the global `random`/`np.random` RNGs — caller seeds beforehand.
+    """
+    depth_fn = tree_depth(FUNCTIONS)
+    registry = []
+    depths = list(range(2, init_depth + 1))
+    for i in range(n):
+        depth = depths[i % len(depths)]
+        if i % 2 == 0:
+            structure = create_grow_random_tree(depth, FUNCTIONS, TERMINALS,
+                                                CONSTANTS, p_c=p_c)
+        else:
+            structure = create_full_random_tree(depth, FUNCTIONS, TERMINALS,
+                                                CONSTANTS, p_c=p_c)
+        nodes = len(list(flatten(structure))) if isinstance(structure, tuple) else 1
+        registry.append({"structure": structure, "nodes": nodes,
+                         "depth": depth_fn(structure)})
+    return registry
+
+
 def build_pool(cfg, TERMINALS):
     """Generate cfg.pool_size random tree structures (ramped, half grow/full).
 
     Returns the registry: list of {"structure", "nodes", "depth"} dicts.
     Uses the global `random` RNG — caller seeds beforehand.
     """
-    depth_fn = tree_depth(FUNCTIONS)
-    registry = []
-    depths = list(range(2, cfg.init_depth + 1))
-    for i in range(cfg.pool_size):
-        depth = depths[i % len(depths)]
-        if i % 2 == 0:
-            structure = create_grow_random_tree(depth, FUNCTIONS, TERMINALS,
-                                                CONSTANTS, p_c=cfg.p_c)
-        else:
-            structure = create_full_random_tree(depth, FUNCTIONS, TERMINALS,
-                                                CONSTANTS, p_c=cfg.p_c)
-        nodes = len(list(flatten(structure))) if isinstance(structure, tuple) else 1
-        registry.append({"structure": structure, "nodes": nodes,
-                         "depth": depth_fn(structure)})
-    return registry
+    return generate_ramped_structures(cfg.pool_size, cfg.init_depth, cfg.p_c, TERMINALS)
 
 
 @torch.no_grad()
