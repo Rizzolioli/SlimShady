@@ -98,6 +98,16 @@ class TabGPGOConfig:
     variants: tuple = tuple(VARIANTS)
     max_workers: int = 4                # concurrent (variant, ms_hi, seed) runs in evolve()
 
+    # --- anti-stagnation (FreshPoolSLIM only -- tabgpgo/evolution_freshpool.py;
+    # TensorSLIM never reads these) ----------------------------------------------
+    # None or <=0 disables the mechanism entirely.
+    stagnation_patience: int | None = 5   # gens with no elite-fitness improvement before a sweep
+    stagnation_replace_frac: float = 0.5   # fraction of the population (worst-fitness-ranked) replaced per sweep
+    # Sweep of stagnation_patience settings for main/main_tabgpgo_freshpool.py's
+    # evolve_freshpool(), analogous to ms_hi_values -- crossed with
+    # variants x ms_hi_values x n_runs, each combo getting its own run.
+    stagnation_patience_values: tuple = (None, 5, 10, 50)
+
     # --- paths / artifact caching -------------------------------------------------
     log_path: str = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_results.csv")
     run_dir_base: str = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_runs")

@@ -78,11 +78,16 @@ def _cached(cfg, fname, compute, verbose, desc):
     return result
 
 
-def prepare(cfg, verbose=True):
+def prepare(cfg, verbose=True, build_static_pool=True):
     """Phases 1-3 with per-stage artifact caching.
 
     Pool semantics are always recomputed from registry + tokens (too large to
     cache); everything else is loaded from cfg.artifacts_dir when present.
+
+    build_static_pool=False skips stage 3 entirely (registry/pool_train/
+    val_pools are None) -- for evolution variants that never use the static
+    upfront pool (see tabgpgo/evolution_freshpool.py), so its ~10GB semantics
+    tensor is never built for nothing.
     """
     device = cfg.get_device()
     # MPS enforces a per-buffer/working-set limit well below what a single
@@ -127,9 +132,16 @@ def prepare(cfg, verbose=True):
     val_targets = {name: d["y"].to(pool_device) for name, d in val_sets.items()}
     val_y_stats = {name: d["meta"]["y_stats"] for name, d in val_sets.items()}
 
-    # -- stage 3: tree pool -------------------------------------------------------
     TERMINALS = make_terminals(cfg.latent_dim)
 
+    base_ctx = {"ae": ae, "X_train": X_train, "T_train": T_train, "y_target": y_target,
+                "val_targets": val_targets, "val_y_stats": val_y_stats,
+                "val_sets": val_sets, "TERMINALS": TERMINALS, "T_val": T_val}
+
+    if not build_static_pool:
+        return {**base_ctx, "registry": None, "pool_train": None, "val_pools": None}
+
+    # -- stage 3: tree pool -------------------------------------------------------
     def _build_registry():
         random.seed(cfg.data_seed)
         return build_pool(cfg, TERMINALS)
@@ -147,10 +159,8 @@ def prepare(cfg, verbose=True):
         print(f"pool semantics: {tuple(pool_train.shape)} "
               f"({gb:.2f} GB, {time.time() - t0:.1f}s, recomputed each start)")
 
-    return {"ae": ae, "X_train": X_train, "T_train": T_train, "y_target": y_target,
-            "registry": registry, "pool_train": pool_train,
-            "val_pools": val_pools, "val_targets": val_targets,
-            "val_y_stats": val_y_stats, "val_sets": val_sets, "TERMINALS": TERMINALS}
+    return {**base_ctx, "registry": registry, "pool_train": pool_train,
+            "val_pools": val_pools}
 
 
 def evaluate_autoencoder(cfg, ctx, verbose=True):
