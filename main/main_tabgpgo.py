@@ -85,15 +85,24 @@ def prepare(cfg, verbose=True):
     cache); everything else is loaded from cfg.artifacts_dir when present.
     """
     device = cfg.get_device()
+    # MPS enforces a per-buffer/working-set limit well below what a single
+    # CUDA GPU or the host's own RAM would allow, and the tree-pool tensor
+    # (pool_size x n_train, several GB) plus the val pools don't fit inside
+    # it alongside everything else already resident on the GPU. Keep the
+    # pool -- and everything indexed against it during evolution (targets,
+    # latent tokens) -- on CPU when running on Apple Silicon; CUDA/CPU runs
+    # are unaffected.
+    pool_device = torch.device("cpu") if device.type == "mps" else device
     if verbose:
-        print(f"device: {device} | artifacts: {cfg.artifacts_dir}")
+        print(f"device: {device} | pool device: {pool_device} | "
+              f"artifacts: {cfg.artifacts_dir}")
 
     # -- stage 1: data ---------------------------------------------------------
     X_train, y_target = _cached(
         cfg, "synthetic_pool.pt",
         lambda: build_synthetic_pool(cfg), verbose,
         f"synthetic pool ({cfg.n_synth_datasets} x {cfg.n_rows} rows)")
-    X_train, y_target = X_train.to(device), y_target.to(device)
+    X_train, y_target = X_train.to(device), y_target.to(pool_device)
     val_sets = _cached(cfg, "val_sets.pkl",
                        lambda: load_validation_sets(cfg), verbose,
                        "validation datasets")
@@ -109,13 +118,13 @@ def prepare(cfg, verbose=True):
     ae.eval().requires_grad_(False)
 
     T_train = _cached(cfg, "T_train.pt", lambda: encode(ae, X_train),
-                      verbose, "training latent tokens").to(device)
+                      verbose, "training latent tokens").to(pool_device)
     T_val = _cached(
         cfg, "T_val.pt",
         lambda: {name: encode(ae, d["X"].to(device)) for name, d in val_sets.items()},
         verbose, "validation latent tokens")
-    T_val = {name: T.to(device) for name, T in T_val.items()}
-    val_targets = {name: d["y"].to(device) for name, d in val_sets.items()}
+    T_val = {name: T.to(pool_device) for name, T in T_val.items()}
+    val_targets = {name: d["y"].to(pool_device) for name, d in val_sets.items()}
     val_y_stats = {name: d["meta"]["y_stats"] for name, d in val_sets.items()}
 
     # -- stage 3: tree pool -------------------------------------------------------

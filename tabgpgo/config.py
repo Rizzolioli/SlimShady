@@ -50,7 +50,7 @@ ALGO_NAMES = {
 @dataclass
 class TabGPGOConfig:
     # --- device -------------------------------------------------------------
-    device: str = "auto"                # "auto" | "cuda" | "cpu"
+    device: str = "auto"                # "auto" | "cuda" | "mps" | "cpu"
 
     # --- synthetic prior (Phase 1) -------------------------------------------
     prior_backend: str = "tabpfn_v1"    # "tabpfn_v1" | "simple_scm"
@@ -111,7 +111,11 @@ class TabGPGOConfig:
 
     def get_device(self):
         if self.device == "auto":
-            return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            if torch.cuda.is_available():
+                return torch.device("cuda")
+            if torch.backends.mps.is_available():
+                return torch.device("mps")
+            return torch.device("cpu")
         return torch.device(self.device)
 
     def get_pool_dtype(self):
