@@ -25,10 +25,20 @@ Writes:
   main/log/tabgpgo_hpt_runs/          -- persisted run artifacts, one dir per
                                          run (elite.json/config.json/etc.),
                                          same as main_tabgpgo.py's evolve()
+Resumable: before submitting jobs, scans main/log/tabgpgo_hpt_runs/ for run
+directories that already have both config.json and elite.json (save_run()
+only writes those after solve() + verify_inference() succeed, so a directory
+missing either file was interrupted mid-run and gets redone) and skips any
+(pop_size, tournament_size, p_inflate, n_elites, variant, seed) combo that's
+already there. The manifest is rebuilt from that same directory scan every
+time run_hpt() finishes, so it always reflects everything on disk -- previous
+invocations' runs included -- regardless of how many times the process gets
+interrupted.
 """
 import csv
 import dataclasses
 import itertools
+import json
 import os
 import sys
 import uuid
@@ -53,8 +63,32 @@ RUN_DIR_BASE = os.path.join("main", "log", "tabgpgo_hpt_runs")
 MANIFEST_PATH = os.path.join("main", "log", "tabgpgo_hpt_manifest.csv")
 
 
-def build_jobs(base_cfg):
-    """One (cfg, variant, overrides) tuple per (grid combo x MIX variant)."""
+def _scan_completed(run_dir_base):
+    """(pop_size, tournament_size, p_inflate, n_elites, algo, seed) keys for
+    every run directory that finished (has both config.json and elite.json).
+    A directory missing either file was interrupted mid-run, so it's NOT
+    counted as completed and its combo will be resubmitted."""
+    completed = set()
+    if not os.path.isdir(run_dir_base):
+        return completed
+    for d in os.listdir(run_dir_base):
+        full = os.path.join(run_dir_base, d)
+        cfg_path = os.path.join(full, "config.json")
+        elite_path = os.path.join(full, "elite.json")
+        if not (os.path.isfile(cfg_path) and os.path.isfile(elite_path)):
+            continue
+        with open(cfg_path) as fh:
+            cfg = json.load(fh)
+        with open(elite_path) as fh:
+            elite = json.load(fh)
+        completed.add((cfg["pop_size"], cfg["tournament_size"], cfg["p_inflate"],
+                       cfg["n_elites"], elite["algo"], elite["seed"]))
+    return completed
+
+
+def build_jobs(base_cfg, seed, completed):
+    """One (cfg, variant, overrides) tuple per (grid combo x MIX variant),
+    skipping combos already present in `completed`."""
     keys = list(GRID)
     jobs = []
     for values in itertools.product(*(GRID[k] for k in keys)):
@@ -62,43 +96,67 @@ def build_jobs(base_cfg):
         cfg = dataclasses.replace(base_cfg, log_path=LOG_PATH,
                                   run_dir_base=RUN_DIR_BASE, **overrides)
         for variant in MIX_VARIANTS:
+            algo = f"{ALGO_NAMES[variant]}_oms"
+            key = (overrides["pop_size"], overrides["tournament_size"],
+                  overrides["p_inflate"], overrides["n_elites"], algo, seed)
+            if key in completed:
+                continue
             jobs.append((cfg, variant, overrides))
     return jobs
 
 
-def _submit(cfg, variant, overrides, ctx, seed, verbose):
-    run_id = uuid.uuid1()
-    (algo, run_seed), elite = _run_one(cfg, variant, "oms", seed, ctx, run_id, verbose)
-    return {
-        "run_id": run_id, "algo": algo, "variant": ALGO_NAMES[variant], "seed": run_seed,
-        **overrides,
-        "elite_train_rmse": elite.fitness, "elite_size": elite.size,
-        "elite_nodes": elite.nodes_count,
-    }
+def _rebuild_manifest(run_dir_base, manifest_path):
+    """Regenerate the manifest CSV from every completed run directory on disk
+    (this invocation's runs plus any from previous, interrupted invocations),
+    so it's always consistent with what's actually there."""
+    rows = []
+    for d in sorted(os.listdir(run_dir_base)) if os.path.isdir(run_dir_base) else []:
+        full = os.path.join(run_dir_base, d)
+        cfg_path = os.path.join(full, "config.json")
+        elite_path = os.path.join(full, "elite.json")
+        if not (os.path.isfile(cfg_path) and os.path.isfile(elite_path)):
+            continue
+        with open(cfg_path) as fh:
+            cfg = json.load(fh)
+        with open(elite_path) as fh:
+            elite = json.load(fh)
+        rows.append({
+            "run_id": d.split("_", 1)[0], "algo": elite["algo"],
+            "variant": elite["algo"].rsplit("_", 1)[0], "seed": elite["seed"],
+            "pop_size": cfg["pop_size"], "tournament_size": cfg["tournament_size"],
+            "p_inflate": cfg["p_inflate"], "n_elites": cfg["n_elites"],
+            "elite_train_rmse": elite["fitness"], "elite_size": len(elite["blocks"]) + 1,
+            "elite_nodes": elite["nodes_count"],
+        })
+    if rows:
+        with open(manifest_path, "w", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(rows)
+    return rows
 
 
 def run_hpt(max_workers=4, seed=0, verbose=1):
     base_cfg = TabGPGOConfig()
     ctx = prepare(base_cfg, verbose=True)
 
-    jobs = build_jobs(base_cfg)
-    print(f"HPT grid: {len(jobs)} runs "
-          f"({len(GRID['pop_size'])}x{len(GRID['tournament_size'])}x"
-          f"{len(GRID['p_inflate'])}x{len(GRID['n_elites'])} combos x "
-          f"{len(MIX_VARIANTS)} variants)")
+    completed = _scan_completed(RUN_DIR_BASE)
+    jobs = build_jobs(base_cfg, seed, completed)
+    total_planned = (len(GRID["pop_size"]) * len(GRID["tournament_size"]) *
+                     len(GRID["p_inflate"]) * len(GRID["n_elites"]) * len(MIX_VARIANTS))
+    print(f"HPT grid: {total_planned} total combos, {len(completed)} already done, "
+          f"{len(jobs)} left to run")
 
-    os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
-    manifest_rows = []
-    with ThreadPoolExecutor(max_workers=max_workers) as pool:
-        futures = [pool.submit(_submit, cfg, variant, overrides, ctx, seed, verbose)
-                  for cfg, variant, overrides in jobs]
-        for future in futures:
-            manifest_rows.append(future.result())
+    if jobs:
+        os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            futures = [pool.submit(_run_one, cfg, variant, "oms", seed, ctx,
+                                   uuid.uuid1(), verbose)
+                      for cfg, variant, overrides in jobs]
+            for future in futures:
+                future.result()
 
-    with open(MANIFEST_PATH, "w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(manifest_rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(manifest_rows)
+    manifest_rows = _rebuild_manifest(RUN_DIR_BASE, MANIFEST_PATH)
     print(f"wrote {len(manifest_rows)} rows -> {MANIFEST_PATH}")
     return manifest_rows
 
