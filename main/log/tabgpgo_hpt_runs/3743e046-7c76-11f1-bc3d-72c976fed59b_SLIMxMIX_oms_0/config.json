@@ -1,0 +1,95 @@
+{
+  "device": "auto",
+  "prior_backend": "tabpfn_v1",
+  "n_synth_datasets": 1000,
+  "n_rows": 500,
+  "max_features": 100,
+  "min_features": 2,
+  "data_seed": 42,
+  "val_datasets": [
+    "ppb",
+    "toxicity",
+    "resid_build_sale_price",
+    "instanbul",
+    "energy",
+    "concrete"
+  ],
+  "reducer": "pca",
+  "val_seed": 1,
+  "ae_hidden": 256,
+  "latent_dim": 512,
+  "ae_epochs": 50,
+  "ae_batch": 4096,
+  "ae_lr": 0.001,
+  "pool_size": 5000,
+  "pool_dtype": "float32",
+  "init_depth": 6,
+  "p_c": 0.0,
+  "pop_size": 50,
+  "n_gens": 200,
+  "p_inflate": 0.3,
+  "ms_lo": 0.0,
+  "ms_hi": 1.0,
+  "ms_hi_values": [
+    1.0,
+    10.0,
+    100.0,
+    "oms"
+  ],
+  "oms_bound": 1.0,
+  "oms_eps": 0.0001,
+  "tournament_size": 10,
+  "n_elites": 1,
+  "n_runs": 1,
+  "variants": [
+    [
+      "sig2",
+      "sum"
+    ],
+    [
+      "sig2",
+      "mul"
+    ],
+    [
+      "sig1",
+      "sum"
+    ],
+    [
+      "sig1",
+      "mul"
+    ],
+    [
+      "abs",
+      "sum"
+    ],
+    [
+      "abs",
+      "mul"
+    ],
+    [
+      "mix",
+      "sum"
+    ],
+    [
+      "mix",
+      "mul"
+    ],
+    [
+      "mix",
+      "mix"
+    ]
+  ],
+  "max_workers": 4,
+  "stagnation_patience": 5,
+  "stagnation_replace_frac": 0.5,
+  "stagnation_patience_values": [
+    null,
+    5,
+    10,
+    50
+  ],
+  "log_path": "/Users/davide/Documents/GitHub/SlimShady/main/log/tabgpgo_hpt_results.csv",
+  "run_dir_base": "/Users/davide/Documents/GitHub/SlimShady/main/log/tabgpgo_hpt_runs",
+  "artifacts_dir": "/Users/davide/Documents/GitHub/SlimShady/main/log/tabgpgo_artifacts",
+  "reuse_artifacts": true
+}
