@@ -9,7 +9,8 @@ Pipeline:
   1-2. identical to main_tabgpgo.py (synthetic data + AE + latent tokens),
        reused directly via `prepare(cfg, build_static_pool=False)`.
   3. (skipped -- ctx["registry"]/["pool_train"]/["val_pools"] are None)
-  4. evolve every (SLIM variant, ms_hi) combination with FreshPoolSLIM,
+  4. evolve every (ms_hi, stagnation_patience, seed) combination for the
+     single SLIM*MIX variant (see VARIANTS_OVERRIDE below) with FreshPoolSLIM,
      running cfg.max_workers of them concurrently.
   5. verify inference equivalence, save artifacts per run -- via
      tabgpgo/evolution_freshpool.py's build_adapter(), reusing
@@ -47,9 +48,19 @@ from tabgpgo.config import REPO_ROOT, TabGPGOConfig
 from tabgpgo.evolution_freshpool import FreshPoolSLIM, build_adapter
 from tabgpgo.inference import reconstruct_expression, save_run, verify_inference
 
-# TODO: fill in with the best combo from main/hpt_tabgpgo.py's sweep
-# (see main/log/tabgpgo_hpt_manifest.csv) once results are in.
-HPT_OVERRIDES = dict(pop_size=None, tournament_size=None, p_inflate=None, n_elites=None)
+# Winning combo from main/hpt_tabgpgo.py's full 108-combo x 3-variant sweep
+# (see main/log/tabgpgo_hpt_manifest.csv / tabgpgo_hpt_results.csv), picked by
+# aggregating zero-shot val_r2 across all 3 MIX variants and all 6 real
+# datasets (average R^2, mean rank, and median rank all agree on this combo
+# among the top handful).
+HPT_OVERRIDES = dict(pop_size=200, tournament_size=2, p_inflate=0.5, n_elites=5)
+
+# SLIM*MIX only: of the 3 MIX variants, it's the one whose zero-shot val_r2
+# stayed near 0 (never strongly negative) across all 6 real datasets in the
+# HPT sweep, unlike SLIM+MIX/SLIM~MIX which swing sharply negative on some
+# datasets -- see the winning-combo per-variant breakdown in the HPT
+# dashboard. This script no longer sweeps variants at all.
+VARIANTS_OVERRIDE = (("mix", "mul"),)  # SLIM*MIX
 
 FRESHPOOL_LOG_PATH = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_freshpool_results.csv")
 FRESHPOOL_RUN_DIR_BASE = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_freshpool_runs")
@@ -63,6 +74,7 @@ def build_config(**extra):
             "main/hpt_tabgpgo.py's sweep results (see "
             "main/log/tabgpgo_hpt_manifest.csv) before running this script.")
     return dataclasses.replace(TabGPGOConfig(), log_path=FRESHPOOL_LOG_PATH,
+                               variants=VARIANTS_OVERRIDE,
                                run_dir_base=FRESHPOOL_RUN_DIR_BASE,
                                **HPT_OVERRIDES, **extra)
 
