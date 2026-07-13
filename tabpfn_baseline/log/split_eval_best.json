@@ -1,0 +1,84 @@
+{
+  "main": {
+    "ppb": {
+      "algo": "SLIM*MIX_oms",
+      "run_id": "4ca35ef8-7b63-11f1-8aa7-2c7ba0e6fa90",
+      "variant": "SLIM*MIX",
+      "ms": "oms"
+    },
+    "toxicity": {
+      "algo": "SLIM*1SIG_ms100",
+      "run_id": "4ca35ef8-7b63-11f1-8aa7-2c7ba0e6fa90",
+      "variant": "SLIM*1SIG",
+      "ms": "ms100"
+    },
+    "resid_build_sale_price": {
+      "algo": "SLIM*1SIG_ms10",
+      "run_id": "4ca35ef8-7b63-11f1-8aa7-2c7ba0e6fa90",
+      "variant": "SLIM*1SIG",
+      "ms": "ms10"
+    },
+    "instanbul": {
+      "algo": "SLIM*1SIG_ms10",
+      "run_id": "4ca35ef8-7b63-11f1-8aa7-2c7ba0e6fa90",
+      "variant": "SLIM*1SIG",
+      "ms": "ms10"
+    },
+    "energy": {
+      "algo": "SLIM*1SIG_ms10",
+      "run_id": "4ca35ef8-7b63-11f1-8aa7-2c7ba0e6fa90",
+      "variant": "SLIM*1SIG",
+      "ms": "ms10"
+    },
+    "concrete": {
+      "algo": "SLIM~MIX_oms",
+      "run_id": "4ca35ef8-7b63-11f1-8aa7-2c7ba0e6fa90",
+      "variant": "SLIM~MIX",
+      "ms": "oms"
+    }
+  },
+  "hpt": {
+    "ppb": {
+      "algo": "SLIM~MIX_oms",
+      "run_id": "036316a0-7c46-11f1-8c80-72c976fed59b",
+      "variant": "SLIM~MIX",
+      "p_inflate": 0.7,
+      "n_elites": 1
+    },
+    "toxicity": {
+      "algo": "SLIM~MIX_oms",
+      "run_id": "8f9d8705-7ba5-11f1-8bf7-2c7ba0e6fa90",
+      "variant": "SLIM~MIX",
+      "p_inflate": 0.5,
+      "n_elites": 1
+    },
+    "resid_build_sale_price": {
+      "algo": "SLIM~MIX_oms",
+      "run_id": "036316a0-7c46-11f1-8c80-72c976fed59b",
+      "variant": "SLIM~MIX",
+      "p_inflate": 0.7,
+      "n_elites": 1
+    },
+    "instanbul": {
+      "algo": "SLIM*MIX_oms",
+      "run_id": "03631916-7c46-11f1-8c80-72c976fed59b",
+      "variant": "SLIM*MIX",
+      "p_inflate": 0.7,
+      "n_elites": 3
+    },
+    "energy": {
+      "algo": "SLIM+MIX_oms",
+      "run_id": "c2e13031-7ba3-11f1-9300-2c7ba0e6fa90",
+      "variant": "SLIM+MIX",
+      "p_inflate": 0.3,
+      "n_elites": 10
+    },
+    "concrete": {
+      "algo": "SLIM~MIX_oms",
+      "run_id": "f982e7ee-7ba1-11f1-87b7-2c7ba0e6fa90",
+      "variant": "SLIM~MIX",
+      "p_inflate": 0.3,
+      "n_elites": 3
+    }
+  }
+}
