@@ -1,0 +1,156 @@
+main-sweep best per dataset: {'ppb': 'SLIM*MIX_oms', 'toxicity': 'SLIM*1SIG_ms100', 'resid_build_sale_price': 'SLIM*1SIG_ms10', 'instanbul': 'SLIM*1SIG_ms10', 'energy': 'SLIM*1SIG_ms10', 'concrete': 'SLIM~MIX_oms'}
+hpt-sweep best per dataset:  {'ppb': 'SLIM~MIX_oms', 'toxicity': 'SLIM~MIX_oms', 'resid_build_sale_price': 'SLIM~MIX_oms', 'instanbul': 'SLIM*MIX_oms', 'energy': 'SLIM+MIX_oms', 'concrete': 'SLIM~MIX_oms'}
+  [ppb/split0/tabpfn_v2] rmse=40.5624 r2=-0.2365
+  [ppb/split0/tabpfn_v3] rmse=41.1427 r2=-0.2721
+  [ppb/split0/tabgpgo_main] rmse=88.1926 r2=-4.8451
+  [ppb/split0/tabgpgo_hpt] rmse=39.1348 r2=-0.1510
+  [ppb/split1/tabpfn_v2] rmse=27.1621 r2=-0.1034
+  [ppb/split1/tabpfn_v3] rmse=26.5891 r2=-0.0574
+  [ppb/split1/tabgpgo_main] rmse=25.6410 r2=0.0167
+  [ppb/split1/tabgpgo_hpt] rmse=31.9256 r2=-0.5244
+  [ppb/split2/tabpfn_v2] rmse=28.4091 r2=-0.0880
+  [ppb/split2/tabpfn_v3] rmse=28.1159 r2=-0.0656
+  [ppb/split2/tabgpgo_main] rmse=27.4751 r2=-0.0176
+  [ppb/split2/tabgpgo_hpt] rmse=30.5794 r2=-0.2606
+  [ppb/split3/tabpfn_v2] rmse=32.4343 r2=-0.2308
+  [ppb/split3/tabpfn_v3] rmse=33.3263 r2=-0.2995
+  [ppb/split3/tabgpgo_main] rmse=29.5364 r2=-0.0207
+  [ppb/split3/tabgpgo_hpt] rmse=29.2715 r2=-0.0025
+  [ppb/split4/tabpfn_v2] rmse=36.1438 r2=-0.1916
+  [ppb/split4/tabpfn_v3] rmse=36.0780 r2=-0.1872
+  [ppb/split4/tabgpgo_main] rmse=92.8401 r2=-6.8619
+  [ppb/split4/tabgpgo_hpt] rmse=44.9826 r2=-0.8456
+[ppb] done
+  [toxicity/split0/tabpfn_v2] rmse=1868.7551 r2=0.0410
+  [toxicity/split0/tabpfn_v3] rmse=1859.3521 r2=0.0507
+  [toxicity/split0/tabgpgo_main] rmse=2090.7092 r2=-0.2003
+  [toxicity/split0/tabgpgo_hpt] rmse=1842.4827 r2=0.0678
+  [toxicity/split1/tabpfn_v2] rmse=2550.5347 r2=-0.0357
+  [toxicity/split1/tabpfn_v3] rmse=2624.6682 r2=-0.0968
+  [toxicity/split1/tabgpgo_main] rmse=2695.4753 r2=-0.1568
+  [toxicity/split1/tabgpgo_hpt] rmse=2599.0200 r2=-0.0755
+  [toxicity/split2/tabpfn_v2] rmse=2234.0149 r2=-0.0021
+  [toxicity/split2/tabpfn_v3] rmse=2241.7744 r2=-0.0090
+  [toxicity/split2/tabgpgo_main] rmse=2252.8169 r2=-0.0190
+  [toxicity/split2/tabgpgo_hpt] rmse=2227.4570 r2=0.0038
+  [toxicity/split3/tabpfn_v2] rmse=2023.2482 r2=-0.0486
+  [toxicity/split3/tabpfn_v3] rmse=1972.0262 r2=0.0038
+  [toxicity/split3/tabgpgo_main] rmse=2021.6141 r2=-0.0469
+  [toxicity/split3/tabgpgo_hpt] rmse=2000.9534 r2=-0.0256
+  [toxicity/split4/tabpfn_v2] rmse=1953.1796 r2=-0.1505
+  [toxicity/split4/tabpfn_v3] rmse=1898.2242 r2=-0.0867
+  [toxicity/split4/tabgpgo_main] rmse=1871.6963 r2=-0.0565
+  [toxicity/split4/tabgpgo_hpt] rmse=1876.8254 r2=-0.0623
+[toxicity] done
+  [resid_build_sale_price/split0/tabpfn_v2] rmse=256.0292 r2=-1.3410
+  [resid_build_sale_price/split0/tabpfn_v3] rmse=281.9534 r2=-1.8391
+  [resid_build_sale_price/split0/tabgpgo_main] rmse=196.1787 r2=-0.3745
+  [resid_build_sale_price/split0/tabgpgo_hpt] rmse=200.1032 r2=-0.4300
+  [resid_build_sale_price/split1/tabpfn_v2] rmse=67.2855 r2=0.8376
+  [resid_build_sale_price/split1/tabpfn_v3] rmse=95.3546 r2=0.6738
+  [resid_build_sale_price/split1/tabgpgo_main] rmse=235.3071 r2=-0.9863
+  [resid_build_sale_price/split1/tabgpgo_hpt] rmse=126.5201 r2=0.4258
+  [resid_build_sale_price/split2/tabpfn_v2] rmse=18.3168 r2=0.9840
+  [resid_build_sale_price/split2/tabpfn_v3] rmse=16.9553 r2=0.9863
+  [resid_build_sale_price/split2/tabgpgo_main] rmse=145.8997 r2=-0.0123
+  [resid_build_sale_price/split2/tabgpgo_hpt] rmse=117.6483 r2=0.3418
+  [resid_build_sale_price/split3/tabpfn_v2] rmse=292.5784 r2=-3.6810
+  [resid_build_sale_price/split3/tabpfn_v3] rmse=333.1200 r2=-5.0681
+  [resid_build_sale_price/split3/tabgpgo_main] rmse=389.5073 r2=-7.2963
+  [resid_build_sale_price/split3/tabgpgo_hpt] rmse=110.4657 r2=0.3327
+  [resid_build_sale_price/split4/tabpfn_v2] rmse=18.7520 r2=0.9890
+  [resid_build_sale_price/split4/tabpfn_v3] rmse=15.1503 r2=0.9928
+  [resid_build_sale_price/split4/tabgpgo_main] rmse=178.5830 r2=0.0046
+  [resid_build_sale_price/split4/tabgpgo_hpt] rmse=146.1705 r2=0.3332
+[resid_build_sale_price] done
+  [instanbul/split0/tabpfn_v2] rmse=0.0141 r2=0.4911
+  [instanbul/split0/tabpfn_v3] rmse=0.0138 r2=0.5140
+  [instanbul/split0/tabgpgo_main] rmse=0.0165 r2=0.3031
+  [instanbul/split0/tabgpgo_hpt] rmse=0.0181 r2=0.1584
+  [instanbul/split1/tabpfn_v2] rmse=0.0160 r2=0.4555
+  [instanbul/split1/tabpfn_v3] rmse=0.0155 r2=0.4881
+  [instanbul/split1/tabgpgo_main] rmse=0.0198 r2=0.1676
+  [instanbul/split1/tabgpgo_hpt] rmse=0.0204 r2=0.1152
+  [instanbul/split2/tabpfn_v2] rmse=0.0153 r2=0.5310
+  [instanbul/split2/tabpfn_v3] rmse=0.0152 r2=0.5406
+  [instanbul/split2/tabgpgo_main] rmse=0.0224 r2=-0.0054
+  [instanbul/split2/tabgpgo_hpt] rmse=0.0219 r2=0.0452
+  [instanbul/split3/tabpfn_v2] rmse=0.0159 r2=0.4162
+  [instanbul/split3/tabpfn_v3] rmse=0.0159 r2=0.4178
+  [instanbul/split3/tabgpgo_main] rmse=0.0187 r2=0.1968
+  [instanbul/split3/tabgpgo_hpt] rmse=0.0201 r2=0.0711
+  [instanbul/split4/tabpfn_v2] rmse=0.0145 r2=0.5182
+  [instanbul/split4/tabpfn_v3] rmse=0.0146 r2=0.5148
+  [instanbul/split4/tabgpgo_main] rmse=0.0199 r2=0.0990
+  [instanbul/split4/tabgpgo_hpt] rmse=0.0202 r2=0.0676
+[instanbul] done
+  [energy/split0/tabpfn_v2] rmse=0.4665 r2=0.9980
+  [energy/split0/tabpfn_v3] rmse=0.4346 r2=0.9982
+  [energy/split0/tabgpgo_main] rmse=9.0852 r2=0.2251
+  [energy/split0/tabgpgo_hpt] rmse=4.4491 r2=0.8142
+  [energy/split1/tabpfn_v2] rmse=0.4302 r2=0.9982
+  [energy/split1/tabpfn_v3] rmse=0.4508 r2=0.9980
+  [energy/split1/tabgpgo_main] rmse=9.6923 r2=0.0664
+  [energy/split1/tabgpgo_hpt] rmse=4.7270 r2=0.7779
+  [energy/split2/tabpfn_v2] rmse=0.7755 r2=0.9937
+  [energy/split2/tabpfn_v3] rmse=0.4723 r2=0.9977
+  [energy/split2/tabgpgo_main] rmse=8.4003 r2=0.2581
+  [energy/split2/tabgpgo_hpt] rmse=4.4466 r2=0.7921
+  [energy/split3/tabpfn_v2] rmse=0.4959 r2=0.9975
+  [energy/split3/tabpfn_v3] rmse=0.4563 r2=0.9979
+  [energy/split3/tabgpgo_main] rmse=8.1585 r2=0.3355
+  [energy/split3/tabgpgo_hpt] rmse=4.4798 r2=0.7996
+  [energy/split4/tabpfn_v2] rmse=0.7971 r2=0.9942
+  [energy/split4/tabpfn_v3] rmse=0.4041 r2=0.9985
+  [energy/split4/tabgpgo_main] rmse=8.9288 r2=0.2740
+  [energy/split4/tabgpgo_hpt] rmse=4.5414 r2=0.8122
+[energy] done
+  [concrete/split0/tabpfn_v2] rmse=3.7590 r2=0.9471
+  [concrete/split0/tabpfn_v3] rmse=3.4485 r2=0.9555
+  [concrete/split0/tabgpgo_main] rmse=8.0776 r2=0.7559
+  [concrete/split0/tabgpgo_hpt] rmse=10.0304 r2=0.6236
+  [concrete/split1/tabpfn_v2] rmse=4.5146 r2=0.9285
+  [concrete/split1/tabpfn_v3] rmse=4.4214 r2=0.9314
+  [concrete/split1/tabgpgo_main] rmse=8.5985 r2=0.7405
+  [concrete/split1/tabgpgo_hpt] rmse=11.0843 r2=0.5687
+  [concrete/split2/tabpfn_v2] rmse=3.8420 r2=0.9541
+  [concrete/split2/tabpfn_v3] rmse=4.0236 r2=0.9497
+  [concrete/split2/tabgpgo_main] rmse=8.2210 r2=0.7899
+  [concrete/split2/tabgpgo_hpt] rmse=9.6470 r2=0.7107
+  [concrete/split3/tabpfn_v2] rmse=4.2931 r2=0.9233
+  [concrete/split3/tabpfn_v3] rmse=4.0200 r2=0.9327
+  [concrete/split3/tabgpgo_main] rmse=8.1260 r2=0.7251
+  [concrete/split3/tabgpgo_hpt] rmse=9.1909 r2=0.6483
+  [concrete/split4/tabpfn_v2] rmse=3.8715 r2=0.9463
+  [concrete/split4/tabpfn_v3] rmse=3.9602 r2=0.9438
+  [concrete/split4/tabgpgo_main] rmse=7.9214 r2=0.7750
+  [concrete/split4/tabgpgo_hpt] rmse=9.1715 r2=0.6984
+[concrete] done
+
+wrote 120 rows -> C:\Users\dfarinati\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\tabpfn_baseline\log\split_eval_results.csv
+wrote medians -> C:\Users\dfarinati\OneDrive - NOVAIMS\dottorato\SLIM-GSGP\SlimShady\tabpfn_baseline\log\split_eval_median.csv
+               dataset         algo    rmse_raw        r2
+              concrete  tabgpgo_hpt    9.647044  0.648348
+              concrete tabgpgo_main    8.125980  0.755874
+              concrete    tabpfn_v2    3.871453  0.946268
+              concrete    tabpfn_v3    4.019958  0.943776
+                energy  tabgpgo_hpt    4.479793  0.799645
+                energy tabgpgo_main    8.928842  0.258092
+                energy    tabpfn_v2    0.495923  0.997545
+                energy    tabpfn_v3    0.450833  0.997980
+             instanbul  tabgpgo_hpt    0.020238  0.071052
+             instanbul tabgpgo_main    0.019757  0.167589
+             instanbul    tabpfn_v2    0.015324  0.491106
+             instanbul    tabpfn_v3    0.015166  0.513999
+                   ppb  tabgpgo_hpt   31.925648 -0.260574
+                   ppb tabgpgo_main   29.536417 -0.020725
+                   ppb    tabpfn_v2   32.434269 -0.191584
+                   ppb    tabpfn_v3   33.326283 -0.187246
+resid_build_sale_price  tabgpgo_hpt  126.520119  0.333168
+resid_build_sale_price tabgpgo_main  196.178711 -0.374467
+resid_build_sale_price    tabpfn_v2   67.285500  0.837587
+resid_build_sale_price    tabpfn_v3   95.354553  0.673816
+              toxicity  tabgpgo_hpt 2000.953369 -0.025633
+              toxicity tabgpgo_main 2090.709229 -0.056530
+              toxicity    tabpfn_v2 2023.248169 -0.035748
+              toxicity    tabpfn_v3 1972.026245 -0.009036

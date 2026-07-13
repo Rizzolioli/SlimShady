@@ -23,8 +23,9 @@ from datasets.data_loader import load_merged_data
 from evaluators.fitness_functions import rmse
 from main_tabgpgo import evaluate_autoencoder, evolve, prepare
 from tabgpgo.config import TabGPGOConfig
-from tabgpgo.inference import load_run, make_predictor
+from tabgpgo.inference import TabGPGOPredictor, load_run
 from tabgpgo.prior import generate_datasets
+from utils.utils import train_test_split
 
 tmp_dir = tempfile.mkdtemp(prefix="tabgpgo_smoke_")
 cfg = TabGPGOConfig(
@@ -94,24 +95,50 @@ assert len(run_dirs) == len(cfg.variants) * len(cfg.ms_hi_values) * cfg.n_runs
 run_dir = os.path.join(cfg.run_dir_base, run_dirs[0])
 os.remove(os.path.join(run_dir, "registry.pkl"))
 loaded_cfg, model, registry, elite, wrapper, operator = load_run(run_dir)
-predict_scaled = make_predictor(elite, registry, model, loaded_cfg)
-y_stats = ctx["val_sets"]["energy"]["meta"]["y_stats"]
-predict_raw = make_predictor(elite, registry, model, loaded_cfg, y_stats=y_stats)
 
 X_raw, y_raw = load_merged_data("energy", X_y=True)
 X_raw, y_raw = X_raw.float(), y_raw.float()
-preds_scaled = predict_scaled(X_raw)
-preds_raw = predict_raw(X_raw)
+
+predictor = TabGPGOPredictor(elite, registry, model, loaded_cfg)
+preds_scaled = predictor.predict(X_raw)                # zero-shot, no fit() call
+predictor.fit(X_raw, y_raw)                             # derive y_stats only (fine_tune=False)
+preds_raw = predictor.predict(X_raw)
+
 assert preds_scaled.shape == (X_raw.shape[0],) and torch.isfinite(preds_scaled).all()
 assert preds_raw.shape == (X_raw.shape[0],) and torch.isfinite(preds_raw).all()
-mean, std = y_stats
-y_scaled = (y_raw - mean.squeeze()) / std.squeeze()
+mean, std = predictor.y_stats
+mean, std = mean.squeeze(), std.squeeze()
+y_scaled = (y_raw - mean) / std
 # raw-unit inversion must round-trip exactly against the scaled prediction
-assert torch.allclose(preds_raw, preds_scaled * std.squeeze() + mean.squeeze(), atol=1e-4)
+assert torch.allclose(preds_raw, preds_scaled * std + mean, atol=1e-4)
 print(f"standalone predict on energy: rmse (scaled) = "
       f"{float(rmse(y_scaled, preds_scaled)):.4f}  "
       f"rmse (raw units) = {float(rmse(y_raw, preds_raw)):.4f}")
 print("persistence + inference OK (registry.pkl not needed)")
+
+# --- fine-tuning: per-block weights adapt to a labeled context split -----------
+# pick a run whose elite actually has blocks, so the optimization path (not
+# just its head-only no-op branch) is genuinely exercised.
+ft_elite = None
+for d in run_dirs:
+    c, m, r, e, _, _ = load_run(os.path.join(cfg.run_dir_base, d))
+    if e.blocks:
+        ft_cfg, ft_model, ft_registry, ft_elite = c, m, r, e
+        break
+assert ft_elite is not None, "no run in this smoke sweep produced a blocked elite"
+
+X_ctx, X_hold, y_ctx, y_hold = train_test_split(X_raw, y_raw, p_test=0.5, seed=0)
+ft_predictor = TabGPGOPredictor(ft_elite, ft_registry, ft_model, ft_cfg)
+orig_weights = ft_predictor.weights.clone()
+ft_predictor.fit(X_ctx, y_ctx, fine_tune=True, steps=50)
+preds_hold = ft_predictor.predict(X_hold)
+assert preds_hold.shape == (X_hold.shape[0],) and torch.isfinite(preds_hold).all()
+assert not torch.allclose(ft_predictor.weights, orig_weights), \
+    "fine_tune=True did not move any block weights"
+print(f"fine-tuned predict on energy held-out split: rmse (raw units) = "
+      f"{float(rmse(y_hold, preds_hold)):.4f}  "
+      f"(weights moved from {orig_weights.tolist()} to {ft_predictor.weights.tolist()})")
+print("fine-tuning OK")
 
 shutil.rmtree(tmp_dir, ignore_errors=True)
 print("\nSMOKE TEST PASSED")
