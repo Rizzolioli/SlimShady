@@ -19,26 +19,176 @@ from algorithms.GP.representations.tree_utils import (
 from utils.utils import protected_div, protected_log, protected_sqrt
 
 FUNCTIONS = {
+    # Binary arithmetic
     'add':      {'function': lambda x, y: torch.add(x, y), 'arity': 2},
     'subtract': {'function': lambda x, y: torch.sub(x, y), 'arity': 2},
     'multiply': {'function': lambda x, y: torch.mul(x, y), 'arity': 2},
     'divide':   {'function': lambda x, y: protected_div(x, y), 'arity': 2},
 }
 
-# Arity-1 candidates, not part of the FUNCTIONS default -- opt in per
-# experiment (e.g. main/main_tabgpgo_funcset.py) by merging into a custom
-# function-set dict. sin/cos/tan are naturally periodic/unbounded, so their
-# raw output is left as-is (the shared BOUND clamp in evaluate_structure
-# below already catches tan's occasional blowup near its asymptotes); log
-# and sqrt use the protected forms (log(|x|), sqrt(|x|)) since their true
-# domain excludes part of the real line.
+
 EXTRA_FUNCTIONS = {
-    'sin':  {'function': lambda x: torch.sin(x), 'arity': 1},
-    'cos':  {'function': lambda x: torch.cos(x), 'arity': 1},
-    'tan':  {'function': lambda x: torch.tan(x), 'arity': 1},
-    'log':  {'function': lambda x: protected_log(x), 'arity': 1},
-    'sqrt': {'function': lambda x: protected_sqrt(x), 'arity': 1},
-    'exp':  {'function': lambda x: torch.exp(x), 'arity': 1},
+
+    # Classical symbolic regression nonlinearities
+    'sin': {
+        'function': lambda x: torch.sin(x),
+        'arity': 1
+    },
+    'cos': {
+        'function': lambda x: torch.cos(x),
+        'arity': 1
+    },
+    'tan': {
+        'function': lambda x: torch.tan(torch.clamp(x, -10, 10)),
+        'arity': 1
+    },
+
+    # Domain-protected mathematical functions
+    'log': {
+        'function': lambda x: protected_log(x),
+        'arity': 1
+    },
+    'sqrt': {
+        'function': lambda x: protected_sqrt(x),
+        'arity': 1
+    },
+    'exp': {
+        'function': lambda x: torch.exp(torch.clamp(x, -10, 10)),
+        'arity': 1
+    },
+
+
+    # ----------------------------------------------------
+    # ML activation functions
+    # ----------------------------------------------------
+
+    'tanh': {
+        'function': lambda x: torch.tanh(x),
+        'arity': 1
+    },
+
+    'sigmoid': {
+        'function': lambda x: torch.sigmoid(x),
+        'arity': 1
+    },
+
+    'relu': {
+        'function': lambda x: torch.relu(x),
+        'arity': 1
+    },
+
+    'softplus': {
+        'function': lambda x: torch.nn.functional.softplus(x),
+        'arity': 1
+    },
+
+
+    # ----------------------------------------------------
+    # Polynomial feature operators
+    # ----------------------------------------------------
+
+    'square': {
+        'function': lambda x: torch.square(x),
+        'arity': 1
+    },
+
+    'cube': {
+        'function': lambda x: x*x*x,
+        'arity': 1
+    },
+
+
+    # ----------------------------------------------------
+    # Magnitude / symmetry operators
+    # ----------------------------------------------------
+
+    'abs': {
+        'function': lambda x: torch.abs(x),
+        'arity': 1
+    },
+
+    'neg': {
+        'function': lambda x: -x,
+        'arity': 1
+    },
+
+
+    # ----------------------------------------------------
+    # Power-like operators
+    # ----------------------------------------------------
+
+    'pow2': {
+        'function': lambda x: torch.pow(x, 2),
+        'arity': 1
+    },
+
+    'pow3': {
+        'function': lambda x: torch.pow(x, 3),
+        'arity': 1
+    },
+
+    # rational
+    'reciprocal': {
+        'function': lambda x: protected_div(torch.ones_like(x), x),
+        'arity':1
+    },
+
+    'logabs': {
+        'function': lambda x: torch.log(torch.abs(x)+1e-8),
+        'arity':1
+    },
+
+    # exponential variants
+    'neg_exp': {
+        'function': lambda x: torch.exp(torch.clamp(-x,-10,10)),
+        'arity':1
+    },
+
+    # hyperbolic
+    'sinh': {
+        'function': lambda x: torch.sinh(torch.clamp(x,-10,10)),
+        'arity':1
+    },
+
+    'cosh': {
+        'function': lambda x: torch.cosh(torch.clamp(x,-10,10)),
+        'arity':1
+    },
+
+    # smooth nonlinearities
+    'softsign': {
+        'function': lambda x: x/(1+torch.abs(x)),
+        'arity':1
+    },
+
+    # discontinuity
+    'sign': {
+        'function': lambda x: torch.sign(x),
+        'arity':1
+    },
+
+    # higher powers
+    'quartic': {
+        'function': lambda x: torch.pow(x,4),
+        'arity':1
+    },
+
+    # binary geometry
+    'hypot': {
+        'function': lambda x,y: torch.sqrt(x*x+y*y+1e-8),
+        'arity':2
+    },
+
+    # piecewise
+    'maximum': {
+        'function': lambda x,y: torch.maximum(x,y),
+        'arity':2
+    },
+
+    'minimum': {
+        'function': lambda x,y: torch.minimum(x,y),
+        'arity':2
+    },
 }
 
 # Python floats (not CPU tensors) so binary ops broadcast on any device.

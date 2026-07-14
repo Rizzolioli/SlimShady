@@ -80,14 +80,324 @@ _ARITH = ["add", "subtract", "multiply", "divide"]
 # whether adding periodic (sin/cos/tan) or scale-sensitive (log/sqrt/exp)
 # nonlinearities helps, not just which arithmetic primitives earn their keep.
 FUNCTION_SETS = {
-    "arith_full":     list(_ARITH),                      # current default
-    # "no_divide":      ["add", "subtract", "multiply"],   # drop protected_div
-    "arith_base":       ["add", "subtract"],
-    "add_mult":        ["add", "multiply"],
-    "arith_trig":      _ARITH + ["sin", "cos"],
-    "arith_trig_tan":  _ARITH + ["sin", "cos", "tan"],
-    "arith_log_sqrt":  _ARITH + ["log", "sqrt"],
-    "full_extended":   _ARITH + ["sin", "cos", "tan", "log", "sqrt", "exp"],
+
+    # # --------------------------------------------------
+    # # Baselines
+    # # --------------------------------------------------
+    #
+    # "arith_full":
+    #     _ARITH,
+    #
+    # "arith_base":
+    #     ["add", "subtract"],
+    #
+    # "add_mult":
+    #     ["add", "multiply"],
+    #
+    #
+    # # --------------------------------------------------
+    # # Trigonometric family
+    # # --------------------------------------------------
+    #
+    # "arith_trig":
+    #     _ARITH + [
+    #         "sin",
+    #         "cos"
+    #     ],
+    #
+    # "arith_trig_tan":
+    #     _ARITH + [
+    #         "sin",
+    #         "cos",
+    #         "tan"
+    #     ],
+
+
+    # --------------------------------------------------
+    # Log / power-law family
+    # --------------------------------------------------
+
+    "arith_log_sqrt":
+        _ARITH + [
+            "log",
+            "sqrt"
+        ],
+
+    "arith_power":
+        _ARITH + [
+            "square",
+            "cube",
+            "sqrt"
+        ],
+
+    "arith_log_power":
+        _ARITH + [
+            "log",
+            "sqrt",
+            "square",
+            "cube"
+        ],
+
+
+    # --------------------------------------------------
+    # Exponential family
+    # --------------------------------------------------
+
+    "arith_exp":
+        _ARITH + [
+            "exp"
+        ],
+
+    "arith_exp_log":
+        _ARITH + [
+            "exp",
+            "log"
+        ],
+
+    "arith_exp_decay":
+        _ARITH + [
+            "exp",
+            "neg_exp"
+        ],
+
+
+    # --------------------------------------------------
+    # ML activation family
+    # --------------------------------------------------
+
+    "arith_activation":
+        _ARITH + [
+            "tanh",
+            "sigmoid",
+            "softplus"
+        ],
+
+    "arith_tanh":
+        _ARITH + [
+            "tanh"
+        ],
+
+
+    # --------------------------------------------------
+    # Rational / scientific regression family
+    # --------------------------------------------------
+
+    "arith_rational":
+        _ARITH + [
+            "reciprocal",
+            "log",
+            "sqrt"
+        ],
+
+
+    # --------------------------------------------------
+    # Smooth nonlinear SR family
+    # --------------------------------------------------
+
+    "smooth_extended":
+        _ARITH + [
+            "sin",
+            "cos",
+            "tanh",
+            "log",
+            "sqrt",
+            "square"
+        ],
+
+
+    # --------------------------------------------------
+    # Physics / scientific discovery style
+    # --------------------------------------------------
+
+    "scientific_extended":
+        _ARITH + [
+            "sin",
+            "cos",
+            "exp",
+            "log",
+            "sqrt",
+            "square",
+            "cube"
+        ],
+
+
+    # --------------------------------------------------
+    # Piecewise ML family
+    # --------------------------------------------------
+
+    "piecewise":
+        _ARITH + [
+            "abs",
+            "maximum",
+            "minimum"
+        ],
+
+
+    # --------------------------------------------------
+    # Large search grammar
+    # --------------------------------------------------
+
+    "full_extended":
+        _ARITH + [
+            "sin",
+            "cos",
+            "tan",
+            "log",
+            "sqrt",
+            "exp",
+            "tanh",
+            "square",
+            "cube",
+            "abs",
+            "reciprocal"
+        ],
+
+
+    "full_extended_piecewise":
+        _ARITH + [
+            "sin",
+            "cos",
+            "tan",
+            "log",
+            "sqrt",
+            "exp",
+            "tanh",
+            "square",
+            "cube",
+            "abs",
+            "reciprocal",
+            "maximum",
+            "minimum"
+        ],
+
+# --------------------------------------------------
+    # ML activation families
+    # --------------------------------------------------
+
+    "ml_tanh":
+        _ARITH + [
+            "tanh"
+        ],
+
+    "ml_sigmoid":
+        _ARITH + [
+            "sigmoid"
+        ],
+
+    "ml_softplus":
+        _ARITH + [
+            "softplus"
+        ],
+
+    "ml_relu":
+        _ARITH + [
+            "relu"
+        ],
+
+
+    # --------------------------------------------------
+    # Combined ML nonlinearities
+    # --------------------------------------------------
+
+    "ml_activations":
+        _ARITH + [
+            "tanh",
+            "sigmoid",
+            "softplus",
+            "relu"
+        ],
+
+
+    "ml_smooth":
+        _ARITH + [
+            "tanh",
+            "softplus",
+            "sigmoid",
+            "abs"
+        ],
+
+
+    # --------------------------------------------------
+    # ML + classical SR hybrid
+    # --------------------------------------------------
+
+    "trig_ml":
+        _ARITH + [
+            "sin",
+            "cos",
+            "tanh"
+        ],
+
+
+    "extended_ml":
+        _ARITH + [
+            "sin",
+            "cos",
+            "log",
+            "sqrt",
+            "tanh",
+            "softplus"
+        ],
+
+
+    "extended_ml_exp":
+        _ARITH + [
+            "sin",
+            "cos",
+            "log",
+            "sqrt",
+            "exp",
+            "tanh",
+            "softplus"
+        ],
+
+
+    # --------------------------------------------------
+    # Feature-engineering inspired SR
+    # --------------------------------------------------
+
+    "ml_features":
+        _ARITH + [
+            "square",
+            "cube",
+            "abs",
+            "tanh",
+            "log"
+        ],
+
+
+    "ml_features_extended":
+        _ARITH + [
+            "square",
+            "cube",
+            "abs",
+            "tanh",
+            "softplus",
+            "log",
+            "sqrt"
+        ],
+
+
+    # --------------------------------------------------
+    # Large ML symbolic grammar
+    # --------------------------------------------------
+
+    "full_ml_extended":
+        _ARITH + [
+            "sin",
+            "cos",
+            "tan",
+            "log",
+            "sqrt",
+            "exp",
+            "tanh",
+            "sigmoid",
+            "softplus",
+            "relu",
+            "square",
+            "cube",
+            "abs"
+        ],
 }
 
 # name -> (p_c, {const_name: lambda _: value}). "none" reproduces today's
@@ -101,15 +411,15 @@ CONSTANT_SETS = {
         "constant_4": lambda _: 4.0, "constant_5": lambda _: 5.0,
         "constant__1": lambda _: -1.0,
     }),
-    "unit": (0.15, {
-        "constant_1": lambda _: 1.0, "constant__1": lambda _: -1.0,
-        "constant_2": lambda _: 2.0, "constant__2": lambda _: -2.0,
-    }),
-    "fractional": (0.15, {
-        "constant_half": lambda _: 0.5, "constant_1": lambda _: 1.0,
-        "constant_2": lambda _: 2.0,
-        "constant__half": lambda _: -0.5, "constant__1": lambda _: -1.0,
-    }),
+    # "unit": (0.15, {
+    #     "constant_1": lambda _: 1.0, "constant__1": lambda _: -1.0,
+    #     "constant_2": lambda _: 2.0, "constant__2": lambda _: -2.0,
+    # }),
+    # "fractional": (0.15, {
+    #     "constant_half": lambda _: 0.5, "constant_1": lambda _: 1.0,
+    #     "constant_2": lambda _: 2.0,
+    #     "constant__half": lambda _: -0.5, "constant__1": lambda _: -1.0,
+    # }),
 }
 
 FUNCSET_LOG_PATH = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_funcset_results.csv")
