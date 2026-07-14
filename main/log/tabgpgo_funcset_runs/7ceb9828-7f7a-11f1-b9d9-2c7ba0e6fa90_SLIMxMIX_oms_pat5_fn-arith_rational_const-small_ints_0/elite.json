@@ -1,0 +1,16 @@
+{
+  "algo": "SLIM*MIX_oms_pat5_fn-arith_rational_const-small_ints",
+  "wrapper": "mix",
+  "operator": "mul",
+  "seed": 0,
+  "head_idx": 0,
+  "blocks": [],
+  "head_structure": [
+    "log",
+    "constant__1"
+  ],
+  "block_structures": [],
+  "fitness": 0.9989995360374451,
+  "nodes_count": 2,
+  "expression": "log(-1)"
+}
