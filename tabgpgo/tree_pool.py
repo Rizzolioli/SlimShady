@@ -29,31 +29,57 @@ FUNCTIONS = {
 
 EXTRA_FUNCTIONS = {
 
+    # ----------------------------------------------------
     # Classical symbolic regression nonlinearities
+    # ----------------------------------------------------
+
     'sin': {
         'function': lambda x: torch.sin(x),
         'arity': 1
     },
+
     'cos': {
         'function': lambda x: torch.cos(x),
         'arity': 1
     },
+
     'tan': {
         'function': lambda x: torch.tan(torch.clamp(x, -10, 10)),
         'arity': 1
     },
 
+
+    # ----------------------------------------------------
     # Domain-protected mathematical functions
+    # ----------------------------------------------------
+
     'log': {
         'function': lambda x: protected_log(x),
         'arity': 1
     },
+
     'sqrt': {
         'function': lambda x: protected_sqrt(x),
         'arity': 1
     },
+
     'exp': {
         'function': lambda x: torch.exp(torch.clamp(x, -10, 10)),
+        'arity': 1
+    },
+
+    'neg_exp': {
+        'function': lambda x: torch.exp(torch.clamp(-x, -10, 10)),
+        'arity': 1
+    },
+
+    'logabs': {
+        'function': lambda x: torch.log(torch.abs(x) + 1e-8),
+        'arity': 1
+    },
+
+    'reciprocal': {
+        'function': lambda x: protected_div(torch.ones_like(x), x),
         'arity': 1
     },
 
@@ -82,6 +108,26 @@ EXTRA_FUNCTIONS = {
         'arity': 1
     },
 
+    'softsign': {
+        'function': lambda x: x / (1 + torch.abs(x)),
+        'arity': 1
+    },
+
+
+    # ----------------------------------------------------
+    # Hyperbolic functions
+    # ----------------------------------------------------
+
+    'sinh': {
+        'function': lambda x: torch.sinh(torch.clamp(x, -10, 10)),
+        'arity': 1
+    },
+
+    'cosh': {
+        'function': lambda x: torch.cosh(torch.clamp(x, -10, 10)),
+        'arity': 1
+    },
+
 
     # ----------------------------------------------------
     # Polynomial feature operators
@@ -93,13 +139,28 @@ EXTRA_FUNCTIONS = {
     },
 
     'cube': {
-        'function': lambda x: x*x*x,
+        'function': lambda x: x * x * x,
+        'arity': 1
+    },
+
+    'quartic': {
+        'function': lambda x: torch.pow(x, 4),
+        'arity': 1
+    },
+
+    'pow2': {
+        'function': lambda x: torch.pow(x, 2),
+        'arity': 1
+    },
+
+    'pow3': {
+        'function': lambda x: torch.pow(x, 3),
         'arity': 1
     },
 
 
     # ----------------------------------------------------
-    # Magnitude / symmetry operators
+    # Magnitude / symmetry / threshold operators
     # ----------------------------------------------------
 
     'abs': {
@@ -112,82 +173,36 @@ EXTRA_FUNCTIONS = {
         'arity': 1
     },
 
-
-    # ----------------------------------------------------
-    # Power-like operators
-    # ----------------------------------------------------
-
-    'pow2': {
-        'function': lambda x: torch.pow(x, 2),
-        'arity': 1
-    },
-
-    'pow3': {
-        'function': lambda x: torch.pow(x, 3),
-        'arity': 1
-    },
-
-    # rational
-    'reciprocal': {
-        'function': lambda x: protected_div(torch.ones_like(x), x),
-        'arity':1
-    },
-
-    'logabs': {
-        'function': lambda x: torch.log(torch.abs(x)+1e-8),
-        'arity':1
-    },
-
-    # exponential variants
-    'neg_exp': {
-        'function': lambda x: torch.exp(torch.clamp(-x,-10,10)),
-        'arity':1
-    },
-
-    # hyperbolic
-    'sinh': {
-        'function': lambda x: torch.sinh(torch.clamp(x,-10,10)),
-        'arity':1
-    },
-
-    'cosh': {
-        'function': lambda x: torch.cosh(torch.clamp(x,-10,10)),
-        'arity':1
-    },
-
-    # smooth nonlinearities
-    'softsign': {
-        'function': lambda x: x/(1+torch.abs(x)),
-        'arity':1
-    },
-
-    # discontinuity
     'sign': {
         'function': lambda x: torch.sign(x),
-        'arity':1
+        'arity': 1
     },
 
-    # higher powers
-    'quartic': {
-        'function': lambda x: torch.pow(x,4),
-        'arity':1
-    },
 
-    # binary geometry
+    # ----------------------------------------------------
+    # Binary geometry / nonlinear operators
+    # ----------------------------------------------------
+
     'hypot': {
-        'function': lambda x,y: torch.sqrt(x*x+y*y+1e-8),
-        'arity':2
+        'function': lambda x, y: torch.sqrt(
+            x*x + y*y + 1e-8
+        ),
+        'arity': 2
     },
 
-    # piecewise
+
+    # ----------------------------------------------------
+    # Piecewise ML operators
+    # ----------------------------------------------------
+
     'maximum': {
-        'function': lambda x,y: torch.maximum(x,y),
-        'arity':2
+        'function': lambda x, y: torch.maximum(x, y),
+        'arity': 2
     },
 
     'minimum': {
-        'function': lambda x,y: torch.minimum(x,y),
-        'arity':2
+        'function': lambda x, y: torch.minimum(x, y),
+        'arity': 2
     },
 }
 
