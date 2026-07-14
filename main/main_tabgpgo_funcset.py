@@ -31,9 +31,19 @@ either KeyError (a function name missing from whatever set happens to be
 active) or -- if you ever rename sets to overlapping key names with different
 semantics -- silently evaluate the wrong function.
 
+Resumable: evolve_funcset() skips any (function_set, constant_set) combo that
+already has a completed run dir on disk (elite.json present -- see
+find_completed_run_dir()) before re-evolving it, so re-running this script
+after a crash (or after adding new combos to FUNCTION_SETS/CONSTANT_SETS)
+only evolves what's actually missing. A combo whose generation curve got
+logged to the results CSV but crashed before elite.json was saved (e.g. the
+KeyError structure_to_str() used to raise on a function outside its old
+hardcoded _INFIX table -- now fixed with a generic function-call fallback)
+is correctly NOT treated as done, since elite.json never got written.
+
 Usage:
   python main/main_tabgpgo_funcset.py prepare   # phases 1-2 only (fill the cache)
-  python main/main_tabgpgo_funcset.py evolve    # phase 4-5 (reusing the cache)
+  python main/main_tabgpgo_funcset.py evolve    # phase 4-5 (reusing the cache, resumable)
   python main/main_tabgpgo_funcset.py           # everything
 
 Writes to main/log/tabgpgo_funcset_results.csv / tabgpgo_funcset_runs/ (same
@@ -52,9 +62,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main_tabgpgo import evaluate_autoencoder, prepare
 from tabgpgo import tree_pool
-from tabgpgo.config import REPO_ROOT, TabGPGOConfig
+from tabgpgo.config import ALGO_NAMES, REPO_ROOT, TabGPGOConfig
 from tabgpgo.evolution_freshpool import FreshPoolSLIM, build_adapter
-from tabgpgo.inference import reconstruct_expression, save_run, verify_inference
+from tabgpgo.inference import load_run, reconstruct_expression, save_run, verify_inference
 
 # Same HPT-winning combo main_tabgpgo_freshpool.py uses (p_inflate/tournament_size
 # match TabGPGOConfig's own defaults already -- stated explicitly for clarity
@@ -450,6 +460,45 @@ def build_config(**extra):
         **HPT_OVERRIDES, **extra)
 
 
+def _base_algo_label(cfg):
+    """Reproduce FreshPoolSLIM.__init__'s algo-label computation (variant +
+    ms + patience) without constructing an optimizer -- MS_SPEC/VARIANT are
+    fixed module constants here, so this is deterministic and stable across
+    runs, letting _combo_tag() below name a combo's run dir/algo the exact
+    same way _run_one()'s real FreshPoolSLIM instance would, purely from
+    cfg -- no evolution needed just to compute a label."""
+    use_oms = MS_SPEC == "oms"
+    ms_hi = cfg.oms_bound if use_oms else MS_SPEC
+    patience = cfg.stagnation_patience
+    patience_label = "patnone" if not patience or patience <= 0 else f"pat{patience}"
+    return f"{ALGO_NAMES[VARIANT]}_{'oms' if use_oms else f'ms{ms_hi:g}'}_{patience_label}"
+
+
+def _combo_tag(cfg, fname, cname):
+    algo = f"{_base_algo_label(cfg)}_fn-{fname}_const-{cname}"
+    return algo, algo.replace("*", "x").replace("~", "t")
+
+
+def find_completed_run_dir(cfg, tag):
+    """A combo counts as done only if a run dir for its tag exists AND holds
+    elite.json -- the artifact save_run() writes last, after
+    reconstruct_expression() succeeds. This deliberately does NOT trust the
+    results CSV alone: a combo can log all 200 generations' rows there and
+    still never finish (e.g. the KeyError this function was added alongside,
+    which crashed inside reconstruct_expression after solve() had already
+    completed and logged) -- CSV rows without elite.json means "not done,"
+    re-run it. run_id is NOT part of the match (only the tag suffix is),
+    since every invocation mints a fresh uuid1() run_id, so a previous
+    invocation's completed run dir must still be found under today's new id."""
+    if not os.path.isdir(cfg.run_dir_base):
+        return None
+    suffix = f"_{tag}_0"
+    for name in sorted(os.listdir(cfg.run_dir_base)):
+        if name.endswith(suffix) and os.path.isfile(os.path.join(cfg.run_dir_base, name, "elite.json")):
+            return os.path.join(cfg.run_dir_base, name)
+    return None
+
+
 def _run_one(cfg, fname, cname, ctx, unique_run_id, verbose):
     p_c, constants = CONSTANT_SETS[cname]
     cfg = dataclasses.replace(cfg, p_c=p_c)
@@ -481,17 +530,32 @@ def evolve_funcset(cfg, ctx, verbose=1):
     sequentially -- FUNCTIONS/CONSTANTS are shared global state, so unlike
     main_tabgpgo_freshpool.py's ThreadPoolExecutor sweep, combos here must
     never overlap in time (each combo's own solve() may still use
-    cfg.max_workers internally; there's just one job per combo)."""
+    cfg.max_workers internally; there's just one job per combo).
+
+    Combos already completed by an earlier (possibly crashed-partway-through)
+    invocation are skipped -- see find_completed_run_dir(). The manifest is
+    rebuilt fresh each call from whichever combos ran vs. were skipped, so it
+    always reflects every combo's true origin run_id, not just this call's."""
     os.makedirs(os.path.dirname(cfg.log_path), exist_ok=True)
     unique_run_id = uuid.uuid1()
     manifest_rows = []
     elites = {}
     for fname in FUNCTION_SETS:
         for cname in CONSTANT_SETS:
-            algo, elite, constants = _run_one(cfg, fname, cname, ctx, unique_run_id, verbose)
+            algo, tag = _combo_tag(cfg, fname, cname)
+            existing_dir = find_completed_run_dir(cfg, tag)
+            if existing_dir is not None:
+                if verbose:
+                    print(f"[{algo}] already completed -> skipping ({os.path.basename(existing_dir)})")
+                _, _, _, elite, _, _ = load_run(existing_dir)
+                run_id = os.path.basename(existing_dir).split("_", 1)[0]
+                constants = CONSTANT_SETS[cname][1]
+            else:
+                algo, elite, constants = _run_one(cfg, fname, cname, ctx, unique_run_id, verbose)
+                run_id = unique_run_id
             elites[(fname, cname)] = elite
             manifest_rows.append({
-                "run_id": unique_run_id, "algo": algo,
+                "run_id": run_id, "algo": algo,
                 "function_set": fname, "constant_set": cname,
                 "p_c": CONSTANT_SETS[cname][0],
                 "functions": ";".join(FUNCTION_SETS[fname]),

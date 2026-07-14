@@ -43,8 +43,13 @@ def structure_to_str(structure):
         fname = structure[0]
         if len(structure) == 3:   # arity-2: (fname, left, right)
             left, right = structure[1], structure[2]
-            return (f"({structure_to_str(left)} {_INFIX[fname]} "
-                    f"{structure_to_str(right)})")
+            if fname in _INFIX:
+                return (f"({structure_to_str(left)} {_INFIX[fname]} "
+                        f"{structure_to_str(right)})")
+            # No natural infix symbol (e.g. maximum/minimum) -- fall back to
+            # function-call notation instead of requiring _INFIX to be kept
+            # in sync with every function set's binary functions.
+            return f"{fname}({structure_to_str(left)}, {structure_to_str(right)})"
         return f"{fname}({structure_to_str(structure[1])})"   # arity-1: (fname, child)
     if structure.startswith("constant_"):
         return structure.replace("constant__", "-").replace("constant_", "")
