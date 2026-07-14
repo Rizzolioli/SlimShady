@@ -1,0 +1,17 @@
+{
+  "algo": "SLIM*MIX_ms100_pat5",
+  "wrapper": "mix",
+  "operator": "mul",
+  "seed": 0,
+  "head_idx": 0,
+  "blocks": [],
+  "head_structure": [
+    "subtract",
+    "z373",
+    "z373"
+  ],
+  "block_structures": [],
+  "fitness": 0.9989995360374451,
+  "nodes_count": 3,
+  "expression": "(z373 - z373)"
+}

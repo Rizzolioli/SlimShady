@@ -1,0 +1,118 @@
+{
+  "algo": "SLIM*MIX_ms100_patnone",
+  "wrapper": "mix",
+  "operator": "mul",
+  "seed": 0,
+  "head_idx": 0,
+  "blocks": [
+    [
+      1,
+      2,
+      1.1125011636824778,
+      "sig2",
+      "mul"
+    ],
+    [
+      3,
+      4,
+      2.7159717596382804,
+      "sig2",
+      "mul"
+    ],
+    [
+      5,
+      null,
+      2.2994985333542273,
+      "sig1",
+      "mul"
+    ],
+    [
+      6,
+      null,
+      0.7042958422084022,
+      "sig1",
+      "mul"
+    ],
+    [
+      7,
+      null,
+      1.2485065895129766,
+      "sig1",
+      "mul"
+    ]
+  ],
+  "head_structure": [
+    "multiply",
+    [
+      "subtract",
+      "z434",
+      "z65"
+    ],
+    [
+      "divide",
+      "z82",
+      "z462"
+    ]
+  ],
+  "block_structures": [
+    [
+      [
+        "divide",
+        "z182",
+        "z296"
+      ],
+      [
+        "multiply",
+        "z40",
+        "z47"
+      ]
+    ],
+    [
+      [
+        "subtract",
+        "z422",
+        "z278"
+      ],
+      [
+        "divide",
+        [
+          "subtract",
+          "z208",
+          "z79"
+        ],
+        [
+          "subtract",
+          "z10",
+          "z153"
+        ]
+      ]
+    ],
+    [
+      [
+        "add",
+        "z35",
+        "z106"
+      ],
+      null
+    ],
+    [
+      [
+        "multiply",
+        "z257",
+        "z74"
+      ],
+      null
+    ],
+    [
+      [
+        "add",
+        "z340",
+        "z422"
+      ],
+      null
+    ]
+  ],
+  "fitness": 1.001638412475586,
+  "nodes_count": 76,
+  "expression": "((z434 - z65) * (z82 / z462)) * (1 + 1.1125*(sigmoid((z182 / z296)) - sigmoid((z40 * z47)))) * (1 + 2.71597*(sigmoid((z422 - z278)) - sigmoid(((z208 - z79) / (z10 - z153))))) * (1 + 2.2995*(2*sigmoid((z35 + z106)) - 1)) * (1 + 0.704296*(2*sigmoid((z257 * z74)) - 1)) * (1 + 1.24851*(2*sigmoid((z340 + z422)) - 1))"
+}
