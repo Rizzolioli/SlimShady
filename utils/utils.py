@@ -43,6 +43,43 @@ def protected_div(x1, x2):
     #         return x1/x2
 
 
+def protected_log(x):
+    """ Implements the natural log protected against non-positive input.
+
+    Takes log(|x|), which is defined everywhere except x == 0. Guards that
+    singularity the same way protected_div guards zero denominators: below
+    the threshold, returns a fixed fallback instead of -inf.
+
+    Parameters
+    ----------
+    x : torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
+        Result of protected log(|x|).
+    """
+    return torch.where(torch.abs(x) > 0.001, torch.log(torch.abs(x)), torch.tensor(0.0, dtype=x.dtype, device=x.device))
+
+
+def protected_sqrt(x):
+    """ Implements the square root protected against negative input.
+
+    Takes sqrt(|x|) -- unlike log/div there is no singularity to guard
+    against (sqrt(0) is fine), just the domain restriction of real sqrt.
+
+    Parameters
+    ----------
+    x : torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
+        Result of protected sqrt(|x|).
+    """
+    return torch.sqrt(torch.abs(x))
+
+
 def mean_(x1, x2):
     return torch.div(torch.add(x1, x2), 2)
 

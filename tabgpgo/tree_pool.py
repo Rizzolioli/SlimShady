@@ -16,13 +16,29 @@ import torch
 
 from algorithms.GP.representations.tree_utils import (
     create_full_random_tree, create_grow_random_tree, flatten, tree_depth)
-from utils.utils import protected_div
+from utils.utils import protected_div, protected_log, protected_sqrt
 
 FUNCTIONS = {
     'add':      {'function': lambda x, y: torch.add(x, y), 'arity': 2},
     'subtract': {'function': lambda x, y: torch.sub(x, y), 'arity': 2},
     'multiply': {'function': lambda x, y: torch.mul(x, y), 'arity': 2},
     'divide':   {'function': lambda x, y: protected_div(x, y), 'arity': 2},
+}
+
+# Arity-1 candidates, not part of the FUNCTIONS default -- opt in per
+# experiment (e.g. main/main_tabgpgo_funcset.py) by merging into a custom
+# function-set dict. sin/cos/tan are naturally periodic/unbounded, so their
+# raw output is left as-is (the shared BOUND clamp in evaluate_structure
+# below already catches tan's occasional blowup near its asymptotes); log
+# and sqrt use the protected forms (log(|x|), sqrt(|x|)) since their true
+# domain excludes part of the real line.
+EXTRA_FUNCTIONS = {
+    'sin':  {'function': lambda x: torch.sin(x), 'arity': 1},
+    'cos':  {'function': lambda x: torch.cos(x), 'arity': 1},
+    'tan':  {'function': lambda x: torch.tan(x), 'arity': 1},
+    'log':  {'function': lambda x: protected_log(x), 'arity': 1},
+    'sqrt': {'function': lambda x: protected_sqrt(x), 'arity': 1},
+    'exp':  {'function': lambda x: torch.exp(x), 'arity': 1},
 }
 
 # Python floats (not CPU tensors) so binary ops broadcast on any device.
@@ -42,18 +58,31 @@ def make_terminals(latent_dim):
 
 
 def evaluate_structure(structure, T, TERMINALS):
-    """Evaluate a nested-tuple tree on latent tokens T (n_rows, latent_dim)."""
+    """Evaluate a nested-tuple tree on latent tokens T (n_rows, latent_dim).
+
+    Arity-2 nodes are 3-tuples (fname, left, right); arity-1 nodes are
+    2-tuples (fname, child) -- same convention as
+    algorithms/GP/representations/tree.py's Tree.apply_tree."""
     if isinstance(structure, tuple):
         fname = structure[0]
-        left = evaluate_structure(structure[1], T, TERMINALS)
-        right = evaluate_structure(structure[2], T, TERMINALS)
-        out = FUNCTIONS[fname]['function'](left, right)
+        if FUNCTIONS[fname]['arity'] == 2:
+            left = evaluate_structure(structure[1], T, TERMINALS)
+            right = evaluate_structure(structure[2], T, TERMINALS)
+            out = FUNCTIONS[fname]['function'](left, right)
+        else:
+            arg = evaluate_structure(structure[1], T, TERMINALS)
+            out = FUNCTIONS[fname]['function'](arg)
         if isinstance(out, torch.Tensor):
             out = torch.clamp(out, -BOUND, BOUND)
         return out
     if structure in TERMINALS:
         return T[:, TERMINALS[structure]]
-    return CONSTANTS[structure](None)
+    # Broadcast to a full (n_rows,) tensor immediately, not a bare float --
+    # several torch ops (protected_div's torch.abs, any unary function like
+    # sin/log) require a real Tensor even for a constant-only subtree, which
+    # p_c=0.0 (the default everywhere until now) never exercised.
+    value = CONSTANTS[structure](None)
+    return torch.full((T.shape[0],), float(value), dtype=torch.float32, device=T.device)
 
 
 def generate_ramped_structures(n, init_depth, p_c, TERMINALS):

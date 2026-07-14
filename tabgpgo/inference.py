@@ -40,9 +40,12 @@ def _from_jsonable(structure):
 
 def structure_to_str(structure):
     if isinstance(structure, tuple):
-        fname, left, right = structure
-        return (f"({structure_to_str(left)} {_INFIX[fname]} "
-                f"{structure_to_str(right)})")
+        fname = structure[0]
+        if len(structure) == 3:   # arity-2: (fname, left, right)
+            left, right = structure[1], structure[2]
+            return (f"({structure_to_str(left)} {_INFIX[fname]} "
+                    f"{structure_to_str(right)})")
+        return f"{fname}({structure_to_str(structure[1])})"   # arity-1: (fname, child)
     if structure.startswith("constant_"):
         return structure.replace("constant__", "-").replace("constant_", "")
     return structure
