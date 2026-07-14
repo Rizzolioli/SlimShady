@@ -351,7 +351,7 @@ class TabGPGOPredictor:
 # ---------------------------------------------------------------------------
 
 def save_run(run_dir, cfg, model, registry, ind, wrapper, operator,
-             algo, seed, expression):
+             algo, seed, expression, ls_a=0.0, ls_b=1.0):
     """Persist everything standalone inference needs.
 
     elite.json is self-contained: it stores the RESOLVED tree structures of
@@ -360,6 +360,14 @@ def save_run(run_dir, cfg, model, registry, ind, wrapper, operator,
     kept for reproducibility. `wrapper`/`operator` here are the variant-level
     selectors (possibly "mix"), kept only as a human-readable label -- each
     block already carries the wrapper/operator it actually drew.
+
+    `ls_a`/`ls_b` are the linear-scaling intercept/slope (see
+    evaluators.fitness_functions.linear_scaling), fit on the training set by
+    the optimizer that produced `ind` -- (0.0, 1.0) is the no-op identity for
+    runs that never used linear scaling. Recorded as metadata only: neither
+    load_run nor reconstruct_expression/verify_inference applies them
+    automatically, so a caller wanting the scaled prediction must apply
+    `ls_a + ls_b * raw_semantics` itself.
     """
     os.makedirs(run_dir, exist_ok=True)
     torch.save(model.encoder.state_dict(), os.path.join(run_dir, "encoder.pt"))
@@ -375,7 +383,7 @@ def save_run(run_dir, cfg, model, registry, ind, wrapper, operator,
                   _to_jsonable(registry[b.idx2]["structure"]) if b.idx2 is not None else None]
                  for b in ind.blocks],
              "fitness": ind.fitness, "nodes_count": ind.nodes_count,
-             "expression": expression}
+             "expression": expression, "ls_a": ls_a, "ls_b": ls_b}
     with open(os.path.join(run_dir, "elite.json"), "w") as fh:
         json.dump(elite, fh, indent=2)
     cfg_dict = {k: v for k, v in vars(cfg).items()

@@ -30,3 +30,15 @@ def sign(y_true, y_pred):
 
 def sign_rmse(y_true, y_pred):
     return torch.add(rmse(y_true, y_pred), torch.mul(torch.div(rmse(y_true, y_pred), y_true.size()[0]), sign(y_true,y_pred)))
+
+def linear_scaling(y_true, y_pred):
+    """Keijzer/Bianco linear scaling: closed-form (a, b) minimizing
+    sum((y_true - (a + b*y_pred))^2). Applying a+b*y_pred is guaranteed to
+    never increase RMSE vs. y_pred alone (b=0 recovers the constant predictor
+    when y_pred has ~zero variance)."""
+    t_mean, p_mean = torch.mean(y_true), torch.mean(y_pred)
+    p_centered = y_pred - p_mean
+    denom = torch.sum(p_centered * p_centered)
+    b = torch.sum((y_true - t_mean) * p_centered) / denom if denom > 1e-12 else torch.zeros_like(denom)
+    a = t_mean - b * p_mean
+    return a, b

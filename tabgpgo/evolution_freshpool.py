@@ -40,7 +40,7 @@ from dataclasses import dataclass, field
 import numpy as np
 import torch
 
-from evaluators.fitness_functions import r2, rmse
+from evaluators.fitness_functions import linear_scaling, r2, rmse
 from utils.logger import logger
 from utils.utils import protected_div
 
@@ -84,6 +84,8 @@ class FreshIndividual:
     blocks: list = field(default_factory=list)
     fitness: float = float("inf")
     nodes_count: int = 0
+    ls_a: float = 0.0                # linear-scaling intercept, fit on train only
+    ls_b: float = 1.0                # linear-scaling slope; (0.0, 1.0) is the no-op identity
 
     @property
     def size(self):
@@ -145,9 +147,10 @@ class FreshPoolSLIM:
     """
 
     def __init__(self, cfg, variant, T_train, T_val, y_target,
-                 val_targets, val_y_stats, TERMINALS, seed, ms_spec=None):
+                 val_targets, val_y_stats, TERMINALS, seed, ms_spec=None, use_ls=False):
         wrapper, operator = variant
         self.cfg = cfg
+        self.use_ls = use_ls
         self.variant = variant
         ms_spec = cfg.ms_hi if ms_spec is None else ms_spec
         self.use_oms = ms_spec == "oms"
@@ -226,7 +229,12 @@ class FreshPoolSLIM:
         return torch.clamp(agg, -BOUND, BOUND)
 
     def _evaluate(self, ind):
-        ind.fitness = float(rmse(self.y_target, ind.aggregate))
+        if self.use_ls:
+            a, b = linear_scaling(self.y_target, ind.aggregate)
+            ind.ls_a, ind.ls_b = float(a), float(b)
+            ind.fitness = float(rmse(self.y_target, a + b * ind.aggregate))
+        else:
+            ind.fitness = float(rmse(self.y_target, ind.aggregate))
         ind.nodes_count = self._nodes_count(ind)
 
     def _nodes_count(self, ind):
@@ -350,11 +358,19 @@ class FreshPoolSLIM:
         """Elite RMSE (scaled + raw units) and R^2 on each validation dataset
         -- lazy, elite-only: re-evaluates the elite's own structures against
         each validation set's tokens on demand, rather than materializing
-        every candidate's val semantics up front (most never become elite)."""
+        every candidate's val semantics up front (most never become elite).
+
+        When use_ls is on, applies the elite's (ls_a, ls_b) -- fit on the
+        training set only, in _evaluate/_resync_elite -- to the validation
+        semantics too. This is the standard LS-GP protocol: the affine
+        transform is frozen from training data and never refit against
+        validation targets, so this stays a genuine held-out evaluation."""
         pi, registry = to_registry(self.elite)
         scaled, raw, r2s = [], [], []
         for name in self.cfg.val_datasets:
             sem = semantics_from_tokens(pi, self.T_val[name], registry, self.TERMINALS)
+            if self.use_ls:
+                sem = self.elite.ls_a + self.elite.ls_b * sem
             y = self.val_targets[name]
             scaled.append(float(rmse(y, sem)))
             r2s.append(float(r2(y, sem)))
@@ -409,11 +425,18 @@ class FreshPoolSLIM:
         individual). Mutates self.elite in place, so if it's carried forward
         as an elite next generation its cached state stays accurate."""
         self.elite.aggregate = self._refold(self.elite.head_structure, self.elite.blocks)
-        self.elite.fitness = float(rmse(self.y_target, self.elite.aggregate))
+        if self.use_ls:
+            a, b = linear_scaling(self.y_target, self.elite.aggregate)
+            self.elite.ls_a, self.elite.ls_b = float(a), float(b)
+            self.elite.fitness = float(rmse(self.y_target, a + b * self.elite.aggregate))
+        else:
+            self.elite.fitness = float(rmse(self.y_target, self.elite.aggregate))
 
     def _log(self, gen, elapsed, population, run_info, log_path, verbose):
         scaled, raw, r2s = self.elite_val_metrics()
-        train_r2 = float(r2(self.y_target, self.elite.aggregate))
+        train_pred = (self.elite.ls_a + self.elite.ls_b * self.elite.aggregate
+                     if self.use_ls else self.elite.aggregate)
+        train_r2 = float(r2(self.y_target, train_pred))
         total_nodes = sum(i.nodes_count for i in population)
         # CSV columns: [algo, run_id, dataset, seed, generation,
         #               elite_train_rmse, time, population_nodes,
