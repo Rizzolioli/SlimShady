@@ -1,0 +1,7 @@
+run_id,algo,ms_spec,use_ls,function_set,constant_set
+dd1681e3-7f95-11f1-88f9-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_raw,oms,False,full_extended,small_ints
+dd1681e3-7f95-11f1-88f9-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_ls,oms,True,full_extended,small_ints
+dd1681e3-7f95-11f1-88f9-2c7ba0e6fa90,SLIM*MIX_ms0.1_pat5_fn-full_extended_const-small_ints_raw,0.1,False,full_extended,small_ints
+dd1681e3-7f95-11f1-88f9-2c7ba0e6fa90,SLIM*MIX_ms0.1_pat5_fn-full_extended_const-small_ints_ls,0.1,True,full_extended,small_ints
+dd1681e3-7f95-11f1-88f9-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_raw,0.01,False,full_extended,small_ints
+dd1681e3-7f95-11f1-88f9-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ls,0.01,True,full_extended,small_ints
