@@ -1,0 +1,17 @@
+{
+  "algo": "SLIM*MIX_oms_pat5_fn-arith_full_const-unit",
+  "wrapper": "mix",
+  "operator": "mul",
+  "seed": 0,
+  "head_idx": 0,
+  "blocks": [],
+  "head_structure": [
+    "add",
+    "constant__1",
+    "constant_1"
+  ],
+  "block_structures": [],
+  "fitness": 0.9989995360374451,
+  "nodes_count": 3,
+  "expression": "(-1 + 1)"
+}
