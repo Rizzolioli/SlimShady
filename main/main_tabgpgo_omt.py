@@ -95,7 +95,7 @@ OPERATORS_SWEPT = ["sum", "mul"]   # the two variants: SLIM+OT and SLIM*OT
 
 MS_SPEC = "oms"    # fixed -- best zero-shot ms found by the earlier sweep
 PATIENCE = 5       # fixed -- TabGPGOConfig's own default
-N_GENS = 50        # cut from the usual 200 -- see module docstring's compute-cost note
+N_GENS = 200        # cut from the usual 200 -- see module docstring's compute-cost note
 
 # Best combo found by main_tabgpgo_funcset.py's 26 function-set x 2 constant-set
 # sweep, by average zero-shot val R^2 across all 6 real datasets.
@@ -104,7 +104,7 @@ CONSTANT_SET_NAME = "small_ints"
 
 # Optimal Mutation Tree knobs -- see module docstring.
 OMT_FRAC = 1
-OMT_POP_SIZE = 20
+OMT_POP_SIZE = 100
 OMT_GENS = 10
 
 OMT_LOG_PATH = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_omt_results.csv")
