@@ -6,7 +6,7 @@ the best combo found so far (full_extended / small_ints, ms=oms, patience=5,
 latent_dim=512 -- the default, since the latent-dim sweep found no
 consistent winner across sizes), and the sweep axis is the aggregation
 operator: "sum" (SLIM+OT) vs. "mul" (SLIM*OT), both with Optimal Mutation
-Tree (OMT) enabled for every inflate mutation.
+Tree (OMT) enabled for a fraction of inflate mutations (see OMT_FRAC below).
 
 Optimal Mutation Tree (OMT): every sweep so far (function sets, ms values,
 linear scaling, latent sizes) converged to the same near-zero zero-shot
@@ -37,18 +37,21 @@ ALGO_NAMES in tabgpgo/config.py).
 
 cfg.omt_frac controls what fraction of inflate events use OMT vs. the
 existing random-reservoir-tree path (0.0 disables OMT entirely, reproducing
-every earlier experiment's exact behavior); this script fixes it at 1.0 (OMT
-for every single inflate mutation), matching the requested "for EACH
-mutation" condition. cfg.omt_pop_size/omt_gens are the inner GSGP search's
-own population size and generation count (100 / 10 here, per the original
-proposal).
+every earlier experiment's exact behavior). Scaled down from the original
+"every mutation" proposal after the first real run showed the nested-search
+cost is substantial: OMT_FRAC=0.2 (1 in 5 inflate events) and
+OMT_POP_SIZE=20 (down from 100) cut the number and size of nested searches
+roughly 25x combined, while still exercising the mechanism regularly enough
+to see whether it moves the needle at all. cfg.omt_gens (still 10) is the
+inner GSGP search's own generation count.
 
-IMPORTANT compute-cost note: nesting a 100-individual/10-generation SLIM*MIX
-run inside every single inflate event is far more expensive per mutation
-than the existing single-random-draw path. n_gens is cut to 50 (from the
-usual 200) for exactly this reason -- at pop_size=200/n_elites=5/
-p_inflate=0.5, that's still on the order of ~5,000 inflate events per
-variant, each paying the full nested-search cost.
+IMPORTANT compute-cost note: nesting even a 20-individual/10-generation
+SLIM*MIX run inside 1 in 5 inflate events is still meaningfully more
+expensive per mutation than the existing single-random-draw path. n_gens is
+cut to 50 (from the usual 200) for exactly this reason -- at pop_size=200/
+n_elites=5/p_inflate=0.5, that's still on the order of ~5,000 inflate events
+per variant, roughly 1,000 of which (at omt_frac=0.2) pay the nested-search
+cost.
 
 Resumable the same way main_tabgpgo_funcset.py / main_tabgpgo_ls.py /
 main_tabgpgo_latent.py are: evolve_omt() skips any operator that already has
@@ -100,8 +103,8 @@ FUNCTION_SET_NAME = "full_extended"
 CONSTANT_SET_NAME = "small_ints"
 
 # Optimal Mutation Tree knobs -- see module docstring.
-OMT_FRAC = 1.0
-OMT_POP_SIZE = 100
+OMT_FRAC = 0.2
+OMT_POP_SIZE = 20
 OMT_GENS = 10
 
 OMT_LOG_PATH = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_omt_results.csv")
