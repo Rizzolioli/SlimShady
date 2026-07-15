@@ -44,6 +44,13 @@ ALGO_NAMES = {
     ("mix",  "sum"): "SLIM+MIX",
     ("mix",  "mul"): "SLIM*MIX",
     ("mix",  "mix"): "SLIM~MIX",
+    # Optimal Mutation Tree variants: every block's wrapper is "omt" (no
+    # abs/sig1/sig2 squashing at all -- see FreshPoolSLIM._inflate), so
+    # calling these "MIX" would be misleading even though the AGGREGATION
+    # operator axis (sum/mul/mix) is identical to the wrapper="mix" variants.
+    ("omt",  "sum"): "SLIM+OT",
+    ("omt",  "mul"): "SLIM*OT",
+    ("omt",  "mix"): "SLIM~OT",
 }
 
 
@@ -107,6 +114,17 @@ class TabGPGOConfig:
     # evolve_freshpool(), analogous to ms_hi_values -- crossed with
     # variants x ms_hi_values x n_runs, each combo getting its own run.
     stagnation_patience_values: tuple = (None, 5, 10, 50)
+
+    # --- Optimal Mutation Tree (FreshPoolSLIM only; TensorSLIM never reads
+    # these) -- instead of drawing one random reservoir tree per inflate and
+    # wrapping it in abs/sig1/sig2, search for a tree whose raw semantics
+    # directly match the current residual via a small embedded GP run, then
+    # add it as T + ms*TO (ms still the usual OMS/random step) -- see
+    # FreshPoolSLIM._omt_search / _inflate. omt_frac=0 (default) disables it
+    # entirely, reproducing today's behavior exactly. ---------------------------
+    omt_frac: float = 0.0        # fraction of inflate events that use OMT instead of a random reservoir tree
+    omt_pop_size: int = 100      # inner GP population size for the OMT search
+    omt_gens: int = 10           # inner GP generations for the OMT search
 
     # --- paths / artifact caching -------------------------------------------------
     log_path: str = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_results.csv")

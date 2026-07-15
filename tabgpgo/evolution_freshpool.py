@@ -32,10 +32,10 @@ Persistence/inference reuse `tabgpgo/inference.py` completely unmodified via
 `to_registry`/`build_adapter`, converting a FreshIndividual into the
 (PoolIndividual, registry[, pool]) vocabulary those functions already expect.
 """
+import dataclasses
 import random
 import threading
 import time
-from dataclasses import dataclass, field
 
 import numpy as np
 import torch
@@ -44,8 +44,10 @@ from evaluators.fitness_functions import linear_scaling, r2, rmse
 from utils.logger import logger
 from utils.utils import protected_div
 
+from . import tree_pool
 from .config import ALGO_NAMES, OPERATORS, WRAPPERS
-from .evolution import Block, PoolIndividual, WRAPPER_NODES, wrapper_output
+from .evolution import (Block, FreshBlock, FreshIndividual, PoolIndividual,
+                        WRAPPER_NODES, wrapper_output)
 from .inference import semantics_from_tokens
 from .tree_pool import BOUND, evaluate_structure, generate_ramped_structures
 
@@ -65,41 +67,38 @@ _TREE_GEN_LOCK = threading.Lock()
 _LOG_LOCK = threading.Lock()
 
 
-@dataclass
-class FreshBlock:
-    structure1: tuple
-    structure2: tuple | None   # only used by sig2
-    nodes1: int
-    nodes2: int | None
-    ms: float
-    wrapper: str       # "abs" | "sig1" | "sig2" -- this block's own mutation function
-    operator: str       # "sum" | "mul" -- this block's own aggregation operator
-
-
-@dataclass
-class FreshIndividual:
-    head_structure: tuple
-    head_nodes: int
-    aggregate: torch.Tensor          # (n_train,) -- incremental cache, O(1) to update
-    blocks: list = field(default_factory=list)
-    fitness: float = float("inf")
-    nodes_count: int = 0
-    ls_a: float = 0.0                # linear-scaling intercept, fit on train only
-    ls_b: float = 1.0                # linear-scaling slope; (0.0, 1.0) is the no-op identity
-
-    @property
-    def size(self):
-        return 1 + len(self.blocks)
-
-
 def _raw_semantics(structure, T, TERMINALS):
     """Evaluate one tree structure on tokens T, broadcasting a scalar result
     (a constant-only tree) into a full (n_rows,) tensor -- same handling
-    evaluate_pool's loop and inference.py's semantics_from_tokens both use."""
+    evaluate_pool's loop and inference.py's semantics_from_tokens both use.
+
+    `structure` may also be a nested FreshIndividual (an "omt" block's TO,
+    itself a compact head+blocks recipe -- see FreshPoolSLIM._omt_search) --
+    dispatches to _nested_semantics instead of the tree interpreter so
+    persistence/re-evaluation on unseen data stay exact without ever
+    materializing TO as one giant literal tree."""
+    if isinstance(structure, FreshIndividual):
+        return _nested_semantics(structure, T, TERMINALS)
     out = evaluate_structure(structure, T, TERMINALS)
     if not isinstance(out, torch.Tensor) or out.dim() == 0:
         out = torch.full((T.shape[0],), float(out), device=T.device)
     return out.float()
+
+
+def _nested_semantics(ind, T, TERMINALS):
+    """Recursively evaluate a nested FreshIndividual (an OMT block's TO
+    recipe) on arbitrary tokens T -- same fold logic as FreshPoolSLIM._refold,
+    but a free function parametrized over T so it works equally for T_train
+    (evolution time) and T_val/unseen data (inference.py's own copy of this
+    dispatch, in semantics_from_tokens/block_raw_terms, reuses the same
+    _raw_semantics recursion via evaluate_structure's sibling handling)."""
+    agg = _raw_semantics(ind.head_structure, T, TERMINALS)
+    for b in ind.blocks:
+        tr1 = _raw_semantics(b.structure1, T, TERMINALS)
+        tr2 = _raw_semantics(b.structure2, T, TERMINALS) if b.structure2 is not None else None
+        delta = b.ms * wrapper_output(b.wrapper, tr1, tr2)
+        agg = agg * (1 + delta) if b.operator == "mul" else agg + delta
+    return torch.clamp(agg, -BOUND, BOUND)
 
 
 def to_registry(ind):
@@ -151,6 +150,10 @@ class FreshPoolSLIM:
         wrapper, operator = variant
         self.cfg = cfg
         self.use_ls = use_ls
+        self.omt_frac = cfg.omt_frac
+        self.omt_pop_size = cfg.omt_pop_size
+        self.omt_gens = cfg.omt_gens
+        self._omt_calls = 0   # own seed counter, independent of the main reservoir's generation counter
         self.variant = variant
         ms_spec = cfg.ms_hi if ms_spec is None else ms_spec
         self.use_oms = ms_spec == "oms"
@@ -252,13 +255,19 @@ class FreshPoolSLIM:
     def _best(self, population):
         return min(population, key=lambda i: (i.fitness, i.nodes_count))
 
-    def _optimal_ms(self, parent, wrapper, operator, tr1, tr2):
+    def _optimal_ms(self, parent, wrapper, operator, tr1, tr2, sR=None):
         """Regularized Optimal Mutation Step -- same math as TensorSLIM's, but
         `s` comes from the parent's already-cached aggregate (no refold) and
         tr1/tr2 come from the freshly popped candidate trees' own semantics
-        (no pool gather)."""
+        (no pool gather).
+
+        `sR` lets a caller supply the un-scaled term directly instead of
+        deriving it from (wrapper, tr1, tr2) -- used by the OMT path, whose
+        candidate tree already IS the un-scaled term (no squashing wrapper),
+        so wrapper/tr2 are otherwise unused/ignored in that case."""
         s = parent.aggregate
-        sR = wrapper_output(wrapper, tr1, tr2)
+        if sR is None:
+            sR = wrapper_output(wrapper, tr1, tr2)
         residual = (self.y_target - s if operator == "sum"
                    else protected_div(self.y_target, s) - 1)
         denom = float(torch.dot(sR, sR))
@@ -269,22 +278,70 @@ class FreshPoolSLIM:
             return 0.0
         return max(-self.cfg.oms_bound, min(self.cfg.oms_bound, ms))
 
+    def _omt_search(self, residual):
+        """Optimal Mutation Tree via genuine GSGP: nests an actual
+        FreshPoolSLIM run -- SLIM*MIX, the same established variant used
+        throughout this project -- targeting `residual` (on T_train) instead
+        of the real y_target, for self.omt_pop_size individuals x
+        self.omt_gens generations.
+
+        Its elite is a compact FreshIndividual (head + blocks, semantics
+        cached incrementally exactly like the outer algorithm -- no tree
+        bloat from repeatedly re-expressing a growing structure), returned
+        AS-IS to become the outer mutation's TO: stored directly as an
+        "omt" block's structure1 (see FreshBlock/_inflate below), evaluated
+        via _raw_semantics' FreshIndividual dispatch to _nested_semantics
+        wherever it's later needed (elite drift-resync, validation scoring,
+        persistence/reconstruction) -- so nothing downstream needs to know
+        TO came from a nested search rather than a single tree.
+
+        T_val/val_targets/val_y_stats are empty -- "validation" isn't a
+        meaningful concept for an inner search whose only job is matching
+        `residual` on T_train, so solve(track_val=False) skips that (and the
+        CSV logging that would otherwise go with it) entirely. Own seed
+        counter (self._omt_calls) keeps the inner run's tree draws
+        reproducible and independent of the outer reservoir's draws.
+        """
+        # omt_frac=0.0 is critical here, not cosmetic: without it the nested
+        # run would inherit the outer cfg's own omt_frac and try to launch
+        # ITS OWN nested OMT search on every one of its mutations -- infinite
+        # recursion. The inner search is always plain SLIM*MIX.
+        inner_cfg = dataclasses.replace(self.cfg, pop_size=self.omt_pop_size,
+                                        n_gens=self.omt_gens, omt_frac=0.0)
+        inner_seed = (self.seed * 1_000_003 + 999_983 * self._omt_calls) % (2**31 - 1)
+        self._omt_calls += 1
+        inner = FreshPoolSLIM(inner_cfg, ("mix", "mul"), self.T_train, {}, residual,
+                              {}, {}, self.TERMINALS, seed=inner_seed, ms_spec="oms")
+        return inner.solve(run_info=None, log_path=None, verbose=0, track_val=False)
+
     def _inflate(self, parent):
-        wrapper = self.rng.choice(WRAPPERS) if self.wrapper == "mix" else self.wrapper
         operator = self.rng.choice(OPERATORS) if self.operator == "mix" else self.operator
-        tree1 = self._pop_tree()
-        tree2 = self._pop_tree() if wrapper == "sig2" else None
-        tr1 = _raw_semantics(tree1["structure"], self.T_train, self.TERMINALS)
-        tr2 = (_raw_semantics(tree2["structure"], self.T_train, self.TERMINALS)
-              if tree2 is not None else None)
-        ms = (self._optimal_ms(parent, wrapper, operator, tr1, tr2)
-             if self.use_oms else self.ms_fn())
-        delta = ms * wrapper_output(wrapper, tr1, tr2)
+        use_omt = self.omt_frac > 0 and self.rng.random() < self.omt_frac
+        if use_omt:
+            residual = (self.y_target - parent.aggregate if operator == "sum"
+                       else protected_div(self.y_target, parent.aggregate) - 1)
+            to_individual = self._omt_search(residual)
+            wrapper = "omt"
+            tr1 = to_individual.aggregate
+            ms = (self._optimal_ms(parent, wrapper, operator, tr1, None, sR=tr1)
+                 if self.use_oms else self.ms_fn())
+            delta = ms * tr1
+            block = FreshBlock(to_individual, None, to_individual.nodes_count, None, ms, wrapper, operator)
+        else:
+            wrapper = self.rng.choice(WRAPPERS) if self.wrapper == "mix" else self.wrapper
+            tree1 = self._pop_tree()
+            tree2 = self._pop_tree() if wrapper == "sig2" else None
+            tr1 = _raw_semantics(tree1["structure"], self.T_train, self.TERMINALS)
+            tr2 = (_raw_semantics(tree2["structure"], self.T_train, self.TERMINALS)
+                  if tree2 is not None else None)
+            ms = (self._optimal_ms(parent, wrapper, operator, tr1, tr2)
+                 if self.use_oms else self.ms_fn())
+            delta = ms * wrapper_output(wrapper, tr1, tr2)
+            block = FreshBlock(tree1["structure"], tree2["structure"] if tree2 else None,
+                               tree1["nodes"], tree2["nodes"] if tree2 else None,
+                               ms, wrapper, operator)
         new_agg = parent.aggregate * (1 + delta) if operator == "mul" else parent.aggregate + delta
         new_agg = torch.clamp(new_agg, -BOUND, BOUND)
-        block = FreshBlock(tree1["structure"], tree2["structure"] if tree2 else None,
-                           tree1["nodes"], tree2["nodes"] if tree2 else None,
-                           ms, wrapper, operator)
         return FreshIndividual(parent.head_structure, parent.head_nodes, new_agg,
                                [*parent.blocks, block])
 
@@ -381,7 +438,12 @@ class FreshPoolSLIM:
 
     # -- main loop ----------------------------------------------------------
 
-    def solve(self, run_info, log_path, verbose=1):
+    def solve(self, run_info, log_path, verbose=1, track_val=True):
+        """`track_val=False` skips elite_val_metrics()/CSV logging entirely
+        (run_info/log_path are then unused and may be None) -- for a nested
+        OMT search, whose only job is matching a residual on T_train, where
+        "validation" isn't a meaningful concept and per-generation CSV rows
+        would otherwise flood the outer algorithm's own results file."""
         cfg = self.cfg
 
         start = time.time()
@@ -396,7 +458,7 @@ class FreshPoolSLIM:
             self._evaluate(ind)
         self.elite = self._best(population)
         self.best_fitness_ever = self.elite.fitness   # nothing to compare against yet at gen 0
-        self._log(0, time.time() - start, population, run_info, log_path, verbose)
+        self._log(0, time.time() - start, population, run_info, log_path, verbose, track_val)
 
         for gen in range(1, cfg.n_gens + 1):
             start = time.time()
@@ -415,7 +477,7 @@ class FreshPoolSLIM:
             self.elite = self._best(population)
             self._resync_elite()   # bound incremental-update drift
             self._check_stagnation(population, gen)
-            self._log(gen, time.time() - start, population, run_info, log_path, verbose)
+            self._log(gen, time.time() - start, population, run_info, log_path, verbose, track_val)
         return self.elite
 
     def _resync_elite(self):
@@ -432,11 +494,17 @@ class FreshPoolSLIM:
         else:
             self.elite.fitness = float(rmse(self.y_target, self.elite.aggregate))
 
-    def _log(self, gen, elapsed, population, run_info, log_path, verbose):
-        scaled, raw, r2s = self.elite_val_metrics()
+    def _log(self, gen, elapsed, population, run_info, log_path, verbose, track_val=True):
         train_pred = (self.elite.ls_a + self.elite.ls_b * self.elite.aggregate
                      if self.use_ls else self.elite.aggregate)
         train_r2 = float(r2(self.y_target, train_pred))
+        if not track_val:
+            if verbose:
+                print(f"  [{self.algo} seed {self.seed}] gen {gen}/{self.cfg.n_gens} "
+                      f"train_rmse={self.elite.fitness:.4f} train_R2={train_r2:.3f} "
+                      f"size={self.elite.size} reservoir={len(self.reservoir)} | {elapsed:.2f}s")
+            return
+        scaled, raw, r2s = self.elite_val_metrics()
         total_nodes = sum(i.nodes_count for i in population)
         # CSV columns: [algo, run_id, dataset, seed, generation,
         #               elite_train_rmse, time, population_nodes,

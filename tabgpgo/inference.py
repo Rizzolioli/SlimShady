@@ -16,29 +16,89 @@ import torch
 
 from .autoencoder import MLPAutoencoder, encode
 from .config import TabGPGOConfig
-from .evolution import (Block, PoolIndividual, individual_semantics,
-                        individual_semantics_sequential, wrapper_output)
+from .evolution import (Block, FreshBlock, FreshIndividual, PoolIndividual,
+                        individual_semantics, individual_semantics_sequential,
+                        wrapper_output)
 from .preprocessing import standardize_scale_pad, zscore
 from .tree_pool import BOUND, evaluate_structure, make_terminals
 
 _INFIX = {"add": "+", "subtract": "-", "multiply": "*", "divide": "/"}
 
 
+def _eval_structure(structure, T, TERMINALS):
+    """Evaluate one registry entry's structure on tokens T: either a plain
+    tuple tree (the tree_pool interpreter) or a nested FreshIndividual (an
+    "omt" block's TO recipe -- see FreshPoolSLIM._omt_search), recursively
+    folded the same way FreshPoolSLIM._refold/_nested_semantics do at
+    evolution time. today's OMT nests exactly one level deep (the inner
+    search's own omt_frac is forced to 0), but this handles arbitrary depth
+    for free via its own recursion."""
+    if isinstance(structure, FreshIndividual):
+        agg = _eval_structure(structure.head_structure, T, TERMINALS)
+        for b in structure.blocks:
+            tr1 = _eval_structure(b.structure1, T, TERMINALS)
+            tr2 = _eval_structure(b.structure2, T, TERMINALS) if b.structure2 is not None else None
+            delta = b.ms * wrapper_output(b.wrapper, tr1, tr2)
+            agg = agg * (1 + delta) if b.operator == "mul" else agg + delta
+        return torch.clamp(agg, -BOUND, BOUND)
+    out = evaluate_structure(structure, T, TERMINALS)
+    if not isinstance(out, torch.Tensor) or out.dim() == 0:
+        out = torch.full((T.shape[0],), float(out), device=T.device)
+    return out.float()
+
+
 def _to_jsonable(structure):
-    """Nested tuples -> nested lists (JSON-safe)."""
+    """Nested tuples -> nested lists (JSON-safe). A nested FreshIndividual
+    (an "omt" block's TO) becomes a tagged dict instead, recursively --
+    _from_jsonable reverses this exactly."""
+    if isinstance(structure, FreshIndividual):
+        return {
+            "__fresh_individual__": True,
+            "head_structure": _to_jsonable(structure.head_structure),
+            "head_nodes": structure.head_nodes,
+            "blocks": [[_to_jsonable(b.structure1),
+                       _to_jsonable(b.structure2) if b.structure2 is not None else None,
+                       b.nodes1, b.nodes2, b.ms, b.wrapper, b.operator]
+                      for b in structure.blocks],
+            "fitness": structure.fitness, "nodes_count": structure.nodes_count,
+        }
     if isinstance(structure, tuple):
         return [_to_jsonable(s) for s in structure]
     return structure
 
 
 def _from_jsonable(structure):
-    """Nested lists (from JSON) -> nested tuples."""
+    """Nested lists (from JSON) -> nested tuples; a tagged dict (see
+    _to_jsonable) -> a nested FreshIndividual. `aggregate` is left as a
+    zero-length placeholder tensor -- structure/nodes/ms/wrapper/operator are
+    everything _eval_structure/structure_to_str need to re-evaluate/
+    reconstruct it; nothing here uses a nested block's cached aggregate."""
+    if isinstance(structure, dict) and structure.get("__fresh_individual__"):
+        blocks = [FreshBlock(_from_jsonable(s1), _from_jsonable(s2) if s2 is not None else None,
+                             n1, n2, ms, wrapper, operator)
+                 for s1, s2, n1, n2, ms, wrapper, operator in structure["blocks"]]
+        return FreshIndividual(_from_jsonable(structure["head_structure"]), structure["head_nodes"],
+                               torch.empty(0), blocks, structure["fitness"], structure["nodes_count"])
     if isinstance(structure, list):
         return tuple(_from_jsonable(s) for s in structure)
     return structure
 
 
 def structure_to_str(structure):
+    if isinstance(structure, FreshIndividual):
+        registry = {}
+
+        def register(s):
+            idx = len(registry)
+            registry[idx] = {"structure": s}
+            return idx
+
+        head_idx = register(structure.head_structure)
+        blocks = [Block(register(b.structure1),
+                        register(b.structure2) if b.structure2 is not None else None,
+                        b.ms, b.wrapper, b.operator)
+                 for b in structure.blocks]
+        return reconstruct_expression(PoolIndividual(head_idx, blocks), registry)
     if isinstance(structure, tuple):
         fname = structure[0]
         if len(structure) == 3:   # arity-2: (fname, left, right)
@@ -63,6 +123,8 @@ def _block_to_str(block, registry):
         delta = f"{ms}*(1 - 2/(1 + abs({t1})))"
     elif block.wrapper == "sig1":
         delta = f"{ms}*(2*sigmoid({t1}) - 1)"
+    elif block.wrapper == "omt":
+        delta = f"{ms}*{t1}"
     else:  # sig2
         t2 = structure_to_str(registry[block.idx2]["structure"])
         delta = f"{ms}*(sigmoid({t1}) - sigmoid({t2}))"
@@ -95,10 +157,7 @@ def reconstruct_expression(ind, registry):
 def semantics_from_tokens(ind, T, registry, TERMINALS):
     """Evaluate an individual directly on latent tokens (no pool lookup)."""
     def sem(idx):
-        out = evaluate_structure(registry[idx]["structure"], T, TERMINALS)
-        if not isinstance(out, torch.Tensor) or out.dim() == 0:
-            out = torch.full((T.shape[0],), float(out), device=T.device)
-        return out.float()
+        return _eval_structure(registry[idx]["structure"], T, TERMINALS)
 
     agg = sem(ind.head_idx)
     for b in ind.blocks:
@@ -107,6 +166,8 @@ def semantics_from_tokens(ind, T, registry, TERMINALS):
             delta = b.ms * (torch.sigmoid(tr1) - torch.sigmoid(sem(b.idx2)))
         elif b.wrapper == "sig1":
             delta = b.ms * (2 * torch.sigmoid(tr1) - 1)
+        elif b.wrapper == "omt":
+            delta = b.ms * tr1
         else:
             delta = b.ms * (1 - 2 / (1 + torch.abs(tr1)))
         if b.operator == "mul":
@@ -126,10 +187,7 @@ def block_raw_terms(ind, T, registry, TERMINALS):
     Returns (head_sem: (n_rows,), raw_terms: list[(n_rows,)] in block order).
     """
     def sem(idx):
-        out = evaluate_structure(registry[idx]["structure"], T, TERMINALS)
-        if not isinstance(out, torch.Tensor) or out.dim() == 0:
-            out = torch.full((T.shape[0],), float(out), device=T.device)
-        return out.float()
+        return _eval_structure(registry[idx]["structure"], T, TERMINALS)
 
     head_sem = sem(ind.head_idx)
     raw_terms = []

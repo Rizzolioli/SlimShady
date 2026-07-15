@@ -44,10 +44,18 @@ _LOG_LOCK = threading.Lock()
 # algorithms/GSGP/representations/tree_utils.py.
 WRAPPER_NODES = {("sig2", "sum"): 4, ("sig2", "mul"): 6,
                  ("sig1", "sum"): 7, ("sig1", "mul"): 9,
-                 ("abs", "sum"): 9, ("abs", "mul"): 11}
+                 ("abs", "sum"): 9, ("abs", "mul"): 11,
+                 # omt has no squashing wrapper at all (raw TO used directly),
+                 # so its only overhead vs. the bare tree is the linkage
+                 # itself: "+ ms*TO" (2 nodes) or "* (1 + ms*TO)" (4 nodes,
+                 # the extra "+1" the mul form always needs) -- smaller than
+                 # every other wrapper's overhead, consistent with sig2 (the
+                 # next-smallest) also being the simplest formula.
+                 ("omt", "sum"): 2, ("omt", "mul"): 4}
 WRAPPER_DEPTH = {("sig2", "sum"): 2, ("sig2", "mul"): 3,
                  ("sig1", "sum"): 3, ("sig1", "mul"): 4,
-                 ("abs", "sum"): 4, ("abs", "mul"): 5}
+                 ("abs", "sum"): 4, ("abs", "mul"): 5,
+                 ("omt", "sum"): 1, ("omt", "mul"): 2}
 
 
 @dataclass
@@ -55,7 +63,7 @@ class Block:
     idx1: int
     idx2: int | None   # only used by sig2
     ms: float
-    wrapper: str       # "abs" | "sig1" | "sig2" -- this block's own mutation function
+    wrapper: str       # "abs" | "sig1" | "sig2" | "omt" -- this block's own mutation function
     operator: str      # "sum" | "mul" -- this block's own aggregation operator
 
 
@@ -65,6 +73,33 @@ class PoolIndividual:
     blocks: list = field(default_factory=list)
     fitness: float = float("inf")
     nodes_count: int = 0
+
+    @property
+    def size(self):
+        return 1 + len(self.blocks)
+
+
+@dataclass
+class FreshBlock:
+    structure1: tuple   # or a nested FreshIndividual, for an "omt" block's TO -- see FreshPoolSLIM._omt_search
+    structure2: tuple | None   # only used by sig2
+    nodes1: int
+    nodes2: int | None
+    ms: float
+    wrapper: str       # "abs" | "sig1" | "sig2" | "omt" -- this block's own mutation function
+    operator: str       # "sum" | "mul" -- this block's own aggregation operator
+
+
+@dataclass
+class FreshIndividual:
+    head_structure: tuple
+    head_nodes: int
+    aggregate: torch.Tensor          # (n_train,) -- incremental cache, O(1) to update
+    blocks: list = field(default_factory=list)   # list[FreshBlock]
+    fitness: float = float("inf")
+    nodes_count: int = 0
+    ls_a: float = 0.0                # linear-scaling intercept, fit on train only
+    ls_b: float = 1.0                # linear-scaling slope; (0.0, 1.0) is the no-op identity
 
     @property
     def size(self):
@@ -83,6 +118,8 @@ def block_deltas(blocks, wrapper, operator, pool):
         delta = ms * (2 * torch.sigmoid(tr1) - 1)
     elif wrapper == "abs":
         delta = ms * (1 - 2 / (1 + torch.abs(tr1)))
+    elif wrapper == "omt":
+        delta = ms * tr1   # Optimal Mutation Tree: tr1 is already the un-scaled term, no squashing wrapper
     else:
         raise ValueError(f"unknown wrapper: {wrapper}")
     if operator == "mul":
@@ -99,6 +136,8 @@ def wrapper_output(wrapper, tr1, tr2=None):
         return torch.sigmoid(tr1) - torch.sigmoid(tr2)
     if wrapper == "sig1":
         return 2 * torch.sigmoid(tr1) - 1
+    if wrapper == "omt":
+        return tr1   # Optimal Mutation Tree: already the un-scaled term, no squashing wrapper
     return 1 - 2 / (1 + torch.abs(tr1))   # abs
 
 
@@ -135,6 +174,8 @@ def individual_semantics_sequential(ind, pool):
             delta = b.ms * (torch.sigmoid(tr1) - torch.sigmoid(pool[b.idx2].float()))
         elif b.wrapper == "sig1":
             delta = b.ms * (2 * torch.sigmoid(tr1) - 1)
+        elif b.wrapper == "omt":
+            delta = b.ms * tr1
         else:  # abs
             delta = b.ms * (1 - 2 / (1 + torch.abs(tr1)))
         agg = agg * (1 + delta) if b.operator == "mul" else agg + delta
