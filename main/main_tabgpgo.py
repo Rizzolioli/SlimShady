@@ -114,12 +114,19 @@ def prepare(cfg, verbose=True, build_static_pool=True):
 
     # -- stage 2: autoencoder + latent tokens -----------------------------------
     def _train_ae():
-        model = train_autoencoder(X_train, cfg, verbose=verbose)
+        model = train_autoencoder(X_train, cfg, y_target=y_target, verbose=verbose)
         return model.state_dict()
 
     ae_state = _cached(cfg, "autoencoder.pt", _train_ae, verbose, "autoencoder")
     ae = MLPAutoencoder(cfg.max_features, cfg.ae_hidden, cfg.latent_dim).to(device)
-    ae.load_state_dict(ae_state)
+    # strict=False: caches built before MLPAutoencoder gained pred_head (see
+    # tabgpgo/autoencoder.py) won't have those keys -- pred_head then simply
+    # keeps its fresh random init, which is harmless, since encode() only
+    # ever calls model.encoder(), never model.pred_head(). A cache actually
+    # meant to use the auxiliary head is rebuilt from scratch anyway under
+    # its own dedicated artifacts_dir (see main_tabgpgo_aux_encoder.py),
+    # never sharing this default directory's existing cache.
+    ae.load_state_dict(ae_state, strict=False)
     ae.eval().requires_grad_(False)
 
     T_train = _cached(cfg, "T_train.pt", lambda: encode(ae, X_train),

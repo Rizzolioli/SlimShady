@@ -79,6 +79,10 @@ class TabGPGOConfig:
     ae_epochs: int = 50
     ae_batch: int = 4096
     ae_lr: float = 1e-3
+    # Auxiliary target-prediction head weight (see tabgpgo/autoencoder.py::
+    # train_autoencoder) -- 0.0 (default) reproduces the original
+    # unsupervised-only autoencoder training exactly.
+    ae_aux_weight: float = 0.0
 
     # --- tree pool (Phase 3) ---------------------------------------------------
     pool_size: int = 5000
