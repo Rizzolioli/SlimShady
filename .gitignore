@@ -19,3 +19,4 @@ utils/results_analyser.ipynb
 *.pdf
 *.pyc
 /main/log/tabgpgo_artifacts
+/main/log/tabgpgo_latent_artifacts
