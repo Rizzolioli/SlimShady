@@ -127,7 +127,13 @@ def _base_algo_label(operator):
 
 
 def _combo_tag(operator):
-    algo = f"{_base_algo_label(operator)}_fn-{FUNCTION_SET_NAME}_const-{CONSTANT_SET_NAME}_omt"
+    # n_gens/omt_pop_size/omt_gens are embedded here -- not just cosmetic:
+    # find_completed_run_dir matches PURELY on this tag, so if it didn't
+    # encode these, changing any of them (e.g. to rerun with a bigger inner
+    # search) would silently match and skip the OLD run instead of
+    # launching a new one with the new parameters.
+    algo = (f"{_base_algo_label(operator)}_fn-{FUNCTION_SET_NAME}_const-{CONSTANT_SET_NAME}_omt"
+            f"_ogens{N_GENS}_ofrac{OMT_FRAC:g}_opop{OMT_POP_SIZE}_oigen{OMT_GENS}")
     return algo, algo.replace("*", "x").replace("~", "t")
 
 
