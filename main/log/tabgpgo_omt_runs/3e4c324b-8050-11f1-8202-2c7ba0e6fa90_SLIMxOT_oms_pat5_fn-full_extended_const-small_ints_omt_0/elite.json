@@ -1,0 +1,449 @@
+{
+  "algo": "SLIM*OT_oms_pat5_fn-full_extended_const-small_ints_omt",
+  "wrapper": "omt",
+  "operator": "mul",
+  "seed": 0,
+  "head_idx": 0,
+  "blocks": [
+    [
+      1,
+      null,
+      0.9788748763998334,
+      "omt",
+      "mul"
+    ],
+    [
+      2,
+      null,
+      1.0,
+      "omt",
+      "mul"
+    ],
+    [
+      3,
+      null,
+      1.0,
+      "omt",
+      "mul"
+    ],
+    [
+      4,
+      null,
+      1.0,
+      "omt",
+      "mul"
+    ],
+    [
+      5,
+      null,
+      1.0,
+      "omt",
+      "mul"
+    ]
+  ],
+  "head_structure": [
+    "tan",
+    "constant_3"
+  ],
+  "block_structures": [
+    [
+      {
+        "__fresh_individual__": true,
+        "head_structure": [
+          "tanh",
+          "z111"
+        ],
+        "head_nodes": 2,
+        "blocks": [
+          [
+            [
+              "sqrt",
+              [
+                "reciprocal",
+                [
+                  "add",
+                  "z305",
+                  "z438"
+                ]
+              ]
+            ],
+            null,
+            5,
+            null,
+            0.04373261166913013,
+            "sig1",
+            "mul"
+          ],
+          [
+            [
+              "cube",
+              "z32"
+            ],
+            null,
+            2,
+            null,
+            -0.1943316323877596,
+            "abs",
+            "mul"
+          ],
+          [
+            [
+              "subtract",
+              [
+                "divide",
+                [
+                  "log",
+                  "z117"
+                ],
+                [
+                  "add",
+                  "z375",
+                  "z248"
+                ]
+              ],
+              [
+                "sqrt",
+                [
+                  "cube",
+                  "z492"
+                ]
+              ]
+            ],
+            null,
+            10,
+            null,
+            -0.0007372056106734808,
+            "sig1",
+            "mul"
+          ],
+          [
+            [
+              "cube",
+              [
+                "exp",
+                [
+                  "divide",
+                  [
+                    "sin",
+                    [
+                      "tanh",
+                      "z222"
+                    ]
+                  ],
+                  [
+                    "abs",
+                    [
+                      "cos",
+                      "constant_3"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            null,
+            9,
+            null,
+            -0.4561574781778885,
+            "abs",
+            "mul"
+          ]
+        ],
+        "fitness": 7.003149032592773,
+        "nodes_count": 72
+      },
+      null
+    ],
+    [
+      {
+        "__fresh_individual__": true,
+        "head_structure": [
+          "abs",
+          "z157"
+        ],
+        "head_nodes": 2,
+        "blocks": [
+          [
+            [
+              "reciprocal",
+              [
+                "log",
+                [
+                  "add",
+                  [
+                    "sin",
+                    [
+                      "square",
+                      "constant_4"
+                    ]
+                  ],
+                  [
+                    "exp",
+                    [
+                      "square",
+                      "z500"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            null,
+            9,
+            null,
+            -1.0,
+            "abs",
+            "mul"
+          ],
+          [
+            [
+              "sqrt",
+              "z208"
+            ],
+            null,
+            2,
+            null,
+            1.0,
+            "abs",
+            "mul"
+          ],
+          [
+            [
+              "log",
+              [
+                "sqrt",
+                "z426"
+              ]
+            ],
+            null,
+            3,
+            null,
+            1.0,
+            "abs",
+            "mul"
+          ]
+        ],
+        "fitness": 134.7714385986328,
+        "nodes_count": 52
+      },
+      null
+    ],
+    [
+      {
+        "__fresh_individual__": true,
+        "head_structure": [
+          "subtract",
+          [
+            "divide",
+            [
+              "tan",
+              [
+                "abs",
+                [
+                  "cos",
+                  "constant_5"
+                ]
+              ]
+            ],
+            [
+              "exp",
+              [
+                "reciprocal",
+                [
+                  "abs",
+                  "constant__1"
+                ]
+              ]
+            ]
+          ],
+          [
+            "tan",
+            [
+              "reciprocal",
+              [
+                "reciprocal",
+                [
+                  "exp",
+                  "constant__1"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "head_nodes": 15,
+        "blocks": [
+          [
+            [
+              "square",
+              "z22"
+            ],
+            null,
+            2,
+            null,
+            -1.0,
+            "abs",
+            "mul"
+          ]
+        ],
+        "fitness": 105.09708404541016,
+        "nodes_count": 29
+      },
+      null
+    ],
+    [
+      {
+        "__fresh_individual__": true,
+        "head_structure": [
+          "tanh",
+          [
+            "tanh",
+            [
+              "divide",
+              [
+                "tanh",
+                "z16"
+              ],
+              [
+                "sin",
+                "constant_2"
+              ]
+            ]
+          ]
+        ],
+        "head_nodes": 7,
+        "blocks": [
+          [
+            [
+              "add",
+              "z384",
+              "z235"
+            ],
+            null,
+            3,
+            null,
+            -0.9407033039970107,
+            "sig1",
+            "mul"
+          ],
+          [
+            [
+              "add",
+              "z188",
+              "z97"
+            ],
+            null,
+            3,
+            null,
+            1.0,
+            "sig1",
+            "mul"
+          ]
+        ],
+        "fitness": 139.29562377929688,
+        "nodes_count": 33
+      },
+      null
+    ],
+    [
+      {
+        "__fresh_individual__": true,
+        "head_structure": [
+          "sin",
+          [
+            "log",
+            [
+              "abs",
+              [
+                "square",
+                "constant_4"
+              ]
+            ]
+          ]
+        ],
+        "head_nodes": 5,
+        "blocks": [
+          [
+            [
+              "reciprocal",
+              "z365"
+            ],
+            null,
+            2,
+            null,
+            -1.0,
+            "abs",
+            "mul"
+          ],
+          [
+            [
+              "abs",
+              "z99"
+            ],
+            null,
+            2,
+            null,
+            1.0,
+            "abs",
+            "mul"
+          ],
+          [
+            [
+              "cube",
+              [
+                "log",
+                "z266"
+              ]
+            ],
+            [
+              "cos",
+              "z59"
+            ],
+            3,
+            2,
+            1.0,
+            "sig2",
+            "mul"
+          ],
+          [
+            [
+              "reciprocal",
+              "z406"
+            ],
+            [
+              "log",
+              [
+                "multiply",
+                "z6",
+                "z2"
+              ]
+            ],
+            2,
+            4,
+            -1.0,
+            "sig2",
+            "mul"
+          ],
+          [
+            [
+              "add",
+              "z487",
+              "z287"
+            ],
+            null,
+            3,
+            null,
+            1.0,
+            "sig1",
+            "mul"
+          ]
+        ],
+        "fitness": 162.17965698242188,
+        "nodes_count": 71
+      },
+      null
+    ]
+  ],
+  "fitness": 0.9975869655609131,
+  "nodes_count": 284,
+  "expression": "tan(3) * (1 + 0.978875*tanh(z111) * (1 + 0.0437326*(2*sigmoid(sqrt(reciprocal((z305 + z438)))) - 1)) * (1 + -0.194332*(1 - 2/(1 + abs(cube(z32))))) * (1 + -0.000737206*(2*sigmoid(((log(z117) / (z375 + z248)) - sqrt(cube(z492)))) - 1)) * (1 + -0.456157*(1 - 2/(1 + abs(cube(exp((sin(tanh(z222)) / abs(cos(3)))))))))) * (1 + 1*abs(z157) * (1 + -1*(1 - 2/(1 + abs(reciprocal(log((sin(square(4)) + exp(square(z500))))))))) * (1 + 1*(1 - 2/(1 + abs(sqrt(z208))))) * (1 + 1*(1 - 2/(1 + abs(log(sqrt(z426))))))) * (1 + 1*((tan(abs(cos(5))) / exp(reciprocal(abs(-1)))) - tan(reciprocal(reciprocal(exp(-1))))) * (1 + -1*(1 - 2/(1 + abs(square(z22)))))) * (1 + 1*tanh(tanh((tanh(z16) / sin(2)))) * (1 + -0.940703*(2*sigmoid((z384 + z235)) - 1)) * (1 + 1*(2*sigmoid((z188 + z97)) - 1))) * (1 + 1*sin(log(abs(square(4)))) * (1 + -1*(1 - 2/(1 + abs(reciprocal(z365))))) * (1 + 1*(1 - 2/(1 + abs(abs(z99))))) * (1 + 1*(sigmoid(cube(log(z266))) - sigmoid(cos(z59)))) * (1 + -1*(sigmoid(reciprocal(z406)) - sigmoid(log((z6 * z2))))) * (1 + 1*(2*sigmoid((z487 + z287)) - 1)))",
+  "ls_a": 0.0,
+  "ls_b": 1.0
+}

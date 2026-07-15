@@ -103,7 +103,7 @@ FUNCTION_SET_NAME = "full_extended"
 CONSTANT_SET_NAME = "small_ints"
 
 # Optimal Mutation Tree knobs -- see module docstring.
-OMT_FRAC = 0.2
+OMT_FRAC = 1
 OMT_POP_SIZE = 20
 OMT_GENS = 10
 
