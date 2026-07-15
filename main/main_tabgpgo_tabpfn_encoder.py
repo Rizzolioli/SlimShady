@@ -202,11 +202,18 @@ def _run_one(cfg, combo, ctx, unique_run_id, verbose):
     cfg = dataclasses.replace(cfg, p_c=p_c,
                               omt_frac=combo["omt_frac"], omt_pop_size=combo["omt_pop_size"],
                               omt_gens=combo["omt_gens"])
+    # optimizer.algo MUST be set from the exact same _combo_tag() the
+    # resumability check uses -- building an independent ad-hoc suffix here
+    # (as an earlier version of this script did) means the run directory
+    # this creates doesn't match what find_completed_run_dir searches for,
+    # so resumability silently never fires (same bug main_tabgpgo_omt.py
+    # had before its own tag was fixed to embed all its parameters).
+    algo, tag = _combo_tag(combo)
     with function_constant_set(FUNCTION_SETS[combo["function_set"]], constants):
         optimizer = FreshPoolSLIM(cfg, VARIANT, ctx["T_train"], ctx["T_val"],
                                   ctx["y_target"], ctx["val_targets"], ctx["val_y_stats"],
                                   ctx["TERMINALS"], seed=0, ms_spec=MS_SPEC, use_ls=False)
-        optimizer.algo = f"{optimizer.algo}_fn-{combo['function_set']}_const-{combo['constant_set']}_tabpfn"
+        optimizer.algo = algo
         elite = optimizer.solve(
             run_info=[optimizer.algo, unique_run_id, "synthetic_prior"],
             log_path=cfg.log_path, verbose=verbose)
@@ -214,7 +221,6 @@ def _run_one(cfg, combo, ctx, unique_run_id, verbose):
         pi, registry, pool = build_adapter(elite, ctx["T_train"], ctx["TERMINALS"])
         verify_inference(pi, pool, ctx["T_train"], registry, ctx["TERMINALS"])
         expression = reconstruct_expression(pi, registry)
-        tag = optimizer.algo.replace("*", "x").replace("~", "t")
         run_dir = os.path.join(cfg.run_dir_base, f"{unique_run_id}_{tag}_0")
         save_run(run_dir, cfg, _EncoderStub(), registry, pi, WRAPPER, "mul",
                  optimizer.algo, seed=0, expression=expression)
