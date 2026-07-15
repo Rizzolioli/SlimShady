@@ -20,3 +20,6 @@ utils/results_analyser.ipynb
 *.pyc
 /main/log/tabgpgo_artifacts
 /main/log/tabgpgo_latent_artifacts
+/main/log/tabgpgo_aux_artifacts/aux_0
+/main/log/tabgpgo_aux_artifacts/aux_1
+main/log/tabgpgo_tabpfn_artifacts/tabpfn_pool_bundle.pkl

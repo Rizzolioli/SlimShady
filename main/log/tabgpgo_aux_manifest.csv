@@ -1,0 +1,3 @@
+run_id,algo,ae_aux_weight,function_set,constant_set
+f57b92b8-8099-11f1-a1ec-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_ogens200_auxw0,0.0,full_extended,small_ints
+f57b92b8-8099-11f1-a1ec-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_ogens200_auxw1,1.0,full_extended,small_ints

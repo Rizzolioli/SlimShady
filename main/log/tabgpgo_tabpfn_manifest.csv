@@ -1,0 +1,6 @@
+run_id,algo,function_set,constant_set,omt_frac,omt_pop_size,omt_gens
+0c72c85c-8099-11f1-b0d1-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_tabpfn,full_extended,small_ints,0.0,0,0
+0c72c85c-8099-11f1-b0d1-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-scientific_extended_const-small_ints_tabpfn,scientific_extended,small_ints,0.0,0,0
+0c72c85c-8099-11f1-b0d1-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_piecewise_const-none_tabpfn,full_extended_piecewise,none,0.0,0,0
+0c72c85c-8099-11f1-b0d1-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-ml_smooth_const-small_ints_tabpfn,ml_smooth,small_ints,0.0,0,0
+0c72c85c-8099-11f1-b0d1-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_tabpfn,full_extended,small_ints,0.2,20,10
