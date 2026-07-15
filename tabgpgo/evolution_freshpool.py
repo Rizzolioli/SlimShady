@@ -36,6 +36,7 @@ import dataclasses
 import random
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import torch
@@ -153,6 +154,7 @@ class FreshPoolSLIM:
         self.omt_frac = cfg.omt_frac
         self.omt_pop_size = cfg.omt_pop_size
         self.omt_gens = cfg.omt_gens
+        self.omt_max_workers = cfg.omt_max_workers
         self._omt_calls = 0   # own seed counter, independent of the main reservoir's generation counter
         self.variant = variant
         ms_spec = cfg.ms_hi if ms_spec is None else ms_spec
@@ -278,7 +280,17 @@ class FreshPoolSLIM:
             return 0.0
         return max(-self.cfg.oms_bound, min(self.cfg.oms_bound, ms))
 
-    def _omt_search(self, residual):
+    def _next_omt_seed(self):
+        """Own seed counter, independent of the main reservoir's generation
+        counter -- consumed strictly sequentially (see _make_offspring's
+        sequential pass) so a batched/parallel OMT run gets the exact same
+        per-search seeds a fully-sequential run would, regardless of
+        max_workers."""
+        seed = (self.seed * 1_000_003 + 999_983 * self._omt_calls) % (2**31 - 1)
+        self._omt_calls += 1
+        return seed
+
+    def _omt_search_seeded(self, residual, inner_seed):
         """Optimal Mutation Tree via genuine GSGP: nests an actual
         FreshPoolSLIM run -- SLIM*MIX, the same established variant used
         throughout this project -- targeting `residual` (on T_train) instead
@@ -289,61 +301,156 @@ class FreshPoolSLIM:
         cached incrementally exactly like the outer algorithm -- no tree
         bloat from repeatedly re-expressing a growing structure), returned
         AS-IS to become the outer mutation's TO: stored directly as an
-        "omt" block's structure1 (see FreshBlock/_inflate below), evaluated
-        via _raw_semantics' FreshIndividual dispatch to _nested_semantics
-        wherever it's later needed (elite drift-resync, validation scoring,
-        persistence/reconstruction) -- so nothing downstream needs to know
-        TO came from a nested search rather than a single tree.
+        "omt" block's structure1 (see FreshBlock/_finish_omt_inflate below),
+        evaluated via _raw_semantics' FreshIndividual dispatch to
+        _nested_semantics wherever it's later needed (elite drift-resync,
+        validation scoring, persistence/reconstruction) -- so nothing
+        downstream needs to know TO came from a nested search rather than a
+        single tree.
 
         T_val/val_targets/val_y_stats are empty -- "validation" isn't a
         meaningful concept for an inner search whose only job is matching
         `residual` on T_train, so solve(track_val=False) skips that (and the
-        CSV logging that would otherwise go with it) entirely. Own seed
-        counter (self._omt_calls) keeps the inner run's tree draws
-        reproducible and independent of the outer reservoir's draws.
-        """
+        CSV logging that would otherwise go with it) entirely.
+
+        Takes an explicit seed (rather than drawing its own) so a whole
+        generation's worth of these can be fired off concurrently via
+        _make_offspring's thread pool -- each call here only touches its own
+        freshly-constructed `inner` instance and locals, no shared mutable
+        state besides the module-level _TREE_GEN_LOCK (already designed for
+        concurrent FreshPoolSLIM instances -- see the module docstring)."""
         # omt_frac=0.0 is critical here, not cosmetic: without it the nested
         # run would inherit the outer cfg's own omt_frac and try to launch
         # ITS OWN nested OMT search on every one of its mutations -- infinite
         # recursion. The inner search is always plain SLIM*MIX.
         inner_cfg = dataclasses.replace(self.cfg, pop_size=self.omt_pop_size,
                                         n_gens=self.omt_gens, omt_frac=0.0)
-        inner_seed = (self.seed * 1_000_003 + 999_983 * self._omt_calls) % (2**31 - 1)
-        self._omt_calls += 1
         inner = FreshPoolSLIM(inner_cfg, ("mix", "mul"), self.T_train, {}, residual,
                               {}, {}, self.TERMINALS, seed=inner_seed, ms_spec="oms")
         return inner.solve(run_info=None, log_path=None, verbose=0, track_val=False)
 
-    def _inflate(self, parent):
-        operator = self.rng.choice(OPERATORS) if self.operator == "mix" else self.operator
-        use_omt = self.omt_frac > 0 and self.rng.random() < self.omt_frac
-        if use_omt:
-            residual = (self.y_target - parent.aggregate if operator == "sum"
-                       else protected_div(self.y_target, parent.aggregate) - 1)
-            to_individual = self._omt_search(residual)
-            wrapper = "omt"
-            tr1 = to_individual.aggregate
-            ms = (self._optimal_ms(parent, wrapper, operator, tr1, None, sR=tr1)
-                 if self.use_oms else self.ms_fn())
-            delta = ms * tr1
-            block = FreshBlock(to_individual, None, to_individual.nodes_count, None, ms, wrapper, operator)
-        else:
-            wrapper = self.rng.choice(WRAPPERS) if self.wrapper == "mix" else self.wrapper
-            tree1 = self._pop_tree()
-            tree2 = self._pop_tree() if wrapper == "sig2" else None
-            tr1 = _raw_semantics(tree1["structure"], self.T_train, self.TERMINALS)
-            tr2 = (_raw_semantics(tree2["structure"], self.T_train, self.TERMINALS)
-                  if tree2 is not None else None)
-            ms = (self._optimal_ms(parent, wrapper, operator, tr1, tr2)
-                 if self.use_oms else self.ms_fn())
-            delta = ms * wrapper_output(wrapper, tr1, tr2)
-            block = FreshBlock(tree1["structure"], tree2["structure"] if tree2 else None,
-                               tree1["nodes"], tree2["nodes"] if tree2 else None,
-                               ms, wrapper, operator)
+    def _omt_search(self, residual):
+        """Convenience wrapper: draws the next sequential seed and runs one
+        OMT search immediately (unbatched). See _make_offspring for the
+        batched path _inflate's OMT branch actually uses during solve()."""
+        return self._omt_search_seeded(residual, self._next_omt_seed())
+
+    def _apply_block(self, parent, operator, delta, block):
         new_agg = parent.aggregate * (1 + delta) if operator == "mul" else parent.aggregate + delta
         new_agg = torch.clamp(new_agg, -BOUND, BOUND)
         return FreshIndividual(parent.head_structure, parent.head_nodes, new_agg,
                                [*parent.blocks, block])
+
+    def _inflate_random(self, parent, operator):
+        """The non-OMT inflate path: draw one random reservoir tree, wrap it
+        (abs/sig1/sig2), and add -- split out from _inflate so
+        _make_offspring's sequential pass can resolve it immediately without
+        ever touching OMT."""
+        wrapper = self.rng.choice(WRAPPERS) if self.wrapper == "mix" else self.wrapper
+        tree1 = self._pop_tree()
+        tree2 = self._pop_tree() if wrapper == "sig2" else None
+        tr1 = _raw_semantics(tree1["structure"], self.T_train, self.TERMINALS)
+        tr2 = (_raw_semantics(tree2["structure"], self.T_train, self.TERMINALS)
+              if tree2 is not None else None)
+        ms = (self._optimal_ms(parent, wrapper, operator, tr1, tr2)
+             if self.use_oms else self.ms_fn())
+        delta = ms * wrapper_output(wrapper, tr1, tr2)
+        block = FreshBlock(tree1["structure"], tree2["structure"] if tree2 else None,
+                           tree1["nodes"], tree2["nodes"] if tree2 else None,
+                           ms, wrapper, operator)
+        return self._apply_block(parent, operator, delta, block)
+
+    def _finish_omt_inflate(self, parent, operator, to_individual):
+        """Completes an inflate mutation whose TO was already found by a
+        (possibly batched/concurrent) OMT search -- see _make_offspring."""
+        wrapper = "omt"
+        tr1 = to_individual.aggregate
+        ms = (self._optimal_ms(parent, wrapper, operator, tr1, None, sR=tr1)
+             if self.use_oms else self.ms_fn())
+        delta = ms * tr1
+        block = FreshBlock(to_individual, None, to_individual.nodes_count, None, ms, wrapper, operator)
+        return self._apply_block(parent, operator, delta, block)
+
+    def _inflate(self, parent):
+        """Unbatched single-mutation inflate (used by _make_offspring only
+        for the non-OMT/already-resolved slots; the OMT-using slots go
+        through _finish_omt_inflate instead, after a batched
+        _omt_search_seeded call)."""
+        operator = self.rng.choice(OPERATORS) if self.operator == "mix" else self.operator
+        if self.omt_frac > 0 and self.rng.random() < self.omt_frac:
+            residual = (self.y_target - parent.aggregate if operator == "sum"
+                       else protected_div(self.y_target, parent.aggregate) - 1)
+            return self._finish_omt_inflate(parent, operator, self._omt_search(residual))
+        return self._inflate_random(parent, operator)
+
+    def _make_offspring(self, population, n_needed, gen, verbose):
+        """Two-pass offspring creation for one generation's remaining
+        n_needed slots (after elitism).
+
+        Pass 1 (sequential, fast): for each slot, run the exact same RNG-
+        driven decisions the old fully-sequential loop made -- tournament-
+        select a parent, decide deflate vs. inflate, and for inflate, decide
+        mix-resolved operator and OMT-vs-random -- in the same order, so
+        which trees end up as parents and which mutations end up using OMT
+        is identical regardless of max_workers. Deflate and non-OMT inflate
+        are cheap and resolved immediately; OMT-using slots are deferred
+        (their residual is cheap to compute -- one subtract/divide -- so
+        that happens now too, only the expensive nested search waits).
+
+        Pass 2 (parallel): every deferred slot's OMT search is independent
+        (own parent/residual/seed, no shared mutable state besides the
+        already-thread-safe _TREE_GEN_LOCK), so they run concurrently via a
+        thread pool sized by cfg.omt_max_workers. torch's own intra-op
+        thread pool is temporarily pinned to 1 while this runs, so it
+        doesn't oversubscribe CPU cores alongside the outer thread-level
+        concurrency (restored afterward regardless of how the block exits).
+
+        Pass 3 (sequential, fast): each completed search's TO is turned into
+        a finished offspring and dropped into its reserved slot.
+        """
+        slots = [None] * n_needed
+        pending = []   # (slot_index, parent, operator, residual, seed)
+        for i in range(n_needed):
+            parent = self._tournament(population)
+            if self.rng.random() < self.p_deflate:
+                slots[i] = self._deflate(parent)
+                continue
+            operator = self.rng.choice(OPERATORS) if self.operator == "mix" else self.operator
+            if self.omt_frac > 0 and self.rng.random() < self.omt_frac:
+                residual = (self.y_target - parent.aggregate if operator == "sum"
+                           else protected_div(self.y_target, parent.aggregate) - 1)
+                pending.append((i, parent, operator, residual, self._next_omt_seed()))
+            else:
+                slots[i] = self._inflate_random(parent, operator)
+
+        if not pending:
+            return slots
+
+        max_workers = max(1, self.omt_max_workers)
+        if verbose:
+            print(f"  [{self.algo} seed {self.seed}] gen {gen}: running {len(pending)} "
+                  f"OMT search{'es' if len(pending) != 1 else ''} "
+                  f"(max_workers={max_workers}, pop={self.omt_pop_size}, gens={self.omt_gens})...")
+        omt_start = time.time()
+        if max_workers == 1:
+            results = [self._omt_search_seeded(residual, seed)
+                      for _, _, _, residual, seed in pending]
+        else:
+            prev_threads = torch.get_num_threads()
+            torch.set_num_threads(1)   # avoid intra-op x inter-op oversubscription
+            try:
+                with ThreadPoolExecutor(max_workers=max_workers) as pool:
+                    results = list(pool.map(
+                        lambda job: self._omt_search_seeded(job[3], job[4]), pending))
+            finally:
+                torch.set_num_threads(prev_threads)
+        if verbose:
+            print(f"  [{self.algo} seed {self.seed}] gen {gen}: {len(pending)} OMT "
+                  f"searches done in {time.time() - omt_start:.2f}s")
+
+        for (i, parent, operator, _, _), to_individual in zip(pending, results):
+            slots[i] = self._finish_omt_inflate(parent, operator, to_individual)
+        return slots
 
     def _deflate(self, parent):
         if not parent.blocks:   # cannot deflate: copy parent (copy_parent=True)
@@ -465,14 +572,10 @@ class FreshPoolSLIM:
             self._ensure_reservoir(gen)
             offspring = sorted(population,
                                key=lambda i: (i.fitness, i.nodes_count))[:cfg.n_elites]
-            while len(offspring) < cfg.pop_size:
-                parent = self._tournament(population)
-                if self.rng.random() < self.p_deflate:
-                    child = self._deflate(parent)
-                else:
-                    child = self._inflate(parent)
+            new_offspring = self._make_offspring(population, cfg.pop_size - len(offspring), gen, verbose)
+            for child in new_offspring:
                 self._evaluate(child)
-                offspring.append(child)
+            offspring.extend(new_offspring)
             population = offspring
             self.elite = self._best(population)
             self._resync_elite()   # bound incremental-update drift

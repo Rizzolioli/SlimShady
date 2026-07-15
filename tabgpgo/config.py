@@ -125,6 +125,12 @@ class TabGPGOConfig:
     omt_frac: float = 0.0        # fraction of inflate events that use OMT instead of a random reservoir tree
     omt_pop_size: int = 100      # inner GP population size for the OMT search
     omt_gens: int = 10           # inner GP generations for the OMT search
+    # Each generation's OMT searches are independent (own parent/residual/
+    # seed) and batched via a thread pool -- separate from cfg.max_workers
+    # (which governs concurrent *runs*, e.g. different variant/ms/seed jobs
+    # in main_tabgpgo.py's evolve()) since the two are unrelated levels of
+    # parallelism that could otherwise be run nested/multiplied together.
+    omt_max_workers: int = 4
 
     # --- paths / artifact caching -------------------------------------------------
     log_path: str = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_results.csv")
