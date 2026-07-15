@@ -147,7 +147,8 @@ class FreshPoolSLIM:
     """
 
     def __init__(self, cfg, variant, T_train, T_val, y_target,
-                 val_targets, val_y_stats, TERMINALS, seed, ms_spec=None, use_ls=False):
+                 val_targets, val_y_stats, TERMINALS, seed, ms_spec=None, use_ls=False,
+                 reservoir_owner=None):
         wrapper, operator = variant
         self.cfg = cfg
         self.use_ls = use_ls
@@ -177,6 +178,18 @@ class FreshPoolSLIM:
         self.ms_fn = lambda: self.rng.uniform(cfg.ms_lo, self.ms_hi)
         self.p_deflate = 1 - cfg.p_inflate
         self.reservoir = []   # list of {"structure", "nodes", "depth"} dicts, single-use
+        self._reservoir_lock = threading.Lock()
+        # None: this instance owns/consumes its own reservoir (the normal
+        # case). Set (to another FreshPoolSLIM): delegate every reservoir
+        # read/write to THAT instance's reservoir/lock instead of keeping a
+        # private one -- used by OMT's inner searches (see
+        # _omt_search_seeded) so they draw from -- and single-use-consume,
+        # exactly like the outer algorithm's own mutations do -- the SAME
+        # reservoir the outer run uses, rather than generating and
+        # evaluating an entirely separate set of trees per search. This
+        # instance's own self.reservoir then simply stays empty/unused.
+        self._reservoir_owner = reservoir_owner
+        self._refill_counter = 0   # monotonic, unique per actual refill -- see _refill_reservoir
         self.elite = None
         self.best_fitness_ever = float("inf")   # anti-stagnation tracking
         self.stall_count = 0
@@ -192,9 +205,22 @@ class FreshPoolSLIM:
         return 2 * (self.cfg.pop_size - self.cfg.n_elites)
 
     def _refill_reservoir(self, n, gen):
+        """`gen` is accepted for signature compatibility but no longer used
+        for seeding -- see self._refill_counter. Seeding off a caller-
+        supplied `gen` was only ever safe because, before OMT's reservoir-
+        sharing existed, at most one refill happened per generation per
+        instance. Now that many concurrent OMT inner searches (and this
+        instance's own mid-generation top-ups -- see _make_offspring's
+        pre-warm) can all trigger refills passing small, easily-colliding
+        gen values, two DIFFERENT refill events reusing the same gen would
+        reseed to the exact same value and generate IDENTICAL "random"
+        trees. self._refill_counter instead guarantees every actual refill
+        this instance ever performs gets a distinct seed, regardless of who
+        triggered it or what gen they passed."""
         if n <= 0:
             return
-        seed = (self.seed * 1_000_003 + gen) % (2**31 - 1)
+        seed = (self.seed * 1_000_003 + self._refill_counter) % (2**31 - 1)
+        self._refill_counter += 1
         with _TREE_GEN_LOCK:
             random.seed(seed)
             np.random.seed(seed)
@@ -203,20 +229,31 @@ class FreshPoolSLIM:
         self.reservoir.extend(new_structures)
 
     def _ensure_reservoir_at_least(self, n_needed, gen):
-        shortfall = n_needed - len(self.reservoir)
-        if shortfall > 0:
-            self._refill_reservoir(shortfall, gen)
+        """Delegates to self._reservoir_owner's reservoir/lock when this
+        instance doesn't own its own (an OMT inner search sharing the outer
+        algorithm's reservoir -- see _omt_search_seeded), so every consumer,
+        outer or inner, tops up and draws from the exact same underlying
+        supply. Thread-safe: guarded by the owner's _reservoir_lock, since
+        _make_offspring's OMT batch calls into this concurrently across
+        threads."""
+        owner = self._reservoir_owner or self
+        with owner._reservoir_lock:
+            shortfall = n_needed - len(owner.reservoir)
+            if shortfall > 0:
+                owner._refill_reservoir(shortfall, gen)
 
     def _ensure_reservoir(self, gen):
         self._ensure_reservoir_at_least(self._worst_case_demand(gen), gen)
 
     def _pop_tree(self):
-        try:
-            return self.reservoir.pop()
-        except IndexError:
-            raise RuntimeError(
-                "tree reservoir exhausted mid-generation -- "
-                "_ensure_reservoir's worst-case estimate was wrong") from None
+        owner = self._reservoir_owner or self
+        with owner._reservoir_lock:
+            try:
+                return owner.reservoir.pop()
+            except IndexError:
+                raise RuntimeError(
+                    "tree reservoir exhausted mid-generation -- "
+                    "_ensure_reservoir's worst-case estimate was wrong") from None
 
     # -- helpers ---------------------------------------------------------------
 
@@ -317,8 +354,15 @@ class FreshPoolSLIM:
         generation's worth of these can be fired off concurrently via
         _make_offspring's thread pool -- each call here only touches its own
         freshly-constructed `inner` instance and locals, no shared mutable
-        state besides the module-level _TREE_GEN_LOCK (already designed for
-        concurrent FreshPoolSLIM instances -- see the module docstring)."""
+        state besides the module-level _TREE_GEN_LOCK and the shared
+        reservoir itself (both already thread-safe -- see the module
+        docstring and _ensure_reservoir_at_least/_pop_tree).
+
+        reservoir_owner=self: the inner search draws its random candidate
+        trees from -- and single-use-consumes them out of -- the OUTER
+        run's own reservoir, rather than generating and evaluating an
+        entirely separate batch per search. Its own self.reservoir stays
+        empty/unused."""
         # omt_frac=0.0 is critical here, not cosmetic: without it the nested
         # run would inherit the outer cfg's own omt_frac and try to launch
         # ITS OWN nested OMT search on every one of its mutations -- infinite
@@ -326,7 +370,8 @@ class FreshPoolSLIM:
         inner_cfg = dataclasses.replace(self.cfg, pop_size=self.omt_pop_size,
                                         n_gens=self.omt_gens, omt_frac=0.0)
         inner = FreshPoolSLIM(inner_cfg, ("mix", "mul"), self.T_train, {}, residual,
-                              {}, {}, self.TERMINALS, seed=inner_seed, ms_spec="oms")
+                              {}, {}, self.TERMINALS, seed=inner_seed, ms_spec="oms",
+                              reservoir_owner=self)
         return inner.solve(run_info=None, log_path=None, verbose=0, track_val=False)
 
     def _omt_search(self, residual):
@@ -425,6 +470,20 @@ class FreshPoolSLIM:
 
         if not pending:
             return slots
+
+        # Pre-warm the shared reservoir for this batch's expected demand
+        # BEFORE launching the parallel searches: each inner run draws from
+        # -- and single-use-consumes out of -- this same reservoir (see
+        # _omt_search_seeded), and can need up to omt_pop_size (its own
+        # initial population) + omt_gens * 2*(omt_pop_size - n_elites)
+        # trees in the worst case (up to 2 per inflate -- the sig2 wrapper
+        # -- across every inner generation). len(pending) concurrent
+        # searches sharing one reservoir need it sized well beyond the
+        # outer generation's own (much smaller) per-generation demand.
+        # _ensure_reservoir_at_least still tops up on demand if this
+        # estimate falls short, so this is a size hint, not a hard cap.
+        per_search_worst_case = self.omt_pop_size + self.omt_gens * 2 * max(0, self.omt_pop_size - self.cfg.n_elites)
+        self._ensure_reservoir_at_least(len(pending) * per_search_worst_case, gen)
 
         max_workers = max(1, self.omt_max_workers)
         if verbose:
