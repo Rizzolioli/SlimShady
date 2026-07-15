@@ -1,0 +1,35 @@
+{
+  "algo": "SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_tabpfn",
+  "wrapper": "mix",
+  "operator": "mul",
+  "seed": 0,
+  "head_idx": 0,
+  "blocks": [
+    [
+      1,
+      null,
+      -1.0,
+      "sig1",
+      "mul"
+    ]
+  ],
+  "head_structure": [
+    "cube",
+    "z47"
+  ],
+  "block_structures": [
+    [
+      [
+        "subtract",
+        "z313",
+        "constant_5"
+      ],
+      null
+    ]
+  ],
+  "fitness": 0.9605503678321838,
+  "nodes_count": 15,
+  "expression": "cube(z47) * (1 + -1*(2*sigmoid((z313 - 5)) - 1))",
+  "ls_a": 0.0,
+  "ls_b": 1.0
+}
