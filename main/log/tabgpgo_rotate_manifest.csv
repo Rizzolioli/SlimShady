@@ -1,0 +1,10 @@
+run_id,algo,ms,switch_every,function_set,constant_set
+19b26e48-8455-11f1-8a9f-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ogens200_switch1,0.01,1,full_extended,small_ints
+19b26e48-8455-11f1-8a9f-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ogens200_switch5,0.01,5,full_extended,small_ints
+19b26e48-8455-11f1-8a9f-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ogens200_switch10,0.01,10,full_extended,small_ints
+19b26e48-8455-11f1-8a9f-2c7ba0e6fa90,SLIM*MIX_ms0.1_pat5_fn-full_extended_const-small_ints_ogens200_switch1,0.1,1,full_extended,small_ints
+19b26e48-8455-11f1-8a9f-2c7ba0e6fa90,SLIM*MIX_ms0.1_pat5_fn-full_extended_const-small_ints_ogens200_switch5,0.1,5,full_extended,small_ints
+19b26e48-8455-11f1-8a9f-2c7ba0e6fa90,SLIM*MIX_ms0.1_pat5_fn-full_extended_const-small_ints_ogens200_switch10,0.1,10,full_extended,small_ints
+19b26e48-8455-11f1-8a9f-2c7ba0e6fa90,SLIM*MIX_ms1_pat5_fn-full_extended_const-small_ints_ogens200_switch1,1.0,1,full_extended,small_ints
+19b26e48-8455-11f1-8a9f-2c7ba0e6fa90,SLIM*MIX_ms1_pat5_fn-full_extended_const-small_ints_ogens200_switch5,1.0,5,full_extended,small_ints
+19b26e48-8455-11f1-8a9f-2c7ba0e6fa90,SLIM*MIX_ms1_pat5_fn-full_extended_const-small_ints_ogens200_switch10,1.0,10,full_extended,small_ints
