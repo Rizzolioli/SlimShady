@@ -48,7 +48,8 @@ from utils.utils import protected_div
 from . import tree_pool
 from .config import ALGO_NAMES, OPERATORS, WRAPPERS
 from .evolution import (Block, FreshBlock, FreshIndividual, PoolIndividual,
-                        WRAPPER_NODES, wrapper_output)
+                        WRAPPER_NODES, individual_semantics,
+                        individual_semantics_sequential, wrapper_output)
 from .inference import semantics_from_tokens
 from .tree_pool import BOUND, evaluate_structure, generate_ramped_structures
 
@@ -148,7 +149,19 @@ class FreshPoolSLIM:
 
     def __init__(self, cfg, variant, T_train, T_val, y_target,
                  val_targets, val_y_stats, TERMINALS, seed, ms_spec=None, use_ls=False,
-                 reservoir_owner=None):
+                 reservoir_owner=None, dataset_chunks=None, dataset_switch_every=0):
+        """dataset_chunks (optional): a list of (T_i, y_i) tuples, one per
+        synthetic dataset, used to rotate the ACTIVE training data every
+        `dataset_switch_every` generations instead of training against the
+        fixed (T_train, y_target) pool for the whole run -- see
+        main_tabgpgo_tabpfn_rotate.py. T_train/y_target as passed in are kept
+        untouched as self.T_train_full/self.y_target_full (the whole pool),
+        used only to compute a "global" elite-fitness logging column that
+        stays comparable across dataset switches; self.T_train/self.y_target
+        themselves get overwritten to the currently-active chunk when
+        rotation is enabled. dataset_chunks=None or dataset_switch_every<=0
+        (the defaults) disable rotation entirely, reproducing every existing
+        script's behavior exactly."""
         wrapper, operator = variant
         self.cfg = cfg
         self.use_ls = use_ls
@@ -170,10 +183,19 @@ class FreshPoolSLIM:
         self.T_train = T_train
         self.T_val = T_val              # {name: (n_val, latent_dim)}
         self.y_target = y_target        # (n_train,)
+        self.T_train_full = T_train     # the whole synthetic pool, never overwritten
+        self.y_target_full = y_target   # by dataset rotation -- see _switch_dataset
         self.val_targets = val_targets      # {name: (n_val,)} -- z-scored
         self.val_y_stats = val_y_stats      # {name: (y_mean, y_std)} -- to invert to raw units
         self.TERMINALS = TERMINALS
         self.seed = seed
+        self._dataset_chunks = dataset_chunks
+        self._dataset_switch_every = dataset_switch_every or 0
+        self._rotating = bool(dataset_chunks) and self._dataset_switch_every > 0
+        self._chunk_order = []
+        self._chunk_cursor = 0
+        self._gens_since_switch = 0
+        self.active_dataset_idx = -1
         self.rng = random.Random(seed)
         self.ms_fn = lambda: self.rng.uniform(cfg.ms_lo, self.ms_hi)
         self.p_deflate = 1 - cfg.p_inflate
@@ -257,18 +279,29 @@ class FreshPoolSLIM:
 
     # -- helpers ---------------------------------------------------------------
 
-    def _refold(self, head_structure, blocks):
-        """Full from-scratch aggregate, folding blocks in order from stored
-        structures. Used for SLIM~MIX deflate (order-dependent, can't be
-        undone with O(1) arithmetic) and the periodic elite drift-resync."""
-        agg = _raw_semantics(head_structure, self.T_train, self.TERMINALS)
+    def _refold_on(self, head_structure, blocks, T):
+        """Full from-scratch aggregate on arbitrary tokens T, folding blocks
+        in order from stored structures -- for a SINGLE individual (no
+        cross-individual structure-sharing to exploit here; see
+        _switch_dataset's registry-based batch path for the population-wide
+        case). Parametrized over T (rather than hardcoding self.T_train) so
+        the same logic serves _refold (the active dataset) and
+        _global_pool_metrics (the whole synthetic pool, for a
+        rotation-invariant logging column) alike."""
+        agg = _raw_semantics(head_structure, T, self.TERMINALS)
         for b in blocks:
-            tr1 = _raw_semantics(b.structure1, self.T_train, self.TERMINALS)
-            tr2 = (_raw_semantics(b.structure2, self.T_train, self.TERMINALS)
+            tr1 = _raw_semantics(b.structure1, T, self.TERMINALS)
+            tr2 = (_raw_semantics(b.structure2, T, self.TERMINALS)
                   if b.structure2 is not None else None)
             delta = b.ms * wrapper_output(b.wrapper, tr1, tr2)
             agg = agg * (1 + delta) if b.operator == "mul" else agg + delta
         return torch.clamp(agg, -BOUND, BOUND)
+
+    def _refold(self, head_structure, blocks):
+        """Full from-scratch aggregate on the currently-active training
+        data. Used for SLIM~MIX deflate (order-dependent, can't be undone
+        with O(1) arithmetic) and the periodic elite drift-resync."""
+        return self._refold_on(head_structure, blocks, self.T_train)
 
     def _evaluate(self, ind):
         if self.use_ls:
@@ -537,6 +570,117 @@ class FreshPoolSLIM:
             new_agg = torch.clamp(new_agg, -BOUND, BOUND)
         return FreshIndividual(parent.head_structure, parent.head_nodes, new_agg, new_blocks)
 
+    # -- dataset rotation ------------------------------------------------------
+
+    def _next_chunk_index(self):
+        """Shuffled-cycle draw: consume a random permutation of every chunk
+        index before any index repeats, reshuffling (via self.rng, so this
+        stays reproducible given the run's seed) once exhausted. Guarantees
+        even coverage of the whole synthetic pool before any dataset is
+        revisited, unlike plain uniform-random-with-replacement."""
+        if self._chunk_cursor >= len(self._chunk_order):
+            self._chunk_order = list(range(len(self._dataset_chunks)))
+            self.rng.shuffle(self._chunk_order)
+            self._chunk_cursor = 0
+        idx = self._chunk_order[self._chunk_cursor]
+        self._chunk_cursor += 1
+        return idx
+
+    def _switch_dataset(self, population, gen, verbose):
+        """Draws the next synthetic dataset and makes it the active
+        (T_train, y_target), then refolds EVERY individual in `population`
+        from scratch against it -- their cached .aggregate/.fitness were
+        computed on the OLD dataset and are meaningless for selection under
+        the new one. Also resets the anti-stagnation tracker: "no
+        improvement" isn't a meaningful signal across a dataset change, so
+        patience is measured relative to the new dataset only.
+
+        Same "evaluate once into an indexed pool" design as TensorSLIM's own
+        engine (tabgpgo/evolution.py), reused rather than re-derived: builds
+        ONE registry shared across the WHOLE population (deduped by
+        structure object IDENTITY -- population members routinely share
+        block/head-structure objects via common ancestry: mutation only
+        ever appends a block, see _apply_block, and head_structure is passed
+        through unchanged forever), stacks each distinct structure's
+        semantics on the new dataset into a single (n_distinct, n_rows)
+        `pool` tensor (exactly one evaluate_structure call per distinct
+        structure -- this is the actual floor; nothing can need fewer since
+        none of them have ever been evaluated against this dataset before),
+        then folds every individual via pool[idx] tensor indexing instead of
+        a fresh tree-interpreter walk. individual_semantics_sequential is
+        used unconditionally rather than individual_semantics' faster
+        homogeneous-wrapper path, mirroring TensorSLIM's own
+        `self.mixed = wrapper == "mix" or operator == "mix"` check: SLIM*MIX
+        (wrapper="mix") needs per-block wrapper dispatch regardless of
+        precomputation, so the fold itself stays a per-block Python loop --
+        precomputation only removes the LEAF (tree) evaluation cost, not
+        that dispatch, exactly like the reference engine."""
+        idx = self._next_chunk_index()
+        self.active_dataset_idx = idx
+        self.T_train, self.y_target = self._dataset_chunks[idx]
+
+        registry = []
+        row_of = {}
+
+        def _row(structure):
+            key = id(structure)
+            row = row_of.get(key)
+            if row is None:
+                row = len(registry)
+                row_of[key] = row
+                registry.append(structure)
+            return row
+
+        pool_inds = []
+        for ind in population:
+            head_idx = _row(ind.head_structure)
+            blocks = [Block(_row(b.structure1),
+                            _row(b.structure2) if b.structure2 is not None else None,
+                            b.ms, b.wrapper, b.operator)
+                     for b in ind.blocks]
+            pool_inds.append(PoolIndividual(head_idx, blocks))
+
+        pool = torch.stack([_raw_semantics(s, self.T_train, self.TERMINALS) for s in registry])
+
+        # omt_frac>0 can inject wrapper="omt" blocks even when self.wrapper
+        # is otherwise fixed (see _finish_omt_inflate) -- unlike TensorSLIM
+        # (which never has OMT blocks, see config.py), so the homogeneity
+        # check here also requires OMT disabled, not just a non-mix wrapper.
+        homogeneous = self.wrapper != "mix" and self.operator != "mix" and self.omt_frac == 0
+        for ind, pi in zip(population, pool_inds):
+            ind.aggregate = (individual_semantics(pi, self.wrapper, self.operator, pool)
+                             if homogeneous else individual_semantics_sequential(pi, pool))
+            self._evaluate(ind)
+
+        self.elite = self._best(population)
+        self.best_fitness_ever = self.elite.fitness
+        self.stall_count = 0
+        if verbose:
+            n_structs = sum(1 + sum(1 + (b.structure2 is not None) for b in ind.blocks)
+                           for ind in population)
+            print(f"  [{self.algo} seed {self.seed}] gen {gen}: switched to synthetic "
+                  f"dataset #{idx} (refolded {len(population)} individuals via an indexed "
+                  f"pool of {len(registry)} distinct structures, {n_structs} total block "
+                  f"references, elite_rmse={self.elite.fitness:.4f})")
+
+    def _maybe_switch_dataset(self, population, gen, verbose):
+        if not self._rotating:
+            return
+        self._gens_since_switch += 1
+        if self._gens_since_switch >= self._dataset_switch_every:
+            self._switch_dataset(population, gen, verbose)
+            self._gens_since_switch = 0
+
+    def _global_pool_metrics(self):
+        """Elite RMSE/R^2 against the WHOLE synthetic pool (self.T_train_full
+        /self.y_target_full, fixed regardless of rotation) -- a logging-only
+        metric, comparable across generations/dataset switches, alongside
+        the "local" self.elite.fitness (which is only ever comparable within
+        one active-dataset block)."""
+        agg = self._refold_on(self.elite.head_structure, self.elite.blocks, self.T_train_full)
+        pred = self.elite.ls_a + self.elite.ls_b * agg if self.use_ls else agg
+        return float(rmse(self.y_target_full, pred)), float(r2(self.y_target_full, pred))
+
     # -- anti-stagnation ------------------------------------------------------
 
     def _check_stagnation(self, population, gen):
@@ -612,6 +756,14 @@ class FreshPoolSLIM:
         would otherwise flood the outer algorithm's own results file."""
         cfg = self.cfg
 
+        if self._rotating:
+            idx = self._next_chunk_index()
+            self.active_dataset_idx = idx
+            self.T_train, self.y_target = self._dataset_chunks[idx]
+            if verbose:
+                print(f"  [{self.algo} seed {self.seed}] gen 0: starting on synthetic "
+                      f"dataset #{idx}")
+
         start = time.time()
         self._ensure_reservoir(0)
         population = []
@@ -628,6 +780,7 @@ class FreshPoolSLIM:
 
         for gen in range(1, cfg.n_gens + 1):
             start = time.time()
+            self._maybe_switch_dataset(population, gen, verbose)
             self._ensure_reservoir(gen)
             offspring = sorted(population,
                                key=lambda i: (i.fitness, i.nodes_count))[:cfg.n_elites]
@@ -672,18 +825,31 @@ class FreshPoolSLIM:
         #               elite_train_rmse, time, population_nodes,
         #               val_{d}_rmse_scaled, val_{d}_rmse_raw, val_{d}_r2
         #               (cfg.val_datasets order), elite_size, elite_nodes,
-        #               elite_train_r2]
+        #               elite_train_r2] + (only when dataset rotation is
+        #               enabled) [global_pool_rmse, global_pool_r2,
+        #               active_dataset_idx] -- "elite_train_rmse"/train_r2
+        #               above are the LOCAL fitness on whichever synthetic
+        #               dataset is currently active (only comparable within
+        #               one active-dataset block); global_pool_* is the same
+        #               elite scored against the WHOLE synthetic pool, and
+        #               stays comparable across every generation/switch.
         val_cols = [v for triple in zip(scaled, raw, r2s) for v in triple]
+        extra_cols = []
+        if self._rotating:
+            g_rmse, g_r2 = self._global_pool_metrics()
+            extra_cols = [g_rmse, g_r2, self.active_dataset_idx]
         with _LOG_LOCK:
             logger(log_path, gen, self.elite.fitness, elapsed, float(total_nodes),
                    additional_infos=[*val_cols, self.elite.size,
-                                     self.elite.nodes_count, train_r2],
+                                     self.elite.nodes_count, train_r2, *extra_cols],
                    run_info=run_info, seed=self.seed)
         if verbose:
             val_str = " ".join(f"{name}={scaled[i]:.3f}/{raw[i]:.3f}/R2={r2s[i]:.3f}"
                                for i, name in enumerate(self.cfg.val_datasets))
+            global_str = (f" global_pool_rmse={extra_cols[0]:.4f}/R2={extra_cols[1]:.3f} "
+                         f"dataset#{extra_cols[2]}" if self._rotating else "")
             print(f"  [{self.algo} seed {self.seed}] gen {gen}/{self.cfg.n_gens} "
                   f"train_rmse={self.elite.fitness:.4f} train_R2={train_r2:.3f} "
-                  f"size={self.elite.size} reservoir={len(self.reservoir)} | "
+                  f"size={self.elite.size} reservoir={len(self.reservoir)} |{global_str} "
                   f"val(scaled/raw/R2): {val_str} | {elapsed:.2f}s")
 
