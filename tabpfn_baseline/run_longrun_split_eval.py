@@ -45,6 +45,22 @@ baseline sweep, six classic variants: SLIM+/*ABS, SLIM+/*1SIG, SLIM+/*2SIG).
 See scratchpad/build_longrun_data.py's standard-SLIM extraction, run
 separately (no TabPFN/GP compute needed, it's already-collected data).
 
+Zero-shot TabPFN (tabpfn_v2_zeroshot/tabpfn_v3_zeroshot): TabPFN is an
+in-context learner -- it cannot produce a prediction with literally no
+labeled context, so a "zero-shot" TabPFN isn't the same kind of no-op
+"zero-shot" as TabGPGO's evolved-weights-unchanged version. The fair analog
+(mirrors what "zero-shot" already means for TabGPGO -- structure/weights
+never adapted to THIS real dataset) is: fit TabPFN ONCE on a single SYNTHETIC
+dataset drawn from the same prior tabgpgo/tabpfn_encoder.py's pool is built
+from (never on any real (X, y)), then predict directly on the real held-out
+test split. That one synthetic-fit model is reused across every real
+dataset/split -- it never sees real labels at fit time, only at the (still
+real-train-derived) z-score inversion step, exactly matching how
+tabgpgo.inference.TabGPGOPredictor's own zero-shot path still uses the real
+train split's y_stats to invert to raw units without touching the model
+itself. This costs only 2 extra TabPFN fits total (v2 + v3, once each), not
+per dataset/split -- negligible next to the rest of this script's runtime.
+
 Usage:
     python tabpfn_baseline/run_longrun_split_eval.py
 """
@@ -71,6 +87,7 @@ from tabgpgo.inference import (Block, PoolIndividual, _from_jsonable,
                                block_raw_terms, fine_tune_weights,
                                weighted_semantics)
 from tabgpgo.preprocessing import reduce_features, standardize_scale_pad, zscore
+from tabgpgo.prior import generate_datasets
 from tabgpgo.tabpfn_encoder import encode_val_tabpfn
 from tabgpgo.tree_pool import BOUND, make_terminals
 from tabpfn import TabPFNRegressor
@@ -180,6 +197,33 @@ def eval_tabpfn(version_enum, Xtr100, ytr_z, Xte100, y_test_raw, y_stats):
     return float(rmse(y_test_raw, pred_raw)), float(r2(y_test_raw, pred_raw))
 
 
+def build_zeroshot_tabpfn_models(cfg):
+    """Fits TabPFN V2/V3 ONCE each on a single synthetic dataset from the same
+    prior the TabPFN encoder's own pool is built from -- never on any real
+    (X, y) -- so the returned models can be reused, unchanged, across every
+    real dataset/split (see module docstring)."""
+    (X, y), = list(generate_datasets(1, cfg.n_rows, cfg.max_features, cfg.min_features,
+                                     seed=cfg.data_seed, backend=cfg.prior_backend))
+    X100, y_std, _ = standardize_scale_pad(X, y, cfg.max_features)
+    models = {}
+    for vname, venum in (("tabpfn_v2", ModelVersion.V2), ("tabpfn_v3", ModelVersion.V3)):
+        model = TabPFNRegressor.create_default_for_version(venum)
+        model.fit(X100.numpy().astype(np.float32), y_std.numpy().astype(np.float32))
+        models[vname] = model
+    return models
+
+
+def eval_tabpfn_zeroshot(model, Xte100, y_test_raw, y_stats):
+    """Predicts with a model fit only on synthetic data (see
+    build_zeroshot_tabpfn_models) -- y_stats still comes from the real
+    train split, purely for inverting to raw units, exactly like
+    TabGPGOPredictor's own zero-shot path."""
+    pred_z = torch.as_tensor(np.asarray(model.predict(Xte100.numpy().astype(np.float32)))).float()
+    mean, std = y_stats
+    pred_raw = pred_z * std.squeeze() + mean.squeeze()
+    return float(rmse(y_test_raw, pred_raw)), float(r2(y_test_raw, pred_raw))
+
+
 def eval_tabgpgo(ind, registry, reference_model, TERMINALS, Xtr100, ytr_z, Xte100, y_test_raw, y_stats, fine_tune):
     T_train = encode_val_tabpfn(reference_model, Xtr100)
     T_test = encode_val_tabpfn(reference_model, Xte100)
@@ -205,6 +249,9 @@ def main():
     reference_model, embed_dim = load_reference_model()
     p_c, constants = CONSTANT_SETS[CONSTANT_SET_NAME]
 
+    zeroshot_models = build_zeroshot_tabpfn_models(TabGPGOConfig())
+    print("built zero-shot TabPFN v2/v3 (fit once on one synthetic dataset, never on real data)")
+
     rows = []
     with function_constant_set(FUNCTION_SETS[FUNCTION_SET_NAME], constants):
         TERMINALS = make_terminals(embed_dim)
@@ -225,6 +272,13 @@ def main():
                     rows.append({"dataset": dataset, "algo": vname, "split": split,
                                 "rmse_raw": pf_rmse, "r2": pf_r2})
                     print(f"  [{dataset}/split{split}/{vname}] rmse={pf_rmse:.4f} r2={pf_r2:.4f}")
+
+                for vname, model in zeroshot_models.items():
+                    zs_rmse, zs_r2 = eval_tabpfn_zeroshot(model, Xte100, y_test, y_stats)
+                    algo = f"{vname}_zeroshot"
+                    rows.append({"dataset": dataset, "algo": algo, "split": split,
+                                "rmse_raw": zs_rmse, "r2": zs_r2})
+                    print(f"  [{dataset}/split{split}/{algo}] rmse={zs_rmse:.4f} r2={zs_r2:.4f}")
 
                 for algo, fine_tune in (("tabgpgo_finetuned", True), ("tabgpgo_zeroshot", False)):
                     tg_rmse, tg_r2 = eval_tabgpgo(ind, registry, reference_model, TERMINALS,
