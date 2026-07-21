@@ -77,7 +77,7 @@ N_GENS = 20000
 FUNCTION_SET_NAME = "full_extended"
 CONSTANT_SET_NAME = "small_ints"
 
-MS_VALUES = ["oms", 0.01, 1.0]
+MS_VALUES = ["oms", 0.0001, 0.01, 1.0]
 COMBOS = [{"ms": ms} for ms in MS_VALUES]
 
 # Same cache directory every tabgpgo_tabpfn_* script uses -- see
