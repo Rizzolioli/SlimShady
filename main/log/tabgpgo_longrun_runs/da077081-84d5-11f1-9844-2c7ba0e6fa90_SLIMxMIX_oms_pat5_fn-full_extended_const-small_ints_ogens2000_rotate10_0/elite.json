@@ -1,0 +1,130 @@
+{
+  "algo": "SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_ogens2000_rotate10",
+  "wrapper": "mix",
+  "operator": "mul",
+  "seed": 0,
+  "head_idx": 0,
+  "blocks": [
+    [
+      1,
+      2,
+      1.0,
+      "sig2",
+      "mul"
+    ],
+    [
+      3,
+      null,
+      1.0,
+      "sig1",
+      "mul"
+    ],
+    [
+      4,
+      5,
+      -1.0,
+      "sig2",
+      "mul"
+    ],
+    [
+      6,
+      null,
+      1.0,
+      "sig1",
+      "mul"
+    ],
+    [
+      7,
+      8,
+      -0.6941754241820799,
+      "sig2",
+      "mul"
+    ],
+    [
+      9,
+      null,
+      -1.0,
+      "sig1",
+      "mul"
+    ]
+  ],
+  "head_structure": [
+    "tanh",
+    "z92"
+  ],
+  "block_structures": [
+    [
+      [
+        "cos",
+        [
+          "divide",
+          [
+            "cube",
+            "z363"
+          ],
+          [
+            "exp",
+            "z313"
+          ]
+        ]
+      ],
+      [
+        "reciprocal",
+        "z33"
+      ]
+    ],
+    [
+      [
+        "abs",
+        "z395"
+      ],
+      null
+    ],
+    [
+      [
+        "log",
+        "z92"
+      ],
+      [
+        "log",
+        "z130"
+      ]
+    ],
+    [
+      [
+        "cos",
+        "z240"
+      ],
+      null
+    ],
+    [
+      [
+        "cos",
+        [
+          "cube",
+          [
+            "multiply",
+            "z249",
+            "z114"
+          ]
+        ]
+      ],
+      [
+        "reciprocal",
+        "z392"
+      ]
+    ],
+    [
+      [
+        "sin",
+        "z443"
+      ],
+      null
+    ]
+  ],
+  "fitness": 0.7885401248931885,
+  "nodes_count": 78,
+  "expression": "tanh(z92) * (1 + 1*(sigmoid(cos((cube(z363) / exp(z313)))) - sigmoid(reciprocal(z33)))) * (1 + 1*(2*sigmoid(abs(z395)) - 1)) * (1 + -1*(sigmoid(log(z92)) - sigmoid(log(z130)))) * (1 + 1*(2*sigmoid(cos(z240)) - 1)) * (1 + -0.694175*(sigmoid(cos(cube((z249 * z114)))) - sigmoid(reciprocal(z392)))) * (1 + -1*(2*sigmoid(sin(z443)) - 1))",
+  "ls_a": 0.0,
+  "ls_b": 1.0
+}

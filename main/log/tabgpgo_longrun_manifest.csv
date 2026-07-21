@@ -1,0 +1,7 @@
+run_id,algo,ms,switch_every,function_set,constant_set
+da077081-84d5-11f1-9844-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_ogens2000_norotate,oms,0,full_extended,small_ints
+da077081-84d5-11f1-9844-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_ogens2000_rotate10,oms,10,full_extended,small_ints
+da077081-84d5-11f1-9844-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ogens2000_norotate,0.01,0,full_extended,small_ints
+da077081-84d5-11f1-9844-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ogens2000_rotate10,0.01,10,full_extended,small_ints
+da077081-84d5-11f1-9844-2c7ba0e6fa90,SLIM*MIX_ms1_pat5_fn-full_extended_const-small_ints_ogens2000_norotate,1.0,0,full_extended,small_ints
+da077081-84d5-11f1-9844-2c7ba0e6fa90,SLIM*MIX_ms1_pat5_fn-full_extended_const-small_ints_ogens2000_rotate10,1.0,10,full_extended,small_ints
