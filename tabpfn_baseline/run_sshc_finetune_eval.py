@@ -6,11 +6,20 @@ evaluated on the exact same 5x(80/20 split) held-out protocol so results
 drop directly into the same comparison table.
 
 Algorithm (per spec): starting from the frozen elite, repeat n_iters times:
-  1. Build a NEIGHBORHOOD of candidate individuals around the current one:
-     - one DEFLATE neighbor per existing block (remove that block),
-     - one INFLATE neighbor per candidate tree in a precomputed pool (add
-       that tree as one new block; every SSHC-proposed block uses
-       wrapper="abs" -- a single fixed wrapper, simpler and faster than
+  1. Build a NEIGHBORHOOD of exactly NEIGHBORHOOD_SIZE (100) candidate
+     individuals around the current one, sampled fresh each iteration (not
+     the same fixed set re-tried every time -- see the pool-size note
+     below for why that matters):
+     - up to half (50) DEFLATE neighbors: distinct existing blocks removed
+       one at a time, sampled without replacement. If the current
+       individual has FEWER than 50 blocks, every block gets its own
+       deflate neighbor (can't remove more distinct blocks than exist) and
+       the shortfall is made up on the inflate side instead -- e.g. a
+       7-block individual yields 7 deflate neighbors + 93 inflate ones.
+     - the rest (50, or more if deflate was short) INFLATE neighbors: that
+       many DISTINCT candidate trees sampled without replacement from the
+       precomputed pool for this iteration (every SSHC-proposed block uses
+       wrapper="abs" -- a single fixed wrapper, simpler/faster than
        replicating the original elite's own per-block "mix" wrapper draw,
        and orthogonal to the RT/OMT/MS/OMS choices below).
   2. Score every neighbor's REAL training-split RMSE (never the test split)
@@ -30,6 +39,12 @@ over the small real-dataset row count -- no tree evaluation happens inside
 the search loop itself. The current individual's own aggregate is
 maintained incrementally block-by-block (never refolded from scratch),
 matching FreshPoolSLIM's own O(1)-update philosophy.
+
+Pool size vs. neighborhood size: the precomputed candidate pool (POOL_SIZE)
+is deliberately much bigger than the per-iteration inflate-neighborhood
+(up to 100) -- each iteration samples a FRESH subset of the pool rather than
+re-trying the same fixed set every time, so n_iters iterations actually see
+new territory instead of repeatedly re-evaluating one static handful.
 
 Two independent knobs (per the "SSHC + OMT and OMS, otherwise RT and MS
 default 1" spec) control how each newly-accepted block is proposed:
@@ -88,16 +103,16 @@ VAL_DATASETS = ["ppb", "toxicity", "resid_build_sale_price", "instanbul", "energ
 N_SPLITS = 5
 P_TEST = 0.2
 
-SSHC_ITERS = 200          # hill-climbing accept/reject steps -- matches the
-                          # existing Adam fine-tuning's FT_STEPS, so runtime
-                          # stays comparable to what's already been run.
-POOL_SIZE = 300           # precomputed random-tree candidate pool size per
-                          # (dataset, split) -- real-dataset train splits are
-                          # a few hundred rows, so this is ample diversity.
+SSHC_ITERS = 50           # hill-climbing accept/reject steps.
+NEIGHBORHOOD_SIZE = 100   # candidates evaluated per iteration: up to half
+                          # deflate, the rest inflate (see module docstring).
+POOL_SIZE = 3000          # precomputed random-tree candidate pool size per
+                          # (dataset, split) -- much bigger than the 50-100
+                          # inflate neighbors drawn per iteration, so 50
+                          # iterations sample fresh territory each time
+                          # instead of re-trying the same fixed set.
 OMS_BOUND = 1.0           # matches TabGPGOConfig.oms_bound
 OMS_EPS = 1e-4            # matches TabGPGOConfig.oms_eps
-OMT_LITE_M = 20           # fresh random trees tried per iteration when
-                          # candidate_mode="omt" (see sshc_search docstring)
 
 FUNCTION_SET_NAME = "full_extended"
 CONSTANT_SET_NAME = "small_ints"
@@ -173,10 +188,19 @@ def _oms_for_candidates(cand_sR, current_agg, y_train_z):
 
 
 def sshc_search(elite_block_specs, candidate_start_idx, n_candidates, pool_train, y_train_z,
-                n_iters=SSHC_ITERS, candidate_mode="rt", step_mode="ms1",
+                n_iters=SSHC_ITERS, neighborhood_size=NEIGHBORHOOD_SIZE,
+                candidate_mode="rt", step_mode="ms1",
                 cfg=None, TERMINALS=None, T_train_embed=None, seed=0):
     """Runs the hill-climbing search described in the module docstring.
     Returns (final_block_specs, final_train_rmse, appended_structures).
+
+    Every iteration draws a FRESH neighborhood of `neighborhood_size`
+    candidates (up to half deflate, the rest inflate -- see module
+    docstring for the rebalancing rule when there are too few blocks to
+    deflate) rather than re-evaluating the same fixed set every time, so
+    the precomputed pool (n_candidates, much bigger than neighborhood_size)
+    actually gets explored across n_iters instead of being exhausted in one
+    pass.
 
     Every block in the returned final_block_specs (and in current_blocks at
     every point during the loop) has an idx1/idx2 that resolves against
@@ -194,34 +218,38 @@ def sshc_search(elite_block_specs, candidate_start_idx, n_candidates, pool_train
     FreshPoolSLIM's own nested-GSGP Optimal Mutation Tree, not a reuse of
     that exact machinery (which is deeply tied to a FreshPoolSLIM instance's
     own reservoir/threading state and searches over many GENERATIONS of a
-    nested population, not a handful of single trees). Here, at every
-    iteration, OMT_LITE_M fresh random trees are generated and evaluated on
-    the spot (not precomputed -- the whole point of OMT is adapting to the
-    CURRENT residual, which changes every iteration), and the best of that
-    fresh batch (by real training RMSE, after picking its own ms via the
-    same OMS math if step_mode="oms") competes against the deflate
-    neighbors and the current individual exactly like an "rt" inflate
-    neighbor would. This is materially slower than "rt" (new tree
-    evaluations every iteration, not just a pool lookup) and is not invoked
-    by this module's own __main__.
+    nested population, not a handful of single trees). Here, every
+    iteration's inflate neighbors are freshly-generated random trees
+    (evaluated on the spot, not drawn from the precomputed pool -- the
+    whole point of OMT is adapting to the CURRENT residual, which changes
+    every iteration, so this cannot be precomputed the way "rt" is). This
+    is materially slower than "rt" (new tree evaluations every iteration,
+    not just a pool lookup) and is not invoked by this module's own
+    __main__.
     """
     device = pool_train.device
+    rng = random.Random(seed)
 
     current_blocks = list(elite_block_specs)
     current_agg = _fold(pool_train, current_blocks)
     current_rmse = float(rmse(y_train_z, current_agg))
 
-    cand_idx = list(range(candidate_start_idx, candidate_start_idx + n_candidates))
-    cand_sem = pool_train[cand_idx]                     # (K, n_train)
-    cand_sR_abs = wrapper_output("abs", cand_sem)        # (K, n_train)
-
+    cand_idx_all = list(range(candidate_start_idx, candidate_start_idx + n_candidates))
     appended_structures = []
 
     for _ in range(n_iters):
         best_rmse, best_blocks, best_agg, best_appended = current_rmse, None, None, None
 
-        # -- deflate neighbors: remove one existing block at a time --
-        for i, b in enumerate(current_blocks):
+        n_deflate = min(neighborhood_size // 2, len(current_blocks))
+        n_inflate = neighborhood_size - n_deflate
+
+        # -- deflate neighbors: n_deflate DISTINCT existing blocks removed,
+        # topped up on the inflate side (n_inflate) whenever there aren't
+        # enough blocks to reach neighborhood_size // 2 deflate proposals --
+        deflate_positions = (range(len(current_blocks)) if n_deflate == len(current_blocks)
+                            else rng.sample(range(len(current_blocks)), n_deflate))
+        for i in deflate_positions:
+            b = current_blocks[i]
             tr1 = pool_train[b["idx1"]]
             tr2 = pool_train[b["idx2"]] if b["idx2"] is not None else None
             delta_i = b["ms"] * wrapper_output(b["wrapper"], tr1, tr2)
@@ -233,48 +261,41 @@ def sshc_search(elite_block_specs, candidate_start_idx, n_candidates, pool_train
                 best_agg = agg_wo_i
                 best_appended = None
 
-        # -- inflate neighbors: add one new block, vectorized over the pool --
-        if step_mode == "oms":
-            ms_used = _oms_for_candidates(cand_sR_abs, current_agg, y_train_z)
-        else:
-            ms_used = torch.ones(n_candidates, device=device)
-
-        cand_agg = torch.clamp(current_agg.unsqueeze(0) * (1 + ms_used.unsqueeze(1) * cand_sR_abs),
-                               -BOUND, BOUND)             # (K, n_train)
-        cand_rmse = rmse(y_train_z, cand_agg)             # (K,)
-        j = int(torch.argmin(cand_rmse))
-        if float(cand_rmse[j]) < best_rmse - 1e-9:
-            best_rmse = float(cand_rmse[j])
-            best_blocks = current_blocks + [{"idx1": cand_idx[j], "idx2": None,
-                                             "ms": float(ms_used[j]), "wrapper": "abs"}]
-            best_agg = cand_agg[j]
-            best_appended = None
-
-        # -- OMT-lite inflate neighbor (only when requested; see docstring) --
+        # -- inflate neighbors: n_inflate DISTINCT candidates, freshly
+        # sampled from the pool this iteration ("rt") or freshly generated
+        # on the spot ("omt"; see docstring) --
         if candidate_mode == "omt":
             fresh = [r["structure"] for r in generate_ramped_structures(
-                OMT_LITE_M, cfg.init_depth, cfg.p_c, TERMINALS)]
-            fresh_sem = torch.stack([_raw_semantics(s, T_train_embed, TERMINALS) for s in fresh])
-            fresh_sR = wrapper_output("abs", fresh_sem)
-            if step_mode == "oms":
-                ms_fresh = _oms_for_candidates(fresh_sR, current_agg, y_train_z)
-            else:
-                ms_fresh = torch.ones(OMT_LITE_M, device=device)
-            fresh_agg = torch.clamp(current_agg.unsqueeze(0) * (1 + ms_fresh.unsqueeze(1) * fresh_sR),
-                                    -BOUND, BOUND)
-            fresh_rmse = rmse(y_train_z, fresh_agg)
-            k = int(torch.argmin(fresh_rmse))
-            if float(fresh_rmse[k]) < best_rmse - 1e-9:
-                best_rmse = float(fresh_rmse[k])
+                n_inflate, cfg.init_depth, cfg.p_c, TERMINALS)]
+            inflate_sem = torch.stack([_raw_semantics(s, T_train_embed, TERMINALS) for s in fresh])
+        else:
+            sampled_idx = rng.sample(cand_idx_all, n_inflate)
+            inflate_sem = pool_train[sampled_idx]
+        inflate_sR = wrapper_output("abs", inflate_sem)
+
+        if step_mode == "oms":
+            ms_used = _oms_for_candidates(inflate_sR, current_agg, y_train_z)
+        else:
+            ms_used = torch.ones(n_inflate, device=device)
+
+        inflate_agg = torch.clamp(current_agg.unsqueeze(0) * (1 + ms_used.unsqueeze(1) * inflate_sR),
+                                  -BOUND, BOUND)
+        inflate_rmse = rmse(y_train_z, inflate_agg)       # (n_inflate,)
+        j = int(torch.argmin(inflate_rmse))
+        if float(inflate_rmse[j]) < best_rmse - 1e-9:
+            best_rmse = float(inflate_rmse[j])
+            if candidate_mode == "omt":
                 # grow pool_train NOW so the new block's idx1 is resolvable
-                # by every later iteration's deflate/inflate arithmetic --
-                # see docstring.
+                # by every later iteration's deflate/inflate arithmetic.
                 new_idx = pool_train.shape[0]
-                pool_train = torch.cat([pool_train, fresh_sem[k:k + 1]], dim=0)
-                best_blocks = current_blocks + [{"idx1": new_idx, "idx2": None,
-                                                 "ms": float(ms_fresh[k]), "wrapper": "abs"}]
-                best_agg = fresh_agg[k]
-                best_appended = fresh[k]
+                pool_train = torch.cat([pool_train, inflate_sem[j:j + 1]], dim=0)
+                best_appended = fresh[j]
+            else:
+                new_idx = sampled_idx[j]
+                best_appended = None
+            best_blocks = current_blocks + [{"idx1": new_idx, "idx2": None,
+                                             "ms": float(ms_used[j]), "wrapper": "abs"}]
+            best_agg = inflate_agg[j]
 
         if best_blocks is not None:
             current_blocks, current_agg, current_rmse = best_blocks, best_agg, best_rmse
