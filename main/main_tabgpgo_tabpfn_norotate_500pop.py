@@ -1,57 +1,43 @@
 """
-TabGPGO experiment (TabPFN encoder, no-rotation only, larger scale): tests
-whether the no-rotation conclusion from main_tabgpgo_tabpfn_longrun.py holds
-at pop_size=2000 (10x) and n_gens=20000 (10x) -- the whole synthetic pool as
-one fixed training set for the entire run, ms in {oms, 0.01, 1.0}, no
-rotation combos (those were already shown to lose to no-rotation at both
-200 and 2000 generations -- see main_tabgpgo_tabpfn_rotate.py /
-main_tabgpgo_tabpfn_longrun.py).
+TabGPGO experiment (TabPFN encoder, no-rotation only, pop_size=500 variant):
+same experiment as main_tabgpgo_tabpfn_norotate_20k.py (whole synthetic pool
+as one fixed training set, ms in {oms, 0.0001, 0.01, 1.0}, no rotation), but
+at pop_size=500 instead of 2000, kept at n_gens=5000.
 
-Scale rationale: per-generation cost in FreshPoolSLIM is NOT constant --
-_resync_elite refolds the whole elite from scratch every generation, so its
-cost scales with the elite's own block count, which grows over a run (see
-main_tabgpgo_tabpfn_longrun.py's results: ms=0.01's elite reached 850 blocks
-by generation 2000, strongly correlated with per-gen time, corr=0.97; ms=oms
-and ms=1.0's block growth was already flattening by gen 2000 and weakly
-correlated with time, corr~0.3). Extrapolating 100x further (to 200,000
-generations) made that uncertainty enormous (single-digit days to
-~a year, depending on the combo). Scaling only 10x (20,000 generations)
-keeps the extrapolation modest: naive linear estimate ~1.1 days total for
-all 3 combos sequential, growth-extrapolated (worst case, dominated by
-ms=0.01) ~4.7 days total -- a real but tractable range, unlike the 200k-gen
-version.
-
-Memory note: T_train is the full synthetic pool (n_synth_datasets * n_rows =
-1000*500 = 500,000 rows); each individual's cached aggregate is one
-(500000,) float32 tensor (~2MB). At pop_size=2000 the live population alone
-is ~4GB of aggregate tensors, before accounting for offspring temporarily
-coexisting with parents during a generation -- expect several GB of RAM
-during the run.
+Why a separate script/log file rather than just editing the 20k variant's
+pop_size: main_tabgpgo_tabpfn_norotate_20k.py's own ms=oms run at
+pop_size=2000 died mid-generation-7647 with no completed run/manifest --
+almost certainly a RAM ceiling (each individual's cached aggregate is one
+(500000,) float32 tensor, ~2MB; pop_size=2000 means ~4GB just for the live
+population, before offspring temporarily coexist with the outgoing
+population during a generation). pop_size=500 cuts that same footprint to
+~1GB, a much safer margin -- but it's a DIFFERENT run, on different
+hardware ("the other machine"), so it gets its own log/run-dir/manifest
+rather than overwriting or mixing with the pop=2000 attempt's partial CSV
+(which has a different implicit resource profile and shouldn't be treated
+as the same experiment for comparison purposes).
 
 Encoder: reuses main_tabgpgo_tabpfn_rotate.py's prepare_rotate/_cached_pool
 machinery verbatim (same cached TabPFN pool bundle every tabgpgo_tabpfn_*
-script shares) -- dataset_chunks are built but never used here (no
-rotation), which costs nothing extra (torch.split is pure indexing).
+script shares).
 
 Fixed for every combo: SLIM*MIX (wrapper="mix", operator="mul"), fresh pool
-(FreshPoolSLIM), patience=5, pop_size=2000, n_gens=20000, full_extended/
+(FreshPoolSLIM), patience=5, pop_size=500, n_gens=5000, full_extended/
 small_ints function/constant set, OMT disabled. tournament_size/p_inflate/
-n_elites left at the same HPT-tuned values used at pop_size=200/2000 --
-only pop_size and n_gens were asked to change.
+n_elites left at the same HPT-tuned values used everywhere else.
 
 Resumable the same way every other tabgpgo sweep script is: evolve_norotate()
 skips any ms combo that already has a completed run dir (elite.json present).
 
 Usage:
-  python main/main_tabgpgo_tabpfn_norotate_20k.py prepare   # phase 1-2 only (build/cache the TabPFN pool)
-  python main/main_tabgpgo_tabpfn_norotate_20k.py evolve    # phase 4-5 (reusing the cache, resumable)
-  python main/main_tabgpgo_tabpfn_norotate_20k.py           # everything
+  python main/main_tabgpgo_tabpfn_norotate_500pop.py prepare   # phase 1-2 only (build/cache the TabPFN pool)
+  python main/main_tabgpgo_tabpfn_norotate_500pop.py evolve    # phase 4-5 (reusing the cache, resumable)
+  python main/main_tabgpgo_tabpfn_norotate_500pop.py           # everything
 
-Writes to main/log/tabgpgo_norotate20k_results.csv / tabgpgo_norotate20k_runs/
-and main/log/tabgpgo_norotate20k_manifest.csv (run_id, algo, ms, function_set,
-constant_set). CSV schema: same 29-column schema as every other non-rotating
-tabgpgo sweep script (no global_pool_*/active_dataset_idx columns, since
-those only apply when rotation is enabled).
+Writes to main/log/tabgpgo_norotate500pop_results.csv /
+tabgpgo_norotate500pop_runs/ and main/log/tabgpgo_norotate500pop_manifest.csv
+(run_id, algo, ms, function_set, constant_set). CSV schema: same 29-column
+schema as every other non-rotating tabgpgo sweep script.
 """
 import csv
 import dataclasses
@@ -67,21 +53,11 @@ from tabgpgo.config import ALGO_NAMES, REPO_ROOT, TabGPGOConfig
 from tabgpgo.evolution_freshpool import FreshPoolSLIM, build_adapter
 from tabgpgo.inference import reconstruct_expression, save_run, verify_inference
 
-HPT_OVERRIDES = dict(pop_size=2000, tournament_size=2, p_inflate=0.5, n_elites=5)
+HPT_OVERRIDES = dict(pop_size=500, tournament_size=2, p_inflate=0.5, n_elites=5)
 
 WRAPPER = "mix"
 VARIANT = (WRAPPER, "mul")   # SLIM*MIX
 PATIENCE = 5
-# Originally 20000: the first real run (ms=oms) died mid-generation-7647 with
-# no completed run dir/manifest and nothing abnormal in the last logged row
-# (elite_size/elite_nodes/time_s were all flat and bounded right up to the
-# last row -- see main/log/tabgpgo_norotate20k_results.csv) -- consistent
-# with hitting a RAM ceiling (this module's own docstring already flags
-# ~4GB+ at pop_size=2000), not a numerical blow-up in the algorithm. Capped
-# well under that observed survival point, with extra margin for ms=0.01/
-# ms=0.0001 -- both grow blocks much faster than oms at the same generation
-# count (see main_tabgpgo_tabpfn_longrun.py's 2000-gen results), so they're
-# expected to hit the same ceiling sooner, not later.
 N_GENS = 5000
 
 FUNCTION_SET_NAME = "full_extended"
@@ -93,15 +69,15 @@ COMBOS = [{"ms": ms} for ms in MS_VALUES]
 # Same cache directory every tabgpgo_tabpfn_* script uses -- see
 # main_tabgpgo_tabpfn_rotate.py's module docstring for why this is safe to share.
 TABPFN_ARTIFACTS_DIR = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_tabpfn_artifacts")
-NOROTATE20K_LOG_PATH = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_norotate20k_results.csv")
-NOROTATE20K_RUN_DIR_BASE = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_norotate20k_runs")
-NOROTATE20K_MANIFEST_CSV = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_norotate20k_manifest.csv")
+NOROTATE500_LOG_PATH = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_norotate500pop_results.csv")
+NOROTATE500_RUN_DIR_BASE = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_norotate500pop_runs")
+NOROTATE500_MANIFEST_CSV = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_norotate500pop_manifest.csv")
 
 
 def build_config(**extra):
     return dataclasses.replace(
-        TabGPGOConfig(), log_path=NOROTATE20K_LOG_PATH, variants=(VARIANT,),
-        run_dir_base=NOROTATE20K_RUN_DIR_BASE, stagnation_patience=PATIENCE, n_gens=N_GENS,
+        TabGPGOConfig(), log_path=NOROTATE500_LOG_PATH, variants=(VARIANT,),
+        run_dir_base=NOROTATE500_RUN_DIR_BASE, stagnation_patience=PATIENCE, n_gens=N_GENS,
         artifacts_dir=TABPFN_ARTIFACTS_DIR,
         **HPT_OVERRIDES, **extra)
 
@@ -113,17 +89,17 @@ def _base_algo_label(combo):
 
 def _combo_tag(combo):
     algo = (f"{_base_algo_label(combo)}_fn-{FUNCTION_SET_NAME}_const-{CONSTANT_SET_NAME}"
-            f"_ogens{N_GENS}_norotate")
+            f"_ogens{N_GENS}_pop{HPT_OVERRIDES['pop_size']}_norotate")
     return algo, algo.replace("*", "x").replace("~", "t")
 
 
 def find_completed_run_dir(tag):
-    if not os.path.isdir(NOROTATE20K_RUN_DIR_BASE):
+    if not os.path.isdir(NOROTATE500_RUN_DIR_BASE):
         return None
     suffix = f"_{tag}_0"
-    for name in sorted(os.listdir(NOROTATE20K_RUN_DIR_BASE)):
-        if name.endswith(suffix) and os.path.isfile(os.path.join(NOROTATE20K_RUN_DIR_BASE, name, "elite.json")):
-            return os.path.join(NOROTATE20K_RUN_DIR_BASE, name)
+    for name in sorted(os.listdir(NOROTATE500_RUN_DIR_BASE)):
+        if name.endswith(suffix) and os.path.isfile(os.path.join(NOROTATE500_RUN_DIR_BASE, name, "elite.json")):
+            return os.path.join(NOROTATE500_RUN_DIR_BASE, name)
     return None
 
 
@@ -135,7 +111,7 @@ def _run_one(cfg, combo, ctx, unique_run_id, verbose):
     optimizer.algo = algo
     elite = optimizer.solve(
         run_info=[optimizer.algo, unique_run_id, "synthetic_prior"],
-        log_path=NOROTATE20K_LOG_PATH, verbose=verbose)
+        log_path=NOROTATE500_LOG_PATH, verbose=verbose)
 
     pi, registry, pool = build_adapter(elite, ctx["T_train"], ctx["TERMINALS"])
     verify_inference(pi, pool, ctx["T_train"], registry, ctx["TERMINALS"])
@@ -154,7 +130,7 @@ def evolve_norotate(verbose=1):
     p_c, constants = CONSTANT_SETS[CONSTANT_SET_NAME]
     cfg = dataclasses.replace(cfg, p_c=p_c)
 
-    os.makedirs(os.path.dirname(NOROTATE20K_LOG_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(NOROTATE500_LOG_PATH), exist_ok=True)
     unique_run_id = uuid.uuid1()
     manifest_rows = []
     elites = {}
@@ -177,11 +153,11 @@ def evolve_norotate(verbose=1):
                 "run_id": run_id, "algo": algo, "ms": combo["ms"],
                 "function_set": FUNCTION_SET_NAME, "constant_set": CONSTANT_SET_NAME,
             })
-    with open(NOROTATE20K_MANIFEST_CSV, "w", newline="") as fh:
+    with open(NOROTATE500_MANIFEST_CSV, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=list(manifest_rows[0].keys()))
         writer.writeheader()
         writer.writerows(manifest_rows)
-    print(f"\nwrote manifest -> {NOROTATE20K_MANIFEST_CSV}")
+    print(f"\nwrote manifest -> {NOROTATE500_MANIFEST_CSV}")
     return elites, unique_run_id
 
 
