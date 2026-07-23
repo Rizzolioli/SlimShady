@@ -1,11 +1,10 @@
 """
 SSHC (Stochastic Search Hill Climbing) fine-tuning for the pop_size sweep
-(200/100, n_gens=5000, main/main_tabgpgo_tabpfn_norotate_popsweep.py)'s
-best-per-dataset elite -- same algorithm/parameters as
-run_sshc_finetune_eval.py (see that module's docstring for the full
-design), just pointed at the pop-sweep's own results/run directory via
-run_popsweep_split_eval.best_per_dataset instead of the 2000-generation
-longrun or pop_size=500 experiments'.
+(200/100, n_gens=5000, main/main_tabgpgo_tabpfn_norotate_popsweep.py) --
+same algorithm/parameters as run_sshc_finetune_eval.py (see that module's
+docstring for the full design), pointed at a FIXED (pop_size=200, ms=0.01)
+elite via run_popsweep_split_eval.fixed_combo (same elite used for every
+dataset, matching that module's own selection -- see its docstring for why).
 
 Usage:
     python tabpfn_baseline/run_popsweep_sshc_eval.py
@@ -28,7 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from datasets.data_loader import load_merged_data
 from main_tabgpgo_funcset import CONSTANT_SETS, FUNCTION_SETS, function_constant_set
 from run_longrun_split_eval import _tag, fit_reducer, load_elite_tabpfn, load_reference_model, split_features
-from run_popsweep_split_eval import RUN_DIR_BASE, best_per_dataset
+from run_popsweep_split_eval import RUN_DIR_BASE, fixed_combo
 from run_sshc_finetune_eval import POOL_SIZE, build_candidate_pool, eval_sshc
 from tabgpgo.config import TabGPGOConfig
 from tabgpgo.tabpfn_encoder import encode_val_tabpfn
@@ -49,8 +48,9 @@ MEDIAN_CSV = os.path.join(THIS_DIR, "log", "popsweep_sshc_median.csv")
 
 def main():
     os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
-    best = best_per_dataset()
-    print("popsweep best per dataset:", {k: v["algo"] for k, v in best.items()})
+    fixed = fixed_combo()
+    fixed_entry = fixed[VAL_DATASETS[0]]
+    print(f"popsweep fixed combo (all datasets): {fixed_entry['algo']}")
 
     reference_model, embed_dim = load_reference_model()
     p_c, constants = CONSTANT_SETS[CONSTANT_SET_NAME]
@@ -58,22 +58,22 @@ def main():
 
     variants = [("rt", "ms1"), ("rt", "oms")]
 
+    run_dir = os.path.join(RUN_DIR_BASE, f"{fixed_entry['run_id']}_{_tag(fixed_entry['algo'])}_0")
+    _, registry, ind = load_elite_tabpfn(run_dir)
+    head_structure = registry[ind.head_idx]["structure"]
+    elite_raw_blocks = [
+        {"structure1": registry[b.idx1]["structure"],
+         "structure2": registry[b.idx2]["structure"] if b.idx2 is not None else None,
+         "ms": b.ms, "wrapper": b.wrapper}
+        for b in ind.blocks
+    ]
+
     rows = []
     with function_constant_set(FUNCTION_SETS[FUNCTION_SET_NAME], constants):
         TERMINALS = make_terminals(embed_dim)
         for dataset in VAL_DATASETS:
             X_raw, y_raw = load_merged_data(dataset, X_y=True)
             X_raw, y_raw = X_raw.float(), y_raw.float()
-
-            run_dir = os.path.join(RUN_DIR_BASE, f"{best[dataset]['run_id']}_{_tag(best[dataset]['algo'])}_0")
-            _, registry, ind = load_elite_tabpfn(run_dir)
-            head_structure = registry[ind.head_idx]["structure"]
-            elite_raw_blocks = [
-                {"structure1": registry[b.idx1]["structure"],
-                 "structure2": registry[b.idx2]["structure"] if b.idx2 is not None else None,
-                 "ms": b.ms, "wrapper": b.wrapper}
-                for b in ind.blocks
-            ]
 
             for split in range(N_SPLITS):
                 X_train, X_test, y_train, y_test = train_test_split(X_raw, y_raw, p_test=P_TEST, seed=split)

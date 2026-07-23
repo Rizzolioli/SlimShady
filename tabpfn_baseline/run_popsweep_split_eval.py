@@ -5,16 +5,21 @@ no-rotation sweep (main/main_tabgpgo_tabpfn_norotate_popsweep.py): TabGPGO
 the same 5x(80/20 split) protocol run_longrun_split_eval.py /
 run_500pop_split_eval.py use.
 
+Elite selection: FIXED to a single combo -- pop_size=200, ms=0.01 -- applied
+to every real dataset, rather than picking each dataset's own best combo
+(which is what run_500pop_split_eval.py's analog does). This was an
+explicit choice: ms=0.01 is the combo that grows the elite fastest (2000+
+blocks by gen 5000 at both pop sizes tested), so fixing on it isolates how
+that specific regime transfers/fine-tunes across all 6 datasets, instead of
+mixing in whichever combo happened to win each dataset's own zero-shot race.
+
 TabPFN is NOT re-fit here. eval_tabpfn/eval_tabpfn_zeroshot only ever touch
 the real dataset's own (X_train, X_test, y_train, y_test) for a given
 (dataset, split) -- they never read the TabGPGO elite/config at all, so
 their results are identical across experiments run on the same 6 datasets
 with the same N_SPLITS/P_TEST/seed protocol. This module instead reuses the
 TabPFN v2/v3 (real-adapted) and TabPFN v2/v3 (zero-shot) rows straight out
-of pop500_split_eval_results.csv (produced by run_500pop_split_eval.py) and
-only computes the NEW rows this sweep actually needs: tabgpgo_finetuned/
-tabgpgo_zeroshot against the pop-sweep's own best-per-dataset elite (which
-may come from a different (pop_size, ms) combo than pop500's winner).
+of pop500_split_eval_results.csv (produced by run_500pop_split_eval.py).
 
 Standard SLIM is NOT re-run here either -- see run_longrun_split_eval.py's
 own module docstring for why (already-collected data, not tied to which
@@ -66,17 +71,18 @@ VAL_COLS = [f"val_{d}_{suf}" for d in VAL_DATASETS for suf in ("rmse_scaled", "r
 ELITE_COLS = ["elite_size", "elite_nodes", "elite_train_r2"]
 RESULT_COLS = BASE_COLS + VAL_COLS + ELITE_COLS
 
+FIXED_POP_SIZE = 200
+FIXED_MS = "0.01"
 
-def best_per_dataset():
-    """Single results file spanning all 8 (pop_size, ms) combos -- last-
-    logged-generation, best val_r2 per dataset, across every combo."""
-    df = pd.read_csv(RESULTS_CSV, header=None, names=RESULT_COLS)
-    last = df[df.generation == df.generation.max()]
-    best = {}
-    for dataset in VAL_DATASETS:
-        row = last.loc[last[f"val_{dataset}_r2"].idxmax()]
-        best[dataset] = {"algo": row["algo"], "run_id": row["run_id"]}
-    return best
+
+def fixed_combo():
+    """Single (pop_size, ms) combo, applied to every dataset -- see module
+    docstring for why this replaces per-dataset best-combo selection."""
+    manifest = pd.read_csv(os.path.join(REPO_ROOT, "main", "log", "tabgpgo_norotate_popsweep_manifest.csv"))
+    row = manifest[(manifest["pop_size"] == FIXED_POP_SIZE) &
+                  (manifest["ms"].astype(str) == str(float(FIXED_MS)))].iloc[0]
+    entry = {"algo": row["algo"], "run_id": row["run_id"]}
+    return {dataset: entry for dataset in VAL_DATASETS}
 
 
 def load_reused_tabpfn_rows():
@@ -87,8 +93,9 @@ def load_reused_tabpfn_rows():
 
 def main():
     os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
-    best = best_per_dataset()
-    print("popsweep best per dataset:", {k: v["algo"] for k, v in best.items()})
+    fixed = fixed_combo()
+    fixed_entry = fixed[VAL_DATASETS[0]]
+    print(f"popsweep fixed combo (all datasets): {fixed_entry['algo']}")
 
     reference_model, embed_dim = load_reference_model()
     p_c, constants = CONSTANT_SETS[CONSTANT_SET_NAME]
@@ -97,14 +104,14 @@ def main():
     print(f"reused {len(rows)} TabPFN v2/v3 (real-adapted + zero-shot) rows from "
          f"{os.path.basename(POP500_RESULTS_CSV)} -- not re-fit")
 
+    run_dir = os.path.join(RUN_DIR_BASE, f"{fixed_entry['run_id']}_{_tag(fixed_entry['algo'])}_0")
+    cfg, registry, ind = load_elite_tabpfn(run_dir)
+
     with function_constant_set(FUNCTION_SETS[FUNCTION_SET_NAME], constants):
         TERMINALS = make_terminals(embed_dim)
         for dataset in VAL_DATASETS:
             X_raw, y_raw = load_merged_data(dataset, X_y=True)
             X_raw, y_raw = X_raw.float(), y_raw.float()
-
-            run_dir = os.path.join(RUN_DIR_BASE, f"{best[dataset]['run_id']}_{_tag(best[dataset]['algo'])}_0")
-            cfg, registry, ind = load_elite_tabpfn(run_dir)
 
             for split in range(N_SPLITS):
                 X_train, X_test, y_train, y_test = train_test_split(X_raw, y_raw, p_test=P_TEST, seed=split)
