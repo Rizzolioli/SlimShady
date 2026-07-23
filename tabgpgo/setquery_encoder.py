@@ -117,13 +117,21 @@ class SetQueryAutoencoder(nn.Module):
         return self.reconstruct_X(z, n_rows), self.predict_target(z, n_rows)
 
 
-def train_setquery_ae(cfg, n_datasets=None, target_weight=1.0, lr=1e-3,
+def train_setquery_ae(cfg, n_datasets=None, n_epochs=20, target_weight=1.0, lr=1e-3,
                       hidden=128, n_latents=32, verbose=True, seed=None, log_every=50):
-    """Train on the synthetic prior, one dataset at a time (row/column
-    pooling is inherently per-dataset). Each synthetic dataset gets its own
-    randomly sampled row count (ROW_RANGE) so every row_pos index gets
-    trained -- real validation datasets are larger than the synthetic
-    prior's fixed n_rows (see module docstring)."""
+    """Train on the synthetic prior: pre-generate `n_datasets` synthetic
+    datasets ONCE (row/column pooling is inherently per-dataset, so each is
+    still its own gradient step, not batched), then train `n_epochs` passes
+    over that fixed, shuffled pool -- mirroring how tabgpgo/autoencoder.py's
+    train_autoencoder trains many epochs over one pooled synthetic set,
+    rather than one gradient step per dataset (confirmed via a controlled
+    overfitting test this session: with only ~1 step/dataset and no repeats,
+    both losses sit at their trivial baseline -- MSE~=1.0, i.e. "predict the
+    mean" -- even though the same architecture visibly learns, given enough
+    steps, on a small repeated set). Each dataset gets its own randomly
+    sampled row count (ROW_RANGE) so every row_pos index gets trained --
+    real validation datasets are larger than the synthetic prior's fixed
+    n_rows (see module docstring)."""
     from .prior import generate_datasets
     from .preprocessing import standardize_scale_pad
 
@@ -135,28 +143,37 @@ def train_setquery_ae(cfg, n_datasets=None, target_weight=1.0, lr=1e-3,
     seed = cfg.data_seed if seed is None else seed
     row_rng = random.Random(seed)
 
-    total_recon, total_tgt, count = 0.0, 0.0, 0
+    if verbose:
+        print(f"  generating {n} synthetic datasets (once, cached for {n_epochs} epochs)...")
+    pool = []
     for i in range(n):
         n_rows_i = row_rng.randint(*ROW_RANGE)
         (X, y), = list(generate_datasets(1, n_rows_i, cfg.max_features, cfg.min_features,
                                          seed=seed + i, backend=cfg.prior_backend))
         X100, y_std, _ = standardize_scale_pad(X, y, cfg.max_features)
-        X100, y_std = X100.to(device), y_std.to(device)
+        pool.append((X100.to(device), y_std.to(device)))
 
-        opt.zero_grad()
-        X_hat, y_hat = model(X100)
-        recon_loss = nn.functional.mse_loss(X_hat, X100)
-        target_loss = nn.functional.mse_loss(y_hat, y_std)
-        loss = recon_loss + target_weight * target_loss
-        loss.backward()
-        opt.step()
+    epoch_rng = random.Random(seed + 1)
+    for epoch in range(n_epochs):
+        order = list(range(n))
+        epoch_rng.shuffle(order)
+        total_recon, total_tgt, count = 0.0, 0.0, 0
+        for idx in order:
+            X100, y_std = pool[idx]
+            opt.zero_grad()
+            X_hat, y_hat = model(X100)
+            recon_loss = nn.functional.mse_loss(X_hat, X100)
+            target_loss = nn.functional.mse_loss(y_hat, y_std)
+            loss = recon_loss + target_weight * target_loss
+            loss.backward()
+            opt.step()
 
-        total_recon += recon_loss.item()
-        total_tgt += target_loss.item()
-        count += 1
-        if verbose and (i + 1) % log_every == 0:
-            print(f"  [{i + 1}/{n}] recon MSE {total_recon / count:.5f}  "
-                 f"target MSE {total_tgt / count:.5f}  (n_rows={n_rows_i})")
+            total_recon += recon_loss.item()
+            total_tgt += target_loss.item()
+            count += 1
+        if verbose:
+            print(f"  epoch {epoch + 1}/{n_epochs}  recon MSE {total_recon / count:.5f}  "
+                 f"target MSE {total_tgt / count:.5f}")
 
     model.eval()
     model.requires_grad_(False)

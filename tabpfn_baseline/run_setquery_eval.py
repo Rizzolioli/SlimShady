@@ -53,10 +53,15 @@ OUT_CSV = os.path.join(THIS_DIR, "log", "setquery_eval_results.csv")
 MEDIAN_CSV = os.path.join(THIS_DIR, "log", "setquery_eval_median.csv")
 RECON_CSV = os.path.join(THIS_DIR, "log", "setquery_recon_r2.csv")
 
-# Kept modest for a first pass -- see tabgpgo/setquery_encoder.py's module
-# docstring for the architecture. Bump N_DATASETS toward cfg.n_synth_datasets
-# (1000) once this is confirmed to be worth the extra training time.
+# A controlled overfitting test this session (train_setquery_ae's own
+# earlier one-step-per-dataset version, on a tiny fixed/repeated pool) showed
+# both losses sitting at their trivial baseline (MSE~=1.0, "predict the
+# mean") after only ~1 gradient step per dataset with no repeats -- but
+# clearly learning given more steps on the same data. N_DATASETS x N_EPOCHS
+# = 10,000 total gradient steps here, vs. the 500 steps (0 repeats) the
+# first real run got.
 N_DATASETS = 500
+N_EPOCHS = 20
 HIDDEN = 128
 N_LATENTS = 32
 TARGET_WEIGHT = 1.0
@@ -67,9 +72,9 @@ def main():
     os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
     cfg = TabGPGOConfig()
 
-    print(f"training set-query autoencoder on {N_DATASETS} synthetic datasets "
+    print(f"training set-query autoencoder on {N_DATASETS} synthetic datasets x {N_EPOCHS} epochs "
          f"(hidden={HIDDEN}, n_latents={N_LATENTS}, target_weight={TARGET_WEIGHT})...")
-    model = train_setquery_ae(cfg, n_datasets=N_DATASETS, target_weight=TARGET_WEIGHT,
+    model = train_setquery_ae(cfg, n_datasets=N_DATASETS, n_epochs=N_EPOCHS, target_weight=TARGET_WEIGHT,
                               lr=LR, hidden=HIDDEN, n_latents=N_LATENTS)
 
     ckpt_path = os.path.join(THIS_DIR, "log", "setquery_ae.pt")

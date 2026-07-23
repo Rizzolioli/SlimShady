@@ -52,7 +52,7 @@ def _embed(model, X, data_source):
     return torch.from_numpy(emb[0]).float()
 
 
-def build_tabpfn_pool(cfg, n_estimators=1, verbose=True):
+def build_tabpfn_pool(cfg, n_estimators=1, verbose=True, model_version=None):
     """Phase 1-2 (TabPFN-encoder variant): builds (T_train, y_target,
     reference_model, embed_dim) in place of build_synthetic_pool +
     train_autoencoder + encode.
@@ -63,6 +63,14 @@ def build_tabpfn_pool(cfg, n_estimators=1, verbose=True):
     convention as build_synthetic_pool. reference_model is the FIRST
     dataset's fitted TabPFNRegressor, kept around to embed real validation
     data later (see encode_val_tabpfn) -- it is never refit on real data.
+
+    model_version: None (default) leaves TabPFNRegressor's own model_path
+    at "auto" -- whatever the installed tabpfn package treats as its
+    current default checkpoint (confirmed NOT v1 for this package version;
+    see this session's conversation on the synthetic-prior/embedding-model
+    mismatch). Pass a tabpfn.constants.ModelVersion (e.g. ModelVersion.V3)
+    to pin a specific checkpoint via TabPFNRegressor.create_default_for_version
+    instead, so every dataset's embedding model is explicitly that version.
     """
     T_chunks, y_chunks = [], []
     reference_model = None
@@ -71,7 +79,11 @@ def build_tabpfn_pool(cfg, n_estimators=1, verbose=True):
             cfg.n_synth_datasets, cfg.n_rows, cfg.max_features, cfg.min_features,
             seed=cfg.data_seed, backend=cfg.prior_backend)):
         X100, y_std, _ = standardize_scale_pad(X, y, cfg.max_features)
-        model = TabPFNRegressor(n_estimators=n_estimators, random_state=cfg.data_seed + i)
+        if model_version is None:
+            model = TabPFNRegressor(n_estimators=n_estimators, random_state=cfg.data_seed + i)
+        else:
+            model = TabPFNRegressor.create_default_for_version(
+                model_version, n_estimators=n_estimators, random_state=cfg.data_seed + i)
         model.fit(X100.numpy(), y_std.numpy())
         emb = _embed(model, X100, "train")
         if embed_dim is None:
