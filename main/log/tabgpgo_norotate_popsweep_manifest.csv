@@ -1,0 +1,9 @@
+run_id,algo,pop_size,ms,function_set,constant_set
+642c0f4e-861b-11f1-a09d-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_ogens5000_pop200_norotate,200,oms,full_extended,small_ints
+642c0f4e-861b-11f1-a09d-2c7ba0e6fa90,SLIM*MIX_ms0.0001_pat5_fn-full_extended_const-small_ints_ogens5000_pop200_norotate,200,0.0001,full_extended,small_ints
+642c0f4e-861b-11f1-a09d-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ogens5000_pop200_norotate,200,0.01,full_extended,small_ints
+642c0f4e-861b-11f1-a09d-2c7ba0e6fa90,SLIM*MIX_ms1_pat5_fn-full_extended_const-small_ints_ogens5000_pop200_norotate,200,1.0,full_extended,small_ints
+642c0f4e-861b-11f1-a09d-2c7ba0e6fa90,SLIM*MIX_oms_pat5_fn-full_extended_const-small_ints_ogens5000_pop100_norotate,100,oms,full_extended,small_ints
+642c0f4e-861b-11f1-a09d-2c7ba0e6fa90,SLIM*MIX_ms0.0001_pat5_fn-full_extended_const-small_ints_ogens5000_pop100_norotate,100,0.0001,full_extended,small_ints
+642c0f4e-861b-11f1-a09d-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ogens5000_pop100_norotate,100,0.01,full_extended,small_ints
+642c0f4e-861b-11f1-a09d-2c7ba0e6fa90,SLIM*MIX_ms1_pat5_fn-full_extended_const-small_ints_ogens5000_pop100_norotate,100,1.0,full_extended,small_ints
