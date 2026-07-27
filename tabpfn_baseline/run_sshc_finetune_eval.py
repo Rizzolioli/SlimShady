@@ -190,9 +190,25 @@ def _oms_for_candidates(cand_sR, current_agg, y_train_z):
 def sshc_search(elite_block_specs, candidate_start_idx, n_candidates, pool_train, y_train_z,
                 n_iters=SSHC_ITERS, neighborhood_size=NEIGHBORHOOD_SIZE,
                 candidate_mode="rt", step_mode="ms1",
-                cfg=None, TERMINALS=None, T_train_embed=None, seed=0):
+                cfg=None, TERMINALS=None, T_train_embed=None, seed=0,
+                pool_test=None, y_test_raw=None, y_stats=None, log_history=False):
     """Runs the hill-climbing search described in the module docstring.
-    Returns (final_block_specs, final_train_rmse, appended_structures).
+    Returns (final_block_specs, final_train_rmse, appended_structures, history).
+
+    history is None unless log_history=True, in which case it's a list of
+    n_iters dicts {iter, train_rmse, train_r2, test_rmse, test_r2} -- the
+    CURRENT (best-so-far) individual's score after each iteration's
+    accept/reject step, so a caller can plot the search's own convergence
+    curve (does train/test score plateau well before n_iters, or is it
+    still improving -- i.e. is there room for more iterations). test_rmse/
+    test_r2 require pool_test/y_test_raw/y_stats (folding the held-out
+    split with whatever the current individual is at that point) -- cheap
+    to compute every iteration since it's just one more vectorized fold,
+    no new tree evaluation. Valid for candidate_mode="rt" only: pool_test's
+    registry already covers every "rt" candidate from the start, so folding
+    it against ANY current_blocks is always in-range; "omt" would need the
+    same appended_structures extension eval_sshc's final scoring already
+    does (not implemented for the per-iteration history).
 
     Every iteration draws a FRESH neighborhood of `neighborhood_size`
     candidates (up to half deflate, the rest inflate -- see module
@@ -236,6 +252,7 @@ def sshc_search(elite_block_specs, candidate_start_idx, n_candidates, pool_train
 
     cand_idx_all = list(range(candidate_start_idx, candidate_start_idx + n_candidates))
     appended_structures = []
+    history = [] if log_history else None
 
     for _ in range(n_iters):
         best_rmse, best_blocks, best_agg, best_appended = current_rmse, None, None, None
@@ -302,22 +319,35 @@ def sshc_search(elite_block_specs, candidate_start_idx, n_candidates, pool_train
             if best_appended is not None:
                 appended_structures.append(best_appended)
 
-    return current_blocks, current_rmse, appended_structures
+        if log_history:
+            entry = {"train_rmse": current_rmse, "train_r2": float(r2(y_train_z, current_agg))}
+            if pool_test is not None:
+                test_agg = _fold(pool_test, current_blocks)
+                mean, std = y_stats
+                pred_raw = test_agg * std.squeeze() + mean.squeeze()
+                entry["test_rmse"] = float(rmse(y_test_raw, pred_raw))
+                entry["test_r2"] = float(r2(y_test_raw, pred_raw))
+            history.append(entry)
+
+    return current_blocks, current_rmse, appended_structures, history
 
 
 def eval_sshc(head_structure, elite_raw_blocks, candidate_structures, cfg, TERMINALS,
              T_train_embed, ytr_z, T_test_embed, y_test_raw, y_stats,
-             candidate_mode, step_mode, seed):
+             candidate_mode, step_mode, seed, log_history=False):
     registry, elite_block_specs, candidate_start_idx = build_registry(
         head_structure, elite_raw_blocks, candidate_structures)
     pool_train = evaluate_registry(registry, T_train_embed, TERMINALS)
     pool_test = evaluate_registry(registry, T_test_embed, TERMINALS)
 
-    final_blocks, _, appended_structures = sshc_search(
+    final_blocks, _, appended_structures, history = sshc_search(
         elite_block_specs, candidate_start_idx, len(candidate_structures),
         pool_train, ytr_z, n_iters=SSHC_ITERS, candidate_mode=candidate_mode,
         step_mode=step_mode, cfg=cfg, TERMINALS=TERMINALS,
-        T_train_embed=T_train_embed, seed=seed)
+        T_train_embed=T_train_embed, seed=seed,
+        pool_test=pool_test if log_history else None,
+        y_test_raw=y_test_raw if log_history else None,
+        y_stats=y_stats if log_history else None, log_history=log_history)
 
     # OMT-lite may have grown pool_train past the original registry (see
     # sshc_search) -- extend pool_test with the SAME freshly-generated
@@ -330,7 +360,10 @@ def eval_sshc(head_structure, elite_raw_blocks, candidate_structures, cfg, TERMI
     pred_z = _fold(pool_test, final_blocks)
     mean, std = y_stats
     pred_raw = pred_z * std.squeeze() + mean.squeeze()
-    return float(rmse(y_test_raw, pred_raw)), float(r2(y_test_raw, pred_raw))
+    final_rmse, final_r2 = float(rmse(y_test_raw, pred_raw)), float(r2(y_test_raw, pred_raw))
+    if log_history:
+        return final_rmse, final_r2, history
+    return final_rmse, final_r2
 
 
 def main():
