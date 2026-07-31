@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Representative SLIM variant selected per dataset for each role in the SLIM-vs-baselines Pareto front (Fig.~\ref{fig:pareto-baselines}): best test RMSE, best \gls{mphi}, and the best all-round compromise (``middle'') among the remaining variants.}
+\label{tab:pareto-baselines-roles}
+\begin{tabular}{lccc}
+\toprule
+Dataset & Best RMSE & Best \gls{mphi} & Middle \\
+\midrule
+Concrete       & SLIM+NORM2   & SLIM*NORMFIX & SLIM*ABS     \\
+Energy         & SLIM+NORMROB & SLIM*NORM1   & SLIM+NORM2   \\
+Istanbul       & SLIM*1SIG    & SLIM+NORMFIX & SLIM+NORM1   \\
+PPB            & SLIM+NORM1   & SLIM*NORMFIX & SLIM+ABS     \\
+Resid.\ Build  & SLIM+NORM2   & SLIM*ABS     & SLIM+NORMROB \\
+Toxicity       & SLIM*NORM2   & SLIM*NORMFIX & SLIM*NORMROB \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,38 @@
+% Legend for pareto_baselines.tex -- matplot2tikz drops fig.legend()
+% (it only walks per-axes legends, not fig-level ones), so this rebuilds it
+% with plain TikZ \path/\draw/\node commands -- no tabular/center/\\ and no
+% \usetikzlibrary calls (markers are hand-drawn shapes via \path, same
+% technique matplot2tikz itself uses for pgfplots markers in this file), so
+% it is valid pasted directly INSIDE a tikzpicture. No extra libraries needed.
+% Paste this block right before the figure's own \end{tikzpicture} (i.e.
+% after its existing suptitle \draw(...) node{...} line).
+
+\definecolor{legHexSLIMROLE}{HTML}{34495E}
+\definecolor{legHexGPLearn}{HTML}{D62728}
+\definecolor{legHexOperon}{HTML}{9467BD}
+\definecolor{legHexGPGOMEA}{HTML}{17BECF}
+
+\begin{scope}[shift={(current bounding box.south)}, yshift=-0.85cm, xshift=-10.800cm]
+  \node[anchor=west, font=\LARGE\bfseries, text=black] at (0,0) {SLIM roles / baselines (color + shape)};
+  \path[draw=legHexSLIMROLE, fill=legHexSLIMROLE] (0.200,-1.050) circle (0.16);
+  \node[anchor=west, font=\LARGE, text=black] at (0.750,-1.050) {SLIM -- Best RMSE};
+  \path[draw=legHexSLIMROLE, fill=legHexSLIMROLE] (7.260,-1.190) rectangle (7.540,-0.910);
+  \node[anchor=west, font=\LARGE, text=black] at (7.950,-1.050) {SLIM -- Best M$_\phi$};
+  \path[draw=legHexSLIMROLE, fill=legHexSLIMROLE] (14.600,-0.860) -- (14.430,-1.190) -- (14.770,-1.190) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (15.150,-1.050) {SLIM -- Middle};
+  \path[draw=legHexGPLearn, fill=legHexGPLearn] (0.200,-2.020) -- (0.340,-2.200) -- (0.200,-2.380) -- (0.060,-2.200) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (0.750,-2.200) {GPLearn};
+  \path[draw=none, fill=legHexOperon] (7.230,-2.260) rectangle (7.570,-2.140);
+  \path[draw=none, fill=legHexOperon] (7.340,-2.370) rectangle (7.460,-2.030);
+  \node[anchor=west, font=\LARGE, text=black] at (7.950,-2.200) {Operon};
+  \draw[color=legHexGPGOMEA, line width=3.2pt] (14.450,-2.350) -- (14.750,-2.050);
+  \draw[color=legHexGPGOMEA, line width=3.2pt] (14.450,-2.050) -- (14.750,-2.350);
+  \node[anchor=west, font=\LARGE, text=black] at (15.150,-2.200) {GP-GOMEA};
+\end{scope}
+\begin{scope}[shift={(current bounding box.south)}, yshift=-0.85cm, xshift=-9.000cm]
+  \node[anchor=west, font=\LARGE\bfseries, text=black] at (0,0) {Fill key};
+  \path[draw=gray, fill=gray] (0.200,-1.050) circle (0.16);
+  \node[anchor=west, font=\LARGE, text=black] at (0.750,-1.050) {Filled = Pareto-optimal};
+  \path[draw=gray, fill=none] (9.200,-1.050) circle (0.16);
+  \node[anchor=west, font=\LARGE, text=black] at (9.750,-1.050) {Hollow = dominated};
+\end{scope}

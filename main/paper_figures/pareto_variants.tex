@@ -1,0 +1,576 @@
+% This file was created with matplot2tikz v0.5.4.
+\begin{tikzpicture}
+
+\definecolor{crimson2143940}{RGB}{214,39,40}
+\definecolor{crimson2333099}{RGB}{233,30,99}
+\definecolor{darkgray176}{RGB}{176,176,176}
+\definecolor{darkorange25512714}{RGB}{255,127,14}
+\definecolor{forestgreen4416044}{RGB}{44,160,44}
+\definecolor{hotpink244143177}{RGB}{244,143,177}
+\definecolor{lightgray204}{RGB}{204,204,204}
+\definecolor{lightgreen152223138}{RGB}{152,223,138}
+\definecolor{lightsalmon255152150}{RGB}{255,152,150}
+\definecolor{lightsalmon255187120}{RGB}{255,187,120}
+\definecolor{lightsteelblue174199232}{RGB}{174,199,232}
+\definecolor{mediumpurple148103189}{RGB}{148,103,189}
+\definecolor{orchid227119194}{RGB}{227,119,194}
+\definecolor{pink247182210}{RGB}{247,182,210}
+\definecolor{rosybrown196156148}{RGB}{196,156,148}
+\definecolor{sienna1408675}{RGB}{140,86,75}
+\definecolor{steelblue31119180}{RGB}{31,119,180}
+\definecolor{thistle197176213}{RGB}{197,176,213}
+
+\begin{groupplot}[group style={group size=3 by 2}]
+\nextgroupplot[
+tick align=outside,
+tick pos=left,
+title={Concrete},
+x grid style={darkgray176},
+xlabel={M\(\displaystyle \_\phi\)  (higher = more interpretable \(\displaystyle \rightarrow\))},
+xmin=-365.65, xmax=90.85,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel={Test RMSE  (\(\displaystyle \downarrow\) lower = better)},
+ymin=7.22517158985138, ymax=25.0162477254868,
+ytick style={color=black}
+]
+\addplot [semithick, forestgreen4416044, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-22.75 12.4665794372559
+};
+\addplot [semithick, steelblue31119180, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+4.15 14.8602705001831
+};
+\addplot [semithick, crimson2143940, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+60.85 14.1273202896118
+};
+\addplot [semithick, mediumpurple148103189, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+67.2 15.6422452926636
+};
+\addplot [semithick, orchid227119194, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+57.75 15.1780042648315
+};
+\addplot [semithick, sienna1408675, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+66.3 15.1973075866699
+};
+\addplot [semithick, crimson2333099, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+70.1 24.2075624465942
+};
+\addplot [semithick, darkorange25512714, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+66.75 15.4047923088074
+};
+\addplot [semithick, lightgreen152223138, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-155.75 9.06644105911255
+};
+\addplot [semithick, lightsteelblue174199232, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-344.9 8.35613632202148
+};
+\addplot [semithick, lightsalmon255152150, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-149.5 8.73725986480713
+};
+\addplot [semithick, thistle197176213, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+22.65 10.2936029434204
+};
+\addplot [semithick, pink247182210, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-81.75 8.71390676498413
+};
+\addplot [semithick, rosybrown196156148, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+-35.4 8.0338568687439
+};
+\addplot [semithick, hotpink244143177, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+67.95 20.8622131347656
+};
+\addplot [semithick, lightsalmon255187120, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+-20.1 9.21886444091797
+};
+
+\nextgroupplot[
+tick align=outside,
+tick pos=left,
+title={Energy},
+x grid style={darkgray176},
+xlabel={M\(\displaystyle \_\phi\)  (higher = more interpretable \(\displaystyle \rightarrow\))},
+xmin=-272.115, xmax=92.315,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel={Test RMSE  (\(\displaystyle \downarrow\) lower = better)},
+ymin=3.03301905989647, ymax=10.8383802235126,
+ytick style={color=black}
+]
+\addplot [semithick, forestgreen4416044, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-5.55000000000001 4.55836915969849
+};
+\addplot [semithick, steelblue31119180, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-49.95 3.83033883571625
+};
+\addplot [semithick, crimson2143940, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+53.3 5.81966710090637
+};
+\addplot [semithick, mediumpurple148103189, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+75.75 10.4835910797119
+};
+\addplot [semithick, orchid227119194, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+36.6 6.79629492759705
+};
+\addplot [semithick, sienna1408675, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+64.95 5.40618491172791
+};
+\addplot [semithick, crimson2333099, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+68.3 5.4214551448822
+};
+\addplot [semithick, darkorange25512714, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+62.25 5.45107793807983
+};
+\addplot [semithick, lightgreen152223138, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-85 3.81923162937164
+};
+\addplot [semithick, lightsteelblue174199232, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-255.55 3.59305918216705
+};
+\addplot [semithick, lightsalmon255152150, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+5.99999999999999 3.88617527484894
+};
+\addplot [semithick, thistle197176213, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+32.55 4.64047765731812
+};
+\addplot [semithick, pink247182210, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-21.9 3.56929469108582
+};
+\addplot [semithick, rosybrown196156148, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+21.3 3.53963077068329
+};
+\addplot [semithick, hotpink244143177, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+66.5 6.05453085899353
+};
+\addplot [semithick, lightsalmon255187120, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+27.6 3.3878082036972
+};
+
+\nextgroupplot[
+tick align=outside,
+tick pos=left,
+title={Istanbul},
+x grid style={darkgray176},
+xlabel={M\(\displaystyle \_\phi\)  (higher = more interpretable \(\displaystyle \rightarrow\))},
+xmin=-9987.6275, xmax=376.0775,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel={Test RMSE  (\(\displaystyle \downarrow\) lower = better)},
+ymin=0.0148361144121736, ymax=0.0186721127945929,
+ytick style={color=black}
+]
+\addplot [semithick, forestgreen4416044, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+-4051.85 0.0150104779750109
+};
+\addplot [semithick, steelblue31119180, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-9516.55 0.0152043169364332
+};
+\addplot [semithick, crimson2143940, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+-2773.7 0.0150351109914481
+};
+\addplot [semithick, mediumpurple148103189, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-4399.5 0.015325928106904
+};
+\addplot [semithick, orchid227119194, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-9489.9 0.0157775860279798
+};
+\addplot [semithick, sienna1408675, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-4601.1 0.0151119409129023
+};
+\addplot [semithick, crimson2333099, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-924.55 0.0184977492317557
+};
+\addplot [semithick, darkorange25512714, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-4377.45 0.0155360335484146
+};
+\addplot [semithick, lightgreen152223138, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-1322.5 0.0163215529173612
+};
+\addplot [semithick, lightsteelblue174199232, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-3141.05 0.0161177795380354
+};
+\addplot [semithick, lightsalmon255152150, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-143.55 0.0162563463672995
+};
+\addplot [semithick, thistle197176213, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+-898.05 0.0153772863559424
+};
+\addplot [semithick, pink247182210, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-3313.65 0.0155350626446306
+};
+\addplot [semithick, rosybrown196156148, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-2412.3 0.0157823637127876
+};
+\addplot [semithick, hotpink244143177, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+-95 0.0156964836642145
+};
+\addplot [semithick, lightsalmon255187120, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-1455.15 0.0170668270438909
+};
+
+\nextgroupplot[
+tick align=outside,
+tick pos=left,
+title={PPB},
+x grid style={darkgray176},
+xlabel={M\(\displaystyle \_\phi\)  (higher = more interpretable \(\displaystyle \rightarrow\))},
+xmin=-86.9025, xmax=85.8525,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel={Test RMSE  (\(\displaystyle \downarrow\) lower = better)},
+ymin=25.1320987701416, ymax=253.184467697144,
+ytick style={color=black}
+]
+\addplot [semithick, forestgreen4416044, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+64 66.1621704101562
+};
+\addplot [semithick, steelblue31119180, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+60.1 68.9935111999512
+};
+\addplot [semithick, crimson2143940, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+77.1 68.5762939453125
+};
+\addplot [semithick, mediumpurple148103189, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+70.8 66.5014114379883
+};
+\addplot [semithick, orchid227119194, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+65.4 66.1808204650879
+};
+\addplot [semithick, sienna1408675, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+71.7 82.8458862304688
+};
+\addplot [semithick, crimson2333099, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+78 68.5762939453125
+};
+\addplot [semithick, darkorange25512714, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+71.7 67.820499420166
+};
+\addplot [semithick, lightgreen152223138, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+64.9 38.3741092681885
+};
+\addplot [semithick, lightsteelblue174199232, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+23.5 39.972692489624
+};
+\addplot [semithick, lightsalmon255152150, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+71.9 36.1971740722656
+};
+\addplot [semithick, thistle197176213, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+71.7 35.4981155395508
+};
+\addplot [semithick, pink247182210, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+13.2 86.935474395752
+};
+\addplot [semithick, rosybrown196156148, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-79.05 242.818450927734
+};
+\addplot [semithick, hotpink244143177, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+78 68.5762939453125
+};
+\addplot [semithick, lightsalmon255187120, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+40.2 85.402458190918
+};
+
+\nextgroupplot[
+tick align=outside,
+tick pos=left,
+title={Resid. Build},
+x grid style={darkgray176},
+xlabel={M\(\displaystyle \_\phi\)  (higher = more interpretable \(\displaystyle \rightarrow\))},
+xmin=-388.935, xmax=100.235,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel={Test RMSE  (\(\displaystyle \downarrow\) lower = better)},
+ymin=32.9612985610962, ymax=129.940453910828,
+ytick style={color=black}
+]
+\addplot [semithick, forestgreen4416044, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+40.05 96.175464630127
+};
+\addplot [semithick, steelblue31119180, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-143.6 120.273357391357
+};
+\addplot [semithick, crimson2143940, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+78 123.149082183838
+};
+\addplot [semithick, mediumpurple148103189, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+78 125.53231048584
+};
+\addplot [semithick, orchid227119194, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+65.4 123.819850921631
+};
+\addplot [semithick, sienna1408675, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+71.25 111.458011627197
+};
+\addplot [semithick, crimson2333099, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+72.8 113.089729309082
+};
+\addplot [semithick, darkorange25512714, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+70.8 115.617740631104
+};
+\addplot [semithick, lightgreen152223138, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-4.8 79.9421691894531
+};
+\addplot [semithick, lightsteelblue174199232, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-366.7 69.0449714660645
+};
+\addplot [semithick, lightsalmon255152150, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+13.5 79.4812355041504
+};
+\addplot [semithick, thistle197176213, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+51.9 58.7188148498535
+};
+\addplot [semithick, pink247182210, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-39.9 57.8987350463867
+};
+\addplot [semithick, rosybrown196156148, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+22.65 37.369441986084
+};
+\addplot [semithick, hotpink244143177, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+65.1 82.5682525634766
+};
+\addplot [semithick, lightsalmon255187120, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+40.2 43.9623756408691
+};
+
+\nextgroupplot[
+tick align=outside,
+tick pos=left,
+title={Toxicity},
+x grid style={darkgray176},
+xlabel={M\(\displaystyle \_\phi\)  (higher = more interpretable \(\displaystyle \rightarrow\))},
+xmin=-368.9875, xmax=93.8375,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel={Test RMSE  (\(\displaystyle \downarrow\) lower = better)},
+ymin=1954.21039123535, ymax=2248.71007995605,
+ytick style={color=black}
+]
+\addplot [semithick, forestgreen4416044, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+63.1 1991.28942871094
+};
+\addplot [semithick, steelblue31119180, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+46.7 2046.31427001953
+};
+\addplot [semithick, crimson2143940, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+71 2005.51281738281
+};
+\addplot [semithick, mediumpurple148103189, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+71.7 2060.0234375
+};
+\addplot [semithick, orchid227119194, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+65.4 2101.54479980469
+};
+\addplot [semithick, sienna1408675, mark=square*, mark size=4.75, mark options={solid}, only marks]
+table {%
+71.7 1967.59674072266
+};
+\addplot [semithick, crimson2333099, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+72.8 2090.37670898438
+};
+\addplot [semithick, darkorange25512714, mark=square, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+71.7 2004.55279541016
+};
+\addplot [semithick, lightgreen152223138, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-70.65 2017.41711425781
+};
+\addplot [semithick, lightsteelblue174199232, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-347.95 2041.83972167969
+};
+\addplot [semithick, lightsalmon255152150, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-0.950000000000007 2023.029296875
+};
+\addplot [semithick, thistle197176213, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+23.1 2056.75830078125
+};
+\addplot [semithick, pink247182210, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-239.7 2235.32373046875
+};
+\addplot [semithick, rosybrown196156148, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-91.2 2186.66796875
+};
+\addplot [semithick, hotpink244143177, mark=triangle*, mark size=4.75, mark options={solid}, only marks]
+table {%
+72.8 2088.97570800781
+};
+\addplot [semithick, lightsalmon255187120, mark=triangle, mark size=4.75, mark options={solid,fill opacity=0}, only marks]
+table {%
+-35.4 2143.42102050781
+};
+\end{groupplot}
+
+\draw ({$(current bounding box.south west)!0.5!(current bounding box.south east)$}|-{$(current bounding box.south west)!0.98!(current bounding box.north west)$}) node[
+  scale=0.6,
+  anchor=north,
+  text=black,
+  rotate=0.0,
+  align=center
+]{Accuracy-interpretability Pareto front — all 16 SLIM variants
+Each point = median over 30 seeds (post-simplification M$_\phi$)};
+% >>> AUTO-LEGEND (generated by main/analysis/paper_fig_legends.py) >>>
+% Legend for pareto_variants.tex -- matplot2tikz drops fig.legend()
+% (it only walks per-axes legends, not fig-level ones), so this rebuilds it
+% with plain TikZ \path/\draw/\node commands -- no tabular/center/\\ and no
+% \usetikzlibrary calls (markers are hand-drawn triangles/squares/circles
+% via \path, same technique matplot2tikz itself uses for pgfplots markers
+% in this file), so it is valid pasted directly INSIDE a tikzpicture. No
+% extra libraries needed. Paste this block right before the figure's own
+% \end{tikzpicture} (i.e. after its existing suptitle \draw(...) node{...} line).
+
+\definecolor{legSLIMp2SIG}{HTML}{AEC7E8}
+\definecolor{legSLIMm2SIG}{HTML}{1F77B4}
+\definecolor{legSLIMpABS}{HTML}{FF9896}
+\definecolor{legSLIMmABS}{HTML}{D62728}
+\definecolor{legSLIMp1SIG}{HTML}{98DF8A}
+\definecolor{legSLIMm1SIG}{HTML}{2CA02C}
+\definecolor{legSLIMpNORM1}{HTML}{C5B0D5}
+\definecolor{legSLIMmNORM1}{HTML}{9467BD}
+\definecolor{legSLIMpNORM2}{HTML}{C49C94}
+\definecolor{legSLIMmNORM2}{HTML}{8C564B}
+\definecolor{legSLIMpNORMROB}{HTML}{FFBB78}
+\definecolor{legSLIMmNORMROB}{HTML}{FF7F0E}
+\definecolor{legSLIMpNORM12}{HTML}{F7B6D2}
+\definecolor{legSLIMmNORM12}{HTML}{E377C2}
+\definecolor{legSLIMpNORMFIX}{HTML}{F48FB1}
+\definecolor{legSLIMmNORMFIX}{HTML}{E91E63}
+
+\begin{scope}[shift={(current bounding box.south)}, yshift=-0.85cm, xshift=-12.800cm]
+  \node[anchor=west, font=\LARGE\bfseries, text=black] at (0,0) {Variant (color + shape)};
+  \path[draw=legSLIMp2SIG, fill=legSLIMp2SIG] (0.200,-0.860) -- (0.030,-1.190) -- (0.370,-1.190) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (0.750,-1.050) {SLIM+2SIG};
+  \path[draw=legSLIMm2SIG, fill=legSLIMm2SIG] (6.460,-1.190) rectangle (6.740,-0.910);
+  \node[anchor=west, font=\LARGE, text=black] at (7.150,-1.050) {SLIM*2SIG};
+  \path[draw=legSLIMpABS, fill=legSLIMpABS] (13.000,-0.860) -- (12.830,-1.190) -- (13.170,-1.190) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (13.550,-1.050) {SLIM+ABS};
+  \path[draw=legSLIMmABS, fill=legSLIMmABS] (19.260,-1.190) rectangle (19.540,-0.910);
+  \node[anchor=west, font=\LARGE, text=black] at (19.950,-1.050) {SLIM*ABS};
+  \path[draw=legSLIMp1SIG, fill=legSLIMp1SIG] (0.200,-2.010) -- (0.030,-2.340) -- (0.370,-2.340) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (0.750,-2.200) {SLIM+1SIG};
+  \path[draw=legSLIMm1SIG, fill=legSLIMm1SIG] (6.460,-2.340) rectangle (6.740,-2.060);
+  \node[anchor=west, font=\LARGE, text=black] at (7.150,-2.200) {SLIM*1SIG};
+  \path[draw=legSLIMpNORM1, fill=legSLIMpNORM1] (13.000,-2.010) -- (12.830,-2.340) -- (13.170,-2.340) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (13.550,-2.200) {SLIM+NORM1};
+  \path[draw=legSLIMmNORM1, fill=legSLIMmNORM1] (19.260,-2.340) rectangle (19.540,-2.060);
+  \node[anchor=west, font=\LARGE, text=black] at (19.950,-2.200) {SLIM*NORM1};
+  \path[draw=legSLIMpNORM2, fill=legSLIMpNORM2] (0.200,-3.160) -- (0.030,-3.490) -- (0.370,-3.490) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (0.750,-3.350) {SLIM+NORM2};
+  \path[draw=legSLIMmNORM2, fill=legSLIMmNORM2] (6.460,-3.490) rectangle (6.740,-3.210);
+  \node[anchor=west, font=\LARGE, text=black] at (7.150,-3.350) {SLIM*NORM2};
+  \path[draw=legSLIMpNORMROB, fill=legSLIMpNORMROB] (13.000,-3.160) -- (12.830,-3.490) -- (13.170,-3.490) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (13.550,-3.350) {SLIM+NORMROB};
+  \path[draw=legSLIMmNORMROB, fill=legSLIMmNORMROB] (19.260,-3.490) rectangle (19.540,-3.210);
+  \node[anchor=west, font=\LARGE, text=black] at (19.950,-3.350) {SLIM*NORMROB};
+  \path[draw=legSLIMpNORM12, fill=legSLIMpNORM12] (0.200,-4.310) -- (0.030,-4.640) -- (0.370,-4.640) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (0.750,-4.500) {SLIM+NORM12};
+  \path[draw=legSLIMmNORM12, fill=legSLIMmNORM12] (6.460,-4.640) rectangle (6.740,-4.360);
+  \node[anchor=west, font=\LARGE, text=black] at (7.150,-4.500) {SLIM*NORM12};
+  \path[draw=legSLIMpNORMFIX, fill=legSLIMpNORMFIX] (13.000,-4.310) -- (12.830,-4.640) -- (13.170,-4.640) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (13.550,-4.500) {SLIM+NORMFIX};
+  \path[draw=legSLIMmNORMFIX, fill=legSLIMmNORMFIX] (19.260,-4.640) rectangle (19.540,-4.360);
+  \node[anchor=west, font=\LARGE, text=black] at (19.950,-4.500) {SLIM*NORMFIX};
+\end{scope}
+\begin{scope}[shift={(current bounding box.south)}, yshift=-0.85cm, xshift=-9.000cm]
+  \node[anchor=west, font=\LARGE\bfseries, text=black] at (0,0) {Shape / fill key};
+  \path[draw=gray, fill=gray] (0.200,-0.860) -- (0.030,-1.190) -- (0.370,-1.190) -- cycle;
+  \node[anchor=west, font=\LARGE, text=black] at (0.750,-1.050) {SLIM+ (sum)};
+  \path[draw=gray, fill=gray] (9.060,-1.190) rectangle (9.340,-0.910);
+  \node[anchor=west, font=\LARGE, text=black] at (9.750,-1.050) {SLIM* (mul)};
+  \path[draw=gray, fill=gray] (0.200,-2.200) circle (0.16);
+  \node[anchor=west, font=\LARGE, text=black] at (0.750,-2.200) {Filled = Pareto-optimal};
+  \path[draw=gray, fill=none] (9.200,-2.200) circle (0.16);
+  \node[anchor=west, font=\LARGE, text=black] at (9.750,-2.200) {Hollow = dominated};
+\end{scope}
+
+% <<< AUTO-LEGEND <<<
+\end{tikzpicture}
