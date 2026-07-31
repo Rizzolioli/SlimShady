@@ -119,6 +119,15 @@ class TabGPGOConfig:
     # variants x ms_hi_values x n_runs, each combo getting its own run.
     stagnation_patience_values: tuple = (None, 5, 10, 50)
 
+    # Gens between full elite drift-resyncs (FreshPoolSLIM._resync_elite) --
+    # that refold is a from-scratch re-evaluation of every one of the
+    # elite's blocks, so its cost grows with elite size; it exists only to
+    # correct float32 drift accumulated by the O(1) incremental inflate/
+    # deflate updates, not to keep selection correct, so throttling it is a
+    # pure numerical-hygiene/performance knob (see FreshPoolSLIM.solve()).
+    # 1 reproduces today's every-generation behavior exactly.
+    resync_elite_every: int = 25
+
     # --- Optimal Mutation Tree (FreshPoolSLIM only; TensorSLIM never reads
     # these) -- instead of drawing one random reservoir tree per inflate and
     # wrapping it in abs/sig1/sig2, search for a tree whose raw semantics

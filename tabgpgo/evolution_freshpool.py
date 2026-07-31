@@ -33,7 +33,10 @@ Persistence/inference reuse `tabgpgo/inference.py` completely unmodified via
 (PoolIndividual, registry[, pool]) vocabulary those functions already expect.
 """
 import dataclasses
+import os
 import random
+import signal
+import tempfile
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -138,6 +141,18 @@ def build_adapter(ind, T_train, TERMINALS):
     return pi, registry, pool
 
 
+class RunInterrupted(Exception):
+    """Raised by FreshPoolSLIM.solve() when a SIGINT/SIGTERM was caught
+    mid-run and a checkpoint was saved in response -- signals to the caller
+    that this is a deliberately-saved PARTIAL result (fewer than cfg.n_gens
+    generations completed), not a finished run, so callers must not treat
+    it like a normal return (e.g. must not write a final elite.json for
+    it). See solve()'s checkpoint_every/checkpoint_path parameters."""
+    def __init__(self, completed_gen):
+        super().__init__(f"checkpointed at generation {completed_gen}, exiting on signal")
+        self.completed_gen = completed_gen
+
+
 class FreshPoolSLIM:
     """Fresh-pool SLIM-GSGP optimizer for one variant and one seed.
 
@@ -215,6 +230,8 @@ class FreshPoolSLIM:
         self.elite = None
         self.best_fitness_ever = float("inf")   # anti-stagnation tracking
         self.stall_count = 0
+        # max(1, ...) guards against a gen % 0 ZeroDivisionError -- see _resync_elite's call site in solve()
+        self.resync_every = max(1, int(cfg.resync_elite_every))
 
     # -- reservoir -----------------------------------------------------------
 
@@ -748,52 +765,109 @@ class FreshPoolSLIM:
 
     # -- main loop ----------------------------------------------------------
 
-    def solve(self, run_info, log_path, verbose=1, track_val=True):
+    def solve(self, run_info, log_path, verbose=1, track_val=True,
+             checkpoint_every=None, checkpoint_path=None,
+             resume_population=None, resume_start_gen=1):
         """`track_val=False` skips elite_val_metrics()/CSV logging entirely
         (run_info/log_path are then unused and may be None) -- for a nested
         OMT search, whose only job is matching a residual on T_train, where
         "validation" isn't a meaningful concept and per-generation CSV rows
-        would otherwise flood the outer algorithm's own results file."""
+        would otherwise flood the outer algorithm's own results file.
+
+        checkpoint_every/checkpoint_path (both None by default -- opt-in,
+        every existing caller that omits them gets identical behavior to
+        before this parameter existed): every `checkpoint_every`
+        generations, save the full run state (population, reservoir, RNG,
+        stagnation/rotation counters, ...) to `checkpoint_path` via
+        _save_checkpoint, so a later process can resume this exact run
+        instead of restarting from scratch -- see resume_from_checkpoint.
+        Also installs SIGINT/SIGTERM handlers for the duration of this
+        call (only when checkpointing is enabled) so an interrupt (e.g. a
+        manual Ctrl+C, or a job scheduler's preemption signal) triggers an
+        immediate checkpoint + RunInterrupted instead of silently losing
+        progress since the last periodic save; the previous handlers are
+        always restored before this method returns or raises, so this
+        never leaks into unrelated code even when called once per combo
+        in a sweep loop.
+
+        resume_population/resume_start_gen (None/1 by default): resume a
+        previously-checkpointed run instead of starting fresh -- skips the
+        gen-0 initialization block below entirely and starts the
+        generation loop at resume_start_gen using resume_population as the
+        current population. Every other piece of resumed state
+        (self.elite, self.reservoir, self.rng, self.best_fitness_ever,
+        self.stall_count, rotation state, ...) must already have been
+        restored onto this instance by resume_from_checkpoint before
+        calling solve() this way."""
         cfg = self.cfg
+        checkpointing = bool(checkpoint_every) and bool(checkpoint_path)
+        self._interrupt_requested = False
+        old_handlers = None
+        if checkpointing:
+            def _handle_interrupt(signum, frame):
+                self._interrupt_requested = True
+            old_handlers = (signal.signal(signal.SIGINT, _handle_interrupt),
+                            signal.signal(signal.SIGTERM, _handle_interrupt))
 
-        if self._rotating:
-            idx = self._next_chunk_index()
-            self.active_dataset_idx = idx
-            self.T_train, self.y_target = self._dataset_chunks[idx]
-            if verbose:
-                print(f"  [{self.algo} seed {self.seed}] gen 0: starting on synthetic "
-                      f"dataset #{idx}")
+        try:
+            if resume_population is not None:
+                population = resume_population
+                start_gen = resume_start_gen
+            else:
+                if self._rotating:
+                    idx = self._next_chunk_index()
+                    self.active_dataset_idx = idx
+                    self.T_train, self.y_target = self._dataset_chunks[idx]
+                    if verbose:
+                        print(f"  [{self.algo} seed {self.seed}] gen 0: starting on synthetic "
+                              f"dataset #{idx}")
 
-        start = time.time()
-        self._ensure_reservoir(0)
-        population = []
-        for _ in range(cfg.pop_size):
-            tree = self._pop_tree()
-            agg = torch.clamp(_raw_semantics(tree["structure"], self.T_train, self.TERMINALS),
-                              -BOUND, BOUND)
-            population.append(FreshIndividual(tree["structure"], tree["nodes"], agg))
-        for ind in population:
-            self._evaluate(ind)
-        self.elite = self._best(population)
-        self.best_fitness_ever = self.elite.fitness   # nothing to compare against yet at gen 0
-        self._log(0, time.time() - start, population, run_info, log_path, verbose, track_val)
+                start = time.time()
+                self._ensure_reservoir(0)
+                population = []
+                for _ in range(cfg.pop_size):
+                    tree = self._pop_tree()
+                    agg = torch.clamp(_raw_semantics(tree["structure"], self.T_train, self.TERMINALS),
+                                      -BOUND, BOUND)
+                    population.append(FreshIndividual(tree["structure"], tree["nodes"], agg))
+                for ind in population:
+                    self._evaluate(ind)
+                self.elite = self._best(population)
+                self.best_fitness_ever = self.elite.fitness   # nothing to compare against yet at gen 0
+                self._log(0, time.time() - start, population, run_info, log_path, verbose, track_val)
+                start_gen = 1
 
-        for gen in range(1, cfg.n_gens + 1):
-            start = time.time()
-            self._maybe_switch_dataset(population, gen, verbose)
-            self._ensure_reservoir(gen)
-            offspring = sorted(population,
-                               key=lambda i: (i.fitness, i.nodes_count))[:cfg.n_elites]
-            new_offspring = self._make_offspring(population, cfg.pop_size - len(offspring), gen, verbose)
-            for child in new_offspring:
-                self._evaluate(child)
-            offspring.extend(new_offspring)
-            population = offspring
-            self.elite = self._best(population)
-            self._resync_elite()   # bound incremental-update drift
-            self._check_stagnation(population, gen)
-            self._log(gen, time.time() - start, population, run_info, log_path, verbose, track_val)
-        return self.elite
+            for gen in range(start_gen, cfg.n_gens + 1):
+                start = time.time()
+                self._maybe_switch_dataset(population, gen, verbose)
+                self._ensure_reservoir(gen)
+                offspring = sorted(population,
+                                   key=lambda i: (i.fitness, i.nodes_count))[:cfg.n_elites]
+                new_offspring = self._make_offspring(population, cfg.pop_size - len(offspring), gen, verbose)
+                for child in new_offspring:
+                    self._evaluate(child)
+                offspring.extend(new_offspring)
+                population = offspring
+                self.elite = self._best(population)
+                # Throttled: this refold's cost grows with elite size, and it
+                # only corrects float32 drift, not selection correctness --
+                # see resync_elite_every's config docstring. Always resync
+                # on the final generation so solve() never returns a
+                # stale-drifted elite regardless of the throttle.
+                if gen % self.resync_every == 0 or gen == cfg.n_gens:
+                    self._resync_elite()   # bound incremental-update drift
+                self._check_stagnation(population, gen)
+                self._log(gen, time.time() - start, population, run_info, log_path, verbose, track_val)
+
+                if checkpointing and (gen % checkpoint_every == 0 or self._interrupt_requested):
+                    self._save_checkpoint(population, gen, checkpoint_path, run_info)
+                if self._interrupt_requested:
+                    raise RunInterrupted(gen)
+            return self.elite
+        finally:
+            if old_handlers is not None:
+                signal.signal(signal.SIGINT, old_handlers[0])
+                signal.signal(signal.SIGTERM, old_handlers[1])
 
     def _resync_elite(self):
         """Correct floating-point drift accumulated by O(1) incremental
@@ -808,6 +882,102 @@ class FreshPoolSLIM:
             self.elite.fitness = float(rmse(self.y_target, a + b * self.elite.aggregate))
         else:
             self.elite.fitness = float(rmse(self.y_target, self.elite.aggregate))
+
+    def _save_checkpoint(self, population, gen, path, run_info):
+        """Saves everything needed to resume this exact run in a fresh
+        process: the population (FreshIndividual/FreshBlock fields are all
+        plain values/tensors/recursively-nested FreshIndividual for OMT
+        blocks -- no closures, so torch.save handles the whole nested
+        structure with no custom serialization), the reservoir, RNG state,
+        and every counter _check_stagnation/rotation/reservoir-refilling
+        depend on. Deliberately excludes T_train/T_val/y_target/TERMINALS/
+        cfg -- every caller already rebuilds those identically via its own
+        prepare_*(), so duplicating them here would bloat the checkpoint
+        for no benefit.
+
+        Global random/np.random do NOT need snapshotting: _refill_reservoir
+        reseeds both, unconditionally, from self.seed + self._refill_counter
+        on every single call (see that method), with no dependency on prior
+        global state -- so persisting _refill_counter alone reproduces the
+        next reseed exactly. Same logic covers _next_omt_seed via
+        self._omt_calls. Only self.rng (a long-lived random.Random mutated
+        by ordinary calls throughout the run) is genuinely path-dependent
+        and needs an actual .getstate() snapshot.
+
+        Writes via a temp file + os.replace so a crash mid-write never
+        leaves a checkpoint that resume_from_checkpoint could partially
+        load."""
+        elite_index = next(i for i, ind in enumerate(population) if ind is self.elite)
+        state = {
+            "schema_version": 1,
+            "seed": self.seed,
+            "completed_gen": gen,
+            "population": population,
+            "elite_index": elite_index,
+            "reservoir": self.reservoir,
+            "rng_state": self.rng.getstate(),
+            "refill_counter": self._refill_counter,
+            "omt_calls": self._omt_calls,
+            "best_fitness_ever": self.best_fitness_ever,
+            "stall_count": self.stall_count,
+            "run_info": run_info,
+        }
+        if self._rotating:
+            state["rotation"] = {
+                "active_dataset_idx": self.active_dataset_idx,
+                "chunk_order": self._chunk_order,
+                "chunk_cursor": self._chunk_cursor,
+                "gens_since_switch": self._gens_since_switch,
+            }
+        dirpath = os.path.dirname(path) or "."
+        os.makedirs(dirpath, exist_ok=True)
+        fd, tmp_path = tempfile.mkstemp(dir=dirpath, prefix="ckpt_tmp_")
+        os.close(fd)
+        torch.save(state, tmp_path)
+        os.replace(tmp_path, path)
+
+    @classmethod
+    def resume_from_checkpoint(cls, path, cfg, variant, T_train, T_val, y_target,
+                               val_targets, val_y_stats, TERMINALS, seed, ms_spec=None,
+                               use_ls=False, reservoir_owner=None, dataset_chunks=None,
+                               dataset_switch_every=0, map_location=None):
+        """Reconstructs a FreshPoolSLIM the same way a fresh run would
+        (same constructor, same arguments a caller's own prepare_*() would
+        already supply), then overwrites its run-state from a checkpoint
+        written by _save_checkpoint. Returns (instance, population,
+        completed_gen, run_info) -- pass population/`completed_gen + 1`
+        into solve()'s resume_population/resume_start_gen, and run_info
+        back into solve()'s own run_info parameter so resumed CSV rows tag
+        as the same logical run rather than a new one."""
+        inst = cls(cfg, variant, T_train, T_val, y_target, val_targets,
+                   val_y_stats, TERMINALS, seed, ms_spec=ms_spec, use_ls=use_ls,
+                   reservoir_owner=reservoir_owner, dataset_chunks=dataset_chunks,
+                   dataset_switch_every=dataset_switch_every)
+        # weights_only=False: this checkpoint embeds FreshIndividual/FreshBlock
+        # dataclass instances (see _save_checkpoint), not just tensors -- torch
+        # 2.6+'s default weights_only=True rejects those via its safe-globals
+        # allowlist. Safe here since checkpoints are only ever produced by
+        # _save_checkpoint on the same trusted machine, never loaded from an
+        # untrusted/external source.
+        state = torch.load(path, map_location=map_location or cfg.get_device(), weights_only=False)
+        if state["seed"] != seed:
+            raise ValueError(f"checkpoint seed {state['seed']} != requested seed {seed}")
+        population = state["population"]
+        inst.reservoir = state["reservoir"]
+        inst.rng.setstate(state["rng_state"])
+        inst._refill_counter = state["refill_counter"]
+        inst._omt_calls = state["omt_calls"]
+        inst.best_fitness_ever = state["best_fitness_ever"]
+        inst.stall_count = state["stall_count"]
+        inst.elite = population[state["elite_index"]]
+        if inst._rotating:
+            rot = state["rotation"]
+            inst.active_dataset_idx = rot["active_dataset_idx"]
+            inst._chunk_order = rot["chunk_order"]
+            inst._chunk_cursor = rot["chunk_cursor"]
+            inst._gens_since_switch = rot["gens_since_switch"]
+            inst.T_train, inst.y_target = dataset_chunks[inst.active_dataset_idx]
+        return inst, population, state["completed_gen"], state.get("run_info")
 
     def _log(self, gen, elapsed, population, run_info, log_path, verbose, track_val=True):
         train_pred = (self.elite.ls_a + self.elite.ls_b * self.elite.aggregate
