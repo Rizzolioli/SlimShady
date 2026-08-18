@@ -1,0 +1,57 @@
+% Representative elite expressions, one per dataset, chosen for the best
+% balance of test RMSE and M_phi (lowest average of the two ranks among all
+% 480 runs per dataset). Requires \usepackage{amsmath} for \dfrac/\left(\right).
+
+\begin{table}[t]
+\centering
+\caption{Concrete: SLIM*NORM2, seed 27 -- test RMSE $= 12.4023$, M$_\phi = 70.80$ (raw expression, 19 nodes). Chosen as the single run, among all 480 runs (16 variants $\times$ 30 seeds) for this dataset, with the lowest average rank of test RMSE and M$_\phi$.}
+\label{tab:balanced-expr-concrete}
+\[
+\frac{x_{0} \left(0.0514868297297797 x_{1} - \frac{0.0257434148648898 x_{5}}{x_{7}} + 0.0257434148648898 x_{6} + 1\right)}{x_{3}}
+\]
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Energy: SLIM*NORM2, seed 24 -- test RMSE $= 3.6105$, M$_\phi = 70.80$ (raw expression, 19 nodes). Chosen as the single run, among all 480 runs (16 variants $\times$ 30 seeds) for this dataset, with the lowest average rank of test RMSE and M$_\phi$.}
+\label{tab:balanced-expr-energy}
+\[
+\frac{x_{2} \left(- 13.0581406835299 x_{0} + 13.0581406835299 x_{6} + 1 + \frac{13.0581406835299 x_{3} x_{4}}{x_{1}}\right)}{x_{3}}
+\]
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Istanbul: SLIM+NORMFIX, seed 11 -- test RMSE $= 0.0134$, M$_\phi = 20.00$ (raw expression, 128 nodes). Chosen as the single run, among all 480 runs (16 variants $\times$ 30 seeds) for this dataset, with the lowest average rank of test RMSE and M$_\phi$.}
+\label{tab:balanced-expr-instanbul}
+\[
+\frac{0.0425343243379489 x_{0} x_{2}}{x_{1} + \frac{x_{3}}{x_{5}} + x_{6}} + 0.0425343243379489 x_{0} \left(- x_{2} + x_{5}\right) + 0.0425343243379489 x_{0} - 0.170137297351796 x_{1} - 0.0425343243379489 x_{2} + \frac{0.0425343243379489 x_{3} x_{4}}{- x_{2} - x_{3} + 2 x_{6}} + 0.0850686486758979 x_{3} \left(- x_{0} + x_{2}\right) + 0.0850686486758979 x_{3} - 0.170137297351796 x_{4} + 0.0425343243379489 x_{5} \left(x_{3} - \frac{x_{3}}{x_{6}} - \left(x_{1} + x_{2}\right) \left(- x_{3} + x_{5}\right)\right) + 1.0 x_{5} + 0.914931351324102 x_{6} - 0.00117357006227131
+\]
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{PPB: SLIM+ABS, seed 2 -- test RMSE $= 30.3966$, M$_\phi = 71.90$ (raw expression, 16 nodes). Chosen as the single run, among all 480 runs (16 variants $\times$ 30 seeds) for this dataset, with the lowest average rank of test RMSE and M$_\phi$.}
+\label{tab:balanced-expr-ppb}
+\[
+x_{415} + x_{450} + 80.0 - \frac{160.0}{\left|{x_{275} + x_{390}}\right| + 1}
+\]
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Resid. Build: SLIM+NORMFIX, seed 7 -- test RMSE $= 36.2946$, M$_\phi = 73.70$ (raw expression, 12 nodes). Chosen as the single run, among all 480 runs (16 variants $\times$ 30 seeds) for this dataset, with the lowest average rank of test RMSE and M$_\phi$.}
+\label{tab:balanced-expr-resid-build-sale-price}
+\[
+x_{8} + x_{97} - 73.6734693877551 + \frac{0.387755102040816 x_{54}}{x_{23}}
+\]
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Toxicity: SLIM*NORMFIX, seed 17 -- test RMSE $= 1492.8179$, M$_\phi = 72.80$ (raw expression, 14 nodes). Chosen as the single run, among all 480 runs (16 variants $\times$ 30 seeds) for this dataset, with the lowest average rank of test RMSE and M$_\phi$.}
+\label{tab:balanced-expr-toxicity}
+\[
+\left(- x_{168} + x_{356}\right) \left(0.224725413635214 x_{340} - 0.224725413635214 x_{49} - 223.725413635214\right)
+\]
+\end{table}

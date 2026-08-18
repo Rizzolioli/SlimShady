@@ -1,22 +1,27 @@
-\begin{tabular}{lrr}
+\begin{table}[t]
+\centering
+\caption{M$_\phi$ cost of a single inflate-mutation step (structural, independent of $ms$) vs. M$_\phi$ recovered by post-hoc SymPy simplification. \textbf{Simplification protocol}: exactly one individual is simplified per run -- the final-generation elite (the single best individual after the full evolutionary loop completes; not simplified per-generation, not the whole population). Its full genotype -- the sum ($+$) or product ($*$) of \emph{all} blocks/trees accumulated by inflate mutations over the run -- is converted to one combined SymPy expression (mutation formulas such as NORM1/NORM2/NORMROB/2SIG/1SIG/ABS are substituted symbolically using the $ms$ scalar and any training-frozen normalization constants, not left as opaque function calls), then simplified via \texttt{sympy.simplify()} in a separate worker process under a 60-second timeout; on timeout or failure \texttt{simplified\_ok=False} and the post-simplification metrics fall back to the pre-simplification ones. The ``Simplified (runs)'' column reports how many of the 180 runs (30 seeds $\times$ 6 datasets) succeeded within that budget -- several variants never succeeded once, so their $\Delta M_\phi$ (simplification) is genuinely unavailable (`--'), not omitted. Among successful runs, the analysis-side convention (never applied inside the algorithm itself) reverts any simplification that made the expression worse before computing the delta: $M_{\phi,\mathrm{after}} \leftarrow \max(M_{\phi,\mathrm{after}}, M_{\phi,\mathrm{before}})$.}
+\label{tab:mphi-mutation-simplification}
+\begin{tabular}{lrrr}
 \toprule
-Variant & $\Delta M_\phi$ (mutation) & $\Delta M_\phi$ (simplification) \\
+Variant & $\Delta M_\phi$ (mutation) & $\Delta M_\phi$ (simplification) & Simplified (runs) \\
 \midrule
-SLIM+2SIG & -21.50 & -- \\
-SLIM*2SIG & -22.40 & -- \\
-SLIM+ABS & -7.90 & -- \\
-SLIM*ABS & -8.80 & 0.00 \\
-SLIM+1SIG & -14.90 & -- \\
-SLIM*1SIG & -15.80 & 0.00 \\
-SLIM+NORM1 & -8.10 & 17.55 \\
-SLIM*NORM1 & -9.00 & 1.80 \\
-SLIM+NORM2 & -9.90 & 0.00 \\
-SLIM*NORM2 & -10.80 & 0.00 \\
-SLIM+NORMROB & -10.80 & -- \\
-SLIM*NORMROB & -10.80 & -- \\
-SLIM+NORM12 & -17.10 & -- \\
-SLIM*NORM12 & -17.10 & -- \\
-SLIM+NORMFIX & -6.10 & -- \\
-SLIM*NORMFIX & -7.00 & -- \\
+SLIM+2SIG & -21.50 & -- & 0/180 \\
+SLIM*2SIG & -22.40 & -- & 0/180 \\
+SLIM+ABS & -7.90 & -- & 0/180 \\
+SLIM*ABS & -8.80 & 0.00 & 38/180 \\
+SLIM+1SIG & -14.90 & -- & 0/180 \\
+SLIM*1SIG & -15.80 & 0.00 & 20/180 \\
+SLIM+NORM1 & -8.10 & 17.55 & 20/180 \\
+SLIM*NORM1 & -9.00 & 1.80 & 30/180 \\
+SLIM+NORM2 & -9.90 & 0.00 & 14/180 \\
+SLIM*NORM2 & -10.80 & 0.00 & 30/180 \\
+SLIM+NORMROB & -10.80 & -- & 0/180 \\
+SLIM*NORMROB & -10.80 & -- & 0/180 \\
+SLIM+NORM12 & -17.10 & -- & 0/180 \\
+SLIM*NORM12 & -17.10 & -- & 0/180 \\
+SLIM+NORMFIX & -6.10 & -- & 0/180 \\
+SLIM*NORMFIX & -7.00 & -- & 0/180 \\
 \bottomrule
 \end{tabular}
+\end{table}

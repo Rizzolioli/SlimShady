@@ -51,24 +51,62 @@ def load_table():
     simp_delta = ok.groupby('algo')['delta_m_phi'].median()
     simp_delta.name = 'dmphi_simplification'
 
-    table = mut.join(simp_delta, how='left').reindex(VARIANT_ORDER)
+    # n_ok/n_total: how many of the 180 (30 seeds x 6 datasets) final-elite runs SymPy
+    # actually managed to simplify. Several variants are 0/180 -- there is no missing
+    # data to recover there, simplification genuinely never succeeded for them, so the
+    # table reports the count explicitly instead of a bare '--' with no context.
+    counts = simp.groupby('algo')['simplified_ok'].agg(n_ok='sum', n_total='count')
+
+    table = mut.join(simp_delta, how='left').join(counts, how='left').reindex(VARIANT_ORDER)
     table.index.name = 'Variant'
     return table.reset_index()
 
 
+CAPTION = (
+    r"M$_\phi$ cost of a single inflate-mutation step (structural, independent of "
+    r"$ms$) vs. M$_\phi$ recovered by post-hoc SymPy simplification. "
+    r"\textbf{Simplification protocol}: exactly one individual is simplified per run "
+    r"-- the final-generation elite (the single best individual after the full "
+    r"evolutionary loop completes; not simplified per-generation, not the whole "
+    r"population). Its full genotype -- the sum ($+$) or product ($*$) of \emph{all} "
+    r"blocks/trees accumulated by inflate mutations over the run -- is converted to "
+    r"one combined SymPy expression (mutation formulas such as NORM1/NORM2/NORMROB/"
+    r"2SIG/1SIG/ABS are substituted symbolically using the $ms$ scalar and any "
+    r"training-frozen normalization constants, not left as opaque function calls), "
+    r"then simplified via \texttt{sympy.simplify()} in a separate worker process "
+    r"under a 60-second timeout; on timeout or failure \texttt{simplified\_ok=False} "
+    r"and the post-simplification metrics fall back to the pre-simplification ones. "
+    r"The ``Simplified (runs)'' column reports how many of the 180 runs (30 seeds "
+    r"$\times$ 6 datasets) succeeded within that budget -- several variants never "
+    r"succeeded once, so their $\Delta M_\phi$ (simplification) is genuinely "
+    r"unavailable (`--'), not omitted. Among successful runs, the analysis-side "
+    r"convention (never applied inside the algorithm itself) reverts any "
+    r"simplification that made the expression worse before computing the delta: "
+    r"$M_{\phi,\mathrm{after}} \leftarrow \max(M_{\phi,\mathrm{after}}, "
+    r"M_{\phi,\mathrm{before}})$."
+)
+
+
 def write_tex(table: pd.DataFrame, tex_path: str):
     lines = [
-        r'\begin{tabular}{lrr}',
+        r'\begin{table}[t]',
+        r'\centering',
+        r'\caption{' + CAPTION + '}',
+        r'\label{tab:mphi-mutation-simplification}',
+        r'\begin{tabular}{lrrr}',
         r'\toprule',
-        r'Variant & $\Delta M_\phi$ (mutation) & $\Delta M_\phi$ (simplification) \\',
+        r'Variant & $\Delta M_\phi$ (mutation) & $\Delta M_\phi$ (simplification) & Simplified (runs) \\',
         r'\midrule',
     ]
     for _, row in table.iterrows():
-        variant = row['Variant'].replace('SLIM', 'SLIM')  # keep literal, escaping not needed
+        variant = row['Variant']
         a = f"{row['dmphi_mutation']:.2f}" if pd.notna(row['dmphi_mutation']) else '--'
         b = f"{row['dmphi_simplification']:.2f}" if pd.notna(row['dmphi_simplification']) else '--'
-        lines.append(f'{variant} & {a} & {b} \\\\')
-    lines += [r'\bottomrule', r'\end{tabular}']
+        n_ok = int(row['n_ok']) if pd.notna(row['n_ok']) else 0
+        n_total = int(row['n_total']) if pd.notna(row['n_total']) else 0
+        c = f'{n_ok}/{n_total}'
+        lines.append(f'{variant} & {a} & {b} & {c} \\\\')
+    lines += [r'\bottomrule', r'\end{tabular}', r'\end{table}']
     with open(tex_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(lines) + '\n')
     print(f'  Saved -> {tex_path}')
@@ -78,14 +116,15 @@ def render_preview(table: pd.DataFrame):
     cell_text = [
         [row['Variant'],
          f"{row['dmphi_mutation']:.2f}" if pd.notna(row['dmphi_mutation']) else '--',
-         f"{row['dmphi_simplification']:.2f}" if pd.notna(row['dmphi_simplification']) else '--']
+         f"{row['dmphi_simplification']:.2f}" if pd.notna(row['dmphi_simplification']) else '--',
+         f"{int(row['n_ok']) if pd.notna(row['n_ok']) else 0}/{int(row['n_total']) if pd.notna(row['n_total']) else 0}"]
         for _, row in table.iterrows()
     ]
-    fig, ax = plt.subplots(figsize=(6, 0.35 * len(table) + 1))
+    fig, ax = plt.subplots(figsize=(7, 0.35 * len(table) + 1))
     ax.axis('off')
     tbl = ax.table(
         cellText=cell_text,
-        colLabels=['Variant', r'$\Delta M_\phi$ (mutation)', r'$\Delta M_\phi$ (simplification)'],
+        colLabels=['Variant', r'$\Delta M_\phi$ (mutation)', r'$\Delta M_\phi$ (simplification)', 'Simplified (runs)'],
         loc='center', cellLoc='center',
     )
     tbl.auto_set_font_size(False)

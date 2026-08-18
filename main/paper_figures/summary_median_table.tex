@@ -1,0 +1,125 @@
+\begin{table}[t]
+\centering
+\caption{Concrete: median train/test RMSE and M$_\phi$ per mutation family, over the 30 seeds for this dataset. Left block: SLIM+ (sum); right block: SLIM* (mul). Each column is color-coded red (worst) to green (best) relative to the other 7 families in that same column (within this dataset); lower is better for RMSE, higher is better for M$_\phi$. Requires \texttt{\textbackslash usepackage[table]\{xcolor\}}.}
+\label{tab:summary-median-performance-concrete}
+\begin{tabular}{lrrr|rrr}
+\toprule
+& \multicolumn{3}{c|}{SLIM+ (sum)} & \multicolumn{3}{c}{SLIM* (mul)} \\
+Family & Train RMSE & Test RMSE & M$_\phi$ & Train RMSE & Test RMSE & M$_\phi$ \\
+\midrule
+2SIG & \cellcolor[HTML]{B0DBB0}7.98 & \cellcolor[HTML]{B2DCB0}8.36 & \cellcolor[HTML]{FAAAA5}-344.90 & \cellcolor[HTML]{CBE5AD}14.15 & \cellcolor[HTML]{CFE6AC}14.86 & \cellcolor[HTML]{FDD6A6}4.15 \\
+ABS & \cellcolor[HTML]{B6DEAF}8.54 & \cellcolor[HTML]{B7DEAF}8.74 & \cellcolor[HTML]{FFF2A7}-149.50 & \cellcolor[HTML]{C8E4AD}13.91 & \cellcolor[HTML]{C5E3AE}14.13 & \cellcolor[HTML]{BEE0AE}60.85 \\
+1SIG & \cellcolor[HTML]{B8DEAF}8.72 & \cellcolor[HTML]{BBDFAF}9.07 & \cellcolor[HTML]{FFF0A7}-155.75 & \cellcolor[HTML]{AEDBB0}12.11 & \cellcolor[HTML]{AEDBB0}12.47 & \cellcolor[HTML]{FAAAA5}-22.75 \\
+NORM1 & \cellcolor[HTML]{C9E4AD}10.15 & \cellcolor[HTML]{CBE5AD}10.29 & \cellcolor[HTML]{C0E1AE}22.65 & \cellcolor[HTML]{DDEAAB}15.35 & \cellcolor[HTML]{DAEAAB}15.64 & \cellcolor[HTML]{B3DDB0}67.20 \\
+NORM2 & \cellcolor[HTML]{AEDBB0}7.86 & \cellcolor[HTML]{AEDBB0}8.03 & \cellcolor[HTML]{D7E9AC}-35.40 & \cellcolor[HTML]{DAEAAB}15.17 & \cellcolor[HTML]{D4E8AC}15.20 & \cellcolor[HTML]{B5DDAF}66.30 \\
+NORMROB & \cellcolor[HTML]{B7DEAF}8.58 & \cellcolor[HTML]{BDE0AF}9.22 & \cellcolor[HTML]{D1E7AC}-20.10 & \cellcolor[HTML]{DCEAAB}15.31 & \cellcolor[HTML]{D7E9AC}15.40 & \cellcolor[HTML]{B4DDB0}66.75 \\
+NORM12 & \cellcolor[HTML]{B4DDB0}8.38 & \cellcolor[HTML]{B7DEAF}8.71 & \cellcolor[HTML]{E9EFA9}-81.75 & \cellcolor[HTML]{D9E9AB}15.13 & \cellcolor[HTML]{D4E7AC}15.18 & \cellcolor[HTML]{C4E2AE}57.75 \\
+NORMFIX & \cellcolor[HTML]{FAAAA5}21.98 & \cellcolor[HTML]{FAAAA5}20.86 & \cellcolor[HTML]{AEDBB0}67.95 & \cellcolor[HTML]{FAAAA5}23.45 & \cellcolor[HTML]{FAAAA5}24.21 & \cellcolor[HTML]{AEDBB0}70.10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Energy: median train/test RMSE and M$_\phi$ per mutation family, over the 30 seeds for this dataset. Left block: SLIM+ (sum); right block: SLIM* (mul). Each column is color-coded red (worst) to green (best) relative to the other 7 families in that same column (within this dataset); lower is better for RMSE, higher is better for M$_\phi$. Requires \texttt{\textbackslash usepackage[table]\{xcolor\}}.}
+\label{tab:summary-median-performance-energy}
+\begin{tabular}{lrrr|rrr}
+\toprule
+& \multicolumn{3}{c|}{SLIM+ (sum)} & \multicolumn{3}{c}{SLIM* (mul)} \\
+Family & Train RMSE & Test RMSE & M$_\phi$ & Train RMSE & Test RMSE & M$_\phi$ \\
+\midrule
+2SIG & \cellcolor[HTML]{B5DDAF}3.34 & \cellcolor[HTML]{BBDFAF}3.59 & \cellcolor[HTML]{FAAAA5}-255.55 & \cellcolor[HTML]{AEDBB0}3.72 & \cellcolor[HTML]{AEDBB0}3.83 & \cellcolor[HTML]{FAAAA5}-49.95 \\
+ABS & \cellcolor[HTML]{CBE4AD}3.75 & \cellcolor[HTML]{CDE5AD}3.89 & \cellcolor[HTML]{CDE5AD}6.00 & \cellcolor[HTML]{E0EBAA}5.82 & \cellcolor[HTML]{DFEBAB}5.82 & \cellcolor[HTML]{CBE5AD}53.30 \\
+1SIG & \cellcolor[HTML]{BDE0AF}3.48 & \cellcolor[HTML]{C9E4AD}3.82 & \cellcolor[HTML]{FAF4A7}-85.00 & \cellcolor[HTML]{BFE0AE}4.41 & \cellcolor[HTML]{C0E1AE}4.56 & \cellcolor[HTML]{FEE0A6}-5.55 \\
+NORM1 & \cellcolor[HTML]{F2F2A8}4.49 & \cellcolor[HTML]{FAF4A7}4.64 & \cellcolor[HTML]{BFE1AE}32.55 & \cellcolor[HTML]{FAAAA5}10.63 & \cellcolor[HTML]{FAAAA5}10.48 & \cellcolor[HTML]{AEDBB0}75.75 \\
+NORM2 & \cellcolor[HTML]{B5DDB0}3.33 & \cellcolor[HTML]{B8DEAF}3.54 & \cellcolor[HTML]{C5E3AE}21.30 & \cellcolor[HTML]{CFE6AC}5.10 & \cellcolor[HTML]{D5E8AC}5.41 & \cellcolor[HTML]{BCE0AF}64.95 \\
+NORMROB & \cellcolor[HTML]{AEDBB0}3.21 & \cellcolor[HTML]{AEDBB0}3.39 & \cellcolor[HTML]{C2E2AE}27.60 & \cellcolor[HTML]{D0E6AC}5.16 & \cellcolor[HTML]{D6E8AC}5.45 & \cellcolor[HTML]{C0E1AE}62.25 \\
+NORM12 & \cellcolor[HTML]{B2DCB0}3.28 & \cellcolor[HTML]{B9DFAF}3.57 & \cellcolor[HTML]{DBEAAB}-21.90 & \cellcolor[HTML]{F6F3A8}6.81 & \cellcolor[HTML]{F6F3A8}6.80 & \cellcolor[HTML]{E1ECAA}36.60 \\
+NORMFIX & \cellcolor[HTML]{FAAAA5}6.28 & \cellcolor[HTML]{FAAAA5}6.05 & \cellcolor[HTML]{AEDBB0}66.50 & \cellcolor[HTML]{D4E8AC}5.34 & \cellcolor[HTML]{D5E8AC}5.42 & \cellcolor[HTML]{B8DEAF}68.30 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Istanbul: median train/test RMSE and M$_\phi$ per mutation family, over the 30 seeds for this dataset. Left block: SLIM+ (sum); right block: SLIM* (mul). Each column is color-coded red (worst) to green (best) relative to the other 7 families in that same column (within this dataset); lower is better for RMSE, higher is better for M$_\phi$. Requires \texttt{\textbackslash usepackage[table]\{xcolor\}}.}
+\label{tab:summary-median-performance-instanbul}
+\begin{tabular}{lrrr|rrr}
+\toprule
+& \multicolumn{3}{c|}{SLIM+ (sum)} & \multicolumn{3}{c}{SLIM* (mul)} \\
+Family & Train RMSE & Test RMSE & M$_\phi$ & Train RMSE & Test RMSE & M$_\phi$ \\
+\midrule
+2SIG & \cellcolor[HTML]{C6E3AE}0.0099 & \cellcolor[HTML]{F5F3A8}0.0161 & \cellcolor[HTML]{FBB3A5}-3141.05 & \cellcolor[HTML]{FAAAA5}0.0144 & \cellcolor[HTML]{B7DEAF}0.0152 & \cellcolor[HTML]{FAAAA5}-9516.55 \\
+ABS & \cellcolor[HTML]{FAAAA5}0.0145 & \cellcolor[HTML]{FFF3A7}0.0163 & \cellcolor[HTML]{B1DCB0}-143.55 & \cellcolor[HTML]{FBB9A5}0.0142 & \cellcolor[HTML]{B0DBB0}0.0150 & \cellcolor[HTML]{D1E7AC}-2773.70 \\
+1SIG & \cellcolor[HTML]{E4EDAA}0.0109 & \cellcolor[HTML]{FEEDA7}0.0163 & \cellcolor[HTML]{ECF0A9}-1322.50 & \cellcolor[HTML]{FAAFA5}0.0143 & \cellcolor[HTML]{AEDBB0}0.0150 & \cellcolor[HTML]{E9EFA9}-4051.85 \\
+NORM1 & \cellcolor[HTML]{F6F3A8}0.0115 & \cellcolor[HTML]{AEDBB0}0.0154 & \cellcolor[HTML]{D7E8AC}-898.05 & \cellcolor[HTML]{FBB6A5}0.0142 & \cellcolor[HTML]{BDE0AF}0.0153 & \cellcolor[HTML]{F0F1A9}-4399.50 \\
+NORM2 & \cellcolor[HTML]{BADFAF}0.0095 & \cellcolor[HTML]{D5E8AC}0.0158 & \cellcolor[HTML]{FDD5A6}-2412.30 & \cellcolor[HTML]{FBB2A5}0.0143 & \cellcolor[HTML]{B3DDB0}0.0151 & \cellcolor[HTML]{F3F2A8}-4601.10 \\
+NORMROB & \cellcolor[HTML]{AEDBB0}0.0091 & \cellcolor[HTML]{FAAAA5}0.0171 & \cellcolor[HTML]{F3F2A8}-1455.15 & \cellcolor[HTML]{FDD1A6}0.0137 & \cellcolor[HTML]{C7E3AD}0.0155 & \cellcolor[HTML]{EFF1A9}-4377.45 \\
+NORM12 & \cellcolor[HTML]{EAEFA9}0.0111 & \cellcolor[HTML]{BDE0AE}0.0155 & \cellcolor[HTML]{FAAAA5}-3313.65 & \cellcolor[HTML]{FBB4A5}0.0142 & \cellcolor[HTML]{D2E7AC}0.0158 & \cellcolor[HTML]{FAABA5}-9489.90 \\
+NORMFIX & \cellcolor[HTML]{FDD9A6}0.0128 & \cellcolor[HTML]{CDE5AD}0.0157 & \cellcolor[HTML]{AEDBB0}-95.00 & \cellcolor[HTML]{AEDBB0}0.0114 & \cellcolor[HTML]{FAAAA5}0.0185 & \cellcolor[HTML]{AEDBB0}-924.55 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{PPB: median train/test RMSE and M$_\phi$ per mutation family, over the 30 seeds for this dataset. Left block: SLIM+ (sum); right block: SLIM* (mul). Each column is color-coded red (worst) to green (best) relative to the other 7 families in that same column (within this dataset); lower is better for RMSE, higher is better for M$_\phi$. Requires \texttt{\textbackslash usepackage[table]\{xcolor\}}.}
+\label{tab:summary-median-performance-ppb}
+\begin{tabular}{lrrr|rrr}
+\toprule
+& \multicolumn{3}{c|}{SLIM+ (sum)} & \multicolumn{3}{c}{SLIM* (mul)} \\
+Family & Train RMSE & Test RMSE & M$_\phi$ & Train RMSE & Test RMSE & M$_\phi$ \\
+\midrule
+2SIG & \cellcolor[HTML]{C6E3AE}30.21 & \cellcolor[HTML]{B2DCB0}39.97 & \cellcolor[HTML]{E6EEAA}23.50 & \cellcolor[HTML]{F6F3A8}60.16 & \cellcolor[HTML]{CAE4AD}68.99 & \cellcolor[HTML]{FAAAA5}60.10 \\
+ABS & \cellcolor[HTML]{C4E2AE}29.86 & \cellcolor[HTML]{AFDBB0}36.20 & \cellcolor[HTML]{B5DDB0}71.90 & \cellcolor[HTML]{FDD3A6}63.04 & \cellcolor[HTML]{C6E3AE}68.58 & \cellcolor[HTML]{B7DEAF}77.10 \\
+1SIG & \cellcolor[HTML]{C9E4AD}31.09 & \cellcolor[HTML]{B1DCB0}38.37 & \cellcolor[HTML]{BCE0AF}64.90 & \cellcolor[HTML]{C0E1AE}56.73 & \cellcolor[HTML]{AEDBB0}66.16 & \cellcolor[HTML]{FCCBA6}64.00 \\
+NORM1 & \cellcolor[HTML]{C9E4AD}30.97 & \cellcolor[HTML]{AEDBB0}35.50 & \cellcolor[HTML]{B5DDAF}71.70 & \cellcolor[HTML]{FDD0A6}63.23 & \cellcolor[HTML]{B2DCB0}66.50 & \cellcolor[HTML]{EFF1A9}70.80 \\
+NORM2 & \cellcolor[HTML]{AEDBB0}24.23 & \cellcolor[HTML]{FAAAA5}242.82 & \cellcolor[HTML]{FAAAA5}-79.05 & \cellcolor[HTML]{F3F2A8}59.93 & \cellcolor[HTML]{FAAAA5}82.85 & \cellcolor[HTML]{E7EEAA}71.70 \\
+NORMROB & \cellcolor[HTML]{D0E6AC}32.99 & \cellcolor[HTML]{D5E8AC}85.40 & \cellcolor[HTML]{D5E8AC}40.20 & \cellcolor[HTML]{FEE5A6}61.86 & \cellcolor[HTML]{BEE0AE}67.82 & \cellcolor[HTML]{E7EEAA}71.70 \\
+NORM12 & \cellcolor[HTML]{BCDFAF}27.63 & \cellcolor[HTML]{D6E8AC}86.94 & \cellcolor[HTML]{F1F1A8}13.20 & \cellcolor[HTML]{AEDBB0}55.61 & \cellcolor[HTML]{AFDBB0}66.18 & \cellcolor[HTML]{FDD7A6}65.40 \\
+NORMFIX & \cellcolor[HTML]{FAAAA5}65.78 & \cellcolor[HTML]{C8E4AD}68.58 & \cellcolor[HTML]{AEDBB0}78.00 & \cellcolor[HTML]{FAAAA5}65.78 & \cellcolor[HTML]{C6E3AE}68.58 & \cellcolor[HTML]{AEDBB0}78.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Resid. Build: median train/test RMSE and M$_\phi$ per mutation family, over the 30 seeds for this dataset. Left block: SLIM+ (sum); right block: SLIM* (mul). Each column is color-coded red (worst) to green (best) relative to the other 7 families in that same column (within this dataset); lower is better for RMSE, higher is better for M$_\phi$. Requires \texttt{\textbackslash usepackage[table]\{xcolor\}}.}
+\label{tab:summary-median-performance-resid-build-sale-price}
+\begin{tabular}{lrrr|rrr}
+\toprule
+& \multicolumn{3}{c|}{SLIM+ (sum)} & \multicolumn{3}{c}{SLIM* (mul)} \\
+Family & Train RMSE & Test RMSE & M$_\phi$ & Train RMSE & Test RMSE & M$_\phi$ \\
+\midrule
+2SIG & \cellcolor[HTML]{F6F3A8}53.26 & \cellcolor[HTML]{FDD8A6}69.04 & \cellcolor[HTML]{FAAAA5}-366.70 & \cellcolor[HTML]{AEDBB0}84.73 & \cellcolor[HTML]{FCC5A5}120.27 & \cellcolor[HTML]{FAAAA5}-143.60 \\
+ABS & \cellcolor[HTML]{FAACA5}75.87 & \cellcolor[HTML]{FBB5A5}79.48 & \cellcolor[HTML]{C2E1AE}13.50 & \cellcolor[HTML]{FBB2A5}125.96 & \cellcolor[HTML]{FBB7A5}123.15 & \cellcolor[HTML]{AEDBB0}78.00 \\
+1SIG & \cellcolor[HTML]{FBB3A5}73.81 & \cellcolor[HTML]{FBB3A5}79.94 & \cellcolor[HTML]{C9E4AD}-4.80 & \cellcolor[HTML]{C3E2AE}90.18 & \cellcolor[HTML]{AEDBB0}96.18 & \cellcolor[HTML]{CAE4AD}40.05 \\
+NORM1 & \cellcolor[HTML]{FEE1A6}61.30 & \cellcolor[HTML]{FBF5A7}58.72 & \cellcolor[HTML]{B3DDB0}51.90 & \cellcolor[HTML]{FAAAA5}128.21 & \cellcolor[HTML]{FAAAA5}125.53 & \cellcolor[HTML]{AEDBB0}78.00 \\
+NORM2 & \cellcolor[HTML]{B1DCB0}35.38 & \cellcolor[HTML]{AEDBB0}37.37 & \cellcolor[HTML]{BEE0AE}22.65 & \cellcolor[HTML]{FEEBA6}109.65 & \cellcolor[HTML]{FFF3A7}111.46 & \cellcolor[HTML]{B3DDB0}71.25 \\
+NORMROB & \cellcolor[HTML]{AEDBB0}34.70 & \cellcolor[HTML]{C6E3AD}43.96 & \cellcolor[HTML]{B8DEAF}40.20 & \cellcolor[HTML]{FEE5A6}111.44 & \cellcolor[HTML]{FDDDA6}115.62 & \cellcolor[HTML]{B4DDB0}70.80 \\
+NORM12 & \cellcolor[HTML]{DDEBAB}46.71 & \cellcolor[HTML]{F8F4A8}57.90 & \cellcolor[HTML]{D6E8AC}-39.90 & \cellcolor[HTML]{FCC5A5}120.55 & \cellcolor[HTML]{FBB3A5}123.82 & \cellcolor[HTML]{B8DEAF}65.40 \\
+NORMFIX & \cellcolor[HTML]{FAAAA5}76.21 & \cellcolor[HTML]{FAAAA5}82.57 & \cellcolor[HTML]{AEDBB0}65.10 & \cellcolor[HTML]{FEE2A6}112.15 & \cellcolor[HTML]{FEEAA6}113.09 & \cellcolor[HTML]{B2DCB0}72.80 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Toxicity: median train/test RMSE and M$_\phi$ per mutation family, over the 30 seeds for this dataset. Left block: SLIM+ (sum); right block: SLIM* (mul). Each column is color-coded red (worst) to green (best) relative to the other 7 families in that same column (within this dataset); lower is better for RMSE, higher is better for M$_\phi$. Requires \texttt{\textbackslash usepackage[table]\{xcolor\}}.}
+\label{tab:summary-median-performance-toxicity}
+\begin{tabular}{lrrr|rrr}
+\toprule
+& \multicolumn{3}{c|}{SLIM+ (sum)} & \multicolumn{3}{c}{SLIM* (mul)} \\
+Family & Train RMSE & Test RMSE & M$_\phi$ & Train RMSE & Test RMSE & M$_\phi$ \\
+\midrule
+2SIG & \cellcolor[HTML]{AFDBB0}1739.21 & \cellcolor[HTML]{C1E1AE}2041.84 & \cellcolor[HTML]{FAAAA5}-347.95 & \cellcolor[HTML]{AEDBB0}1996.17 & \cellcolor[HTML]{FEE9A6}2046.31 & \cellcolor[HTML]{FAAAA5}46.70 \\
+ABS & \cellcolor[HTML]{DEEBAB}1876.91 & \cellcolor[HTML]{B3DCB0}2023.03 & \cellcolor[HTML]{CBE4AD}-0.9500 & \cellcolor[HTML]{CCE5AD}2033.86 & \cellcolor[HTML]{DCEAAB}2005.51 & \cellcolor[HTML]{BADFAF}71.00 \\
+1SIG & \cellcolor[HTML]{CBE4AD}1819.83 & \cellcolor[HTML]{AEDBB0}2017.42 & \cellcolor[HTML]{E5EDAA}-70.65 & \cellcolor[HTML]{B5DDAF}2004.36 & \cellcolor[HTML]{CBE5AD}1991.29 & \cellcolor[HTML]{EAEFA9}63.10 \\
+NORM1 & \cellcolor[HTML]{DAE9AB}1863.98 & \cellcolor[HTML]{CCE5AD}2056.76 & \cellcolor[HTML]{C1E1AE}23.10 & \cellcolor[HTML]{E6EEAA}2066.94 & \cellcolor[HTML]{FDD9A6}2060.02 & \cellcolor[HTML]{B5DDAF}71.70 \\
+NORM2 & \cellcolor[HTML]{AEDBB0}1737.27 & \cellcolor[HTML]{FCCCA6}2186.67 & \cellcolor[HTML]{EDF0A9}-91.20 & \cellcolor[HTML]{BADFAF}2010.87 & \cellcolor[HTML]{AEDBB0}1967.60 & \cellcolor[HTML]{B5DDAF}71.70 \\
+NORMROB & \cellcolor[HTML]{B3DDB0}1750.97 & \cellcolor[HTML]{FEEAA6}2143.42 & \cellcolor[HTML]{D8E9AB}-35.40 & \cellcolor[HTML]{BFE0AE}2017.05 & \cellcolor[HTML]{DBEAAB}2004.55 & \cellcolor[HTML]{B5DDAF}71.70 \\
+NORM12 & \cellcolor[HTML]{AFDBB0}1739.66 & \cellcolor[HTML]{FAAAA5}2235.32 & \cellcolor[HTML]{FDD1A6}-239.70 & \cellcolor[HTML]{BEE0AE}2015.72 & \cellcolor[HTML]{FAAAA5}2101.54 & \cellcolor[HTML]{DCEAAB}65.40 \\
+NORMFIX & \cellcolor[HTML]{FAAAA5}2210.63 & \cellcolor[HTML]{E3EDAA}2088.98 & \cellcolor[HTML]{AEDBB0}72.80 & \cellcolor[HTML]{FAAAA5}2201.18 & \cellcolor[HTML]{FBB7A5}2090.38 & \cellcolor[HTML]{AEDBB0}72.80 \\
+\bottomrule
+\end{tabular}
+\end{table}
