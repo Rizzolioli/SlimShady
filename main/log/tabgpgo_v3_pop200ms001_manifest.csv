@@ -1,2 +1,2 @@
 run_id,algo,ms,function_set,constant_set
-99df665a-8831-11f1-adef-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ogens5000_pop200_tabpfnv3_norotate,0.01,full_extended,small_ints
+5c043cb5-9ad6-11f1-b881-2c7ba0e6fa90,SLIM*MIX_ms0.01_pat5_fn-full_extended_const-small_ints_ogens50000_pop200_tabpfnv3_norotate,0.01,full_extended,small_ints
