@@ -113,6 +113,16 @@ VARIANT = (WRAPPER, "mul")   # SLIM*MIX
 PATIENCE = 5
 N_GENS = 100000
 
+# Purely diagnostic (val metrics are never read by selection/fitness -- see
+# TabGPGOConfig.val_metrics_every's docstring), so no drift/correctness
+# tradeoff to weigh here, unlike resync_elite_every. Bumped from the
+# TabGPGOConfig default of 25 after seeing that value stack with
+# resync_elite_every (also 25, same generations) into a single ~24s spike
+# every 25 gens at this run's elite size -- 100 quarters how often that
+# spike fires, for a real reduction in total time at the cost of a coarser
+# val-R2 curve.
+VAL_METRICS_EVERY = 100
+
 TABPFN_N_ESTIMATORS = 1   # see tabgpgo/tabpfn_encoder.py
 TABPFN_MODEL_VERSION = ModelVersion.V3
 
@@ -186,7 +196,7 @@ def build_config(**extra):
     return dataclasses.replace(
         TabGPGOConfig(), log_path=V3_LOG_PATH, variants=(VARIANT,),
         run_dir_base=V3_RUN_DIR_BASE, stagnation_patience=PATIENCE, n_gens=N_GENS,
-        artifacts_dir=TABPFN_V3_ARTIFACTS_DIR,
+        artifacts_dir=TABPFN_V3_ARTIFACTS_DIR, val_metrics_every=VAL_METRICS_EVERY,
         **HPT_OVERRIDES, **extra)
 
 
