@@ -1,0 +1,557 @@
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Train RMSE on Concrete, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-train-rmse-concrete}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-07} & \textbf{3e-04} & \textbf{2e-07} & \textbf{7e-03} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{3e-02} & \textbf{2e-07} & 7e-01 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{1e-04} & \textbf{2e-07} & \textbf{1e-03} & \textbf{2e-07} & 1e-01 & \textbf{2e-07} & \textbf{2e-02} & \textbf{2e-07} & \textbf{1e-02} & \textbf{2e-07} & \textbf{1e-05} \\
++ABS &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{1e-06} & \textbf{2e-07} & \textbf{2e-06} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*ABS &  &  &  &  & \textbf{2e-07} & \textbf{7e-06} & \textbf{2e-07} & \textbf{7e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 4e-01 & \textbf{2e-07} & 3e-01 & \textbf{7e-07} & \textbf{5e-05} \\
++1SIG &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*1SIG &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-07} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{6e-06} & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-07} & 5e-01 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & 1.00 & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{7e-06} & \textbf{2e-07} & \textbf{2e-03} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{1e-06} & \textbf{3e-04} \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-06} & \textbf{5e-04} \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{1e-06} & \textbf{4e-03} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Train RMSE on Energy, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-train-rmse-energy}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-02} & \textbf{5e-04} & \textbf{2e-07} & \textbf{4e-02} & \textbf{2e-07} & \textbf{1e-06} & \textbf{2e-07} & 1.00 & \textbf{1e-05} & 1.00 & \textbf{2e-05} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & 1.00 & \textbf{2e-07} & 1.00 & \textbf{6e-04} & \textbf{7e-03} & \textbf{2e-07} & 4e-01 & \textbf{1e-04} & 5e-02 & \textbf{2e-04} & 7e-02 & \textbf{2e-07} & \textbf{4e-07} & \textbf{3e-05} \\
++ABS &  &  &  & \textbf{2e-07} & 2e-01 & \textbf{4e-03} & \textbf{1e-03} & \textbf{2e-07} & \textbf{3e-02} & \textbf{1e-03} & \textbf{5e-04} & \textbf{2e-03} & \textbf{2e-03} & \textbf{2e-07} & \textbf{2e-07} & \textbf{7e-06} \\
+*ABS &  &  &  &  & \textbf{4e-07} & \textbf{4e-07} & \textbf{1e-06} & \textbf{2e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 2e-01 & 1.00 & 1.00 \\
++1SIG &  &  &  &  &  & \textbf{1e-04} & \textbf{4e-07} & \textbf{2e-07} & 2e-01 & \textbf{2e-04} & \textbf{1e-03} & \textbf{5e-04} & 4e-01 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-06} \\
+*1SIG &  &  &  &  &  &  & 1.00 & \textbf{2e-07} & \textbf{1e-06} & 1e-01 & \textbf{2e-06} & 1e-01 & \textbf{1e-06} & \textbf{2e-07} & \textbf{1e-05} & \textbf{6e-03} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & 4e-01 & \textbf{2e-07} & 4e-01 & \textbf{4e-07} & \textbf{1e-06} & \textbf{3e-06} & \textbf{1e-02} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{8e-04} & \textbf{2e-07} & \textbf{6e-04} & \textbf{2e-07} & \textbf{1e-05} & \textbf{3e-04} & \textbf{7e-04} \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-06} & 1.00 & \textbf{4e-06} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{7e-06} & 1.00 & \textbf{1e-05} & 1e-01 & 1.00 & 1.00 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-05} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-07} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-05} & \textbf{2e-02} & 1.00 & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-07} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Train RMSE on Istanbul, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-train-rmse-instanbul}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{3e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 6e-01 & \textbf{2e-07} & \textbf{3e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-07} \\
+*2SIG &  &  & 1.00 & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 2e-01 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} \\
++ABS &  &  &  & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{1e-03} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} \\
+*ABS &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} \\
++1SIG &  &  &  &  &  & \textbf{2e-07} & \textbf{1e-06} & \textbf{2e-07} & \textbf{7e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 2e-01 & \textbf{2e-07} & \textbf{4e-07} & \textbf{1e-03} \\
+*1SIG &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{5e-05} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{3e-06} & \textbf{2e-07} & \textbf{2e-06} & 1.00 \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-03} & \textbf{4e-07} & \textbf{2e-07} \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{1e-02} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{7e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{3e-04} & \textbf{2e-07} \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-06} & 1.00 \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Train RMSE on PPB, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-train-rmse-ppb}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-03} & \textbf{2e-07} & \textbf{1e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 3e-01 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 9e-01 & \textbf{3e-03} & \textbf{3e-03} \\
++ABS &  &  &  & \textbf{2e-07} & \textbf{5e-04} & \textbf{2e-07} & \textbf{1e-04} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*ABS &  &  &  &  & \textbf{2e-07} & 6e-02 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1e-01 & 2e-01 & 2e-01 \\
++1SIG &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*1SIG &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-02} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{3e-02} & \textbf{2e-07} & 1.00 & \textbf{3e-03} & \textbf{3e-03} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{6e-04} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-02} & \textbf{2e-02} & \textbf{2e-02} \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{7e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 2e-01 & \textbf{2e-07} & 1.00 & \textbf{3e-04} & \textbf{3e-04} \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{3e-03} & \textbf{7e-03} & \textbf{7e-03} \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{3e-04} & \textbf{3e-04} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Train RMSE on Resid. Build, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-train-rmse-resid-build-sale-price}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-06} & \textbf{4e-07} & \textbf{2e-07} & \textbf{1e-06} & \textbf{4e-07} & \textbf{2e-02} & \textbf{2e-07} & \textbf{4e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-06} & 3e-01 & \textbf{2e-07} & \textbf{1e-06} & \textbf{2e-07} \\
+*2SIG &  &  & 6e-02 & \textbf{4e-07} & 1e-01 & 1.00 & \textbf{8e-05} & \textbf{2e-06} & \textbf{4e-07} & 7e-02 & \textbf{2e-07} & 1e-01 & \textbf{2e-06} & \textbf{2e-07} & 1.00 & \textbf{1e-04} \\
++ABS &  &  &  & \textbf{4e-07} & 1.00 & \textbf{6e-04} & 1e-01 & \textbf{2e-07} & \textbf{2e-07} & \textbf{5e-04} & \textbf{2e-07} & \textbf{7e-04} & \textbf{4e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-06} \\
+*ABS &  &  &  &  & \textbf{4e-07} & \textbf{3e-04} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{4e-02} & \textbf{2e-07} & 2e-01 & \textbf{2e-07} & 1.00 & \textbf{1e-06} & 1.00 \\
++1SIG &  &  &  &  &  & \textbf{1e-03} & 3e-01 & \textbf{1e-06} & \textbf{2e-07} & \textbf{2e-03} & \textbf{2e-07} & \textbf{1e-03} & \textbf{2e-06} & \textbf{2e-07} & 1.00 & \textbf{7e-07} \\
+*1SIG &  &  &  &  &  &  & \textbf{3e-06} & \textbf{1e-04} & \textbf{4e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{4e-07} & \textbf{2e-06} & 1e-01 & \textbf{1e-02} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{4e-07} & \textbf{1e-06} & \textbf{1e-05} & \textbf{4e-07} & \textbf{2e-05} & \textbf{2e-04} & \textbf{2e-07} & \textbf{7e-03} & \textbf{2e-07} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-02} & \textbf{2e-07} & 6e-02 & \textbf{2e-07} & 1.00 & \textbf{4e-06} & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{4e-05} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{3e-02} & 1.00 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{4e-06} & 1.00 & \textbf{1e-02} & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-07} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{7e-07} & 1.00 \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{4e-06} \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Train RMSE on Toxicity, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-train-rmse-toxicity}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{7e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 2e-01 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & \textbf{2e-07} & \textbf{1e-05} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-07} & \textbf{2e-03} & \textbf{2e-07} & \textbf{7e-04} & \textbf{2e-07} & \textbf{5e-04} & \textbf{2e-07} & \textbf{1e-06} \\
++ABS &  &  &  & \textbf{2e-07} & \textbf{2e-05} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*ABS &  &  &  &  & \textbf{2e-07} & 7e-02 & \textbf{2e-07} & \textbf{7e-03} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{3e-03} \\
++1SIG &  &  &  &  &  & \textbf{2e-07} & \textbf{8e-04} & \textbf{2e-07} & \textbf{1e-06} & \textbf{2e-07} & \textbf{3e-03} & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*1SIG &  &  &  &  &  &  & \textbf{2e-07} & \textbf{1e-05} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{5e-04} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{7e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{3e-02} & \textbf{2e-07} & \textbf{1e-02} & \textbf{2e-07} & \textbf{3e-04} & \textbf{1e-05} & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{1e-03} \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{4e-02} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{4e-07} & \textbf{1e-02} \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{7e-07} & \textbf{2e-03} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Test RMSE on Concrete, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-test-rmse-concrete}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-07} & \textbf{4e-02} & \textbf{2e-07} & \textbf{8e-03} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{1e-02} & \textbf{2e-07} & 4e-01 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1e-01 & \textbf{2e-07} & 2e-01 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{5e-04} & \textbf{3e-03} \\
++ABS &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{1e-06} & \textbf{2e-07} & 3e-01 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*ABS &  &  &  &  & \textbf{2e-07} & \textbf{2e-03} & \textbf{2e-07} & \textbf{1e-05} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 7e-01 & \textbf{2e-07} & \textbf{1e-02} & \textbf{1e-06} & \textbf{5e-05} \\
++1SIG &  &  &  &  &  & \textbf{2e-07} & \textbf{3e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*1SIG &  &  &  &  &  &  & \textbf{7e-05} & \textbf{5e-04} & \textbf{2e-07} & \textbf{4e-03} & \textbf{2e-07} & \textbf{2e-03} & \textbf{2e-07} & \textbf{2e-03} & \textbf{5e-04} & \textbf{8e-04} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{7e-07} & \textbf{2e-07} & \textbf{1e-03} & \textbf{2e-07} & \textbf{1e-05} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1e+00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & 1.00 & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{3e-03} & \textbf{2e-07} & 2e-01 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{5e-04} \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{5e-04} \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{7e-05} & \textbf{2e-02} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Test RMSE on Energy, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-test-rmse-energy}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & 1e+00 & \textbf{3e-02} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & 1.00 & \textbf{1e-05} & 7e-02 & \textbf{3e-05} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & 1.00 & \textbf{2e-07} & 1.00 & \textbf{5e-03} & \textbf{1e-02} & \textbf{2e-07} & 3e-01 & \textbf{1e-03} & \textbf{7e-04} & \textbf{2e-03} & \textbf{3e-02} & \textbf{2e-07} & \textbf{4e-07} & \textbf{3e-05} \\
++ABS &  &  &  & \textbf{2e-07} & 1.00 & \textbf{3e-02} & \textbf{5e-03} & \textbf{2e-07} & 5e-02 & \textbf{3e-03} & \textbf{5e-05} & \textbf{4e-03} & \textbf{1e-02} & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-06} \\
+*ABS &  &  &  &  & \textbf{2e-07} & \textbf{7e-07} & \textbf{7e-06} & \textbf{4e-06} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & 1.00 & 1.00 \\
++1SIG &  &  &  &  &  & \textbf{1e-03} & \textbf{1e-04} & \textbf{2e-07} & 4e-01 & \textbf{4e-04} & \textbf{2e-05} & \textbf{1e-03} & 9e-02 & \textbf{2e-07} & \textbf{4e-07} & \textbf{6e-06} \\
+*1SIG &  &  &  &  &  &  & 1.00 & \textbf{2e-07} & \textbf{2e-06} & 8e-02 & \textbf{4e-07} & 1e-01 & \textbf{2e-05} & \textbf{2e-07} & \textbf{1e-04} & \textbf{2e-03} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{4e-05} & 7e-01 & \textbf{2e-07} & 3e-01 & \textbf{2e-07} & \textbf{7e-07} & \textbf{2e-05} & \textbf{2e-02} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{1e-03} & \textbf{2e-07} & \textbf{9e-04} & \textbf{2e-07} & \textbf{1e-05} & \textbf{3e-04} & \textbf{7e-04} \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-06} & 1.00 & \textbf{1e-05} & 1.00 & \textbf{4e-07} & \textbf{4e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{7e-06} & 1.00 & \textbf{8e-05} & 5e-01 & 1.00 & 1.00 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{3e-05} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{4e-05} & 5e-01 & 1.00 & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-07} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Test RMSE on Istanbul, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-test-rmse-instanbul}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-02} & 1.00 & \textbf{9e-03} & 1.00 & \textbf{8e-03} & 6e-01 & 1.00 & 1.00 & 8e-02 & \textbf{6e-04} & 1.00 & 1.00 & 1.00 & 1.00 & \textbf{2e-05} \\
+*2SIG &  &  & \textbf{1e-06} & 1.00 & \textbf{3e-04} & 1.00 & 1.00 & \textbf{9e-03} & 6e-01 & 1.00 & \textbf{4e-06} & \textbf{1e-02} & 1.00 & 5e-01 & 1e-01 & \textbf{2e-07} \\
++ABS &  &  &  & \textbf{7e-07} & 1.00 & \textbf{2e-06} & 1e-01 & 1.00 & 1.00 & \textbf{4e-05} & 6e-01 & 1.00 & 1e+00 & 1.00 & 1.00 & \textbf{5e-04} \\
+*ABS &  &  &  &  & \textbf{1e-04} & 1.00 & 1.00 & \textbf{5e-05} & 1e-01 & 1.00 & \textbf{7e-07} & \textbf{9e-03} & 1.00 & \textbf{1e-02} & \textbf{5e-02} & \textbf{2e-07} \\
++1SIG &  &  &  &  &  & \textbf{8e-05} & \textbf{2e-02} & 1.00 & 1.00 & \textbf{3e-04} & 3e-01 & 1.00 & 4e-01 & 1.00 & 1.00 & \textbf{5e-04} \\
+*1SIG &  &  &  &  &  &  & 1.00 & \textbf{1e-02} & 6e-01 & 1.00 & \textbf{7e-06} & \textbf{2e-02} & 1.00 & 1.00 & 1e-01 & \textbf{2e-07} \\
++NORM1 &  &  &  &  &  &  &  & 1.00 & 1.00 & 1.00 & \textbf{2e-02} & 1.00 & 1.00 & 1.00 & 1.00 & \textbf{2e-04} \\
+*NORM1 &  &  &  &  &  &  &  &  & 1.00 & 6e-02 & 4e-01 & 1.00 & 1.00 & 1.00 & 1.00 & 3e-01 \\
++NORM2 &  &  &  &  &  &  &  &  &  & 9e-01 & 6e-02 & 1.00 & 1.00 & 1.00 & 1.00 & \textbf{5e-03} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{4e-06} & 1e-01 & 1.00 & 1.00 & 5e-01 & \textbf{2e-07} \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 2e-01 & 1.00 & 2e-01 & 6e-01 \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 & 1.00 & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 & 3e-01 \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{8e-05} \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Test RMSE on PPB, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-test-rmse-ppb}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{6e-06} & \textbf{2e-07} & \textbf{2e-05} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & \textbf{7e-07} & 1.00 & \textbf{1e-04} & 1.00 & \textbf{4e-04} & 1.00 & \textbf{7e-03} & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
++ABS &  &  &  & \textbf{7e-07} & 1.00 & \textbf{4e-07} & 1.00 & \textbf{4e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{3e-06} & \textbf{3e-06} & \textbf{7e-07} & \textbf{7e-07} \\
+*ABS &  &  &  &  & \textbf{1e-04} & 1.00 & \textbf{1e-03} & 1.00 & \textbf{4e-03} & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
++1SIG &  &  &  &  &  & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{2e-07} & \textbf{7e-07} & \textbf{8e-05} & \textbf{1e-04} & \textbf{3e-04} & \textbf{1e-04} & \textbf{4e-04} & \textbf{4e-04} \\
+*1SIG &  &  &  &  &  &  & \textbf{2e-03} & 1.00 & \textbf{6e-04} & 6e-02 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
++NORM1 &  &  &  &  &  &  &  & \textbf{5e-03} & \textbf{2e-07} & \textbf{3e-06} & \textbf{6e-05} & \textbf{3e-04} & \textbf{4e-03} & \textbf{2e-03} & \textbf{3e-03} & \textbf{3e-03} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{6e-05} & 4e-01 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & 1.00 & 9e-01 & 2e-01 & 3e-01 & \textbf{1e-03} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 & 1.00 & 1.00 & 2e-01 & 2e-01 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 & 1.00 & 5e-01 & 5e-01 \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 & 1.00 & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 & 1.00 \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Test RMSE on Resid. Build, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-test-rmse-resid-build-sale-price}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-06} & 1.00 & \textbf{2e-07} & 4e-01 & \textbf{2e-04} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-05} & \textbf{4e-07} & \textbf{5e-04} & \textbf{4e-04} & \textbf{7e-07} & 1.00 & \textbf{2e-06} \\
+*2SIG &  &  & \textbf{7e-06} & 1.00 & \textbf{2e-04} & \textbf{2e-02} & \textbf{7e-07} & 1.00 & \textbf{2e-07} & 4e-01 & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 1.00 & \textbf{2e-05} & 1.00 \\
++ABS &  &  &  & \textbf{4e-07} & 1.00 & \textbf{1e-02} & 6e-02 & \textbf{2e-07} & \textbf{7e-07} & \textbf{1e-03} & \textbf{4e-07} & \textbf{4e-03} & \textbf{1e-05} & \textbf{4e-07} & 1.00 & \textbf{4e-06} \\
+*ABS &  &  &  &  & \textbf{7e-07} & \textbf{7e-05} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 6e-01 & \textbf{2e-07} & 4e-01 & \textbf{2e-07} & 1.00 & \textbf{4e-07} & 1.00 \\
++1SIG &  &  &  &  &  & 2e-01 & \textbf{2e-02} & \textbf{7e-07} & \textbf{7e-07} & \textbf{5e-03} & \textbf{4e-07} & \textbf{2e-02} & \textbf{3e-06} & \textbf{2e-06} & 1.00 & \textbf{1e-06} \\
+*1SIG &  &  &  &  &  &  & \textbf{6e-05} & \textbf{4e-06} & \textbf{4e-07} & 1.00 & \textbf{4e-07} & 1.00 & \textbf{2e-06} & \textbf{1e-06} & 9e-01 & 1e-01 \\
++NORM1 &  &  &  &  &  &  &  & \textbf{4e-07} & \textbf{6e-06} & \textbf{2e-05} & \textbf{1e-02} & \textbf{8e-05} & 1.00 & \textbf{7e-07} & 1e-01 & \textbf{2e-07} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-07} & 3e-01 & \textbf{2e-07} & 3e-01 & \textbf{2e-07} & 1.00 & \textbf{2e-06} & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{4e-07} & 1.00 & \textbf{4e-07} & \textbf{9e-03} & \textbf{2e-07} & \textbf{7e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{7e-07} & 1.00 & \textbf{2e-06} & 1.00 & \textbf{8e-04} & 1.00 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-06} & \textbf{3e-04} & \textbf{2e-07} & \textbf{2e-06} & \textbf{2e-07} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{5e-05} & 1.00 & \textbf{9e-03} & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{4e-06} & \textbf{2e-07} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{3e-06} & 1.00 \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{1e-06} \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for Test RMSE on Toxicity, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-test-rmse-toxicity}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & 1.00 & 1.00 & 1.00 & 9e-01 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 7e-01 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+*2SIG &  &  & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
++ABS &  &  &  & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & \textbf{3e-02} & 1.00 & 5e-02 & 1.00 & \textbf{5e-02} & 1.00 & 1.00 & 1.00 \\
+*ABS &  &  &  &  & 1.00 & 1.00 & 1.00 & 1.00 & 1e-01 & 1.00 & \textbf{3e-02} & 1.00 & 2e-01 & 1.00 & 2e-01 & 1.00 \\
++1SIG &  &  &  &  &  & 1.00 & 1.00 & 1.00 & \textbf{2e-02} & 1.00 & \textbf{2e-02} & 1.00 & \textbf{3e-02} & 1.00 & 1.00 & 1.00 \\
+*1SIG &  &  &  &  &  &  & 9e-01 & 1.00 & \textbf{4e-02} & 1.00 & \textbf{2e-03} & 1.00 & \textbf{2e-02} & 1.00 & 2e-01 & 8e-01 \\
++NORM1 &  &  &  &  &  &  &  & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+*NORM1 &  &  &  &  &  &  &  &  & 1.00 & 1.00 & 2e-01 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 & 9e-01 & 1.00 & 1.00 & 1.00 & 1.00 \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & 5e-02 & 1.00 & 1e-01 & 1.00 & 1.00 & 1.00 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & 9e-02 & 1.00 & 1.00 & 1.00 & 1.00 \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & 3e-01 & 1.00 & 9e-01 & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 & 1.00 \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & 1.00 \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for M$_\phi$ on Concrete, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-m-phi-concrete}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-07} & \textbf{2e-05} & \textbf{2e-07} & \textbf{1e-05} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-07} & 7e-01 & 1.00 & \textbf{2e-04} & 9e-02 & \textbf{2e-07} & 1.00 & \textbf{2e-04} & \textbf{1e-06} & \textbf{3e-06} & \textbf{2e-04} & \textbf{2e-07} \\
++ABS &  &  &  & \textbf{2e-07} & 1.00 & \textbf{1e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{1e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-02} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} \\
+*ABS &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-04} & 5e-02 & \textbf{2e-07} & 7e-01 & \textbf{2e-04} & 2e-01 & \textbf{2e-04} & 1.00 & 1.00 & 1e-01 \\
++1SIG &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{7e-06} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-07} \\
+*1SIG &  &  &  &  &  &  & \textbf{2e-03} & \textbf{2e-04} & 1.00 & \textbf{2e-04} & 1.00 & \textbf{2e-07} & \textbf{2e-06} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-07} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{9e-04} & \textbf{2e-04} & \textbf{7e-05} & \textbf{2e-04} & \textbf{2e-04} & \textbf{3e-04} & \textbf{4e-07} & \textbf{2e-04} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-04} & 1.00 & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{4e-04} & 1.00 & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-04} & \textbf{6e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{3e-04} & 1.00 & 1.00 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{3e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{5e-04} & 1.00 & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{4e-02} & \textbf{2e-03} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for M$_\phi$ on Energy, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-m-phi-energy}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & \textbf{4e-04} & \textbf{2e-07} & 1.00 & \textbf{5e-02} & \textbf{2e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-04} & \textbf{4e-07} & \textbf{2e-04} & 1.00 & \textbf{1e-06} & \textbf{2e-07} & \textbf{2e-07} \\
++ABS &  &  &  & \textbf{3e-06} & \textbf{4e-06} & 1.00 & \textbf{3e-03} & \textbf{2e-04} & 2e-01 & \textbf{2e-04} & 1e-01 & \textbf{2e-07} & 3e-01 & \textbf{5e-04} & \textbf{2e-07} & \textbf{2e-04} \\
+*ABS &  &  &  &  & \textbf{2e-04} & \textbf{2e-07} & 1e-01 & \textbf{3e-03} & \textbf{6e-03} & 2e-01 & \textbf{5e-04} & 5e-02 & \textbf{2e-07} & 5e-01 & \textbf{4e-03} & \textbf{2e-04} \\
++1SIG &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{5e-03} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-04} \\
+*1SIG &  &  &  &  &  &  & \textbf{1e-04} & \textbf{2e-04} & \textbf{2e-03} & \textbf{2e-04} & \textbf{6e-04} & \textbf{2e-07} & 1.00 & \textbf{3e-04} & \textbf{2e-07} & \textbf{2e-07} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{4e-04} & 1.00 & \textbf{8e-04} & 1.00 & \textbf{1e-03} & \textbf{3e-04} & 1.00 & \textbf{8e-04} & \textbf{2e-04} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-04} & 1.00 & \textbf{2e-04} & 5e-01 & \textbf{2e-04} & \textbf{3e-04} & 1.00 & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{6e-04} & 1.00 & \textbf{3e-04} & \textbf{3e-04} & 1.00 & \textbf{3e-04} & \textbf{2e-04} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{4e-04} & 1.00 & 2e-01 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-06} & 1.00 & \textbf{3e-04} & \textbf{2e-04} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{1e-04} & 1.00 & 2e-01 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{3e-04} & \textbf{2e-07} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for M$_\phi$ on Istanbul, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-m-phi-instanbul}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & 5e-01 & \textbf{2e-07} & \textbf{2e-02} & \textbf{2e-07} & 2e-01 & \textbf{2e-07} & 6e-01 & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*2SIG &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} \\
++ABS &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 4e-01 & \textbf{2e-07} \\
+*ABS &  &  &  &  & \textbf{1e-04} & 9e-01 & \textbf{1e-06} & \textbf{3e-05} & 1.00 & \textbf{4e-03} & \textbf{1e-03} & \textbf{8e-03} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
++1SIG &  &  &  &  &  & \textbf{2e-07} & \textbf{7e-06} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-07} \\
+*1SIG &  &  &  &  &  &  & \textbf{2e-07} & 1.00 & \textbf{2e-04} & 1.00 & \textbf{1e-06} & 1.00 & 4e-01 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{4e-07} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-07} & 1.00 \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{3e-04} & 1.00 & \textbf{2e-07} & 1.00 & 3e-01 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{1e-05} & \textbf{2e-07} & \textbf{1e-05} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-06} & \textbf{3e-02} & 9e-01 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{4e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{6e-06} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-07} \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for M$_\phi$ on PPB, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-m-phi-ppb}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{1e-03} & 6e-01 & \textbf{2e-04} & 1.00 & \textbf{4e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*2SIG &  &  & \textbf{3e-02} & \textbf{2e-02} & 1.00 & 8e-01 & 1.00 & \textbf{1e-02} & \textbf{2e-04} & 1.00 & \textbf{3e-04} & 1.00 & \textbf{2e-04} & 1.00 & \textbf{6e-04} & \textbf{6e-04} \\
++ABS &  &  &  & 1.00 & \textbf{6e-05} & 2e-01 & 6e-02 & 1.00 & \textbf{2e-04} & \textbf{3e-02} & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{1e-02} & \textbf{5e-05} & \textbf{5e-05} \\
+*ABS &  &  &  &  & \textbf{2e-02} & \textbf{5e-02} & 1e+00 & 1.00 & \textbf{2e-07} & 4e-01 & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{2e-04} & 1e-01 & 1e-01 \\
++1SIG &  &  &  &  &  & 1.00 & \textbf{1e-02} & \textbf{3e-02} & \textbf{2e-04} & 1.00 & \textbf{3e-04} & 4e-01 & \textbf{2e-04} & 1.00 & \textbf{5e-05} & \textbf{5e-05} \\
+*1SIG &  &  &  &  &  &  & 1.00 & 5e-01 & \textbf{2e-04} & 1.00 & \textbf{2e-04} & 1.00 & \textbf{2e-04} & 1.00 & \textbf{8e-04} & \textbf{8e-04} \\
++NORM1 &  &  &  &  &  &  &  & 1.00 & \textbf{2e-04} & 1.00 & \textbf{3e-04} & 1.00 & \textbf{2e-04} & 5e-01 & \textbf{1e-04} & \textbf{1e-04} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-04} & 4e-01 & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{2e-04} & \textbf{1e-02} & \textbf{1e-02} \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-07} & \textbf{3e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{1e-02} & 1e-01 & \textbf{9e-04} & 1.00 & \textbf{2e-04} & \textbf{2e-04} \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-02} & \textbf{1e-03} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & 4e-01 & \textbf{5e-03} & \textbf{5e-03} \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for M$_\phi$ on Resid. Build, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-m-phi-resid-build-sale-price}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{7e-07} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-04} \\
+*2SIG &  &  & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{7e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} \\
++ABS &  &  &  & \textbf{2e-04} & 9e-01 & \textbf{6e-03} & \textbf{7e-05} & \textbf{2e-04} & 1.00 & \textbf{3e-04} & \textbf{5e-04} & \textbf{2e-04} & \textbf{5e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*ABS &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & 1.00 & \textbf{2e-04} & 1.00 & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{2e-02} & \textbf{2e-03} & 1.00 \\
++1SIG &  &  &  &  &  & \textbf{5e-05} & \textbf{4e-06} & \textbf{2e-04} & \textbf{2e-02} & \textbf{2e-07} & \textbf{8e-04} & \textbf{2e-04} & \textbf{7e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*1SIG &  &  &  &  &  &  & 7e-01 & \textbf{2e-04} & \textbf{2e-02} & \textbf{3e-04} & 1.00 & \textbf{2e-04} & \textbf{2e-04} & \textbf{3e-04} & \textbf{2e-04} & \textbf{2e-04} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{5e-04} & \textbf{2e-04} & 1e+00 & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-03} & \textbf{4e-04} & \textbf{2e-04} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-04} & 5e-01 & \textbf{2e-04} & 1e+00 & \textbf{2e-04} & 7e-02 & \textbf{4e-03} & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{1e-02} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{3e-04} & 1.00 & \textbf{2e-07} & 1.00 & 6e-01 & 8e-01 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{3e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & 1.00 & \textbf{1e-02} & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 & \textbf{4e-02} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{5e-04} \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Pairwise Bonferroni-corrected Wilcoxon $p$-values for M$_\phi$ on Toxicity, across all 16 SLIM variants, upper triangle only (row vs.\ column). Bold = significant at $\alpha = 0.05$.}
+\label{tab:wilcoxon-m-phi-toxicity}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccccccccc}
+\toprule
+& \rotatebox{90}{+2SIG} & \rotatebox{90}{*2SIG} & \rotatebox{90}{+ABS} & \rotatebox{90}{*ABS} & \rotatebox{90}{+1SIG} & \rotatebox{90}{*1SIG} & \rotatebox{90}{+NORM1} & \rotatebox{90}{*NORM1} & \rotatebox{90}{+NORM2} & \rotatebox{90}{*NORM2} & \rotatebox{90}{+NORMROB} & \rotatebox{90}{*NORMROB} & \rotatebox{90}{+NORM12} & \rotatebox{90}{*NORM12} & \rotatebox{90}{+NORMFIX} & \rotatebox{90}{*NORMFIX} \\
+\midrule
++2SIG &  & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{4e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*2SIG &  &  & \textbf{3e-04} & \textbf{4e-04} & \textbf{2e-04} & \textbf{2e-03} & 6e-02 & \textbf{2e-04} & \textbf{2e-04} & \textbf{4e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
++ABS &  &  &  & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{4e-02} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{9e-04} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*ABS &  &  &  &  & \textbf{2e-04} & \textbf{8e-04} & \textbf{2e-04} & 2e-01 & \textbf{2e-04} & \textbf{6e-04} & \textbf{2e-04} & \textbf{8e-03} & \textbf{2e-04} & \textbf{1e-03} & 1.00 & 1.00 \\
++1SIG &  &  &  &  &  & \textbf{2e-07} & \textbf{2e-07} & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{2e-03} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*1SIG &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-07} & \textbf{7e-04} & \textbf{2e-04} & \textbf{1e-04} & \textbf{2e-07} & \textbf{1e-04} & \textbf{5e-03} & \textbf{2e-04} \\
++NORM1 &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{4e-04} & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORM1 &  &  &  &  &  &  &  &  & \textbf{2e-04} & 1.00 & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{2e-04} & 1.00 & 1.00 \\
++NORM2 &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORM2 &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & 1.00 & \textbf{2e-04} & \textbf{6e-04} & 1.00 & 1.00 \\
++NORMROB &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} & \textbf{2e-04} & \textbf{2e-04} \\
+*NORMROB &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-05} & 1.00 & 1.00 \\
++NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  & \textbf{2e-04} & \textbf{2e-07} & \textbf{2e-04} \\
+*NORM12 &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 5e-01 & \textbf{4e-04} \\
++NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  & 1.00 \\
+*NORMFIX &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
