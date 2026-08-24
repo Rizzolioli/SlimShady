@@ -232,6 +232,8 @@ class FreshPoolSLIM:
         self.stall_count = 0
         # max(1, ...) guards against a gen % 0 ZeroDivisionError -- see _resync_elite's call site in solve()
         self.resync_every = max(1, int(cfg.resync_elite_every))
+        self.val_metrics_every = max(1, int(cfg.val_metrics_every))
+        self._last_val_metrics = None   # (scaled, raw, r2s) cache -- see _log()
 
     # -- reservoir -----------------------------------------------------------
 
@@ -834,7 +836,7 @@ class FreshPoolSLIM:
                     self._evaluate(ind)
                 self.elite = self._best(population)
                 self.best_fitness_ever = self.elite.fitness   # nothing to compare against yet at gen 0
-                self._log(0, time.time() - start, population, run_info, log_path, verbose, track_val)
+                self._log(0, start, population, run_info, log_path, verbose, track_val)
                 start_gen = 1
 
             for gen in range(start_gen, cfg.n_gens + 1):
@@ -857,10 +859,14 @@ class FreshPoolSLIM:
                 if gen % self.resync_every == 0 or gen == cfg.n_gens:
                     self._resync_elite()   # bound incremental-update drift
                 self._check_stagnation(population, gen)
-                self._log(gen, time.time() - start, population, run_info, log_path, verbose, track_val)
-
+                # Checkpoint BEFORE _log so its cost (real ~400MB disk I/O
+                # every checkpoint_every gens) lands inside the elapsed time
+                # _log() records, instead of being silently dropped -- see
+                # _log()'s own elapsed-measurement comment for the other half
+                # of this fix (elite_val_metrics()).
                 if checkpointing and (gen % checkpoint_every == 0 or self._interrupt_requested):
                     self._save_checkpoint(population, gen, checkpoint_path, run_info)
+                self._log(gen, start, population, run_info, log_path, verbose, track_val)
                 if self._interrupt_requested:
                     raise RunInterrupted(gen)
             return self.elite
@@ -979,18 +985,39 @@ class FreshPoolSLIM:
             inst.T_train, inst.y_target = dataset_chunks[inst.active_dataset_idx]
         return inst, population, state["completed_gen"], state.get("run_info")
 
-    def _log(self, gen, elapsed, population, run_info, log_path, verbose, track_val=True):
+    def _log(self, gen, gen_start, population, run_info, log_path, verbose, track_val=True):
+        """`gen_start` is a time.time() timestamp taken at the top of this
+        generation's iteration, not a precomputed duration -- elapsed is
+        measured HERE, as late as possible, specifically so it captures
+        elite_val_metrics() below (a full semantic re-fold of the elite over
+        every validation dataset, unthrottled and growing with elite size
+        exactly like _resync_elite's refold -- see that method's own
+        throttle) and the checkpoint write solve() now does just before
+        calling this. The old version froze elapsed before either of those
+        ran, so the logged "time" column silently excluded both -- by late
+        generations with a large elite, elite_val_metrics() dominates actual
+        wall time yet was invisible in the CSV."""
         train_pred = (self.elite.ls_a + self.elite.ls_b * self.elite.aggregate
                      if self.use_ls else self.elite.aggregate)
         train_r2 = float(r2(self.y_target, train_pred))
         if not track_val:
+            elapsed = time.time() - gen_start
             if verbose:
                 print(f"  [{self.algo} seed {self.seed}] gen {gen}/{self.cfg.n_gens} "
                       f"train_rmse={self.elite.fitness:.4f} train_R2={train_r2:.3f} "
                       f"size={self.elite.size} reservoir={len(self.reservoir)} | {elapsed:.2f}s")
             return
-        scaled, raw, r2s = self.elite_val_metrics()
+        # Throttled: same O(elite size) cost as _resync_elite's refold, but
+        # purely diagnostic (see val_metrics_every's config docstring) --
+        # skipped generations repeat the last-computed values rather than
+        # recompute, always still refreshing on the final generation so a
+        # short/interrupted run never logs a stale-empty value.
+        if (self._last_val_metrics is None or gen % self.val_metrics_every == 0
+                or gen == self.cfg.n_gens):
+            self._last_val_metrics = self.elite_val_metrics()
+        scaled, raw, r2s = self._last_val_metrics
         total_nodes = sum(i.nodes_count for i in population)
+        elapsed = time.time() - gen_start
         # CSV columns: [algo, run_id, dataset, seed, generation,
         #               elite_train_rmse, time, population_nodes,
         #               val_{d}_rmse_scaled, val_{d}_rmse_raw, val_{d}_r2

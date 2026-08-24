@@ -128,6 +128,22 @@ class TabGPGOConfig:
     # 1 reproduces today's every-generation behavior exactly.
     resync_elite_every: int = 25
 
+    # Gens between full elite_val_metrics() recomputes (FreshPoolSLIM._log)
+    # -- a semantic re-fold of the WHOLE elite over every val_datasets entry,
+    # same O(elite size) shape as _resync_elite's refold above but, unlike
+    # it, purely diagnostic: val metrics are only ever written to the CSV
+    # log, never read by selection/fitness/mutation (see FreshPoolSLIM's
+    # elite = self._best(population), which only ever looks at
+    # fitness/nodes_count). So unlike resync_elite_every there is no
+    # drift/correctness tradeoff to validate here at all -- throttling this
+    # only coarsens the logged val-R2 curve's generation resolution, it can
+    # never desync training from what solve() actually returns. Skipped
+    # generations repeat the last-computed val columns in the CSV rather
+    # than omitting them, so every consumer of the existing 29-column
+    # schema keeps working unchanged. 1 reproduces today's every-generation
+    # behavior exactly.
+    val_metrics_every: int = 25
+
     # --- Optimal Mutation Tree (FreshPoolSLIM only; TensorSLIM never reads
     # these) -- instead of drawing one random reservoir tree per inflate and
     # wrapping it in abs/sig1/sig2, search for a tree whose raw semantics

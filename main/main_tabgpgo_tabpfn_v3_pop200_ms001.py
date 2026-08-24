@@ -16,28 +16,54 @@ does pinning the embedding to the LATEST TabPFN checkpoint (V3) change
 evolution/zero-shot-transfer results for the exact same (pop_size, ms)
 setting already evaluated with the ambiguous default elsewhere.
 
-n_gens=50000 (10x the earlier 5000-gen version this session validated) --
-feasible without the earlier pop_size=2000/n_gens=20000 attempt's RAM-
+n_gens=100000 -- extended a second time from an original 5000, then 50000,
+after the 50000-gen run's validation R^2 kept improving on 3 of 6 held-out
+datasets (instanbul/energy/concrete) with no sign of plateauing, while the
+other 3 (ppb/toxicity/resid_build_sale_price) stayed flat or drifted
+slightly negative -- see this session's evolution-run-report artifact.
+Resuming reuses the SAME checkpoint the 50000-gen run left behind: bumping
+N_GENS changes _combo_tag's ogens{N_GENS} label (and therefore the "naive"
+checkpoint filename), so _find_checkpoint() falls back to a glob over this
+combo's other ogens* checkpoints instead of silently missing it and
+restarting from scratch -- see that function's docstring. The checkpoint's
+completed_gen (not its filename) is what actually determines where the
+run picks back up.
+
+Feasible without the earlier pop_size=2000/n_gens=20000 attempt's RAM-
 ceiling failure mode because that was driven by pop_size (aggregate
 tensors scale as pop_size * n_train; at this script's pop_size=200 that
 quantity is a small, CONSTANT ~400MB regardless of generation count, not
 the risk here -- see main_tabgpgo_tabpfn_norotate_20k.py's own docstring).
-The real risk at 10x the generations is TIME, not memory: FreshPoolSLIM's
-periodic elite drift-resync (`_resync_elite`, a full from-scratch refold
-whose cost grows with the elite's own block count) used to run every
-single generation; TabGPGOConfig.resync_elite_every (default 25) now
-throttles that to every 25 generations instead, validated (see this
-session's smoke test) to introduce only ~1e-4-scale fitness drift at a
-~200-block elite with no NaN/Inf, while cutting that cost ~1.8x already at
-that modest scale -- expected to matter far more at the thousands of
-blocks a real run reaches. FreshPoolSLIM.solve() also gained
-checkpoint/resume (checkpoint_every/checkpoint_path/resume_population/
-resume_start_gen) and SIGINT/SIGTERM-triggered checkpointing, so this
-script's own CHECKPOINT_EVERY=2000 splits the run into segments each well
-within the already-validated <=5000-gen stable range -- re-running this
-script after an interrupt (manual or a crash) resumes from the last
-checkpoint in main/log/tabgpgo_v3_pop200ms001_checkpoints/ instead of
-restarting from generation 0.
+The real risk at 10x+ the generations is TIME, not memory, and it turned
+out to be bigger than first estimated: FreshPoolSLIM's periodic elite
+drift-resync (`_resync_elite`, a full from-scratch refold whose cost grows
+with the elite's own block count) used to run every single generation;
+TabGPGOConfig.resync_elite_every (default 25) throttles that to every 25
+generations instead, validated (see this session's smoke test) to
+introduce only ~1e-4-scale fitness drift at a ~200-block elite with no
+NaN/Inf. A second, larger hidden cost was found only after the 50000-gen
+run completed: `_log()`'s elite_val_metrics() call -- a full semantic
+re-fold of the ENTIRE elite over all 6 validation datasets -- ran
+unthrottled every generation and was excluded from the logged "time"
+column entirely (its cost was measured, post hoc, against this run's own
+saved 14229-block elite: ~1500-2000x more expensive than a 10-block
+elite). TabGPGOConfig.val_metrics_every (default 25) now throttles it the
+same way resync_elite_every does; being purely diagnostic (val metrics are
+never read by selection/fitness, only ever logged), there is no
+drift/correctness tradeoff to validate here, unlike the resync throttle.
+solve()'s checkpoint write was also moved to happen before `_log()` rather
+than after, so its cost lands inside the elapsed time actually recorded
+instead of being silently dropped too -- see evolution_freshpool.py's
+_log() docstring for the full accounting bug this fixes.
+
+FreshPoolSLIM.solve() has checkpoint/resume (checkpoint_every/
+checkpoint_path/resume_population/resume_start_gen) and SIGINT/SIGTERM-
+triggered checkpointing, so this script's own CHECKPOINT_EVERY=2000 splits
+the run into segments each well within the already-validated <=5000-gen
+stable range -- re-running this script after an interrupt (manual or a
+crash) resumes from the last checkpoint in
+main/log/tabgpgo_v3_pop200ms001_checkpoints/ instead of restarting from
+generation 0.
 
 Its own artifacts_dir (main/log/tabgpgo_tabpfn_v3_artifacts/) is
 DELIBERATELY separate from every other tabgpgo_tabpfn_* script's shared
@@ -59,6 +85,7 @@ schema as every other non-rotating tabgpgo sweep script.
 """
 import csv
 import dataclasses
+import glob
 import json
 import os
 import pickle
@@ -84,7 +111,7 @@ HPT_OVERRIDES = dict(pop_size=200, tournament_size=2, p_inflate=0.5, n_elites=5)
 WRAPPER = "mix"
 VARIANT = (WRAPPER, "mul")   # SLIM*MIX
 PATIENCE = 5
-N_GENS = 50000
+N_GENS = 100000
 
 TABPFN_N_ESTIMATORS = 1   # see tabgpgo/tabpfn_encoder.py
 TABPFN_MODEL_VERSION = ModelVersion.V3
@@ -122,6 +149,31 @@ POOL_VERIFY_BUDGET_BYTES = 500_000_000
 
 def _checkpoint_path(tag):
     return os.path.join(CHECKPOINT_DIR, f"{tag}.ckpt")
+
+
+def _find_checkpoint(combo):
+    """Locate this combo's checkpoint even after N_GENS has changed.
+
+    _combo_tag embeds ogens{N_GENS} in the checkpoint filename, so simply
+    bumping N_GENS to extend a run (e.g. 50000 -> 100000) would silently
+    miss the checkpoint saved under the OLD generation target and start
+    over from scratch instead of resuming. The generation count actually
+    reached lives inside the checkpoint (completed_gen), not its filename,
+    so falling back to a glob over every ogens* variant for this same
+    combo/pop/function-set/constant-set is safe -- at most one such file
+    exists per combo in practice (this script runs a single fixed combo).
+    Whichever path is found here is reused for every subsequent save this
+    run makes too, so the filename just keeps referencing its original
+    ogens{N_GENS} rather than being renamed on each extension -- purely
+    cosmetic, since completed_gen inside the file is what actually matters.
+    """
+    _, tag = _combo_tag(combo)
+    exact = _checkpoint_path(tag)
+    if os.path.exists(exact):
+        return exact
+    pattern_tag = tag.replace(f"ogens{N_GENS}", "ogens*")
+    matches = sorted(glob.glob(_checkpoint_path(pattern_tag)))
+    return matches[-1] if matches else exact
 
 
 class _EncoderStub:
@@ -206,7 +258,7 @@ def _elite_fitness_only(run_dir):
 
 def _run_one(cfg, combo, ctx, unique_run_id, verbose):
     algo, tag = _combo_tag(combo)
-    ckpt_path = _checkpoint_path(tag)
+    ckpt_path = _find_checkpoint(combo)
 
     if os.path.exists(ckpt_path):
         optimizer, population, completed_gen, run_info = FreshPoolSLIM.resume_from_checkpoint(
