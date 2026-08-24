@@ -73,7 +73,7 @@ from tabpfn.constants import ModelVersion
 
 from main_tabgpgo_funcset import CONSTANT_SETS, FUNCTION_SETS, function_constant_set
 from tabgpgo.config import ALGO_NAMES, REPO_ROOT, TabGPGOConfig
-from tabgpgo.evolution_freshpool import FreshPoolSLIM, RunInterrupted, build_adapter
+from tabgpgo.evolution_freshpool import FreshPoolSLIM, RunInterrupted, build_adapter, to_registry
 from tabgpgo.inference import reconstruct_expression, save_run, verify_inference
 from tabgpgo.preprocessing import load_validation_sets
 from tabgpgo.tabpfn_encoder import build_tabpfn_pool, encode_val_tabpfn
@@ -109,6 +109,15 @@ V3_MANIFEST_CSV = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_v3_pop200ms001
 # main_tabgpgo_tabpfn_*.py script is unaffected (they never pass these).
 CHECKPOINT_EVERY = 2000
 CHECKPOINT_DIR = os.path.join(REPO_ROOT, "main", "log", "tabgpgo_v3_pop200ms001_checkpoints")
+
+# build_adapter's post-run verification pool is (registry_size, n_train) --
+# at n_gens=50000 the elite can bloat far past anything a <=5000-gen run
+# ever reached (observed: 14000+ nodes), so stacking that pool at the FULL
+# training-set row count can need tens of GB, blowing past GPU memory even
+# though the incremental evolution itself never materializes anything like
+# it. See _run_one: caps the verification pool to this many bytes by
+# subsampling T_train rows for that one post-run check only.
+POOL_VERIFY_BUDGET_BYTES = 500_000_000
 
 
 def _checkpoint_path(tag):
@@ -233,8 +242,25 @@ def _run_one(cfg, combo, ctx, unique_run_id, verbose):
                  f"{exc.completed_gen} -> {ckpt_path}. Re-run this script to resume.")
             raise SystemExit(0)
 
-    pi, registry, pool = build_adapter(elite, ctx["T_train"], ctx["TERMINALS"])
-    verify_inference(pi, pool, ctx["T_train"], registry, ctx["TERMINALS"])
+    # Verification pool is a one-off, post-run sanity check (save_run below
+    # never touches `pool`) -- bound its memory to POOL_VERIFY_BUDGET_BYTES
+    # by subsampling rows instead of always using the full training set, so
+    # an unrestrained-bloat elite (see module docstring) can't OOM here
+    # regardless of how large it grew during evolution.
+    _, registry_probe = to_registry(elite)
+    full_rows = ctx["T_train"].shape[0]
+    max_rows = min(full_rows,
+                   max(1000, POOL_VERIFY_BUDGET_BYTES // (max(len(registry_probe), 1) * 4)))
+    T_verify = ctx["T_train"]
+    if max_rows < full_rows:
+        perm = torch.randperm(full_rows, device=T_verify.device)[:max_rows]
+        T_verify = T_verify[perm]
+        if verbose:
+            print(f"[{optimizer.algo}] elite registry has {len(registry_probe)} entries -- "
+                  f"verifying pool-path/token-path semantics on a {max_rows}/{full_rows}-row "
+                  f"subsample to bound verification memory")
+    pi, registry, pool = build_adapter(elite, T_verify, ctx["TERMINALS"])
+    verify_inference(pi, pool, T_verify, registry, ctx["TERMINALS"])
     expression = reconstruct_expression(pi, registry)
     run_dir = os.path.join(cfg.run_dir_base, f"{unique_run_id}_{tag}_0")
     save_run(run_dir, cfg, _EncoderStub(), registry, pi, WRAPPER, "mul",
