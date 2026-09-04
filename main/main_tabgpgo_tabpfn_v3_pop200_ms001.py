@@ -16,18 +16,36 @@ does pinning the embedding to the LATEST TabPFN checkpoint (V3) change
 evolution/zero-shot-transfer results for the exact same (pop_size, ms)
 setting already evaluated with the ambiguous default elsewhere.
 
-n_gens=100000 -- extended a second time from an original 5000, then 50000,
-after the 50000-gen run's validation R^2 kept improving on 3 of 6 held-out
-datasets (instanbul/energy/concrete) with no sign of plateauing, while the
-other 3 (ppb/toxicity/resid_build_sale_price) stayed flat or drifted
-slightly negative -- see this session's evolution-run-report artifact.
-Resuming reuses the SAME checkpoint the 50000-gen run left behind: bumping
+n_gens=1000000 -- extended a third time (5000 -> 50000 -> 100000 -> 1000000),
+after the 100000-gen run's validation R^2 kept improving on 4 of 6 held-out
+datasets (ppb/instanbul/energy/concrete) with no sign of plateauing, while
+the other 2 (toxicity/resid_build_sale_price) kept drifting slightly more
+negative -- see this session's evolution-run-report artifact. Train fitness
+is likewise still improving steadily at gen 100000 (R^2 0.044 -> 0.555, no
+convergence), which is the basis for extending again rather than treating
+either trend as settled.
+Resuming reuses the SAME checkpoint the 100000-gen run left behind: bumping
 N_GENS changes _combo_tag's ogens{N_GENS} label (and therefore the "naive"
 checkpoint filename), so _find_checkpoint() falls back to a glob over this
 combo's other ogens* checkpoints instead of silently missing it and
 restarting from scratch -- see that function's docstring. The checkpoint's
 completed_gen (not its filename) is what actually determines where the
 run picks back up.
+
+WALL-TIME WARNING: elite size has grown roughly as a power law in gen count
+(fit against this run's own logged elite_size: ~1.87 * gen^0.82), not
+linearly, and the elite's own size is what drives per-generation cost (both
+the every-generation baseline cost and the periodic resync_elite_every /
+val_metrics_every refolds all scale with it). Extrapolating that fit plus
+the observed ~4.9e-5 s/block baseline-cost slope out to gen=1000000 predicts
+an elite of roughly 160k blocks (~2.6M nodes, vs 23k blocks / 378k nodes at
+gen=100000) and a per-generation baseline cost near 7-8s by the end (vs
+~1.06s at gen=90000) -- i.e. this run is expected to take a great deal
+longer than a naive 10x-more-generations-than-the-100k-run estimate would
+suggest, plausibly weeks to months of continued wall time even with the
+existing throttles. This is an extrapolation from a single run's trend, not
+a guarantee; CHECKPOINT_EVERY=2000 means it can always be safely stopped and
+resumed at any point if that turns out to be too long.
 
 Feasible without the earlier pop_size=2000/n_gens=20000 attempt's RAM-
 ceiling failure mode because that was driven by pop_size (aggregate
@@ -111,17 +129,22 @@ HPT_OVERRIDES = dict(pop_size=200, tournament_size=2, p_inflate=0.5, n_elites=5)
 WRAPPER = "mix"
 VARIANT = (WRAPPER, "mul")   # SLIM*MIX
 PATIENCE = 5
-N_GENS = 100000
+N_GENS = 1000000
 
 # Purely diagnostic (val metrics are never read by selection/fitness -- see
 # TabGPGOConfig.val_metrics_every's docstring), so no drift/correctness
-# tradeoff to weigh here, unlike resync_elite_every. Bumped from the
-# TabGPGOConfig default of 25 after seeing that value stack with
+# tradeoff to weigh here, unlike resync_elite_every. First bumped from the
+# TabGPGOConfig default of 25 to 100 after seeing that value stack with
 # resync_elite_every (also 25, same generations) into a single ~24s spike
-# every 25 gens at this run's elite size -- 100 quarters how often that
-# spike fires, for a real reduction in total time at the cost of a coarser
-# val-R2 curve.
-VAL_METRICS_EVERY = 100
+# every 25 gens at the 50k-gen run's elite size. Bumped again to 1000 when
+# extending to n_gens=1000000: elite size is projected to grow ~7x more
+# (see module docstring's wall-time extrapolation) by the end of this run,
+# which would make a val_metrics_every=100 spike ~7x as expensive too
+# (~170s instead of ~24s) at the SAME amortized-per-gen overhead; going to
+# 1000 instead keeps that amortized overhead (~0.17s/gen) below what the
+# 100k-gen run already carried (~0.24s/gen), even at the largest projected
+# elite size, while still giving 1000 val-R2 samples across the run.
+VAL_METRICS_EVERY = 1000
 
 TABPFN_N_ESTIMATORS = 1   # see tabgpgo/tabpfn_encoder.py
 TABPFN_MODEL_VERSION = ModelVersion.V3
