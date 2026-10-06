@@ -18,7 +18,7 @@ from utils.logger import log_settings
 ########################################################################################################################
 
 N_JOBS = os.cpu_count()
-n_runs = 5
+n_runs = 30
 
 data_loaders = ["toxicity", "concrete", "instanbul", "ppb", "resid_build_sale_price", "energy"]
 

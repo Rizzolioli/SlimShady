@@ -17,7 +17,12 @@ python main/main_head_size.py     # periodic head XO, sweep max_head_depth
 python main/main_prob_xo.py       # probabilistic head XO, sweep p_xo
 python main/main_pop_xo.py        # probabilistic head XO, sweep pop/budget
 python main/main_depth_cap.py     # depth-cap sweep at fixed p_xo
+python main/main_decay_xo.py      # cosine^2 p_xo decay schedule (0.7 -> 0.3 over run)
+python main/main_xo_then_mut.py   # phase-switched: XO-only gens 1-50, then mutation-only
+python main/main_op_stats.py      # per-generation operator improvement-rate tracking (p_xo=0.7 fixed)
 ```
+
+`main_decay_xo.py` and `main_xo_then_mut.py` both drive `p_xo` through a per-generation schedule via the `p_xo_schedule` hook in `slim_gsgp.py` rather than a fixed probability.
 
 All experiment scripts use `ProcessPoolExecutor` and write to `main/log/results_<experiment>_<date>.csv`. They detect already-completed runs on restart (matching on `(algo, dataset, seed)` at `n_iter` generations), so interrupted runs are safely resumable.
 
@@ -30,6 +35,9 @@ python main/analysis/generate_report_figs.py     # figures for all head-XO exper
 python main/analysis/run_stn.py                  # end-to-end STN pipeline (train fitness)
 python main/analysis/run_stn_test_fitness.py     # same pipeline with test fitness on nodes
 python main/analysis/generate_stn_grids.py       # 3x2 grid figures from pre-built pkl files
+python main/analysis/generate_decay_xo_tables.py # summary tables for main_decay_xo.py results
+python main/analysis/generate_decay_xo_figs.py   # figures for main_decay_xo.py results
+python main/analysis/generate_op_stats_figs.py   # operator improvement-rate figures (main_op_stats.py)
 ```
 
 STN pipeline requires `log=8` experiment output, which produces a companion `_sem_gen.csv` file alongside the main log. The `run_stn_test_fitness.py` script must be run on the machine that has these sem_gen files.
@@ -53,6 +61,17 @@ col 10: log_level     (int)
 ```
 
 When `log=8`, a companion `{log_path}_sem_gen.csv` is also written (elite genotype + semantics, only when elite changes).
+
+`log=9` (used by `main_decay_xo.py`, `main_xo_then_mut.py`, `main_op_stats.py`) extends columns 0-9 above with per-generation operator counts before the trailing `log_level` column:
+
+```
+col 10: inflate_n        col 11: inflate_improved
+col 12: deflate_n        col 13: deflate_improved
+col 14: xo_n             col 15: xo_improved
+col 16: log_level
+```
+
+`*_improved` counts offspring with better training fitness than their parent; `log=9` also writes a `_sem_gen.csv` companion file.
 
 ## Architecture
 

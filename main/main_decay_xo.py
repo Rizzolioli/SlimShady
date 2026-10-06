@@ -36,7 +36,7 @@ if _PROJECT_ROOT not in sys.path:
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
 N_JOBS = os.cpu_count()
-n_runs = 5
+n_runs = 30
 
 data_loaders = ["toxicity", "concrete", "instanbul", "ppb",
                 "resid_build_sale_price", "energy"]
@@ -67,9 +67,10 @@ _dataset_params = {
     "other":    {"p_inflate": 0.3, "ms_lo": 0.0, "ms_hi": 1.0},
 }
 
-_date     = time.strftime("%d%m%Y")
+# fixed date of the original 5-seed run so a 30-seed extension resumes/appends
+# into the same log file (and _sem_gen.csv) instead of starting a fresh one
 _LOG_PATH = os.path.join(os.path.dirname(__file__), "log",
-                         f"results_decay_xo_{_date}.csv")
+                         "results_decay_xo_22062026.csv")
 
 # ── COMPLETED-RUN DETECTION ───────────────────────────────────────────────────
 
