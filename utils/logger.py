@@ -1,6 +1,31 @@
 import csv
+import os
 from copy import copy
 import pandas as pd
+
+
+def merge_task_log(tmp_log_path, final_log_path):
+    """
+    Append a single task's private log file onto the shared experiment log,
+    then delete it. If a `{tmp_log_path}_sem_gen.csv` companion exists, it is
+    folded into `{final_log_path}_sem_gen.csv` the same way.
+
+    Must be called only from the single orchestrating process (never from a
+    worker), so the shared log file only ever has one writer and concurrent
+    appends from multiple processes can no longer tear/interleave lines.
+    """
+    def _append(src, dst):
+        if not os.path.exists(src):
+            return
+        with open(src, 'rb') as fsrc, open(dst, 'ab') as fdst:
+            fdst.write(fsrc.read())
+        os.remove(src)
+
+    _append(tmp_log_path, final_log_path)
+
+    tmp_sem_gen = (tmp_log_path[:-4] if tmp_log_path.endswith('.csv') else tmp_log_path) + '_sem_gen.csv'
+    final_sem_gen = (final_log_path[:-4] if final_log_path.endswith('.csv') else final_log_path) + '_sem_gen.csv'
+    _append(tmp_sem_gen, final_sem_gen)
 
 def log_settings(path, settings_dict, unique_run_id):
 

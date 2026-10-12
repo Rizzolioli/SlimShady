@@ -22,6 +22,7 @@ Log CSV columns (log=9):
 """
 
 import os
+import re
 import sys
 import uuid
 import math
@@ -32,6 +33,8 @@ import pandas as pd
 _PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
+
+from utils.logger import merge_task_log
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
@@ -71,6 +74,17 @@ _dataset_params = {
 # into the same log file (and _sem_gen.csv) instead of starting a fresh one
 _LOG_PATH = os.path.join(os.path.dirname(__file__), "log",
                          "results_decay_xo_22062026.csv")
+
+# each task writes to its own private file here; the orchestrating process
+# (never a worker) merges each one into _LOG_PATH as soon as it completes,
+# so the shared log file only ever has a single writer and concurrent
+# worker appends can no longer tear/interleave its lines.
+_TMP_DIR = os.path.join(os.path.dirname(__file__), "log", "_tmp_decay_xo")
+os.makedirs(_TMP_DIR, exist_ok=True)
+
+
+def _safe(s):
+    return re.sub(r'[^A-Za-z0-9_\-]', '_', s)
 
 # ── COMPLETED-RUN DETECTION ───────────────────────────────────────────────────
 
@@ -217,9 +231,11 @@ if __name__ == '__main__':
                 if completed.get((algo, loader, seed), -1) >= n_iter:
                     print(f"  skip [{loader}] {algo} seed={seed}")
                     continue
+                task_log_path = os.path.join(
+                    _TMP_DIR, f"{_safe(algo)}__{loader}__seed{seed}.csv")
                 tasks.append((
                     loader, sig, ttrees, op, seed,
-                    algo, unique_run_id, _LOG_PATH,
+                    algo, unique_run_id, task_log_path,
                     dp["p_inflate"], dp["ms_lo"], dp["ms_hi"],
                     _PROJECT_ROOT, _PXO_HI, _PXO_LO,
                 ))
@@ -230,12 +246,19 @@ if __name__ == '__main__':
     with ProcessPoolExecutor(max_workers=N_JOBS) as executor:
         futures = {executor.submit(run_one, t): t for t in tasks}
         for i, fut in enumerate(as_completed(futures), 1):
+            t = futures[fut]
             try:
                 result = fut.result()
                 print(f"[{i}/{len(tasks)}] {result}")
             except Exception as exc:
-                t = futures[fut]
                 print(f"[{i}/{len(tasks)}] FAILED {t[0]} {t[5]} seed={t[4]}: {exc}")
+            finally:
+                merge_task_log(t[7], _LOG_PATH)
+
+    try:
+        os.rmdir(_TMP_DIR)
+    except OSError:
+        pass
 
     print(f"\nDone in {time.time() - wall0:.1f}s")
     print(f"  Main log  -> {_LOG_PATH}")
